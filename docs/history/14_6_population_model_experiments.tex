@@ -1,0 +1,631 @@
+% Compile from the docs/ directory (graphicspath is relative to docs/).
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+
+\graphicspath{{../claude_build/outputs/stress_pomdp_116/reports/phase116_final_trajectories/}{../claude_build/outputs/stress_pomdp_116/reports/phase116_bw2_trajectories/}}
+
+\title{Adaptive Management beyond Ricker/Schaefer:\\
+POMDP Stress Population Models, Method Adaptations, and Results}
+\author{Deep RL for Ecological Population Management}
+\date{2026-06-14}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We study offline, model-based reinforcement learning for adaptive management of a
+harvested or managed population, focusing on \emph{model-misspecification robustness}:
+can \emph{general} model-based offline-RL methods that learn the dynamics from data
+match or beat \emph{ecology-specific} mechanistic baselines that assume a fixed (Ricker)
+population-model family, especially when that assumption is wrong? This report covers
+the work from the point where we moved beyond the Ricker/Schaefer pair to a family of
+harder partially observed (POMDP) ``stress'' population models with hidden Allee
+thresholds, hidden density-dependence curvature, and hidden regime switches. We describe
+the population models and their sources, the discretized POMDP framework and the
+repo-native adaptation of each method, the hyperparameters and the reasons for them, the
+current benchmark and a state-resolution ablation, and an analysis of why the results
+look as they do.
+\end{abstract}
+
+\section{Scope and central question}
+The earlier phase compared four methods on Ricker vs.\ Schaefer dynamics and found the
+Ricker/Schaefer mismatch to be \emph{decision-irrelevant}: both share the equilibrium
+$K$, and the reward keys off abundance, so the optimal policy family is essentially
+invariant. To make misspecification \emph{decision-relevant}, we introduce population
+models whose hidden structure (a critical threshold, a curvature, a regime) genuinely
+changes the optimal management decision. The headline question becomes: under
+decision-relevant misspecification, do the general learners (which infer the dynamics)
+beat the Ricker-assuming ecology baselines?
+
+\section{Population models beyond Ricker/Schaefer}
+All models evolve a continuous abundance $s_t \in [0, s_{\max}]$, with $s_{\max}=1000$.
+Each episode draws a hidden intrinsic growth rate $r_{\text{base}} \sim
+\mathcal{U}(r_{\text{lo}}, r_{\text{hi}})$, held fixed within the episode and never
+logged. The base growth law is the Ricker stock-recruitment map \cite{ricker1954}; the
+surplus-production view follows Schaefer \cite{schaefer1954}. Management actions perturb
+the baseline additively, $r_{\text{eff}} = r_{\text{base}} + \Delta r(a)$,
+$K_{\text{eff}} = K_{\text{base}} + \Delta K(a)$, and additionally apply \emph{direct}
+abundance authority \emph{before} growth,
+\begin{equation}
+s \;\leftarrow\; s\,\big(1-h(a)\big) + \delta(a),
+\label{eq:authority}
+\end{equation}
+where $h(a)$ is a harvest fraction and $\delta(a)$ a stocking increment. This direct
+authority is used in every experiment: the 5-action table has do-nothing, a $50\%$
+harvest, and three support/restoration actions with stocking
+$\delta\in\{60,100,160\}$; the 10-action table adds a lighter $25\%$ harvest and
+intermediate support/restoration levels ($\delta$ from $40$ to $160$). It is what makes
+the hidden threshold \emph{controllable} (a manager can pull a declining stock back
+across the danger zone), and was the change that made the misspecification
+decision-relevant rather than cosmetic. The three stress models, each a POMDP with one
+additional hidden per-episode variable:
+
+\paragraph{Allee--Ricker (hidden critical-depensation threshold $C$).}
+\begin{equation}
+s_{t+1} = s_t \exp\!\big(r_{\text{eff}}(1 - s_t/K_{\text{eff}})(s_t/C - 1)\big),
+\qquad C \sim \mathcal{U}(C_{\text{lo}}, C_{\text{hi}}).
+\end{equation}
+The factor $(s_t/C - 1)$ flips sign below $C$: when $s_t < C$ the growth term is negative
+(critical depensation, a strong Allee effect), so the population collapses unless
+actively rescued. $C$ is hidden, so the agent must infer the danger zone. Critical
+depensation and Allee effects in harvested populations are standard
+\cite{clark1990,courchamp2008}.
+
+\paragraph{Theta-logistic (hidden curvature $\theta$).}
+\begin{equation}
+s_{t+1} = s_t + r_{\text{eff}}\, s_t\big(1 - (s_t/K_{\text{eff}})^{\theta}\big),
+\qquad \theta \sim \mathcal{U}(\theta_{\text{lo}}, \theta_{\text{hi}}).
+\end{equation}
+The exponent $\theta$ controls how sharply density dependence acts near $K$; the
+theta-logistic generalises logistic growth and is due to Gilpin and Ayala
+\cite{gilpin1973}. Large $\theta$ makes the surplus-production curve markedly non-Ricker,
+so a Ricker-family model is misspecified. This model has no critical threshold, so it is
+the gentlest of the three (Section~\ref{sec:gate}).
+
+\paragraph{Regime-switch (hidden two-regime Allee).}
+\begin{equation}
+s_{t+1} = s_t \exp\!\big(m_{z_t}\, r_{\text{eff}}(1 - s_t/K_{\text{eff}})(s_t/C_{z_t} - 1)\big),
+\end{equation}
+with a hidden latent regime $z_t \in \{\text{safe},\text{harsh}\}$ that persists with
+probability $0.9$ and flips a growth multiplier and threshold
+($C_{\text{safe}}{=}90$, $C_{\text{harsh}}{=}180$, $m_{\text{safe}}{=}1.0$,
+$m_{\text{harsh}}{=}0.65$). This exact equation is not a single named model from one
+paper; it is a benchmark construction that combines two standard ecological ideas:
+persistent productivity regimes and Allee depensation. \textbf{Real-world motivation:}
+marine stocks such as sardine, anchovy, and salmon can spend years in high- or
+low-productivity regimes driven by slow ocean/climate phases, while managers observe only
+the stock trajectory and not the regime label \cite{vertpre2013,scheffer2001}. In the safe
+phase a moderate harvest may be recoverable, but in the harsh phase the same harvest can
+push the stock below a higher depensation threshold. The POMDP question is therefore
+whether the method can infer from history that the hidden regime has changed before it
+harvests too aggressively.
+
+\paragraph{Calibration (the ``116'' variants).}
+\label{sec:calib}
+Naive parameterisations were degenerate (near-total collapse). The deployed
+\texttt{*\_116} configs are calibrated so that (i) the offline data are healthy
+(collapse rate roughly $0.15$ to $0.24$) and (ii) the misspecification is
+decision-relevant (Section~\ref{sec:gate}). The collapse rate is not a quantity we can
+set directly; it is an emergent property of the dynamics and the data-collection policy.
+We control it \emph{indirectly} through a handful of knobs: the growth prior
+$[r_{\text{lo}}, r_{\text{hi}}]$ (Allee/regime: $[0.12,0.30]$; theta:
+$[0.18,0.40]$), the threshold range (Allee: $C\in[90,150]$; regime: $C=90$ safe,
+$C=180$ harsh), the strength of the management actions (direct authority in
+Eq.~\ref{eq:authority}), the start-state distribution $s_0$ (how often episodes begin
+near the danger zone), and the mix of data-collection policies. We tune these until the
+data show the target collapse band and the control gate passes; we cannot impose a hard
+cap on the collapse rate without changing either the dynamics or the data-collection
+policy after the fact. Each model provides a 5-action and a 10-action management table
+(\texttt{*\_10a}), giving six benchmark cells:
+$\{\text{allee},\text{regime},\theta\}\times\{5a,10a\}$.
+
+\section{Problem formulation and the discretized framework}
+\label{sec:framework}
+
+\paragraph{Observation (discretization).} The agent never sees $s_t$; it observes only a
+discrete abundance bin
+\begin{equation}
+x_t = \min\!\big(\lfloor s_t / w \rfloor,\; N-1\big),
+\end{equation}
+with bin width $w=10$ and $N=100$ bins ($s_{\max}=1000$). This discretization is the
+central modelling choice: it turns the continuous control problem into a finite POMDP so
+that the tabular ecology baselines and finite-MDP value iteration are tractable, and so
+that every method is scored in an identical finite setting. It is also the variable
+interrogated by the resolution ablation (Section~\ref{sec:ablation}).
+
+\paragraph{Reward (shared contract, with collapse penalty).} A single reward contract is
+used by the environment and by every planner:
+\begin{equation}
+R(x_t, a_t, x_{t+1}) = \underbrace{\alpha\, \frac{x_t}{x_{\max}}}_{\text{abundance}}
+\;-\; \mathrm{cost}(a_t)
+\;-\; 20\cdot \mathbb{1}\big[x_t > 0 \;\wedge\; x_{t+1}\le x_{\text{col}}\big],
+\label{eq:reward}
+\end{equation}
+with $\alpha=1$, $x_{\max}=N$, collapse bin $x_{\text{col}}=5$ (abundance $\lesssim 50$
+to $60$), and one-time collapse penalty $20$; bin $0$ is absorbing. With $x_{\max}=N$
+the abundance term is $\approx s_t/s_{\max}$, i.e.\ an abundance fraction
+\emph{independent of bin width}, which is what makes rewards comparable across
+resolutions. The penalty is applied once, on \emph{entering} a near-extinct state from a
+non-collapsed state.
+
+\emph{Is $P=20$ a lot?} Yes, deliberately. The per-step reward is at most $\approx 1$ and
+the best achievable discounted return over the 50-step horizon is only about $18$ (the
+strong methods score $7$ to $9$). A one-time $-20$, plus the loss of all remaining
+reward once bin~0 is absorbing, therefore makes a single collapse worse than an entire
+good episode (this is why MOOR scores $\approx -11.6$). The intent is exactly the
+trade-off the question raises: a flagship-conservation step costs only $0.6$ and can stock
+$+160$ units, so a manager that understands the dynamics can spend a few units of reward
+on conservation to avoid the $-20$. Avoiding collapse therefore dominates whenever the
+method can foresee the threshold, which is precisely what separates the methods.
+
+\paragraph{Hidden state and belief.} The hidden variables are \emph{parameters}
+($r_{\text{base}}, C, \theta, z_t$), not the state; the bin is observed exactly. The
+problem is therefore a Bayes-Adaptive MDP: the agent can only reduce parameter
+uncertainty through the observed trajectory.
+
+\paragraph{Decision-relevance control gate.}
+\label{sec:gate}
+A stress setting is admitted only if knowing the true dynamics changes the optimal
+decision. We run two model-predictive controllers under matched conditions: an
+\emph{oracle} MPC that plans on the true dynamics, and a \emph{Ricker} MPC that uses the
+same reward but a (wrong) Ricker model. For the threshold models (Allee and regime) the
+hard gate requires a reward gap (oracle minus Ricker mean return) of at least $1.0$ and a
+collapse-rate gap of at least $0.05$; theta-logistic has no true collapse threshold, so it
+is treated as a diagnostic setting with a relaxed reward-only gate. Table~\ref{tab:gate}
+reports both controllers' realised numbers, not only the gaps. As a concrete example, on
+allee-5a the oracle scores $8.39$ vs.\ the Ricker controller's $5.90$ (gap $2.49$) and
+collapses $0.00$ vs.\ $0.10$ of episodes. The thresholds are heuristic but principled: a
+reward gap $\ge 1$ is a meaningful fraction (more than $10\%$) of the $\sim$7--9 achievable
+return, and a collapse gap $\ge 0.05$ means the oracle avoids collapse in at least $5\%$
+more episodes; below these, ``knowing the truth'' would barely change outcomes and the
+cell would not test misspecification.
+
+\begin{table}[h]
+\centering\small
+\caption{Decision-relevance control gate: oracle-vs-Ricker MPC (seed 116). Allee/regime
+use the hard threshold (reward gap $\ge 1.0$, collapse gap $\ge 0.05$); theta is
+diagnostic because it has no Allee threshold.}
+\label{tab:gate}
+\begin{tabular}{@{}lrrrrrc@{}}
+\toprule
+Cell & Oracle $G$ & Ricker $G$ & Gap & Oracle coll. & Ricker coll. & Status \\
+\midrule
+allee 5a   & 8.39 & 5.90 & 2.49 & 0.00 & 0.10 & pass \\
+allee 10a  & 9.03 & 3.16 & 5.86 & 0.00 & 0.25 & pass \\
+regime 5a  & 8.64 & 5.76 & 2.87 & 0.00 & 0.10 & pass \\
+regime 10a & 9.14 & 2.09 & 7.05 & 0.00 & 0.30 & pass \\
+theta 5a   & 8.75 & 8.11 & 0.64 & 0.00 & 0.00 & diagnostic \\
+theta 10a  & 9.64 & 6.84 & 2.79 & 0.00 & 0.05 & diagnostic \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Methods and their adaptation to the finite framework}
+Five methods are compared through one unified evaluator on identical episode seeds. Two
+are general model-based learners, two are ecology-specific mechanistic baselines, and one
+(BA-MCTS) is a general Bayes-adaptive planner added most recently.
+Table~\ref{tab:methods} summarises the adaptations and sources.
+
+\begin{table}[h]
+\centering\small
+\caption{Methods, sources, and repo-native adaptation. RefPlan and BA-MCTS are
+\emph{tabular} adaptations of continuous-control papers; MOPO is neural but categorical
+over bins; PLUS and MOOR are finite by design.}
+\label{tab:methods}
+\begin{tabular}{@{}p{1.8cm}p{2.4cm}p{8.0cm}@{}}
+\toprule
+Method & Source & Repo-native adaptation \\
+\midrule
+MOPO & Yu et al.\ 2020 \cite{mopo2020} &
+Categorical MLP \emph{ensemble} ($N{=}5$ networks) over the next-bin distribution with
+frame stacking; uncertainty-penalised receding-horizon planner
+$\hat r(s,a)=\mathbb{E}[R]-\lambda\,\mathrm{Var}_i \mathbb{E}_i[x']$. Generalises across
+bins via the network. \\
+RefPlan & ICML 2025 \cite{refplan2025} &
+Reflect-then-Plan adapted from a VAE+MPPI method to a \emph{bootstrapped count ensemble}
+($M{=}15$ tabular models): history$\to$posterior over members, sample prior-policy action
+sequences, score by mean minus penalty times std over latent (model) samples, softmax
+over first actions. \\
+BA-MCTS & ICLR 2026 \cite{bamcts2026} &
+Bayes-Adaptive MCTS adapted from a neural method to a tabular ensemble ($M{=}15$): belief
+over members updated by Bayes' rule during search, UCB tree search over belief-augmented
+nodes, ensemble target-disagreement pessimism penalty. \\
+PLUS & Memarzadeh \& Boettiger 2018 \cite{plus2018} &
+Finite hidden-model Bayesian planner: a grid of candidate $r_{\text{base}}$ (Ricker
+family); precompute per-model transition and $Q$ tables; Bayes posterior over candidates
+from history; argmax posterior-weighted $Q$. \\
+MOOR & Ju et al.\ 2025 \cite{moor2025} &
+Least-squares mechanistic offline RL: fit $(r,K)$ of a Ricker growth model by L-BFGS with
+restarts, Monte-Carlo discretize to a finite MDP, value iteration, greedy. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Why the ensemble sizes differ ($M{=}15$ vs.\ $N{=}5$).} RefPlan and BA-MCTS
+ensembles are \emph{tabular}: each member is a Dirichlet-smoothed count table, essentially
+free to store and ``fit'', so we use a larger $M{=}15$ for a richer posterior over
+dynamics. MOPO's ensemble members are \emph{trained neural networks}; each costs a full
+training run, so we use $N{=}5$ (the standard MOPO ensemble size), which is enough to
+estimate the epistemic-disagreement penalty.
+
+The two ecology baselines commit to a Ricker-family dynamics model and are therefore
+intentionally misspecified on the (non-Ricker) Allee, theta, and regime environments. The
+two general learners infer the transition model from the offline data and can in
+principle capture the true non-Ricker structure.
+
+\section{Hyperparameters and rationale}
+\paragraph{Tuning protocol.} MOPO and RefPlan were tuned on a small grid using
+\emph{calibration} seeds (1160 to 1162) only, freezing the best mean-return
+configuration; all reported results use disjoint held-out seeds (7001 to 7005) to avoid
+selecting and reporting on the same seeds. BA-MCTS, PLUS, and MOOR use fixed defaults (no
+tuning), consistent with treating them as untuned references. \textbf{This matters for
+interpreting BA-MCTS} (Section~\ref{sec:analysis}): unlike MOPO and RefPlan it never got a
+tuning sweep, so its modest settings (notably depth~5) are defaults, not optimised.
+
+\begin{table}[h]
+\centering\small
+\caption{Frozen hyperparameters and the reason for each principal choice.}
+\label{tab:hparams}
+\begin{tabular}{@{}p{1.7cm}p{5.1cm}p{6.0cm}@{}}
+\toprule
+Method & Frozen setting & Rationale \\
+\midrule
+MOPO & horizon 5, rollouts 25, $\lambda{=}0.5$, epochs 50, ensemble $N{=}5$, frame-stack
+2, bootstrap 0.8 &
+$\lambda$ penalises ensemble disagreement (offline conservatism); short receding horizon
+keeps the vectorized planner tractable; 25 MC rollouts average the discretization
+aliasing; frame-stack 2 feeds the last two (state,action) pairs so the network has a
+short temporal window to infer the hidden parameters; selected by tuning. \\
+RefPlan & horizon 8, sequences 512, latents 12, $\kappa{=}10$, unc.\ penalty 0.2,
+ensemble $M{=}15$ &
+Sequences are the MPPI-style sampling breadth; latents are posterior samples over models;
+$\kappa$ sharpens the softmax over candidate first actions; penalty enforces
+conservatism; selected by tuning. \\
+BA-MCTS & 128 simulations, depth 5, $c{=}1.25$, pessimism $\lambda{=}0.10$, ensemble
+$M{=}15$, belief buckets $10^{-2}$ &
+Tree budget vs.\ cost; UCB exploration constant; ensemble target-disagreement penalty for
+offline pessimism; belief bucketing enables subtree reuse. \emph{Defaults, untuned};
+depth 5 truncates lookahead (see analysis). \\
+PLUS & 21 candidate $r_{\text{base}}$, transition grid 2000 &
+Grid over the known $r_{\text{base}}$ prior; the transition grid is the Monte-Carlo
+discretization fidelity, namely 2000 sub-points swept across each bin interval when
+building the finite $P(x'\mid x,a)$. \\
+MOOR & Ricker family, 30 LS restarts, transition grid 2000 &
+Well-specified family for Ricker, misspecified for theta/regime; restarts avoid poor
+local optima; same 2000-point discretization. \\
+\midrule
+Eval & 50 episodes $\times$ 5 held-out seeds, horizon 50, discount 0.95 &
+$250$ episodes per cell for stable mean and standard error; matched seeds across methods. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Compute (and why only MOPO uses a GPU).} MOPO is the \emph{only} neural method:
+it trains $N$ MLPs and its planner issues batched neural predictions, so it runs on a GPU.
+It is nonetheless \emph{cheap} ($\sim$3 to 5 min/run with a vectorized planner). Its
+reported peak GPU memory is mostly the PyTorch/CUDA runtime, network parameters, ensemble
+activations, and batched rollout tensors; the tabular methods report no GPU memory because
+they run on CPU. The four tabular methods (RefPlan, BA-MCTS, PLUS, MOOR) use \emph{no}
+GPU at all; among them RefPlan is the cost driver ($\sim$1\,h/run, from $512\times12$
+sequence rollouts). Runs are dispatched as a CPU/GPU split (CPU-bound methods on the
+general CPU partition, MOPO on a GPU).
+
+\section{Results}
+
+\subsection{Main benchmark (bin width $w=10$, $N=100$)}
+Table~\ref{tab:bw10} reports mean cumulative (discounted) reward per cell under
+\texttt{collapse\_sensitive}, 5 held-out seeds. \textbf{Bold} is the best method in a row,
+\underline{underline} the second best. The decisive summary is the
+\emph{beats-both-baselines rate}: the fraction of cells in which a given general method
+exceeds the stronger of PLUS and MOOR.
+
+\begin{table}[h]
+\centering\small
+\caption{$w=10$ main benchmark, collapse\_sensitive mean cumulative reward (5 seeds).
+\textbf{Best} / \underline{second best} per row.}
+\label{tab:bw10}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Cell & RefPlan & MOPO & BA-MCTS & PLUS & MOOR \\
+\midrule
+allee 5a   & \textbf{7.88} & \underline{7.37} & 6.31 & 6.04 & $-11.59$ \\
+allee 10a  & \underline{7.93} & \textbf{8.09} & 6.23 & 7.30 & $-11.59$ \\
+regime 5a  & \textbf{7.73} & \underline{7.47} & 6.20 & 6.18 & $-11.57$ \\
+regime 10a & \underline{7.71} & \textbf{7.73} & 6.07 & 7.50 & $-11.57$ \\
+theta 5a   & \underline{8.50} & \textbf{8.56} & 6.60 & $-0.12$ & $-10.58$ \\
+theta 10a  & \underline{9.00} & \textbf{9.17} & 6.43 & 7.09 & $-10.58$ \\
+\midrule
+\multicolumn{6}{@{}l}{\emph{Beats-both-baselines rate:} RefPlan $1.00$, MOPO $0.97$,
+BA-MCTS $0.47$. Any-learner win fraction $1.00$ (majority passes).} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Headline.} At least one general learner beats both ecology baselines in
+every cell. RefPlan and MOPO clear both baselines essentially always ($1.00$, $0.97$);
+MOOR collapses every episode ($\approx-11.6$, collapse-entry rate $1.0$); PLUS is
+competitive except on theta-5a, where it fails ($-0.12$). BA-MCTS is the \emph{weak}
+learner: robust (no collapse) but $1.5$ to $2.7$ reward below RefPlan/MOPO, clearing both
+baselines in only $47\%$ of cells.
+
+\subsection{State-resolution ablation (bin width $w=2$, $N=500$)}
+\label{sec:ablation}
+To test whether the discretization itself drives the ranking, we refine the bin width by
+$5\times$ ($w=2$, $N=500$, with $x_{\max}$ and the collapse/danger bins rescaled so the
+physical reward and thresholds are unchanged) on the four threshold-sensitive cells,
+holding the offline data budget fixed at 75{,}000 transitions. Only the resolution
+changes; dynamics, rewards (on the abundance scale), and data budget are identical.
+
+\begin{table}[h]
+\centering\small
+\caption{$w=2$ resolution ablation, collapse\_sensitive mean cumulative reward (5 seeds).
+Same data budget as $w{=}10$, spread over $5\times$ more states. \textbf{Best} /
+\underline{second best} per row.}
+\label{tab:bw2}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Cell & RefPlan & MOPO & BA-MCTS & PLUS & MOOR \\
+\midrule
+allee 5a   & 4.71 & \textbf{6.27} & 5.48 & \underline{5.99} & $-11.40$ \\
+allee 10a  & 3.86 & \underline{5.85} & 5.25 & \textbf{7.37} & $-11.40$ \\
+theta 5a   & \textbf{6.50} & \underline{5.24} & 5.01 & 2.05 & $-10.31$ \\
+theta 10a  & \underline{6.70} & 4.60 & 3.56 & \textbf{6.89} & $-10.31$ \\
+\midrule
+\multicolumn{6}{@{}l}{\emph{Beats-both-baselines rate:} MOPO $0.45$, RefPlan $0.25$,
+BA-MCTS $0.25$. Any-learner win fraction $0.45$ (\textbf{majority fails}).} \\
+\multicolumn{6}{@{}l}{\emph{Mean over the 4 cells:} PLUS $5.58$ (highest non-collapsing),
+MOPO $5.49$, RefPlan $5.44$, BA-MCTS $4.82$, MOOR $-10.85$.} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{The ranking flips.} At $w=2$ the general learners lose their edge: the
+any-learner win fraction drops from $1.0$ to $0.45$ (majority fails), RefPlan falls
+$1.00\to0.25$, BA-MCTS $0.47\to0.25$, MOPO $0.97\to0.45$. The mechanistic baseline PLUS
+now wins two of the four cells (allee-10a, theta-10a) and has the highest mean reward of
+the non-collapsing methods. Even the learned methods begin to collapse occasionally
+(collapse-entry $\approx 0.06$ to $0.14$, vs.\ $\approx 0$ at $w=10$). MOOR still collapses
+everywhere.
+
+\subsection{Trajectory visualizations}
+Figure~\ref{fig:traj10} shows a diagnostic per-step reroll for all six $w=10$ main cells,
+including regime-switch. Figure~\ref{fig:traj2} shows the generated per-step trajectory
+plots for all four $w=2$ ablation cells that were run (Allee and theta; regime was not
+part of the resolution ablation). The $w=10$ trajectory figure uses the same smoothing
+protocol as the $w=2$ figure: a matched visualization rerun over held-out seeds
+7001--7005, with 5 episodes per seed (25 trajectories per method per cell), while
+Tables~\ref{tab:bw10}--\ref{tab:bw2} report the seed-level reward aggregates.
+\textbf{Reading the action panel:} ``mean action id'' is the
+action
+\emph{index} averaged over episodes/seeds at each timestep ($0$ to $4$ in the 5-action
+cells, $0$ to $9$ in the 10-action cells), so it is a coarse summary of which actions a
+policy tends to use, not an ordinal magnitude (action indices are categorical, e.g.\ id~1
+is harvest, ids~2--4 are support/restoration). It lets us read \emph{whether} a policy
+actively manages, and roughly which kind of action, rather than only the outcome curve.
+Method colors are fixed across the abundance and action panels; the dashed do-nothing
+line is action id~0.
+
+\begin{figure}[p]
+\centering
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\linewidth]{allee_ricker_pomdp_116_collapse_sensitive_abundance_actions.png}
+\\{\footnotesize (a) Allee 5-action}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\linewidth]{allee_ricker_pomdp_116_10a_collapse_sensitive_abundance_actions.png}
+\\{\footnotesize (b) Allee 10-action}
+\end{minipage}
+
+\vspace{0.4em}
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\linewidth]{regime_switch_pomdp_116_collapse_sensitive_abundance_actions.png}
+\\{\footnotesize (c) Regime-switch 5-action}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\linewidth]{regime_switch_pomdp_116_10a_collapse_sensitive_abundance_actions.png}
+\\{\footnotesize (d) Regime-switch 10-action}
+\end{minipage}
+
+\vspace{0.4em}
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\linewidth]{theta_logistic_pomdp_116_collapse_sensitive_abundance_actions.png}
+\\{\footnotesize (e) Theta-logistic 5-action}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\linewidth]{theta_logistic_pomdp_116_10a_collapse_sensitive_abundance_actions.png}
+\\{\footnotesize (f) Theta-logistic 10-action}
+\end{minipage}
+\caption{$w=10$ main run trajectory diagnostic: true abundance over time (top of each
+panel) with a Do-nothing dashed reference, and mean action id (bottom),
+collapse\_sensitive. This is a matched held-out reroll over seeds 7001--7005 with
+5 episodes per seed, for visualization; the quantitative claims use the seed-level
+tables. Colors match between the top and bottom panels, with Do-nothing at action id~0.}
+\label{fig:traj10}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\linewidth]{allee_ricker_pomdp_116_bw2_collapse_sensitive_abundance_actions.png}
+\\{\footnotesize (a) Allee $w=2$, 5-action}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\linewidth]{allee_ricker_pomdp_116_bw2_10a_collapse_sensitive_abundance_actions.png}
+\\{\footnotesize (b) Allee $w=2$, 10-action}
+\end{minipage}
+
+\vspace{0.4em}
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\linewidth]{theta_logistic_pomdp_116_bw2_collapse_sensitive_abundance_actions.png}
+\\{\footnotesize (c) Theta-logistic $w=2$, 5-action}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\linewidth]{theta_logistic_pomdp_116_bw2_10a_collapse_sensitive_abundance_actions.png}
+\\{\footnotesize (d) Theta-logistic $w=2$, 10-action}
+\end{minipage}
+\caption{$w=2$ resolution ablation: mean abundance over time (top of each panel) with a
+Do-nothing dashed reference, and mean action id (bottom), collapse\_sensitive. Colors
+match between the top and bottom panels, with Do-nothing at action id~0. These are
+all four ablation cells actually run; the regime-switch cells were included in the main
+$w=10$ benchmark but not in the resolution ablation.}
+\label{fig:traj2}
+\end{figure}
+
+\paragraph{Why ``do-nothing'' can beat the methods, especially on theta-logistic.}
+Theta-logistic has \emph{no} critical-depensation threshold, so from the eval start states
+the stock simply grows toward $K$ on its own; the collapse penalty rarely triggers.
+Do-nothing then accumulates the abundance reward at \emph{zero} action cost, while methods
+that harvest or stock pay $\mathrm{cost}(a)$ and can over-manage. This is the same reason
+theta-5a is the marginal decision-relevance cell (Table~\ref{tab:gate}): when passive
+management is nearly optimal, ``knowing the dynamics'' buys little. On the Allee and
+regime cells, where a hidden threshold can cause collapse, do-nothing is far less safe;
+when a plot shows do-nothing above a method in theta, it is usually because the method
+paid action costs in a setting where no rescue was needed.
+
+\paragraph{Why the learned methods fluctuate while PLUS is smooth.} PLUS (and MOOR) act by
+a \emph{fixed, precomputed} greedy policy from a value-iteration $Q$-table, so they apply a
+consistent action at each abundance and the mean abundance is smooth (MOOR's is a smooth
+descent into collapse). The learned planners re-plan \emph{every} step with stochastic
+machinery (RefPlan samples 512 sequences with belief updates; BA-MCTS runs stochastic
+MCTS; MOPO runs Monte-Carlo rollouts), so the chosen action varies step to step, producing
+a harvest-then-recover sawtooth in abundance. Some of the visible wobble is also Monte-Carlo
+noise from averaging a modest number of episodes. The fluctuation is expected behaviour,
+not an error; it reflects active, belief-driven re-planning rather than a static rule.
+
+\section{Analysis: why the results look like this}
+\label{sec:analysis}
+
+\paragraph{Why MOOR collapses everywhere.} MOOR fits a Ricker growth curve, which has no
+critical-depensation threshold and the wrong curvature for theta. Under
+\texttt{collapse\_sensitive} its learned-MDP-optimal policy harvests as if the population
+recovers logistically from low abundance; on the Allee/theta/regime dynamics this pushes
+the stock below the (unmodelled) collapse threshold, triggering the absorbing penalty
+every episode ($\approx -11$). Its failure is a direct consequence of a misspecified
+mechanistic prior with no belief over structure.
+
+\paragraph{Why PLUS is competitive but not robust (in terms of $r$).} PLUS's only degree
+of freedom is a belief over candidate growth rates $r_{\text{base}}$ \emph{within the
+Ricker family}; it has no parameter for a threshold $C$ or a curvature $\theta$. When the
+true dynamics happen to look Ricker-like over the operating region (the Allee map well
+above $C$, or a mild regime), some candidate $r$ explains the data well, PLUS infers it,
+and it manages safely. But when the truth needs structure that no $r$ can mimic, the
+best-fit $r$ is confidently wrong: it implies the stock recovers faster and from lower
+abundance than it really does, so PLUS harvests into the danger zone and can collapse.
+Theta-5a is the clearest case (a high-$\theta$ curve is far from any Ricker, and with only
+5 actions PLUS cannot compensate), giving $-0.12$. In short, a single growth-rate knob
+cannot absorb a structural mismatch, and a confident wrong $r$ is worse than useless near
+a threshold.
+
+\paragraph{Why the general learners win at $w=10$.} MOPO and RefPlan learn the true
+(non-Ricker) transition structure from data, including the depensation/curvature, and so
+avoid collapse and manage near-optimally. At $w=10$ each observed bin has $\sim$750
+samples, enough for the count-based and categorical models to be accurate. This is the
+regime in which ``learn the dynamics'' beats ``assume Ricker''.
+
+\paragraph{Why BA-MCTS is the weak learner (and the role of its hyperparameters).}
+BA-MCTS is robust (it never collapses, keeping abundance high) but systematically
+lower-reward. Two contributing factors, and the second is partly a hyperparameter
+artefact: (i) its pessimism penalty makes it conservative, leaving harvest value
+unrealised; and (ii) it plans with a \emph{shallow tree} (depth 5, 128 simulations) and
+was \emph{not tuned} (unlike MOPO/RefPlan it uses defaults). Depth 5 truncates lookahead
+at five steps and falls back to a value estimate beyond that, so long-horizon
+consequences (and the deferred payoff of harvesting now) are under-weighted, biasing it
+toward passive, high-abundance behaviour. A tuning sweep over depth, simulation count, and
+the pessimism weight (as was done for MOPO and RefPlan) would likely raise it; its current
+$0.47$ should be read as ``untuned default BA-MCTS'', not a ceiling.
+
+\paragraph{Why finer resolution flips the ranking.} \emph{Finer} resolution means a
+\emph{smaller} bin width, i.e.\ $w=2$ ($N=500$ states), not $w=10$; $w=10$ is the
+\emph{coarser} setting. At $w=2$ the same 75k transitions are spread over $5\times$ more
+states ($\sim$150 vs.\ $\sim$750 samples/state). The count-based tabular learners (RefPlan,
+BA-MCTS) are hit hardest, since their per-state transition estimates become noisy, and both
+fall to a $0.25$ beats-both-baselines rate. MOPO, a neural model that generalises across
+states, degrades less ($0.45$) and becomes the best learner. The mechanistic baselines fit
+only a few parameters and are essentially data-density-invariant, so PLUS overtakes. The
+implication: the $w=10$ ``learners win'' result depended on the coarse discretization
+supplying enough per-state data; the learned advantage is data-density dependent, and
+parametric priors win in the data-sparse (fine-resolution) regime. Notably, finer
+resolution did \emph{not} rescue BA-MCTS; it made it worse, so BA-MCTS's weakness is a
+genuine tabular/conservatism limitation, not a discretization artefact.
+
+\paragraph{Important caveat for interpretation (resolution vs.\ data density).} Because the
+\emph{data budget is fixed}, moving to finer bins changes two things at once: the
+observation resolution (more, smaller bins) \emph{and} the per-state data density (fewer
+samples per bin). The two cannot be separated in this run. So the honest statement is:
+\emph{at a fixed data budget, refining the observation does not help the learners, and in
+fact hurts the tabular ones, because the same data must now populate $5\times$ more
+states.} This does \emph{not} say that finer observation is intrinsically bad for
+decisions; with proportionally more data it might help. Isolating the pure-resolution
+effect requires a density-matched follow-up that scales the data budget by $\sim 5\times$
+at $w=2$ (planned as Tier-1b). The \texttt{base} reward mode is omitted from the headline
+because it is decision-degenerate: without a collapse penalty, depleting the stock is
+unpunished, so the methods converge and MOPO ties or loses to MOOR.
+
+\section{Limitations and planned extensions}
+\begin{itemize}
+\item \textbf{Tabular adaptation.} RefPlan and BA-MCTS are repo-native finite-state
+adaptations of continuous-control papers (count ensembles plus value iteration / MCTS),
+not the papers' full neural stacks (VAE+MPPI; neural ensemble with progressive widening).
+The ``weak BA-MCTS'' statement is about this tabular, untuned adaptation.
+\item \textbf{Resolution vs.\ density (Tier-1b).} A density-matched ablation (scale data
+with resolution) is needed to separate ``finer observation helps decisions'' from ``finer
+bins starve tabular models''.
+\item \textbf{Continuous observation (Tier-2, future).} A native continuous-state setting
+with multiplicative observation error $o_t = s_t\cdot\eta$,
+$\eta\sim\mathrm{LogNormal}(0,\sigma)$, plus a per-method state-belief filter, would test
+robustness to observation uncertainty, but it breaks the head-to-head with the
+finite-model baselines, so it is scoped as a separate general-methods-only study.
+\item \textbf{BA-MCTS tuning.} A depth/simulation/pessimism sweep would establish whether
+its weakness is fundamental or a default-hyperparameter artefact.
+\end{itemize}
+
+\paragraph{Artifacts.} Aggregated results:
+\texttt{outputs/stress\_pomdp\_116/reports/phase116\_final\_bamcts\_*} ($w=10$, 5 methods)
+and \texttt{.../phase116\_bw2\_*} ($w=2$ ablation); generated trajectory figures under
+\texttt{.../phase116\_final\_trajectories/} ($w=10$ diagnostic reroll) and
+\texttt{.../phase116\_bw2\_trajectories/} ($w=2$ ablation).
+
+\begin{thebibliography}{99}
+\bibitem{ricker1954} Ricker, W.E. (1954). Stock and recruitment.
+\emph{Journal of the Fisheries Research Board of Canada}, 11(5), 559--623.
+doi: \url{https://doi.org/10.1139/f54-039}.
+\bibitem{schaefer1954} Schaefer, M.B. (1954). Some aspects of the dynamics of populations
+important to the management of the commercial marine fisheries.
+\emph{Inter-American Tropical Tuna Commission Bulletin}, 1(2), 27--56.
+Reprinted in \emph{Bulletin of Mathematical Biology}, doi:
+\url{https://doi.org/10.1007/BF02464432}.
+\bibitem{gilpin1973} Gilpin, M.E. \& Ayala, F.J. (1973). Global models of growth and
+competition. \emph{Proceedings of the National Academy of Sciences}, 70(12), 3590--3593.
+doi: \url{https://doi.org/10.1073/pnas.70.12.3590}.
+\bibitem{clark1990} Clark, C.W. (1990). \emph{Mathematical Bioeconomics: The Optimal
+Management of Renewable Resources} (2nd ed.). Wiley.
+\bibitem{courchamp2008} Courchamp, F., Berec, L. \& Gascoigne, J. (2008). \emph{Allee
+Effects in Ecology and Conservation}. Oxford University Press. ISBN 9780198570301.
+\bibitem{vertpre2013} Vert-pre, K.A., Amoroso, R.O., Jensen, O.P. \& Hilborn, R. (2013).
+Frequency and intensity of productivity regime shifts in marine fish stocks.
+\emph{Proceedings of the National Academy of Sciences}, 110(5), 1779--1784.
+doi: \url{https://doi.org/10.1073/pnas.1214879110}.
+\bibitem{scheffer2001} Scheffer, M., Carpenter, S., Foley, J.A., Folke, C. \& Walker, B.
+(2001). Catastrophic shifts in ecosystems. \emph{Nature}, 413, 591--596.
+doi: \url{https://doi.org/10.1038/35098000}.
+\bibitem{mopo2020} Yu, T., Thomas, G., Yu, L., Ermon, S., Zou, J., Levine, S., Finn, C.
+\& Ma, T. (2020). MOPO: Model-based Offline Policy Optimization. \emph{NeurIPS}.
+\bibitem{refplan2025} Reflect-then-Plan: Offline Model-Based Planning through a Doubly
+Bayesian Lens. \emph{ICML} (2025).
+\bibitem{bamcts2026} Bayes-Adaptive Monte Carlo Tree Search for Offline Model-based
+Reinforcement Learning. \emph{ICLR} (2026).
+\bibitem{plus2018} Memarzadeh, M. \& Boettiger, C. (2018). Adaptive management of
+ecological systems under partial observability. \emph{Biological Conservation}, 224, 9--15.
+\bibitem{moor2025} Ju, H., Kurniawati, H., Kroese, D. \& Ye, N. (2025). Mechanistic
+model-based offline reinforcement learning for fishery management. \emph{Expert Systems}.
+\end{thebibliography}
+
+\end{document}

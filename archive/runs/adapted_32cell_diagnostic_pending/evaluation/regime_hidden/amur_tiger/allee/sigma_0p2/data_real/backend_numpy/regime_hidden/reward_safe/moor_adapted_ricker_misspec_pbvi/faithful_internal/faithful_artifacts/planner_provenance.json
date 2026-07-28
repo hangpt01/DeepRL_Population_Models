@@ -1,0 +1,14 @@
+{
+  "artifact_schema": "adapted_mechanistic_artifacts_v2",
+  "planners": [
+    {
+      "elapsed_seconds": 1916.6683190343902,
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 1000,
+      "model_hash": "65e38a7698080422cd60a00428297a853db264fa3b18505ef5cc2421912da63b",
+      "name": "pbvi",
+      "seed": 49116
+    }
+  ]
+}

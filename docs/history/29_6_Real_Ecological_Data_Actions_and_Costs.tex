@@ -1,0 +1,439 @@
+% =====================================================================
+%  Action and cost specification grounded in REAL ECOLOGICAL DATA
+%  Companion to 29_6_Cumulative_Controls_and_Improvement_Plan.tex
+%  Self-contained; compile with pdflatex.
+% =====================================================================
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\newcommand{\reff}{r_{\mathrm{eff}}}
+\newcommand{\Keff}{K_{\mathrm{eff}}}
+\newcommand{\rbase}{r_{\mathrm{base}}}
+\newcommand{\Kbase}{K_{\mathrm{base}}}
+\newcommand{\Kref}{K_{\mathrm{ref}}}
+\newcommand{\rmax}{r_{\max}}
+\newcommand{\rmin}{r_{\min}}
+\newcommand{\Kmax}{K_{\max}}
+\newcommand{\sobs}{\sigma_{\mathrm{obs}}}
+\newcommand{\ssafe}{s_{\mathrm{safe}}}
+
+\title{Adaptive Management under Observation Error:\\
+Action and Cost Specification from \emph{Real Ecological Data}\\
+\large (set-point growth-rate regimes + cumulative capacity, with per-step costs
+scaled from the Conservation Costing Portal)}
+\author{Deep RL for Ecological Population Management}
+\date{2026-06-28}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note specifies the discrete action interface and its per-step cost for the
+continuous-state, noisy-observation population-management problem, replacing the
+illustrative parameters of the Tier-3 design with \emph{real ecological data}.
+Nine real populations supply published initial abundances $N_0$ and carrying
+capacities $K$; the per-action population growth rate $\lambda$ is obtained by
+applying standard demographic perturbations (doubling/halving adult and juvenile
+mortality) to each population's vital rates, so the intrinsic growth rates
+$r=\ln\lambda$ used by the simulator are \emph{measured quantities, not free
+parameters}. Growth-rate actions are modelled as maintained \emph{regimes}
+(set-point $r$), capacity actions as \emph{cumulative} habitat construction, and
+the per-step cost of each action is a relative index in $[0,1]$ scaled from the
+Conservation Costing Portal compilation \cite{white2022,iaconaportal} and the
+primary cost studies it collates. We restate the problem, document the data and
+its provenance, give the transition and the data-derived caps, and present the
+action and cost tables with sources. The reward is defined on the \emph{true}
+latent state and run in \emph{two state-dependent settings} --- baseline-style
+yield-only and collapse-aware --- trained separately and compared on shared,
+reward-agnostic metrics.
+\end{abstract}
+
+\section{The problem (recap)}
+We study adaptive management of a single population observed with error, as a
+partially observed Markov decision process (POMDP). The physical abundance
+$s_t\in\mathbb{R}_{\ge 0}$ is continuous and non-negative with $s{=}0$ absorbing.
+A hidden per-episode parameter vector $m=(\rbase,C,\theta,z_t,\dots)$ is drawn once
+per episode and never logged; the manager never observes $s_t$ or $m$ directly, but
+only a multiplicative (log-normal) survey
+\begin{equation}
+o_t=s_t\,\eta_t,\qquad \eta_t\sim\mathrm{LogNormal}(0,\sobs^2),
+\end{equation}
+so relative error is constant across abundance and $\sobs$ tunes partial
+observability. This multiplicative log-normal form is the survey-error model used by
+PLUS \cite{memarzadeh2018} ($z{=}\epsilon\,x$, $\epsilon$ log-normal): it keeps
+observations positive, gives an approximately constant coefficient of variation, and is
+the standard abundance-survey model. It is median-unbiased but mean-biased high,
+$\mathbb{E}[o\mid s]{=}s\,e^{\sobs^2/2}$. Additive Gaussian error is \emph{not} the
+default --- with real $K$ spanning $31$--$325$ a fixed absolute error is trivial for
+the largest population and catastrophic for the smallest, and it can produce negative
+counts unless truncated. (MOOR \cite{ju2025} differs: its observation/reward is catch,
+and its stochasticity is process noise on biomass, not this survey model.) The latent abundance evolves under a base Ricker map
+\cite{ricker1954} plus single-structure stress models (Allee, theta-logistic,
+regime-switching). The central question is whether general offline model-based
+learners that infer the dynamics and filter the state can beat ecology-specific
+mechanistic baselines---adaptive-management POMDP solvers such as PLUS
+\cite{memarzadeh2018} and mechanistic offline RL such as MOOR \cite{ju2025}---and
+avoid population collapse under decision-relevant misspecification and observation
+error. In our earlier (Tier-2) experiments this advantage was observability-limited
+--- present at low survey noise and eroding as $\sobs$ grows --- which motivates the present setting. Crucially, \emph{how
+actions act on the dynamics} is itself decision-relevant; if conservation actions
+are economically dominated or non-persistent, the controllable signal collapses
+and the comparison is uninformative. The present note fixes the action--dynamics
+interface and its cost using real data so that the actions are ecologically
+meaningful, persistent, and priced from the empirical record.
+
+\section{Real ecological data and why the growth rates are real}
+\label{sec:data}
+The parameters describe nine real populations spanning small reptiles to large
+carnivores (Table~\ref{tab:pops}). For each population, the initial abundance
+$N_0$ and carrying capacity $K$ are taken from published demographic studies;
+several populations are saturated ($N_0{=}K$) or near-saturated, reflecting real
+field situations. The baseline finite rate of increase $\lambda_{a_0}$ is the
+population's own measured value. The action-specific growth rates are then derived
+by applying \emph{standard demographic perturbations} to each population's vital
+rates rather than by fiat:
+\begin{equation*}
+\begin{aligned}
+a_1&:\ 2\times\text{adult mortality},&
+a_2&:\ 2\times(\text{adult mortality}+\text{juvenile mortality}),\\
+a_3&:\ \tfrac12\times\text{adult mortality},&
+a_4&:\ \tfrac12\times(\text{adult mortality}+\text{juvenile mortality}).
+\end{aligned}
+\end{equation*}
+Each perturbation yields a new $\lambda$, and hence a new intrinsic rate, through the
+identities
+\begin{equation}
+\begin{aligned}
+r_{\mathrm{Ricker}}&=\ln\lambda,
+& r_{\mathrm{LGM}}&=\lambda-1,\\
+\lambda&=e^{\,r_{\mathrm{Ricker}}}=1+r_{\mathrm{LGM}}
+&\Rightarrow\quad
+r_{\mathrm{LGM}}&=e^{\,r_{\mathrm{Ricker}}}-1 .
+\end{aligned}
+\label{eq:conv}
+\end{equation}
+Because the $\lambda$ values come from real abundances and real vital-rate changes,
+the $r$ values driving the simulator are \emph{measured quantities tied to identifiable
+species and management actions}, not tuning knobs chosen to make the method work.
+This is the central change from the Tier-3 illustrative table. The data were
+compiled from published demographic studies for the nine populations and provided
+as a parameter set via personal communication \cite{realdata2026}; the empirical
+$(N_0,K)$ and per-action $\lambda$ are listed in Table~\ref{tab:pops} and
+Appendix~\ref{app:r}.
+
+\begin{table}[h]\centering\footnotesize
+\caption{The nine real populations: empirical $N_0$, $K$, baseline growth rate
+$\lambda_{a_0}$, and the \emph{data-derived} set-point caps (Ricker
+$r=\ln\lambda$): $\rbase{=}r(\lambda_{a_0})$, $\rmin{=}r(\lambda_{a_2})$ (heaviest
+exploitation), $\rmax{=}r(\lambda_{a_4})$ (strongest recovery). $\Kmax{=}2\Kbase$
+is the cumulative-capacity ceiling.}
+\label{tab:pops}
+\begin{tabular}{@{}l l r r r r r r r@{}}
+\toprule
+Common name & Scientific name & $N_0$ & $\Kbase$ & $\Kmax$ & $\lambda_{a_0}$ & $\rbase$ & $\rmin$ & $\rmax$ \\
+\midrule
+
+Egyptian vulture & \emph{Neophron percnopterus} & 41 & 325 & 650 & 0.9128 & -0.0912 & -0.2558 & -0.0098 \\
+Bottlenose dolphin & \emph{Tursiops truncatus} & 25 & 35 & 70 & 0.9376 & -0.0644 & -0.1492 & -0.0212 \\
+Amur tiger & \emph{Panthera tigris altaica} & 200 & 250 & 500 & 0.9552 & -0.0458 & -0.4753 & +0.0707 \\
+Spotted turtle & \emph{Clemmys guttata} & 31 & 31 & 62 & 0.9950 & -0.0050 & -0.0619 & +0.0201 \\
+Asian elephant & \emph{Elephas maximus} & 60 & 120 & 240 & 1.0189 & +0.0187 & -0.0005 & +0.0283 \\
+Puerto Rican parrot & \emph{Amazona vittata} & 78 & 250 & 500 & 1.0625 & +0.0606 & -0.1441 & +0.1367 \\
+Iberian lynx & \emph{Lynx pardinus} & 89 & 165 & 330 & 1.1166 & +0.1103 & -0.0364 & +0.1745 \\
+Jaguar & \emph{Panthera onca} & 325 & 325 & 650 & 1.1721 & +0.1588 & -0.0307 & +0.2259 \\
+Crab-eating fox & \emph{Cerdocyon thous} & 41 & 41 & 82 & 1.3813 & +0.3230 & -0.0131 & +0.4418 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Action--dynamics interface: set-point $r$, cumulative $K$}
+Actions act only through the population model. Growth-rate actions ($a_1$--$a_4$)
+are maintained \emph{regimes}: while an action is held, $\reff$ equals the measured
+rate for that action and reverts to baseline when management stops---``halve adult
+mortality'' is a state that is sustained, not an increment that compounds.
+Capacity actions ($a_5,a_6$) are \emph{cumulative}: habitat construction
+accumulates step by step toward a landscape ceiling. Translocation ($a_{10}$) adds
+individuals to the current state. Per episode we fix one population $p$
+($s_0{=}N_0(p)$, $\kappa_0{=}0$); per step, for action $a_t$,
+\begin{align}
+r_{\mathrm{eff},t}
+&= \mathrm{clip}\!\big(r(\lambda_{a_t}(p)),\ \rmin(p),\ \rmax(p)\big), \notag\\
+&\qquad (a_0\Rightarrow \reff{=}\rbase),\\
+\kappa_t
+&= \kappa_{t-1}+\Delta K(a_t), \notag\\
+K_{\mathrm{eff},t}
+&= \mathrm{clip}\!\big(\Kbase(p)+\kappa_t,\ \Kbase(p),\ \Kmax(p)\big),\\
+s_t
+&\leftarrow s_t+\Delta N\ \ (a_{10}\text{ only}), \notag\\
+\Delta N
+&=0.10\,N_0(p),\\
+s_{t+1} &= f_{\mathrm{model}}\big(s_t;\ r_{\mathrm{eff},t},\ K_{\mathrm{eff},t}\big),
+\end{align}
+with $\Delta K=+10\%/+30\%$ of $\Kbase$ for moderate/intensive restoration and $0$
+otherwise. The caps are \emph{data-derived} (Table~\ref{tab:pops}), replacing the
+ad-hoc bounds of the illustrative design with per-population values measured from
+the extreme management regimes $a_2$ (heaviest exploitation) and $a_4$ (strongest
+recovery). The action menu is given in Table~\ref{tab:actions}.
+
+\begin{table}[h]\centering
+\caption{The $11$-action set. Names follow the original $10$-action set
+(plus $a_{10}$, translocation); the mechanism is the demographic/capacity
+perturbation; $\lambda$ source is the measured rate reused (set-point);
+$\Delta K$/step is the cumulative capacity increment; $\Delta N$ acts on the state.}
+\label{tab:actions}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{0.96}
+\begin{tabular}{@{}c p{2.65cm} p{2.8cm} p{1.55cm} c p{1.35cm} p{0.85cm}@{}}
+\toprule
+$a$ & Action (original name) & Mechanism & Channel & $\lambda$ src & $\Delta K$/step & $\Delta N$ \\
+\midrule
+
+a0 & Do Nothing & do nothing & none & $\lambda_{a0}$ & 0 & 0 \\
+a1 & Sustainable Harvest & $2\times$ adult mortality & rate & $\lambda_{a1}$ & 0 & 0 \\
+a2 & Aggressive Harvest & $2\times(\text{adult}+\text{juv.})$ mortality & rate & $\lambda_{a2}$ & 0 & 0 \\
+a3 & Predator / Disease Control & $0.5\times$ adult mortality & rate & $\lambda_{a3}$ & 0 & 0 \\
+a4 & Breeding / Recruitment Support & $0.5\times(\text{adult}+\text{juv.})$ mortality & rate & $\lambda_{a4}$ & 0 & 0 \\
+a5 & Moderate Restoration & $K\times1.1$ & capacity & $\lambda_{a0}$ & \shortstack{$+10\%$\\$\Kbase$} & 0 \\
+a6 & Intensive Restoration & $K\times1.3$ & capacity & $\lambda_{a0}$ & \shortstack{$+30\%$\\$\Kbase$} & 0 \\
+a7 & Integrated Conservation (light) & $a_3+K\times1.1$ & rate+\allowbreak capacity & $\lambda_{a3}$ & \shortstack{$+10\%$\\$\Kbase$} & 0 \\
+a8 & Adaptive Conservation Trial & $a_3+K\times1.3$ & rate+\allowbreak capacity & $\lambda_{a3}$ & \shortstack{$+30\%$\\$\Kbase$} & 0 \\
+a9 & Flagship Conservation Programme & $a_4+K\times1.3$ & rate+\allowbreak capacity & $\lambda_{a4}$ & \shortstack{$+30\%$\\$\Kbase$} & 0 \\
+a10 & Translocation & $+10\%\,N_0\!\to\!N$ & state & $\lambda_{a0}$ & 0 & \shortstack{$+10\%$\\$N_0$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\section{Reward: two state-dependent settings}
+\label{sec:reward}
+The reward is defined on the \emph{true} latent abundance, not the noisy survey
+$o_t$: the manager acts on $o_t$ (Eq.~1) but accrues reward from $s$, which the
+simulator logs, so every method consumes identical tuples $(o_t,a_t,R_t,o_{t+1})$
+with $R_t=R(s_t,a_t,s_{t+1})$. Writing $\ssafe(p)=c_{\mathrm{safe}}(p)\,\Kbase(p)$ for
+the per-population, depletion-aware safety floor (an absolute floor breaks at the small
+real $K$ of Table~\ref{tab:pops}; $c_{\mathrm{safe}}$ rises for small or depleted
+populations --- see the implementation plan, E6.3), we use one reward form with a
+\emph{penalty switch} $P_m$:
+\begin{equation}
+\begin{aligned}
+R^{(m)}_t
+&=
+\underbrace{\alpha\,\frac{s_{t+1}}{s_{t+1}+\Kref(p)}}_{\text{true-abundance benefit}}
+-\underbrace{\mathrm{cost}(a_t)}_{\text{action cost}}\\
+&\quad
+-\underbrace{P_m\,\mathbb{1}\!\big[
+s_t>\ssafe(p)\wedge s_{t+1}\le\ssafe(p)
+\big]}_{\text{collapse penalty}},\\
+&\qquad \Kref(p)=\Kbase(p).
+\end{aligned}
+\label{eq:reward}
+\end{equation}
+The two experimental settings are \textbf{both state-dependent} --- identical benefit
+and cost, differing \emph{only} in whether collapse is penalised explicitly:
+\begin{enumerate}[leftmargin=1.6em,nosep]
+\item \textbf{$R_{\mathrm{yield}}$ (baseline-style), $P_{\mathrm{yield}}{=}0$:} benefit
+minus cost only; collapse is left \emph{implicit} (discounting and the absorbing
+$s{=}0$), exactly as in the ecology baselines PLUS \cite{memarzadeh2018} and MOOR
+\cite{ju2025}, whose reward is pure state-dependent yield with no safety term.
+\item \textbf{$R_{\mathrm{safe}}$ (collapse-aware, ours), $P_{\mathrm{safe}}{>}0$:} adds
+the explicit true-state crossing penalty, charging any descent below $\ssafe$ directly.
+$P_{\mathrm{safe}}$ is a penalty \emph{weight} (not a probability), calibrated so one
+collapse outweighs a healthy episode's short-term gain.
+\end{enumerate}
+A separate agent is trained under each setting; because the two objectives differ,
+their raw returns are \emph{not} compared. Both are evaluated on a common,
+reward-agnostic battery --- persistence / final abundance, quasi-extinction (collapse)
+probability, minimum abundance, fraction of steps with $s\le\ssafe$, and economic cost
+--- so the settings stay comparable on shared ground. This isolates the value of
+collapse-awareness: expected to be negligible for recoverable populations (baseline
+yield suffices) but decisive for the sink / Allee cases, where pure yield can rationally
+drive the population down.
+
+\paragraph{Why on $s$, not $o$.} A survey-based benefit $\alpha\,o_t/(o_t+\Kref)$ would
+(i) be incoherent with the true-state collapse term; (ii) break comparability with the
+state-defined baseline rewards; (iii) inject noise and bias
+($\mathbb{E}[o\mid s]{=}s\,e^{\sobs^2/2}$) that grows with $\sobs$ and would confound the
+headline return-vs-$\sobs$ curve; and (iv) reward a lucky high survey over true
+abundance. Both settings therefore score the real state.
+
+\paragraph{Benefit scale and why $\Kref$ is fixed.} With half-saturation at
+$\Kref{=}\Kbase$, the benefit equals $\alpha/2$ \emph{at carrying capacity}
+($s{=}\Kbase$) --- not necessarily at episode start, which is
+$\alpha\,N_0/(N_0{+}\Kbase)$ and lies below $\alpha/2$ for the populations that begin
+depleted (Table~\ref{tab:pops}). $\Kref$ is fixed at $\Kbase$ for the whole episode (it
+does \emph{not} track $\Keff$): restoration then raises the benefit only when it truly
+raises abundance --- $\alpha\cdot2/3$ at $s{=}2\Kbase$, approaching $\alpha$ as $s$
+grows --- whereas a $\Kref$ that tracked $\Keff$ would move the goalpost and leave
+capacity-building unrewarded. Lower the half-saturation constant to $\ssafe$ if a
+healthy population should instead earn near-maximal benefit. Whether the penalty charges
+only the downward \emph{crossing} of $\ssafe$ or also \emph{dwelling} below it is an open
+design choice recorded in the implementation plan (E6.3).
+
+\section{Per-step cost, scaled from the Conservation Costing Portal}
+\label{sec:cost}
+The reward of Eq.~\ref{eq:reward} has a benefit term
+$\alpha\,s_{t+1}/(s_{t+1}+\Kref)\in[0,\alpha)$; the cost must therefore be commensurate,
+so $\mathrm{cost}(a)\in[0,1]$. Published conservation costs are sparse, non-standardised
+and in incompatible units---in a review of $1987$ intervention studies only
+$13.3\%$ report a numeric cost and $8.8\%$ a total cost \cite{white2022}---so an
+absolute dollar figure cannot be plugged in. We instead assign each building block a
+relative cost-intensity unit (CIU) anchored to the empirical record, sum the blocks
+for combination actions, and normalise by the most expensive single action
+($a_9$, CIU $8$): $\mathrm{cost}(a)=\mathrm{CIU}(a)/8$. Harvest is exploitation and
+earns revenue, taking a small negative cost.
+
+\paragraph{Empirical grounding.}
+The cost magnitudes are scaled from the Conservation Costing Portal compilation
+\cite{iaconaportal} ($90$ studies; the studies carrying numeric costs are used
+here) and the primary studies it collates. Habitat / land management is the cheap,
+recurring, area-based end: AU\$$1.01$--$1.99$/ha/yr \cite{adams2012}, US\$$2.3$--$8.3$/ha/yr
+\cite{green2012}, a global mean of US\$$893$/km$^2$/yr \cite{james1999}, and
+US\$$71$/ha for intensive site staffing \cite{frazee2003}. Species management spans a
+far larger range and reaches the top: per-species recovery programmes of
+\pounds$500$--$7{,}000{,}000$ \cite{laycock2009} and per-area species costs up to
+US\$$24{,}487$/ha \cite{mccarthy2012}; recurrent protected-area management itself
+ranges over seven orders of magnitude \cite{balmford2003}, and threat-abatement
+strategies cost AU\$$0.24$--$8{,}880$/ha/yr with labour the dominant component
+($49\%$) \cite{yong2023}. Within species management---which the portal does not
+resolve below the category level---the ordering of predator/disease control,
+breeding and translocation is set with two supplementary web anchors:
+large-carnivore translocation at US\$$2{,}393$--$6{,}898$ per individual
+\cite{weise2014} and the California-condor captive-breeding \emph{programme total}
+($>$US\$$35$M). This yields
+moderate restoration $<$ predator/disease control $<$ translocation $<$ intensive
+restoration $\approx$ breeding (Table~\ref{tab:cost}). The $\mathrm{cost}(a)$ values
+are a \emph{relative index}: the $[0,1]$ normalisation deliberately compresses the
+several orders of magnitude separating per-hectare upkeep from per-species recovery
+so the reward retains usable resolution across actions.
+
+\begin{table}[h]\centering\footnotesize
+\caption{Per-step cost. $\mathrm{cost}(a)=\mathrm{CIU}/8$; harvest is revenue
+(negative). The representative real-world range and its source keys (Table~\ref{tab:cost}
+footnote) document the empirical basis of each value.}
+\label{tab:cost}
+\begin{tabular}{@{}c l c r p{4.2cm} l@{}}
+\toprule
+$a$ & Action & CIU & cost$_{\text{step}}$ & Representative real cost & Src \\
+\midrule
+
+a0 & Do Nothing & $0$ & +0.0000 & -- & -- \\
+a1 & Sustainable Harvest & -- & -0.0500 & revenue & H \\
+a2 & Aggressive Harvest & -- & -0.1000 & revenue & H \\
+a3 & Predator / Disease Control & $2$ & +0.2500 & \$0.19--24{,}487/ha & Mc,Y \\
+a4 & Breeding / Recruitment Support & $4$ & +0.5000 & \pounds500--7M/sp. & La,Co \\
+a5 & Moderate Restoration & $1.5$ & +0.1875 & \$1--9/ha/yr & Ad,Gr,Ja \\
+a6 & Intensive Restoration & $4$ & +0.5000 & \$71/ha;\,\$893/km$^2$ & Fr,Ja \\
+a7 & Integrated Conservation (light) & $3.5$ & +0.4375 & sum $a_3{+}a_5$ & Mc,Ad \\
+a8 & Adaptive Conservation Trial & $6$ & +0.7500 & sum $a_3{+}a_6$ & Mc,Fr \\
+a9 & Flagship Conservation Programme & $8$ & +1.0000 & sum $a_4{+}a_6$ & La,Fr \\
+a10 & Translocation & $2.5$ & +0.3125 & \$2{,}393--6{,}898/ind. & We \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+{\footnotesize\raggedright Source keys: H = harvest revenue (modelling choice);
+Ad \cite{adams2012}; Gr \cite{green2012}; Ja \cite{james1999}; Fr \cite{frazee2003};
+Mc \cite{mccarthy2012}; La \cite{laycock2009}; Ba \cite{balmford2003};
+Y \cite{yong2023}; We \cite{weise2014}; Co = California condor programme
+($>$US\$35M). Keys Ad,Gr,Ja,Fr,Mc,La,Ba are portal-compiled figures (Conservation Costing Portal \cite{iaconaportal,white2022}); Y is portal-referenced; We (Weise 2014) and Co (condor) are \emph{supplementary-web} anchors, not portal data.\par}
+\end{table}
+
+\section{Caveats}
+\begin{enumerate}[leftmargin=1.6em,nosep]
+\item \textbf{Growth rates are measured; costs are relative --- a units caveat, not a
+reward-definition flaw.} The $r$ values are empirical (Eq.~\ref{eq:conv},
+Table~\ref{tab:pops}); $\mathrm{cost}(a)$ is a normalised $[0,1]$ index encoding the
+ordering and spacing of real costs, not a dollar value. Defining the benefit on the
+\emph{true} state $s$ removes the observation-noise confound, but it does \emph{not}
+turn the relative cost index into currency: the benefit--cost exchange rate is set by
+$\alpha$ and the $[0,1]$ normalisation, so reported returns are benchmark utilities, not
+literal net economic value. Method comparisons under a \emph{fixed} reward are therefore
+fair, but the optimal policy can shift under a different cost scale --- treat $\alpha$
+(or a global cost multiplier) as a sensitivity axis and lean on the reward-agnostic
+metrics (collapse probability, final and minimum abundance, time in danger, economic
+cost) for the headline claims.
+\item \textbf{Category-level cost resolution.} The portal classifies cost by broad
+CMP category (Land/Water Management; Species Management), so within-category ordering
+relies on the two supplementary web anchors cited above (Weise 2014, per individual; the condor programme, a captive-breeding total).
+\item \textbf{Fixed populations.} $N_0$ and $K$ are the fixed real values per
+population; $N_0$ can be varied for sensitivity analysis without changing the action
+or cost specification.
+\item \textbf{Currency/time base.} Anchor figures are mixed-year, mixed-currency and
+are per-year management costs except where noted; under the cumulative dynamics the
+per-step cost is paid each step the action is held, matching recurring effort.
+\end{enumerate}
+
+\clearpage
+\appendix
+\section{Set-point growth rates $r=\ln\lambda$ for every population $\times$ action}
+\label{app:r}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{0.95}
+\begin{longtable}{@{}lrrrrrrrrrrr@{}}
+\caption{Real set-point Ricker rate $\reff=r(\lambda_{a})$ applied while each action
+is held (LGM rates are $\lambda-1$). $a_5,a_6,a_{10}$ reuse $\rbase$; $a_7,a_8$ reuse
+$r(\lambda_{a_3})$; $a_9$ reuses $r(\lambda_{a_4})$.}\\
+\toprule
+Population & $a_0$ & $a_1$ & $a_2$ & $a_3$ & $a_4$ & $a_5$ & $a_6$ & $a_7$ & $a_8$ & $a_9$ & $a_{10}$ \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Egyptian vulture & -0.0912 & -0.2179 & -0.2558 & -0.0198 & -0.0098 & -0.0912 & -0.0912 & -0.0198 & -0.0198 & -0.0098 & -0.0912 \\
+Bottlenose dolphin & -0.0644 & -0.1438 & -0.1492 & -0.0228 & -0.0212 & -0.0644 & -0.0644 & -0.0228 & -0.0228 & -0.0212 & -0.0644 \\
+Amur tiger & -0.0458 & -0.1857 & -0.4753 & +0.0275 & +0.0707 & -0.0458 & -0.0458 & +0.0275 & +0.0275 & +0.0707 & -0.0458 \\
+Spotted turtle & -0.0050 & -0.0374 & -0.0619 & +0.0110 & +0.0201 & -0.0050 & -0.0050 & +0.0110 & +0.0110 & +0.0201 & -0.0050 \\
+Asian elephant & +0.0187 & +0.0050 & -0.0005 & +0.0260 & +0.0283 & +0.0187 & +0.0187 & +0.0260 & +0.0260 & +0.0283 & +0.0187 \\
+Puerto Rican parrot & +0.0606 & -0.0201 & -0.1441 & +0.1006 & +0.1367 & +0.0606 & +0.0606 & +0.1006 & +0.1006 & +0.1367 & +0.0606 \\
+Iberian lynx & +0.1103 & +0.0148 & -0.0364 & +0.1559 & +0.1745 & +0.1103 & +0.1103 & +0.1559 & +0.1559 & +0.1745 & +0.1103 \\
+Jaguar & +0.1588 & +0.1202 & -0.0307 & +0.1780 & +0.2259 & +0.1588 & +0.1588 & +0.1780 & +0.1780 & +0.2259 & +0.1588 \\
+Crab-eating fox & +0.3230 & +0.2098 & -0.0131 & +0.3779 & +0.4418 & +0.3230 & +0.3230 & +0.3779 & +0.3779 & +0.4418 & +0.3230 \\
+\end{longtable}
+\endgroup
+
+\begin{thebibliography}{99}
+\bibitem{white2022} White, T.B., Petrovan, S.O., Christie, A.P., Martin, P.A.\ \& Sutherland, W.J.\ (2022).
+What is the Price of Conservation? A Review of the Status Quo and Recommendations for Improving Cost Reporting.
+\emph{BioScience} 72(5):461--471. doi:10.1093/biosci/biac007.
+\bibitem{iaconaportal} Iacona, G.\ et al.\ \emph{Conservation Costing Portal}.
+\url{https://jcleme19.wixsite.com/costingportal/cost-studies} (data file \texttt{CostPortal\_7\_26\_24.xlsx}, accessed 2026).
+\bibitem{mccarthy2012} McCarthy, D.P., Donald, P.F., Scharlemann, J.P.W., Buchanan, G.M., Balmford, A., Green, J.M.H.\ et al.\ (2012).
+Financial Costs of Meeting Global Biodiversity Conservation Targets: Current Spending and Unmet Needs.
+\emph{Science} 338(6109):946--949. doi:10.1126/science.1229803.
+\bibitem{balmford2003} Balmford, A., Gaston, K.J., Blyth, S., James, A.\ \& Kapos, V.\ (2003).
+Global variation in terrestrial conservation costs, conservation benefits, and unmet conservation needs.
+\emph{Proc.\ Natl.\ Acad.\ Sci.\ USA} 100(3):1046--1050. doi:10.1073/pnas.0236945100.
+\bibitem{james1999} James, A.N., Gaston, K.J.\ \& Balmford, A.\ (1999). Balancing the Earth's accounts.
+\emph{Nature} 401:323--324. doi:10.1038/43774.
+\bibitem{yong2023} Yong, C.\ et al.\ (2023). The costs of managing key threats to Australia's biodiversity.
+\emph{Journal of Applied Ecology} 60:898--910. doi:10.1111/1365-2664.14377.
+\bibitem{weise2014} Weise, F.J.\ et al.\ (2014). Financial Costs of Large Carnivore Translocations---Accounting for Conservation.
+\emph{PLOS ONE} 9(8):e105042. doi:10.1371/journal.pone.0105042.
+\bibitem{adams2012} Adams, V.M.\ et al.\ (2012). Land and conservation management costs (Daly River catchment, Australia);
+cost figures as compiled in the Conservation Costing Portal \cite{iaconaportal}.
+\bibitem{green2012} Green, J.M.H.\ et al.\ (2012). Actual and necessary protected-area management expenditure;
+as compiled in the Conservation Costing Portal \cite{iaconaportal}.
+\bibitem{frazee2003} Frazee, S.R.\ et al.\ (2003). Estimating the costs of conserving the Cape Floristic Region;
+as compiled in the Conservation Costing Portal \cite{iaconaportal}.
+\bibitem{laycock2009} Laycock, H.\ et al.\ (2009). Cost of species recovery programmes;
+as compiled in the Conservation Costing Portal \cite{iaconaportal}.
+\bibitem{ricker1954} Ricker, W.E.\ (1954). Stock and recruitment.
+\emph{Journal of the Fisheries Research Board of Canada} 11(5):559--623.
+\bibitem{memarzadeh2018} Memarzadeh, M.\ \& Boettiger, C.\ (2018). Adaptive management of ecological systems under partial observability.
+\emph{Biological Conservation} 224:9--15.
+\bibitem{ju2025} Ju, H.\ et al.\ (2025). Mechanistic model-based offline reinforcement learning for fishery management.
+\emph{Expert Systems}.
+\bibitem{realdata2026} Real-population demographic parameters for nine taxa (initial abundance $N_0$, carrying capacity $K$,
+and per-action $\lambda$ under defined mortality perturbations), compiled from published demographic studies;
+provided via personal communication (2026).
+\end{thebibliography}
+\end{document}

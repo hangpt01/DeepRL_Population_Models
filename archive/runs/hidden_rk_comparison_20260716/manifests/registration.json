@@ -1,0 +1,45 @@
+{
+  "cells_per_arm": 288,
+  "collapse_penalty_safe": 5.0,
+  "episode_length": 25,
+  "evaluation": {
+    "discount": 0.95,
+    "episodes_per_seed": 4,
+    "horizon": 50,
+    "output_dir": "outputs/hidden_rk/evaluation",
+    "seeds": [
+      7001,
+      7051,
+      7101,
+      7151,
+      7201
+    ]
+  },
+  "filters": [
+    "learned",
+    "native_discrete"
+  ],
+  "methods": [
+    "bamcts",
+    "moor_native",
+    "ogsrl",
+    "plus_native",
+    "refplan"
+  ],
+  "planner": {
+    "bamcts_depth": 5,
+    "bamcts_simulations": 128,
+    "discount": 0.95,
+    "horizon": 5,
+    "ogsrl_rollout_horizon": 6,
+    "particles": 32,
+    "pessimism": 0.5,
+    "sequences": 96
+  },
+  "reward_modes": [
+    "safe",
+    "yield"
+  ],
+  "rows_per_arm": 1440,
+  "target_rows": 4000
+}

@@ -1,0 +1,278 @@
+\documentclass[11pt]{article}
+\input{docs/benchmark/preamble.tex}
+
+\title{Algorithm Adaptations and Claims}
+\author{Ecology Benchmark Documentation}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+These are linear/mechanistic re-implementations of algorithmic ideas, not the
+published deep-RL systems. The package depends on NumPy and PyYAML, and
+\code{src/} contains no \code{torch}, \code{jax}, or \code{d3rlpy}. Dynamics
+learning uses ridge-regularised linear ensembles; value fitting uses ridge
+least-squares linear Q-functions; planning is finite-action particle MPC. The
+comparison is therefore about control strategies under a shared ecological model
+class, not about reproducing the original neural architectures.
+
+\section{Identifier Mapping}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{llll}
+\toprule
+Code identifier & Reader-facing name & Paper family & Model class here \\
+\midrule
+\code{mopo} & MOPO-style & Yu et al. 2020 MOPO & ridge-linear ensemble plus pessimistic particle MPC \\
+\code{refplan} & RefPlan-inspired & Reflect-then-Plan & posterior ensemble planner \\
+\code{bamcts} & BA-MCTS-inspired & BA-MCTS / BAMCP family & finite-action belief tree \\
+\code{plus} & PLUS & BioConserv18 PLUS & mechanistic Ricker bank over candidate $K$ \\
+\code{moor} & MOOR & fishery MOOR family & single misspecified Ricker, fits $K$ in set-point mode \\
+\code{delphic} & Delphic-CQL-inspired & Delphic offline RL & linear/ridge compatible-world adaptation \\
+\code{ogsrl} & OGSRL-inspired & Offline Guarded Safe RL & linear actor, kNN guardian, learned linear dynamics \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The paper-family cells above were checked against the local method notes and
+reference filenames, but final publication should still reconcile them with the
+manuscript bibliography.
+
+\section{Shared Infrastructure}
+
+Most methods consume a public belief cache built from observations and public
+controls. Learned transition models are bootstrap ridge members over
+log-abundance, action one-hot terms, action/state interactions, and public
+control features. Several methods share \code{ParticleMPC}, which samples finite
+action sequences, rolls belief particles forward under a method-specific
+proposal, and scores return with pessimism or risk terms.
+
+\section{MOPO-Style}
+
+\paragraph{Original idea.}
+Learn a transition model from offline data, penalize uncertain model rollouts,
+and avoid actions whose model predictions are unreliable.
+
+\paragraph{Original architecture vs this implementation.}
+The published MOPO family is typically neural model-based offline RL with
+probabilistic ensembles and policy optimization. This implementation uses a
+ridge-linear bootstrap ensemble and particle MPC; no neural actor or SAC-style
+optimization is present.
+
+\paragraph{What this code implements.}
+\code{mopo.py} fits \code{ContinuousDynamicsEnsemble} and plans with
+ensemble-disagreement and return-dispersion pessimism.
+
+\paragraph{Adapted or simplified.}
+Synthetic rollout policy optimization is replaced by receding-horizon finite
+action planning to keep the benchmark deterministic, small, and inspectable.
+
+\paragraph{Information access.}
+It may use public observations, actions, logged rewards, public controls, and
+belief features. It may not use private truth sidecars at training or
+deployment.
+
+\paragraph{Evaluation-time action.}
+It chooses the first action of the best particle-MPC sequence.
+
+\paragraph{Claim boundary.}
+Valid claim: a MOPO-style pessimistic model-based planner in the benchmark's
+linear model class. Invalid claim: reproduction of the published neural MOPO
+system.
+
+\section{RefPlan-Inspired}
+
+\paragraph{Original idea.}
+Maintain posterior uncertainty over dynamics hypotheses and plan under that
+posterior.
+
+\paragraph{Original architecture vs this implementation.}
+The paper family uses richer Bayesian latent dynamics and trajectory-posterior
+machinery. This implementation uses the same ridge-linear ensemble family as
+MOPO and a residual observation-likelihood update over members.
+
+\paragraph{What this code implements.}
+\code{refplan.py} scores shared candidate action sequences under an ensemble
+subset and subtracts posterior return uncertainty.
+
+\paragraph{Adapted or simplified.}
+The learned latent encoder and paper-specific planning machinery are replaced by
+a transparent ensemble posterior and shared particle MPC.
+
+\paragraph{Information access.}
+Public dataset and public belief state only.
+
+\paragraph{Evaluation-time action.}
+Posterior-weighted sequence planning; execute the first action of the best
+sequence.
+
+\paragraph{Claim boundary.}
+Valid claim: posterior-ensemble planning. Invalid claim: full doubly Bayesian
+RefPlan architecture.
+
+\section{BA-MCTS-Inspired}
+
+\paragraph{Original idea.}
+Plan in a belief over states and models with tree search, using exploration
+bonuses and pessimistic model values.
+
+\paragraph{Original architecture vs this implementation.}
+The paper family includes continuous Bayes-adaptive search and learned policy or
+value components. This implementation performs decision-time finite-action tree
+search with bucketed continuous states and a ridge ensemble posterior.
+
+\paragraph{What this code implements.}
+\code{bamcts.py} root-samples belief particles and model members, applies UCB in
+a finite action tree, and aggregates continuous states more finely near the
+safety threshold.
+
+\paragraph{Adapted or simplified.}
+No paper-specific policy distillation loop is implemented; tree leaves and model
+posterior are benchmark approximations.
+
+\paragraph{Information access.}
+Public belief and learned model ensemble only.
+
+\paragraph{Evaluation-time action.}
+Run tree search at the current belief and execute the selected root action.
+
+\paragraph{Claim boundary.}
+Valid claim: BA-MCTS-inspired online belief-tree planner. Invalid claim:
+paper-faithful offline BA-MCTS training loop.
+
+\section{PLUS}
+
+\paragraph{Original idea.}
+Maintain a finite bank of mechanistic candidate models, update candidate
+evidence from observations, and act under the posterior mixture.
+
+\paragraph{Original architecture vs this implementation.}
+PLUS is already mechanistic, so the model-class gap is smaller than for the
+neural offline-RL methods. In this set-point benchmark, however, the candidate
+axis changes: the code spans candidate $K$ values because action-specific
+growth set-points are known from the action table.
+
+\paragraph{What this code implements.}
+\code{plus.py} uses 21 Ricker-style candidates. Under set-point mode they are
+geometrically spaced from $K_{\mathrm{base}}$ to $K_{\max}$ and each candidate
+has its own belief-bank copy.
+
+\paragraph{Adapted or simplified.}
+The candidate prior is deliberately narrow: it does not include structural
+family, process noise, or observation-noise candidate axes.
+
+\paragraph{Information access.}
+Public observations and controls; no true family parameters outside the
+candidate model definition.
+
+\paragraph{Evaluation-time action.}
+Posterior-weighted candidate scores choose the first action of a sequence.
+
+\paragraph{Claim boundary.}
+Valid claim: close-to-intent mechanistic PLUS adaptation for known set-point
+growth. Invalid claim: full PLUS candidate-model prior from the source paper.
+
+\section{MOOR}
+
+\paragraph{Original idea.}
+Use a simple mechanistic ecological model as an interpretable expert baseline,
+then plan under that fitted model.
+
+\paragraph{Original architecture vs this implementation.}
+MOOR is also mechanistic, so it is close to the intended spirit. The original
+fishery pipeline is not reproduced; the code fits a Ricker model to public
+belief means and plans with particle MPC over the benchmark action set.
+
+\paragraph{What this code implements.}
+\code{moor.py} fits a single Ricker proposal. Under set-point mode, $r$ is known
+from $\rho$, so the fit identifies $K$ while mirroring the simulator's
+positive-growth/negative-mortality convention.
+
+\paragraph{Adapted or simplified.}
+The model remains Ricker even when the true benchmark family is Allee, theta, or
+regime-switching. That misspecification is intentional.
+
+\paragraph{Information access.}
+Public belief means, public controls, and logged rewards.
+
+\paragraph{Evaluation-time action.}
+Particle MPC under the fitted Ricker proposal.
+
+\paragraph{Claim boundary.}
+Valid claim: close-to-intent mechanistic Ricker expert baseline. Invalid claim:
+full reproduction of the original MOOR fishery workflow.
+
+\section{Delphic-CQL-Inspired}
+
+\paragraph{Original idea.}
+Penalize actions whose values vary across compatible latent explanations of the
+same public evidence, then fit a conservative value function.
+
+\paragraph{Original architecture vs this implementation.}
+The paper family uses richer latent world models and neural/variational
+components. This implementation uses random-feature latent worlds, ridge/linear
+heads, and diagnostics over behavior-NLL and Bellman-error ranges.
+
+\paragraph{What this code implements.}
+\code{delphic.py} creates multiple public-feature worlds, estimates
+counterfactual value variation, and subtracts a Delphic uncertainty penalty in a
+linear CQL-style fitted-Q head.
+
+\paragraph{Adapted or simplified.}
+The worlds are benchmark-compatible approximations, not a proof that every
+world induces the same observational distribution.
+
+\paragraph{Information access.}
+Public belief features and logged public rewards.
+
+\paragraph{Evaluation-time action.}
+Greedy action under linear Q minus Delphic penalty.
+
+\paragraph{Claim boundary.}
+Valid claim: Delphic-CQL-inspired conservative value adaptation. Invalid claim:
+paper-faithful compatible-world causal implementation.
+
+\section{OGSRL-Inspired}
+
+\paragraph{Original idea.}
+Learn an offline policy while guarding against unsafe and out-of-distribution
+decisions.
+
+\paragraph{Original architecture vs this implementation.}
+The paper family may use neural policies, learned dynamics, and scalable support
+estimators. This implementation uses a learned ridge-linear dynamics ensemble, a
+kNN support guardian, a linear softmax actor, and linear diagnostic critics.
+
+\paragraph{What this code implements.}
+\code{ogsrl.py} trains with reward, safety, and support costs, updates dual
+variables, and uses a deployment feasibility mask with a least-violating
+fallback if every action violates a guard.
+
+\paragraph{Adapted or simplified.}
+The guardian and actor are intentionally low-capacity and benchmark-native.
+
+\paragraph{Information access.}
+Public belief features, public controls, and logged rewards. Safety estimates at
+deployment are computed over posterior particles, not true hidden state.
+
+\paragraph{Evaluation-time action.}
+Select the highest-probability feasible action; if none is feasible, select the
+least-violating action.
+
+\paragraph{Claim boundary.}
+Valid claim: OGSRL-inspired guarded safe offline control. Invalid claim:
+transfer of the original theorem to these learned belief features.
+
+\section{Summary}
+
+PLUS and MOOR are closest to original intent because their source families are
+already mechanistic. The general offline-RL methods are more distant: they carry
+the strategy-level ideas into an auditable linear/mechanistic benchmark class.
+That distinction is a strength for inspection, but it must be stated whenever
+results are compared to the method names.
+
+\section*{Verification}
+
+Verified against: \path{pyproject.toml}, \path{src/real_ecology_benchmark/dynamics.py}, \path{src/real_ecology_benchmark/planning.py}, \path{src/real_ecology_benchmark/methods/value.py}, \path{src/real_ecology_benchmark/methods/mopo.py}, \path{src/real_ecology_benchmark/methods/refplan.py}, \path{src/real_ecology_benchmark/methods/bamcts.py}, \path{src/real_ecology_benchmark/methods/plus.py}, \path{src/real_ecology_benchmark/methods/moor.py}, \path{src/real_ecology_benchmark/methods/delphic.py}, \path{src/real_ecology_benchmark/methods/ogsrl.py}, \path{docs/real_ecology_history/29_6_algorithm_method_notes.tex}, \path{docs/real_ecology_history/AUDIT_algorithm_paper_implementation.md} @ be96c36
+
+\end{document}

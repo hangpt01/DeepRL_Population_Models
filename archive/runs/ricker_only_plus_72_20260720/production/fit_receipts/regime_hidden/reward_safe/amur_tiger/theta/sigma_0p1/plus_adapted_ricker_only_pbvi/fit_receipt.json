@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p1",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "20de5eb2b9aa5fd5bc933ae8c7c88b67658fd474036c39fd25498c2c02340ccf",
+    "574fe7e3b5f67bbe15f6b8e9e04e03afe202b82daa74d55a2357e9f4592b5f18",
+    "60425221912a92e21ec3986a3ddeffcb16d45ab76a92592a5fb1a87c88c2ca78",
+    "5217c2495f5e41df34d9dfb1f4c5e0f0def19ccb1a67d14adef7b7af4b4e05f1",
+    "fe6b1acb7b2c5f0fea385e42a4ab998f239b25c80acb0687427b59ddaec56491",
+    "365179b909a73953edf207dff622c1f01937fa6879cbb4db721a9466fcbc49ad",
+    "4b623d23d084903ae95c5d31a7a1d8d23182b210ad337c61fd1405cbb3099c93",
+    "d9eb73bba7c4f81e1c65c3fecd5de0e5ddb79336261a9ff4f7157ea17dba1053"
+  ],
+  "fit_seconds": 0.05360764544457197,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "3641f63b013220b66a74e68e691172e79666aa7737dc23208121401e55f01d98",
+    "21ab63fe691d070160168b1e63c1feb73483c01117bc5f2bf940d3647139fd52",
+    "87a88ee1cc446c8aef87533ce4438a025be565f23e1c49d7ec91817ecc0eda27",
+    "98f14345f059d2ac79444eef78c6bb05d3374d28256173f0cabfe6383db3a8d3",
+    "b097a435e196c88ba1ed7a416bda6318215aa5ac8886b5c604da2ae872a46b1b",
+    "5d4e094d2e2311c886bb995e219b56e55b1a613a2bf6116b336d1e5d7184740c",
+    "3cf2621845f279e31db31481c26ad5261f89dfc19136054c3e1916e86a2e460f",
+    "aa1cfbdea31161758303c07fde85c2bb71e657ce13f751fe37e1c45c88d4001c"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "a60abbcab3f19983112b18c8d20cc1c1cdbacd310237deb4ba52fb1893775975"
+}

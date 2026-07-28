@@ -1,0 +1,22 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "miss_fitted"
+  ],
+  "candidate_count": 1,
+  "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p4",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "3799157bc18003fc90faad34fdd0f3bb50a317575668e5995b818b350751bbe3"
+  ],
+  "fit_seconds": 703.1098593948409,
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "ae8efea9a558b17d991e2141c8c4dc1bd00bfbaf06d0f39127224729cd186cbe"
+  ],
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "f04747f0e6903b82c65f9fa52ca61ec892c68ecfb0e7e89919edcd53e0acf72c"
+}

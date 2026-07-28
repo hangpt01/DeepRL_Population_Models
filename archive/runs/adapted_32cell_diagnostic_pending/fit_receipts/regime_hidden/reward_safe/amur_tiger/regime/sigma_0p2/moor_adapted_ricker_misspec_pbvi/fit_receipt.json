@@ -1,0 +1,22 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "miss_fitted"
+  ],
+  "candidate_count": 1,
+  "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p2",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "f094a254fea91ba719ebc9c8a5e732fdcb6a8db971cdcc8ea0b7dfdeb61acf57"
+  ],
+  "fit_seconds": 750.7277989089489,
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "af004afbc2068b9cdd37726b1f25ebd01e30502468c6522a9e8bb356938eb859"
+  ],
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "113e546701f151fc6ce5446d3ffedadcb6a68c9bfa6163eebeb0a9cdc39868a5"
+}

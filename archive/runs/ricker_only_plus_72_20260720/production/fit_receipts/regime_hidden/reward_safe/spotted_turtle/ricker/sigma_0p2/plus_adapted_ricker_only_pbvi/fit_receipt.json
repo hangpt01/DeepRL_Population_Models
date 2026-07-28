@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/spotted_turtle/ricker/sigma_0p2",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "252dccebed8316ee79703f31826beb2946ac945da1556645537b929d1d9a9991",
+    "517c1150981abb7bfd71369df72e51e0af53d955c6e3e0b9e45db678d4e916be",
+    "cd8a9480b5ef0454e14b0ff9e96f4f9b5d700589190d37a9db972a9862bc3f81",
+    "e56939e8ecabffbfe9746d82d4778faa709621c08313ae21fa4d4395b643d568",
+    "6333742ffdad081ed4cd4893d57402ab6260e2ccb3d35f0a041caab3fc837a85",
+    "9322d01cb60bbf3efa54b07e8cf3335ad0858b89ad7fea099a66bf684b9d4596",
+    "f0c7f811434f1dbb7417f4f086b41b7d4901e12571b483240470db5f62cdb81c",
+    "9c04a184938394ec5acd66d3950080a87473f96096e114f8e273621a7b00c298"
+  ],
+  "fit_seconds": 0.053984517231583595,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "8fed486315ecaca901eec8504bfe20e6eb3ec7dee781cd4e7766f467f0ee7395",
+    "1069ebe7f1ad6e4a120447d76dbf19702f80034188460ca439d3e45f8a4c279b",
+    "35663e146c60e3f466c82004a285bed73386ddcb10f1fb41fb9efdb759a33ae7",
+    "1f2bc39ed288d814a7c826ed2597e4d56052202782125bdfcb1bb86d2074d1ec",
+    "5d874f2b864f8e9d78a4bb3e0eab144b5191489c0d3ff7d04bde68004ec0c42c",
+    "9daa6ad476e5f840502db9f88ba0734a6bd53c90f3e743fb99effe76d5042964",
+    "146993fc9c1ea79adfe12810024d7fa6825d20ff30f4c446a5924e7dd1d41037",
+    "294473d5fd9a6a9f01f57063fbe3b98b5b157b863e4f8169c9222f0c29d72aee"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "e70ca4c8913b3593db7153f568139643b935867fcac69afc8e051423e2219a83"
+}

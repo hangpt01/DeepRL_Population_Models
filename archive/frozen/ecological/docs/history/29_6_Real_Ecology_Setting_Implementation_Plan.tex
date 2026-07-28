@@ -1,0 +1,513 @@
+% =====================================================================
+%  Tier-4 / Real-Ecology Setting: implementation plan for the coding agent.
+%  Companion to 29_6_Cumulative_Controls_and_Improvement_Plan.tex (already
+%  implemented) and to the data folder discrete_action_cont_obser/real_ecology_data/.
+%  Self-contained; compile with pdflatex.
+% =====================================================================
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\newcommand{\reff}{r_{\mathrm{eff}}}
+\newcommand{\Keff}{K_{\mathrm{eff}}}
+\newcommand{\rbase}{r_{\mathrm{base}}}
+\newcommand{\Kbase}{K_{\mathrm{base}}}
+\newcommand{\Kref}{K_{\mathrm{ref}}}
+\newcommand{\rmax}{r_{\max}}
+\newcommand{\rmin}{r_{\min}}
+\newcommand{\Kmax}{K_{\max}}
+\newcommand{\sobs}{\sigma_{\mathrm{obs}}}
+\newcommand{\ssafe}{s_{\mathrm{safe}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\setlength{\emergencystretch}{4em}
+
+\title{Real-Ecology Setting (Tier-4):\\
+Set-Point Growth-Rate Regimes, Cumulative Capacity, and Empirically-Costed Actions\\
+\large Implementation plan for the coding agent
+(from illustrative Tier-3 parameters to real-population data)}
+\author{Deep RL for Ecological Population Management}
+\date{2026-06-28}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This plan tells the coding agent how to convert the already-implemented Tier-3
+cumulative-controls environment (spec: \code{29\_6\_Cumulative\_Controls\_and\_Improvement\_Plan.tex})
+into the \emph{real-ecology} setting. The numeric inputs now come from real
+populations and from the conservation-cost literature, shipped as CSVs in the
+folder \code{revised\_cost\_action\_table/}. Three substantive changes: (i)
+\textbf{growth-rate actions become set-point regimes} --- the per-step intrinsic
+rate equals a \emph{measured} value $r(\lambda_a)=\ln\lambda_a$ for the action in
+force, held within \emph{data-derived} per-population caps (a guard, normally a no-op), rather than a cumulative
+$\Delta r$ ramp; (ii) \textbf{capacity stays cumulative} and a new
+\textbf{translocation} action acts directly on the state; (iii) \textbf{per-step
+costs are read from an empirically-scaled $[0,1]$ table} grounded in the
+Conservation Costing Portal. Because real baselines include declining populations
+($\lambda_{a_0}<1$) and even sinks ($\rmax<0$), the calibration and reporting must
+change accordingly. The reward is defined on the \emph{true} latent state and run in
+\emph{two state-dependent settings} --- baseline-style yield-only ($P{=}0$) and
+collapse-aware ($P{>}0$) --- trained separately and compared on shared, reward-agnostic
+metrics. Everything below references the exact CSV files/columns and the existing repo
+modules.
+\end{abstract}
+
+\section{Relationship to the Tier-3 plan and what changes}
+The Tier-3 plan made management effort \emph{cumulative} and \emph{capped}, acting
+only through $(r,K)$, with a fixed abundance reference. It used \emph{illustrative}
+numbers (a single $\Kbase{=}500$, a prior on $\rbase$, ad-hoc caps
+$\rmax{=}0.55,\rmin{=}{-}0.15$, hand-set $\Delta r,\Delta K$ tables, and a hand-set
+cost column). The real-ecology setting keeps the POMDP, the four dynamics families,
+the seven methods and the evaluator \emph{unchanged}, and changes only the
+\emph{numeric interface and its calibration}:
+\begin{itemize}[nosep,leftmargin=1.4em]
+\item \textbf{Data, not priors.} Each episode instantiates one of nine real
+populations (real $N_0$, $\Kbase$, and a per-action $\lambda$ profile) from
+\code{revised\_cost\_action\_table/}.
+\item \textbf{Set-point $r$ (regime) instead of cumulative $\Delta r$.}
+$\reff$ is the measured rate of the action in force, held within data-derived caps (a guard).
+\item \textbf{Cumulative $K$ unchanged}; new \textbf{translocation} action on the state.
+\item \textbf{Empirical $[0,1]$ costs} from the portal-grounded table.
+\item \textbf{Rescaled reward/safety} because real $K$ are $31$--$325$, not $500$.
+\end{itemize}
+The rationale for each choice (ecological meaning, defensibility) is in the
+companion document
+\texttt{29\_6\_Real\_}\allowbreak
+\texttt{Ecological\_Data\_}\allowbreak
+\texttt{Actions\_and\_}\allowbreak
+\texttt{Costs.tex};
+this file is the build order.
+
+\section{Recap: the setting that stays the same}
+Latent abundance $s_t\in\mathbb{R}_{\ge0}$, $s{=}0$ absorbing; hidden per-episode
+structure (Allee threshold $C$, theta-logistic $\theta$, regime $z_t$); the manager
+observes only $o_t=s_t\eta_t$, $\eta_t\sim\mathrm{LogNormal}(0,\sobs^2)$. The four
+maps (Ricker base; Allee--Ricker; theta-logistic; regime-switch) and the seven
+methods (RefPlan, MOPO, MOOR, BA-MCTS, PLUS, OGSRL, Delphic), the shared particle
+filter, ridge dynamics ensemble + MPC, and the unified evaluator are retained
+\cite{ricker1954,plus2018,moor2025,mopo2020,refplan2025,bamcts2026,ogsrl2025,delphic2024}.
+
+\section{The real-ecology data (\code{revised\_cost\_action\_table/})}
+The folder is the single source of truth. Files and the columns the env needs:
+\begin{itemize}[nosep,leftmargin=1.4em]
+\item \code{species.csv} --- per population: \code{N0}, \code{K\_base}, \code{K\_max}
+($=2\Kbase$), and set-point caps \code{r\_base}, \code{r\_min},
+\code{r\_max} (Ricker) and their \code{\_lgm} versions.
+\item \code{actions.csv} --- per action $a_0$--$a_{10}$: \code{channel},
+\code{lambda\_source}, \code{K\_multiplier}, \code{dN\_fraction}, \code{cost\_step},
+plus both names and \texttt{cost\_source\_}\allowbreak\texttt{keys}.
+\item \texttt{species\_}\allowbreak\texttt{lambda.csv} --- the $45$ distinct measured
+$\lambda$ (and
+$r_{\mathrm{ricker}},r_{\mathrm{lgm}}$) per (population, \code{lambda\_id}).
+\item \texttt{action\_effects\_}\allowbreak\texttt{long.csv} --- \textbf{precomputed} per
+(population, action): \code{lambda}, \texttt{r\_setpoint\_}\allowbreak\texttt{ricker/lgm},
+\code{dK\_step}, \code{dN}, \code{cost\_step}, and the clip bounds. \emph{Load this
+one file as the env lookup table}; the three above are its normalised source.
+\item \code{cost\_sources.csv}, \texttt{cost\_anchors\_}\allowbreak\texttt{portal.csv}
+--- provenance only.
+\end{itemize}
+Conversions: $r_{\mathrm{Ricker}}=\ln\lambda$ (Ricker/Allee/regime),
+$r_{\mathrm{LGM}}=\lambda-1$ (theta-logistic). The action menu is Table~\ref{tab:menu};
+the populations and their caps are Table~\ref{tab:pop}.
+
+\begin{table}[h]\centering
+\caption{Action menu (load from \code{actions.csv}). $\lambda$ src is the measured
+rate reused (set-point); $\Delta K$/step is the cumulative increment; $\Delta N$ acts
+on the state. cost from \code{cost\_step} ($[0,1]$; harvest negative = revenue).}
+\label{tab:menu}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{0.96}
+\begin{tabular}{@{}c p{2.45cm} p{1.75cm} c p{1.6cm} p{0.95cm} r@{}}
+\toprule
+$a$ & Action (original name) & channel & $\lambda$ src & $\Delta K$/step & $\Delta N$ & cost \\
+\midrule
+
+a0 & Do Nothing & none & $\lambda_{a0}$ & 0 & 0 & +0.0000 \\
+a1 & Sustainable Harvest & rate & $\lambda_{a1}$ & 0 & 0 & -0.0500 \\
+a2 & Aggressive Harvest & rate & $\lambda_{a2}$ & 0 & 0 & -0.1000 \\
+a3 & Predator / Disease Control & rate & $\lambda_{a3}$ & 0 & 0 & +0.2500 \\
+a4 & Breeding / Recruitment Support & rate & $\lambda_{a4}$ & 0 & 0 & +0.5000 \\
+a5 & Moderate Restoration & capacity & $\lambda_{a0}$ & $+10\%\Kbase$ & 0 & +0.1875 \\
+a6 & Intensive Restoration & capacity & $\lambda_{a0}$ & $+30\%\Kbase$ & 0 & +0.5000 \\
+a7 & Integrated Conservation (light) & rate+\allowbreak capacity & $\lambda_{a3}$ & $+10\%\Kbase$ & 0 & +0.4375 \\
+a8 & Adaptive Conservation Trial & rate+\allowbreak capacity & $\lambda_{a3}$ & $+30\%\Kbase$ & 0 & +0.7500 \\
+a9 & Flagship Conservation Programme & rate+\allowbreak capacity & $\lambda_{a4}$ & $+30\%\Kbase$ & 0 & +1.0000 \\
+a10 & Translocation & state & $\lambda_{a0}$ & 0 & \shortstack{$+10\%$\\$N_0$} & +0.3125 \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\begin{table}[h]\centering\footnotesize
+\caption{Populations (load from \code{species.csv}). Caps are Ricker
+$r=\ln\lambda$: $\rbase{=}r(\lambda_{a_0})$, $\rmin{=}r(\lambda_{a_2})$,
+$\rmax{=}r(\lambda_{a_4})$. ``Recov.'' = $\rmax>0$ (vital-rate management can make
+the population grow); ``No'' marks demographic sinks where even the strongest
+recovery leaves $\lambda<1$ (only translocation adds individuals).}
+\label{tab:pop}
+\begin{tabular}{@{}l r r r r r r c@{}}
+\toprule
+Population & $N_0$ & $\Kbase$ & $\Kmax$ & $\lambda_{a_0}$ & $\rbase$ & $\rmax$ & Recov.? \\
+\midrule
+
+Egyptian vulture & 41 & 325 & 650 & 0.913 & -0.091 & -0.010 & \textbf{No} \\
+Bottlenose dolphin & 25 & 35 & 70 & 0.938 & -0.064 & -0.021 & \textbf{No} \\
+Amur tiger & 200 & 250 & 500 & 0.955 & -0.046 & +0.071 & Yes \\
+Spotted turtle & 31 & 31 & 62 & 0.995 & -0.005 & +0.020 & Yes \\
+Asian elephant & 60 & 120 & 240 & 1.019 & +0.019 & +0.028 & Yes \\
+Puerto Rican parrot & 78 & 250 & 500 & 1.062 & +0.061 & +0.137 & Yes \\
+Iberian lynx & 89 & 165 & 330 & 1.117 & +0.110 & +0.174 & Yes \\
+Jaguar & 325 & 325 & 650 & 1.172 & +0.159 & +0.226 & Yes \\
+Crab-eating fox & 41 & 41 & 82 & 1.381 & +0.323 & +0.442 & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{The real-ecology transition}
+Per episode, select a population $p$ and read its row from \code{species.csv}:
+$s_0{=}N_0(p)$, $\kappa_0{=}0$, $\Kref{=}\Kbase(p)$ (fixed for the episode). Draw the
+hidden structural stress $(C,\theta,z)$ as in Tier-3. The population identity is
+\emph{known} to the agent (its $\lambda$ profile, $\Kbase$ and caps are observed
+inputs); only $s$ is partially observed and $(C,\theta,z)$ hidden. Per step, for
+action $a_t$:
+\begin{align}
+\textbf{set-point }r:\quad
+& r_{\mathrm{eff},t}
+  =\mathrm{clip}\!\big(r(\lambda_{a_t}(p)),\ \rmin(p),\ \rmax(p)\big), \notag\\
+&\qquad a_0\Rightarrow\reff{=}\rbase,\\
+\textbf{cumulative }K:\quad
+& \kappa_t=\kappa_{t-1}+\Delta K(a_t), \notag\\
+& K_{\mathrm{eff},t}
+  =\mathrm{clip}\!\big(\Kbase(p)+\kappa_t,\ \Kbase(p),\ \Kmax(p)\big),\\
+\textbf{translocation:}\quad
+& s_t\leftarrow s_t+\Delta N\ \ (a_{10}\text{ only}), \notag\\
+&\qquad \Delta N=0.10\,N_0(p),\\
+\textbf{step:}\quad & s_{t+1}=f_{\mathrm{model}}\big(s_t;\ r_{\mathrm{eff},t},\ K_{\mathrm{eff},t}\big),\\
+\textbf{reward:}\quad &
+\begin{aligned}[t]
+R^{(m)}_t
+&=\alpha\,\frac{s_{t+1}}{s_{t+1}+\Kref}-\mathrm{cost}(a_t)\\
+&\quad -P_m\cdot\mathbb{1}\!\big[
+s_t>\ssafe\wedge s_{t+1}\le\ssafe
+\big],\\
+m&\in\{\mathrm{yield},\mathrm{safe}\}.
+\end{aligned}
+\end{align}
+All of $r(\lambda_{a_t}),\Delta K(a_t),\Delta N,\mathrm{cost}(a_t)$ are columns of
+\code{action\_effects\_long.csv}; $r(\lambda)$ uses the Ricker column for
+Ricker/Allee/regime cells and the LGM column for theta cells. $\Kref$ is fixed at
+$\Kbase(p)$ (do \emph{not} track $\Keff$), and $\ssafe$ is now \emph{per population}
+(below). \textbf{The benefit is on the \emph{true} abundance $s_{t+1}$, never the
+survey $o_t$} (rationale in E6): the agent acts only on $o_t$ but accrues and is
+evaluated on reward computed from $s$, logged by the simulator so all methods see
+identical $(o_t,a_t,R_t,o_{t+1})$. The penalty switch $P_m$ defines two
+\emph{state-dependent} settings, $P_{\mathrm{yield}}{=}0$ and $P_{\mathrm{safe}}{>}0$
+(E6$'$).
+
+\section{Implementation checklist for the coding agent}
+For the Tier-3 repo (\code{discrete\_action\_cont\_obser/}: environment, collector
+with calibration profiles, shared $1024$-particle filter, $15$-member ridge ensemble
++ MPC, the seven methods, unified evaluator). Preserve the evaluator, seed protocol,
+and public/private schema guard.
+
+\paragraph{(E0) Data ingestion (replaces hard-coded tables).}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item Add a loader for \texttt{revised\_cost\_}\allowbreak\texttt{action\_table/}. Build:
+an \code{ACTIONS}
+table from \code{actions.csv} (\code{channel, lambda\_source, K\_multiplier,
+dN\_fraction, cost\_step}); a \code{POPS} table from \code{species.csv} (\code{N0,
+K\_base, K\_max, r\_*\_ricker, r\_*\_lgm}); and an \code{EFFECTS} lookup keyed by
+$(p,a)$ from \texttt{action\_}\allowbreak\texttt{effects\_long.csv}.
+\item Delete the Tier-3 hard-coded $5$/$10$-action $\Delta r,\Delta K$ tables, the
+$\Kbase{=}500$ constant, and the hand-set cost column; all are now data.
+\end{enumerate}
+
+\paragraph{(E1) Per-episode population instantiation.}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item On \code{reset()}, choose $p$ (uniform over the nine by default; expose a
+\code{pop\_id} override and a train/eval split flag). Set $s_0{=}N_0(p)$,
+$\kappa{=}0$, $\Kbase,\Kmax,\Kref{=}\Kbase$, and caps from \code{POPS}.
+\item Draw hidden $(C,\theta,z)$ as before. Expose population identity and
+$(\reff,\Keff)$ as observed inputs (known); keep $s$ partially observed. Provide a
+\code{hide\_population} flag for a harder identification variant.
+\item \textbf{One pooled agent, not nine.} Because population identity is an observed
+input, train a \emph{single} agent over all nine populations (identity as context),
+\emph{not} nine per-population agents --- per-species training fragments the offline
+data and defeats the general-learner framing. Recoverability is a \emph{reporting}
+stratifier, not a training axis. This is \emph{not} a leave-one-species-out
+generalization test (all nine appear in both train and eval); the
+\code{hide\_population} flag above is the separate, harder variant. See E6$'$ for the
+matched-noise dataset protocol.
+\end{enumerate}
+
+\paragraph{(E2) Set-point growth rate (replaces the $\rho_t$ accumulator).}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item Remove the $r$ accumulator. Set
+\[
+\reff
+=r_{\mathrm{setpoint}}(p,a_t)
+\qquad\text{(then assert }\reff\in[\rmin(p),\rmax(p)]\text{)},
+\]
+from \code{EFFECTS} (\texttt{r\_setpoint\_}\allowbreak\texttt{ricker} or
+\code{\_lgm} by map family);
+$a_0\Rightarrow\rbase$.
+\item \textbf{Clip is a guard, not a modelling step.} For the current $11$-action
+menu the caps are the extreme measured rates ($\rmin{=}r(\lambda_{a_2})$,
+$\rmax{=}r(\lambda_{a_4})$), so every set-point already lies in $[\rmin,\rmax]$ and
+clipping is a no-op. Keep it only as a defensive \code{assert} (or a clip that
+\emph{logs/raises} when it would change a value): it catches a table error, a wrong
+Ricker-vs-LGM column (E7), or a future action that exceeds the measured envelope, and
+must never silently alter a valid rate.
+\item Equivalently this is the Tier-3 leaky accumulator with decay $d_r{=}1$; keep
+$\reff$ a known observed input.
+\end{enumerate}
+
+\paragraph{(E3) Cumulative capacity (keep).}
+$\kappa_t=\kappa_{t-1}+\code{dK\_step}(a_t)$, $\Keff=\mathrm{clip}(\Kbase+\kappa,\Kbase,\Kmax)$,
+$\Kmax{=}2\Kbase$. Default $d_K{=}0$. The doubling ceiling $\Kmax{=}2\Kbase$ is a
+\emph{tunable benchmark assumption} (restoration at most doubles usable capacity), not
+a measured quantity; expose it as a parameter and sensitivity-test
+$\Kmax\in\{1.5,2,3\}\Kbase$. Unlike the guard on $\reff$, this clip on $\Keff$ is
+load-bearing: it bounds cumulative restoration so repeated capacity actions cannot grow
+$K$ without limit.
+
+\paragraph{(E4) Translocation $a_{10}$ (new, state authority).}
+Before growth, if $a_t{=}a_{10}$: $s\leftarrow s+\code{dN}=s+0.10\,N_0(p)$. This is
+the \emph{only} direct-$s$ action; all others act through $(r,K)$.
+
+\paragraph{(E5) Costs (portal-grounded).}
+\[
+\begin{aligned}
+\mathrm{cost}(a)&=\code{cost\_step}(a),\\
+(c_0,\ldots,c_5)&=(0,-0.05,-0.10,0.25,0.50,0.1875),\\
+(c_6,\ldots,c_{10})&=(0.50,0.4375,0.75,1.00,0.3125).
+\end{aligned}
+\]
+Harvest is negative (revenue), so the effective range is $[-0.10,1.00]$.
+
+\paragraph{(E6) Reward (state-dependent) and safety \emph{rescaling} (critical at real scales).}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item \textbf{Benefit on the true state.} Use $\alpha\,s_{t+1}/(s_{t+1}+\Kref)$, \emph{not}
+$o_t/(o_t+\Kref)$. Four reasons: (a) \emph{coherence} with the true-state collapse term;
+(b) \emph{baseline comparability} --- PLUS \cite{plus2018} and MOOR \cite{moor2025} both
+reward the latent state, $R(s,a)$; (c) \emph{no noise confound (decisive)} --- an
+$o$-based reward is noisy and biased ($\mathbb{E}[o|s]{=}s\,e^{\sobs^2/2}$) and would
+degrade as $\sobs$ grows, contaminating the return-vs-$\sobs$ headline; a state reward
+holds the objective fixed as $\sobs$ varies; (d) \emph{conservation semantics} --- value
+the population truly being large, not a lucky survey. The agent still sees only $o_t$.
+\item $\Kref{=}\Kbase(p)$, fixed per episode (do not track $\Keff$): the abundance
+term equals $\alpha/2$ \emph{at carrying capacity} ($s{=}\Kbase$) for every species
+regardless of size --- \emph{not} necessarily at episode start, where it is
+$\alpha\,N_0/(N_0{+}\Kbase)$ and several real populations begin below $\Kbase$. Holding
+$\Kref{=}\Kbase$ (rather than tracking $\Keff$) means restoration \emph{raises} the
+benefit only when it truly raises abundance ($\alpha\cdot2/3$ at $s{=}2\Kbase$,
+$\to\alpha$ as $s$ grows); a $\Kref$ that tracked $\Keff$ would move the goalpost and
+leave capacity-building unrewarded. (Optionally lower the half-saturation constant to
+$\ssafe$ for near-maximal benefit at a healthy population.)
+\item \textbf{Safety floor: per population and depletion-aware.}
+$\ssafe(p)=c_{\mathrm{safe}}(p)\,\Kbase(p)$ --- the absolute $\ssafe{=}50$ of Tier-3 is
+nonsensical for $K{=}31$. A flat $c_{\mathrm{safe}}{=}0.1$ is still too permissive for
+small or depleted populations ($0.1\Kbase{=}3$ individuals at $K{=}31$), and a
+$K$-only rule misses the Egyptian vulture ($\Kbase{=}325$ but
+$N_0/\Kbase{=}41/325{=}0.126$, a sink). Let $c_{\mathrm{safe}}(p)$ \emph{increase} when
+$\Kbase$ is small, $N_0/\Kbase$ is low, or $N_0$ is near an absolute endangered-count
+threshold (e.g.\ $c_{\mathrm{safe}}{=}0.10$ for large healthy populations,
+$0.20$--$0.25$ for small/depleted ones). \emph{Additionally} report an absolute
+minimum-viable-population diagnostic $\Pr(s\le N_{\mathrm{mvp}})$
+($N_{\mathrm{mvp}}\!\approx\!20$--$50$) alongside the relative floor; keep it a
+\emph{diagnostic}, not necessarily the reward-penalty threshold, and name the metric
+floor and the penalty floor explicitly if they differ.
+\item \textbf{Open design decision: crossing vs.\ below-safe occupancy penalty.} The
+current penalty $\mathbb{1}[s_t>\ssafe\wedge s_{t+1}\le\ssafe]$ fires \emph{once}, on
+the downward crossing. It therefore (i) never charges a population that \emph{starts}
+below $\ssafe$ (e.g.\ the vulture once $c_{\mathrm{safe}}$ is raised), and (ii) stops
+charging one that \emph{dwells} in the danger zone after a single crossing --- exactly
+the two sinks. Decide explicitly whether $R_{\mathrm{safe}}$ penalises the \emph{event}
+of crossing ($\mathbb{1}[\text{cross}]$), the \emph{state} of being below-safe each
+step ($\mathbb{1}[s_t\le\ssafe]$), or a \emph{mixture}. Raising $\ssafe$ worsens the
+crossing-only gap for depleted starts; resolve this before calibration.
+\item \textbf{Calibrate $P_{\mathrm{safe}}$.} $P_{\mathrm{safe}}$ is the penalty
+\emph{weight} of a true-state downward crossing below $\ssafe$ (\emph{not} a
+probability, and not data-derived); $R_{\mathrm{yield}}$ sets it to $0$,
+$R_{\mathrm{safe}}$ sets it positive. Re-fit it so one collapse outweighs a healthy
+episode at the new return scale (achievable return $\approx$ horizon
+$\times\!\sim\!0.5\alpha$ minus costs). Keep the symbol $P_{\mathrm{safe}}$ (with this
+``not a probability'' note) or rename to $w_{\mathrm{safe}}$; \emph{do not} write
+$\lambda_{\mathrm{safe}}$, since $\lambda$ already denotes the per-action growth
+multipliers throughout the data/action spec.
+\item \textbf{Reward-leakage guard.} In yield mode
+$R_t+\mathrm{cost}(a_t)=\alpha\,s_{t+1}/(s_{t+1}+\Kref)$ is monotone and invertible in
+$s_{t+1}$ (given known $\alpha,\Kref$), so a realized reward is a \emph{clean readout}
+of the true next state. The policy and belief filter must therefore condition on the
+\emph{observation--action} history only; the realized reward is a
+training/evaluation signal, never an input to the particle filter or policy (canonical
+POMDP: the belief updates on $o$, not $R$). Verify no method concatenates $R$ into its
+belief/policy input; if reward history is ever admitted, add reward noise or declare
+the observability setting changed.
+\end{enumerate}
+
+\paragraph{(E6$'$) Two state-dependent reward settings (train + evaluate).}
+Expose a \code{reward\_mode} flag; both variants use the \emph{same} state-dependent
+benefit and cost and differ \emph{only} in the penalty weight $P_m$:
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item \textbf{$R_{\mathrm{yield}}$ (baseline-style):} $P_{\mathrm{yield}}{=}0$ --- benefit
+minus cost only, collapse \emph{implicit} (discounting $+$ absorbing $s{=}0$). Matches
+PLUS/MOOR, whose reward is state-dependent yield with no safety term.
+\item \textbf{$R_{\mathrm{safe}}$ (collapse-aware, ours):} $P_{\mathrm{safe}}{>}0$ with the
+true-state crossing penalty ($P_{\mathrm{safe}}$ from E6).
+\end{enumerate}
+Train a \emph{separate} agent (per method) under each mode. \textbf{Do not compare their
+raw returns} --- the objectives differ; evaluate \emph{both} on a common, reward-agnostic
+battery: persistence / final abundance, quasi-extinction (collapse) probability, minimum
+abundance, fraction of steps with $s\le\ssafe$, and economic cost. Cross this reward
+factor with the recoverability split of E9 (recoverable vs.\ sink/Allee) and sweep
+$\sobs$ \emph{within} each cell. Expected: $R_{\mathrm{yield}}\approx R_{\mathrm{safe}}$ in
+persistence for \emph{recoverable} populations (baseline reward suffices), but
+$R_{\mathrm{safe}}$ strictly lowers collapse for \emph{sinks/Allee} (where yield-only can
+rationally liquidate the stock). Headline on the collapse-aware setting; report yield-only
+alongside to expose the safety gap.
+
+\paragraph{(E7) $\lambda\to r$ per map family.}
+Ricker/Allee/regime cells use the Ricker columns
+(\texttt{r\_setpoint\_}\allowbreak\texttt{ricker}, \code{r\_min\_ricker},
+\code{r\_max\_ricker}); theta-logistic cells use the \code{\_lgm} columns.
+Assert $\reff\in[\rmin,\rmax]$ (this is the E2 guard: a violation signals a
+wrong-family column or table error, not a value to be silently clipped).
+
+\paragraph{(E8) Filter and methods (minimal change).}
+\emph{Particle filter, in one paragraph.} The agent never sees $s_t$, only the noisy
+survey $o_t$, so it maintains a \emph{belief} --- a distribution over the hidden state
+--- approximated by a swarm of $1024$ ``particles,'' each a concrete hypothesis
+$(s,C,\theta,z)$. Each step: (i) \emph{propagate} every particle through the transition
+$s\!\to\!f(s;\reff,\Keff)$ ($+$translocation, $+$process noise); (ii) \emph{weight}
+each by the likelihood of $o_t$ under its state, $o{=}s\eta,\
+\eta\sim\mathrm{LogNormal}(0,\sobs^2)$, so particles consistent with the survey score
+high; (iii) \emph{resample} in proportion to weight. The particle cloud \emph{is} the
+belief (mean $=$ estimate, spread $=$ uncertainty), and all methods plan on this shared
+filter. Particles (not a Kalman filter) are needed because the maps are nonlinear and
+the belief is multi-modal (e.g.\ above vs.\ below the Allee threshold).
+Under known population identity, $\rbase$ and the $\lambda$ profile are \emph{known
+context}: drop $\rbase$ from the latent (do not infer it in the default setting), and
+$\reff,\Keff$ are deterministic once $(p,a,\kappa)$ are fixed. Particles thus carry
+only $s$ and hidden $(C,\theta,z)$; the log-normal emission is unchanged. The seven
+methods only need to read the new cost and the (already known) $(\reff,\Keff)$, and
+must \emph{not} read the realized reward (E6 leakage guard).
+
+\paragraph{(E9) Recalibration and declining baselines (do not skip).}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item Re-tune the behavior-policy mixture and per-population calibration profiles so
+the healthy-start incident collapse rate returns to $[0.15,0.24]$ \emph{for the
+recoverable populations}.
+\item \textbf{Real baselines decline.} Four populations have $\lambda_{a_0}<1$
+(Egyptian vulture, bottlenose dolphin, Amur tiger, spotted turtle): they decline
+under Do-Nothing, so persistence \emph{requires} action --- the decision problem is
+``which recovery action, and when.''
+\item \textbf{Two are demographic sinks} ($\rmax<0$: Egyptian vulture, bottlenose
+dolphin): even $a_4$ leaves $\lambda<1$, so no vital-rate action prevents decline;
+only repeated translocation ($a_{10}$) adds individuals. Treat these as hard cases:
+report per-population outcomes and split metrics by recoverability rather than
+pooling. Optionally exclude sinks from the headline ``beats-both'' statistic and
+report them separately.
+\end{enumerate}
+
+\paragraph{(E10) Acceptance tests.}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item Env step reproduces \code{action\_effects\_long.csv} for every (population,
+action): $\reff,\Delta K,\Delta N,\mathrm{cost}$ match (unit test).
+\item For each population, abundance term $\approx0.5$ when $s{=}\Kbase$; $\reff$
+within caps; $\Keff\le\Kmax$.
+\item Collapse rate in $[0.15,0.24]$ for recoverable populations after recalibration;
+document sinks separately.
+\item \textbf{Two reward settings:} \code{reward\_mode}=\code{yield} forces
+$P_{\mathrm{yield}}{=}0$, \code{safe} uses $P_{\mathrm{safe}}{>}0$; both log identical
+benefit ($s_{t+1}$-based, never $o_t$) and cost; the evaluation battery (collapse rate,
+min abundance, cost, persistence) is computed independently of \code{reward\_mode} so the
+settings stay comparable.
+\item \textbf{Reward-leakage guard:} the policy/belief input carries no
+realized-reward channel --- two rollouts with identical $(o,a)$ histories but different
+logged $R$ must produce identical actions (E6 leakage guard).
+\item \textbf{Training convergence (E12):} every agent's logged training loss decreases
+and plateaus (no divergence), each W\&B run has a local mirror, and the held-out
+validation value is logged and tracks the training curve without diverging (overfitting
+check).
+\end{enumerate}
+
+\paragraph{(E11) Offline dataset: size convention and behavior-policy diversity.}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item \textbf{$75$k is our convention, not baseline provenance.} The
+$\sim\!75$k-transition offline buffer is the Tier-2/3 deep offline-RL convention
+(D4RL-style), retained for comparability across the general learners --- \emph{not}
+inherited from the ecology baselines. MOOR \cite{moor2025} fits its mechanistic model
+from a single short effort/catch series ($T{=}50$ steps, three datasets per
+environment) and studies complete-vs-incomplete data, not a transition count; PLUS
+\cite{plus2018} is Bayesian adaptive planning over a belief across candidate models
+with sequential yearly observations and no fixed buffer. Do not cite PLUS/MOOR to
+justify $75$k.
+\item \textbf{Optional sample-efficiency ablation.} Sweep the buffer size (e.g.\
+$5$k/$25$k/$75$k/$150$k) as a \emph{separate} axis: the deep learners are data-hungry
+while the mechanistic baselines are near data-free, so this is an informative
+contribution, not a replication.
+\item \textbf{Behavior-policy action diversity matters.} Ensure the data-collecting
+mixture exercises the action set richly. MOOR found insufficiently variable effort
+caused identifiability failures \emph{even with data present}; the analogue here is a
+behavior policy that under-uses rate/capacity/translocation actions, leaving $(r,K,N)$
+effects unidentifiable. Log per-action coverage as a data-quality check.
+\end{enumerate}
+
+\paragraph{(E12) Training instrumentation: experiment logging and a validation split.}
+These curves are the first check that a method \emph{actually trained} --- the Tier-3
+diagnostic could not tell a failed fit from a hard problem.
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item \textbf{Log every run to Weights \& Biases \emph{and} mirror locally.} For each
+trained agent (per method $\times$ \code{reward\_mode} $\times$ $\sobs$ $\times$ seed),
+log the \emph{training-loss curve} vs.\ gradient step/epoch --- it should decrease and
+\emph{converge}. What the curve is depends on the method: the shared $15$-member ridge
+dynamics ensemble logs its predictive loss (MSE / negative log-likelihood of
+$s_{t+1}$); policy-learning methods (MOPO, OGSRL, RefPlan, Delphic, and MOOR's policy
+step) additionally log actor/critic losses ($Q$/Bellman loss, policy loss, and any
+penalty or uncertainty term); planning methods (BA-MCTS, PLUS) log the model-fit loss
+and rollout diagnostics rather than a policy loss. Also log the run config (method,
+reward mode, $\sobs$, population set, seed, buffer size, $\alpha$, $P_{\mathrm{safe}}$),
+gradient norms, and the reward decomposition (benefit / cost / penalty). \emph{Mirror
+everything locally} (e.g.\ \code{WANDB\_MODE=offline} plus a CSV/Parquet of the metric
+history and checkpoints under \code{results/method/reward\_mode/sigma/seed/}) so the
+training-error line is recoverable without the cloud.
+\item \textbf{Hold out a validation set for a validation curve during training.} Split
+the offline buffer \emph{by episode/trajectory} (not by transition, to avoid leakage
+across correlated steps), stratified by population and $\sobs$; reserve
+$\approx10$--$20\%$ as validation, never used for gradient updates. During training log
+a \emph{validation value} on this held-out data: (i) the held-out dynamics predictive
+loss ($1$-step and $k$-step) for the ensemble, and (ii) an off-policy value estimate
+(e.g.\ FQE or a model-based rollout return) as the policy's validation return. Use it
+to watch for overfitting, for early stopping, and for checkpoint/model selection.
+\item \textbf{Keep it distinct from the online battery.} This offline validation (on
+logged tuples) is \emph{not} the reward-agnostic evaluation battery of E6$'$/E10, which
+rolls policies out in the true environment. Compute the validation value under the
+\emph{same} \code{reward\_mode} the agent trains on, and --- per the E6 leakage guard
+--- reward stays a learning/scoring target only, never a policy or belief-filter input.
+\end{enumerate}
+
+\paragraph{Suggested order.} E0 $\to$ E1 $\to$ E2--E5 (transition + cost) $\to$
+E6--E6$'$--E7 (state reward + rescale + two settings + conventions) $\to$
+E9 (recalibrate) $\to$ E8 (filter) $\to$ E11 (offline data) $\to$ E12 (logging) $\to$
+E10 (tests).
+
+\begin{thebibliography}{9}
+\bibitem{ricker1954} Ricker, W.E.\ (1954). Stock and recruitment. \emph{J.\ Fish.\ Res.\ Board Can.} 11(5):559--623.
+\bibitem{white2022} White, T.B., Petrovan, S.O., Christie, A.P., Martin, P.A.\ \& Sutherland, W.J.\ (2022). What is the Price of Conservation? \emph{BioScience} 72(5):461--471. doi:10.1093/biosci/biac007.
+\bibitem{iaconaportal} Iacona, G.\ et al.\ \emph{Conservation Costing Portal} (\code{CostPortal\_7\_26\_24.xlsx}). \url{https://jcleme19.wixsite.com/costingportal/cost-studies}.
+\bibitem{plus2018} Memarzadeh, M.\ \& Boettiger, C.\ (2018). Adaptive management of ecological systems under partial observability. \emph{Biological Conservation} 224:9--15.
+\bibitem{moor2025} Ju, H.\ et al.\ (2025). Mechanistic model-based offline RL for fishery management. \emph{Expert Systems}.
+\bibitem{mopo2020} Yu, T.\ et al.\ (2020). MOPO: Model-based Offline Policy Optimization. \emph{NeurIPS}.
+\bibitem{refplan2025} Reflect-then-Plan: Offline Model-Based Planning through a Doubly Bayesian Lens. \emph{ICML} (2025).
+\bibitem{bamcts2026} Bayes-Adaptive Monte Carlo Tree Search for Offline Model-based RL. \emph{ICLR} (2026).
+\bibitem{ogsrl2025} Yan, R.\ et al.\ (2025). Offline Guarded Safe RL for Medical Treatment Optimization. \emph{NeurIPS}.
+\bibitem{delphic2024} Pace, A.\ et al.\ (2024). Delphic Offline RL under Nonidentifiable Hidden Confounding. \emph{ICLR}.
+\end{thebibliography}
+\end{document}

@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Hidden-regime decomposition of the three general methods (all populations).}
+\label{tab:hidden-general-methods}
+\begin{tabular}{llrrrrr}
+\toprule
+Reward & Method & Mean & Median & General wins & MOOR wins / margin & PLUS wins / margin \\
+\midrule
+Safe & RefPlan & \underline{-5.911} & \underline{5.278} & 10/144 & \underline{82}/144 / \underline{+0.854} & \underline{76}/144 / \underline{+0.165} \\
+Safe & BA-MCTS & -6.302 & 5.106 & \underline{12}/144 & 67/144 / +0.463 & 67/144 / -0.226 \\
+Safe & OGSRL & \textbf{-4.514} & \textbf{6.637} & \textbf{122}/144 & \textbf{118}/144 / \textbf{+2.251} & \textbf{115}/144 / \textbf{+1.563} \\
+Yield & RefPlan & \underline{5.657} & \underline{6.776} & 12/144 & 20/144 / \underline{-1.040} & 22/144 / \underline{-0.979} \\
+Yield & BA-MCTS & \textbf{6.040} & \textbf{7.438} & \textbf{80}/144 & \textbf{31}/144 / \textbf{-0.658} & \underline{32}/144 / \textbf{-0.596} \\
+Yield & OGSRL & 5.518 & 6.761 & \underline{52}/144 & \underline{28}/144 / -1.180 & \textbf{33}/144 / -1.118 \\
+\bottomrule
+\end{tabular}
+\end{table}

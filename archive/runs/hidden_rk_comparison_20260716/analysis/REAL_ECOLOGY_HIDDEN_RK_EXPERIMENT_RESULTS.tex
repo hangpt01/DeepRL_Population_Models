@@ -1,0 +1,572 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\graphicspath{{hidden_rk_report_figures/}}
+
+\title{Real-Ecology Benchmark: Hidden-$r,K$ Experiment Results}
+\author{}
+\date{2026-07-16}
+
+\begin{document}
+\input{hidden_rk_report_tables/report_numbers.tex}
+\maketitle
+
+\begin{abstract}
+This report presents the matched comparison between the benchmark's
+parameter-known and hidden-demographics regimes.  The former exposes the true
+demographic parameters $r$ and $K$ and is retained as a known-parameter
+ablation or upper-bound arm.  The latter hides $r$, $K$, demographic family,
+table-derived action effects, and private safety quantities from every method;
+it is the corrected structure-unknown uncertainty test.  Both arms contain
+\ReportMatchedCells{} matched population/family/noise/reward cells and use the
+same frozen code, data budget, planning budget, and evaluation seeds.  Hiding
+demographics substantially changes the native-comparator result in safe mode:
+the cellwise best general method changes from a mean gap of
+\SafeFullMoorGap{} against MOOR-native in the full arm to
+\SafeHiddenMoorGap{} in the hidden arm.  The safe-mode result must be read
+with the pre-registered caveat that public safety channels are weak under the
+private safety objective.
+\end{abstract}
+
+\section{Summary}
+
+The analyzed artifacts are under the dated run directory listed in
+Table~\ref{tab:setting}.  This is a fresh, current-semantics comparison between
+two deliberately distinct information regimes:
+\begin{itemize}
+    \item \textbf{Full} (\texttt{expose\_rk=full}): known $r,K$,
+    public-demographics, parameter-known.  This is the retained comparison
+    arm and an informative upper-bound ablation; it is not discarded or
+    characterized as erroneous.
+    \item \textbf{Hidden} (\texttt{expose\_rk=hidden}): hidden demographics,
+    structure unknown.  Methods receive sanitized public transitions, action
+    costs, and opaque population identity, while the evaluator privately keeps
+    the true dynamics and safety objective.
+\end{itemize}
+
+The principal findings are:
+\begin{itemize}
+    \item Both arms completed all \ReportRowsPerRegime{} method rows.  Their
+    \ReportMatchedCells{} scientific cells match exactly, with
+    \ReportUnmatchedCells{} unmatched cells.
+    \item In safe mode, the cellwise best general method is above MOOR-native
+    in \SafeHiddenMoorWins{} hidden cells with mean gap
+    \SafeHiddenMoorGap{}, and above PLUS-native in
+    \SafeHiddenPlusWins{} cells with mean gap \SafeHiddenPlusGap{}.
+    Under full information, both native methods instead have the higher mean.
+    \item In yield mode, hidden native fitting closes much of the full-mode
+    advantage but does not reverse it on average: the hidden best-general gaps
+    are \YieldHiddenMoorGap{} against MOOR-native and
+    \YieldHiddenPlusGap{} against PLUS-native.
+    \item The native safe-return sensitivity to hiding demographics is much
+    larger than for the general methods: matched hidden-minus-full deltas are
+    \SafeMoorDelta{} for MOOR-native and \SafePlusDelta{} for PLUS-native,
+    compared with \SafeOgsrlDelta{} for OGSRL.
+    \item Public ecological termination is nearly absent
+    (\TerminationEvents{} events in \TerminationTransitions{} transitions),
+    and constant-risk fallback activates in \RiskFallbackCells{} safe cells.
+    Safe-mode comparisons are therefore information-limited under the private
+    safety objective, not evidence that OGSRL intrinsically fails at safety.
+\end{itemize}
+
+\section{Experiment Setting and Regime Contract}
+
+The two arms differ only in \texttt{expose\_rk}.  They share the frozen
+configuration, the same \ReportPopulationCount{} populations, four demographic families, four
+observation-noise levels, two reward modes, five methods, and evaluation
+budget.  The headline methods are RefPlan, BA-MCTS, OGSRL, MOOR-native, and
+PLUS-native.  ``Best general'' is the cellwise maximum over RefPlan, BA-MCTS,
+and OGSRL; it is a descriptive upper envelope, not a single deployable policy.
+
+\paragraph{Algorithm-comparison convention.}
+Within each directly comparable reward/regime/metric slice in the tables,
+\textbf{boldface} marks the best algorithm value and an
+\underline{underline} marks the second-best value.  Higher return, win count,
+or margin is treated as better.  The formatting reports descriptive rank only;
+it is not a statistical-significance claim.  Gaps and diagnostics are left
+unranked when they do not constitute a direct algorithm comparison.
+
+\begin{table}[htbp]
+\centering
+\caption{Matched hidden-$r,K$ experiment setting.}
+\label{tab:setting}
+\begin{tabular}{ll}
+\toprule
+Item & Setting \\
+\midrule
+Run root & \path{real_ecology_runs/hidden_rk_comparison_20260716/} \\
+Information regimes & \texttt{full}; \texttt{hidden} \\
+Populations & \ReportPopulationCount{} total; \ReportRecoverablePopulationCount{} recoverable and \ReportSinkPopulationCount{} demographic sinks \\
+Families & Ricker, Allee, theta, regime \\
+Observation noise & $\sigma_{\rm obs}\in\{0.0,0.1,0.2,0.4\}$ \\
+Reward modes & safe and yield \\
+Methods & RefPlan, BA-MCTS, OGSRL, MOOR-native, PLUS-native \\
+Collection budget & 4,000 target transitions per cell; complete episodes \\
+Episode length & 25 steps; bounded overshoot at most 24 rows \\
+Planner budget & horizon 5, 96 sequences, 32 particles \\
+Evaluation & 5 seeds $\times$ 4 episodes $\times$ horizon 50 \\
+Safe collapse penalty & $P=5$, occupancy mode \\
+Backend & CPU / \texttt{numpy}; one BLAS thread \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In hidden mode, method-side inputs may contain public observations and
+histories, action identifiers and costs, time/horizon context, genuine public
+termination, and an opaque population token.  They may not contain true state,
+true $r$ or $K$, $K_{\rm ref}$ or $K_{\rm eff}$, demographic family, exact
+action-effect tables, the private safety threshold or margin, exact safety
+labels, \texttt{initially\_unsafe}, or evaluator-only reward components.
+MOOR-native fits one public model from sanitized transitions.  PLUS-native
+fits a separate public solver for each existing closed-world family candidate;
+the candidate set is unchanged and no new open-world family or $r/K$ candidate
+axis is introduced.
+
+\section{Completion and Provenance}
+
+\input{hidden_rk_report_tables/completion.tex}
+
+The full and hidden manifests are
+\path{manifests/manifest_full.csv} and
+\path{manifests/manifest_hidden.csv}; outputs are under
+\path{outputs/full/} and \path{outputs/hidden/}.  Jobs ran from the shared
+frozen snapshot under \path{code/}, not from the subsequently editable live
+tree.  The manifests agree on every scientific key except
+\texttt{expose\_rk}.  Their complete SHA-256 values, the frozen configuration
+hash, and all derived table records are retained in
+\path{hidden_rk_report_metrics.json} and the run audit handoff.
+
+The collection contract treats 4,000 rows as a target rather than a hard
+truncation count.  Complete 25-step episodes are preserved, so actual rows may
+range from 4,000 through 4,024.  Forty cells in each arm contain 4,005 rows;
+all others contain 4,000.  These matched overshoots occur in the same early-
+termination cells and satisfy the registered bound.  Manifests and summaries
+retain target rows, actual rows, overshoot rows, and episode counts.
+
+\section{Matched Method Returns}
+
+All full-versus-hidden deltas in this report are computed only on identical
+population, family, observation-noise, and reward-mode cells.  Table
+\ref{tab:matched-methods} reports means over all populations, so the safe-mode
+means include the demographic sinks and should be read together with the split
+in Table~\ref{tab:recoverability}.
+
+\input{hidden_rk_report_tables/matched_method_returns.tex}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{method_returns_full_vs_hidden}
+\caption{Mean operational return by method and information regime over all
+matched cells. Error bars are standard errors across cells. Safe-mode
+dispersion is dominated by the demographic sinks.}
+\label{fig:method-returns}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.66\linewidth]{hidden_minus_full_delta_heatmap}
+\caption{Matched-cell mean hidden-minus-full return. The largest negative
+safe-mode effects are concentrated in the two native methods; OGSRL has a
+positive aggregate safe-mode delta.}
+\label{fig:delta-heatmap}
+\end{figure}
+
+The full arm reproduces the current frozen implementation semantics and is the
+appropriate matched parameter-known comparator for this study.  Earlier
+known-parameter figures remain historical motivation results; they are not
+silently relabeled as this current-semantics arm.
+
+\section{Best General Method Versus Native Solvers}
+
+\input{hidden_rk_report_tables/native_comparison.tex}
+
+The full arm shows the expected benefit of exact demographic access for the
+native solvers.  In hidden safe mode, those solvers instead estimate their
+models from the same public transition budget available to the general
+methods.  The sign reversal in Table~\ref{tab:native-comparison} is therefore
+the central information-regime result: it measures removal of exact-table
+access, not deletion or replacement of the parameter-known benchmark.
+
+\subsection{Method-level decomposition of the best-general envelope}
+
+The best-general statistic selects the largest return among RefPlan, BA-MCTS,
+and OGSRL separately in every cell.  Table~\ref{tab:hidden-general-methods}
+decomposes that envelope in hidden mode.  ``General wins'' counts cells in
+which a method is the unique largest of the three general methods; there are
+no exact general-method ties in this run.  Native wins and margins compare
+each named method directly with the named native solver, without cellwise
+method selection.
+
+{\scriptsize\input{hidden_rk_report_tables/hidden_general_method_summary.tex}}
+
+In hidden safe mode, OGSRL supplies 122 of the 144 envelope selections,
+compared with 10 for RefPlan and 12 for BA-MCTS.  The aggregate safe-mode
+best-general result is therefore not evidence that all three general methods
+behave alike.  Hidden yield mode has a different composition: BA-MCTS supplies
+80 selections, OGSRL 52, and RefPlan 12.  The large safe-mode difference
+between mean and median method return also reflects pooling the recoverable
+and demographic-sink populations.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{general_winner_composition}
+\caption{Composition of the cellwise best-general envelope. Numbers inside
+segments are cell counts; bar heights are percentages. The first panel shows
+both regimes and reward modes. The remaining panels decompose hidden mode by
+family, observation noise, and recoverable/sink scope. No exact ties occur.}
+\label{fig:general-winner-composition}
+\end{figure}
+
+\clearpage
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\linewidth]{general_method_native_gap_by_family}
+\caption{Per-general-method minus native mean-return gaps by family over all
+nine populations. Positive values favor the named general method. Rows of
+panels separate full/hidden and safe/yield; columns compare MOOR-native and
+PLUS-native. These are named-method results, not the best-general envelope.}
+\label{fig:general-method-family-heatmap}
+\end{figure}
+
+\clearpage
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\linewidth]{general_method_native_gap_by_sigma}
+\caption{Per-general-method minus native mean-return gaps by observation
+noise over all nine populations. Positive values favor the named general
+method. The hidden safe advantage weakens for several comparisons at
+$\sigma_{\rm obs}=0.4$, while hidden yield gaps remain negative on average.}
+\label{fig:general-method-sigma-heatmap}
+\end{figure}
+
+\clearpage
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{hidden_general_native_gap_distributions}
+\caption{Cell-level hidden-regime return gaps for each general method against
+MOOR-native and PLUS-native. Points are the 144 matched cells per reward mode;
+blue denotes recoverable populations and red denotes demographic sinks. Boxes
+show the median and interquartile range, whiskers use the standard 1.5-IQR
+rule, and the dashed line marks equal return.}
+\label{fig:hidden-general-gap-distributions}
+\end{figure}
+
+The distributions show why means and win counts should be read together.
+Safe-mode OGSRL is usually above both native solvers but has a small number of
+large negative gaps.  RefPlan and BA-MCTS are more mixed.  In yield mode, all
+three named methods have negative mean margins against both natives even
+though individual recoverable cells cross zero.  Thus the broad statement
+``general methods win when demographics are hidden'' is not supported without
+the safe-mode, envelope, and cell-scope qualifications.
+
+\clearpage
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\linewidth]{general_minus_moor_native_by_family}
+\caption{Cellwise best-general minus MOOR-native mean return by family on
+recoverable populations. Positive values favor the best general method.}
+\label{fig:family-moor}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\linewidth]{general_minus_plus_native_by_family}
+\caption{Cellwise best-general minus PLUS-native mean return by family on
+recoverable populations. PLUS retains the registered closed-world family
+candidate set in hidden mode, but each candidate solver is fitted only from
+public data.}
+\label{fig:family-plus}
+\end{figure}
+
+\clearpage
+\section{Family, Observation Noise, and Recoverability}
+
+Table~\ref{tab:family} gives the safe, recoverable family slice.  The
+corresponding figures above include both safe and yield panels.  In all four
+families, the safe-mode mean gap against each native solver changes from
+negative in full mode to positive in hidden mode.  This pattern is not driven
+by a single family.
+
+\input{hidden_rk_report_tables/family_comparison.tex}
+
+\input{hidden_rk_report_tables/sigma_comparison.tex}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\linewidth]{general_minus_native_by_sigma}
+\caption{Best-general minus native gaps by observation noise on recoverable
+populations. The safe-mode reversal remains visible from
+$\sigma_{\rm obs}=0.0$ through $0.4$; the yield-mode gaps remain modestly
+negative in hidden mode.}
+\label{fig:sigma-native}
+\end{figure}
+
+\clearpage
+{\small\input{hidden_rk_report_tables/recoverability_comparison.tex}}
+
+The recoverable/sink separation is essential.  Safe returns in sink cells are
+strongly negative under both regimes because those populations decline under
+the registered dynamics.  Hidden safe mode nevertheless changes relative
+method ordering in both scopes.  Yield mode is different: native solvers keep
+a small mean advantage on recoverable cells and a larger one on sinks.
+
+\clearpage
+\section{All Methods in the Hidden Regime}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{all_methods_hidden_by_family}
+\caption{All five methods in the corrected hidden-demographics regime,
+restricted to recoverable populations and split by family. This figure shows
+method-level means rather than the cellwise best-general envelope.}
+\label{fig:hidden-all-methods}
+\end{figure}
+
+No method is uniformly best across every family and reward mode.  The hidden
+native methods remain competitive in yield mode, while general methods have
+the stronger aggregate safe-mode comparison.  This distinction matters:
+hidden-demographics is an uncertainty test, not a claim that native ecological
+structure is generally unhelpful.
+
+\clearpage
+\section{Safety and Risk Diagnostics}
+
+\input{hidden_rk_report_tables/safety_diagnostics.tex}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{safety_risk_diagnostics}
+\caption{Hidden safe-mode reporting diagnostics. Genuine ecological
+termination is the only public risk label and is almost absent. Reward errors
+are shown for the public holdout and low-reward tail, plus evaluator-only
+private penalty strata. These quantities were not used for tuning or method
+selection.}
+\label{fig:safety-diagnostics}
+\end{figure}
+
+Genuine ecological termination occurs in only \TerminationPercent{} of the
+public transitions and only in the theta family.  Consequently, the fitted
+risk model is constant in \RiskFallbackCells{} cells.  The public reward
+surrogate has mean holdout RMSE \RewardHoldoutRmse{} and low-reward-tail RMSE
+\RewardLowTailRmse{}.  Evaluator-only stratification gives pooled RMSE
+\RewardNoPenaltyRmse{} when the private safety penalty is absent and
+\RewardPenaltyRmse{} when it is applied.
+
+These diagnostics establish an information limitation, not a new selection
+criterion.  The exact threshold $c_{\rm safe}K_{\rm base}$ remains private;
+no post-hoc public threshold is introduced.  Weak public termination labels
+and limited reward-surrogate resolution mean that a safe-mode result cannot be
+interpreted as an intrinsic test of OGSRL's safety capability.  In particular,
+OGSRL is retained as a headline method, and its result is reported without
+post-hoc retuning or demotion.
+
+\clearpage
+\section{Mechanistic Interpretation}
+
+The matched regime comparison identifies a reproducible change in method
+ordering, but the following mechanisms are interpretations rather than a
+causal decomposition.  The evidence is \emph{consistent with} several linked
+effects of the information boundary.  Isolating any one effect would require
+an additional registered ablation, such as varying the public transition
+budget, separately perturbing fitted action effects, or changing the public
+safety information while holding the rest of the pipeline fixed.
+
+\subsection{Why native solvers are strong with known demographics}
+
+In the full regime, MOOR-native and PLUS-native receive exact demographic and
+action-table information, including the population capacity scale and
+action-specific growth effects used to construct their mechanistic solvers.
+That access removes much of the parameter-estimation problem.  Their strong
+full-mode returns, and the negative named-method gaps in
+Figures~\ref{fig:general-method-family-heatmap} and
+\ref{fig:general-method-sigma-heatmap}, are consistent with near-oracle
+demographic inputs being particularly valuable to these native planning
+models.  This remains a valid parameter-known result rather than an error in
+the old arm.
+
+\subsection{Why hidden safe mode changes the comparison}
+
+In hidden mode, the native solvers must fit dynamics and action effects from
+sanitized public transitions.  They cannot read the true $r$, $K$, family,
+action-effect tables, or the $K$-scaled safety threshold.  One plausible
+explanation for their safe-mode drop is accumulated estimation error in the
+fitted ecological transition and action-response model, coupled with a safety
+objective whose exact boundary remains evaluator-only.  Diagnostic evidence
+indicates that the public reward surrogate is less accurate in the private
+penalty-applied stratum than outside it (Table~\ref{tab:safety-diagnostics}),
+so the available data do not expose the safe objective cleanly.
+
+General methods may be less dependent on recovering a single exact ecological
+parameterization.  Their learned return, transition, belief, and planning
+patterns can exploit regularities in observed public trajectories even when
+the demographic fit is imperfect.  This is consistent with the positive
+hidden safe margins, particularly for OGSRL, but it is not proof that a
+particular representation or planner causes the advantage.  The winner
+composition in Figure~\ref{fig:general-winner-composition} also shows that the
+safe envelope is predominantly OGSRL rather than a uniform three-method gain.
+
+\subsection{Why the result does not make ecological structure useless}
+
+Hidden yield mode provides an important counterweight.  The native solvers
+remain competitive and are slightly better on average than the cellwise
+best-general envelope; each named general method has a negative mean margin in
+Table~\ref{tab:hidden-general-methods}.  This suggests that fitted ecological
+structure can remain useful when the objective aligns more directly with
+observable abundance and return, even without exact table access.  The result
+is therefore about the interaction between information, objective, and method,
+not a general rejection of mechanistic modeling.
+
+\subsection{OGSRL and the weak public safety signal}
+
+OGSRL's hidden safe result needs special caution.  Genuine ecological
+termination occurs only \TerminationEvents{} times in
+\TerminationTransitions{} public transitions, and constant-risk fallback is
+used in \RiskFallbackCells{} safe cells.  Its learned public risk channel is
+therefore nearly constant in most cells.  The observed safe return is
+consistent with other public reward/model/planning signals carrying useful
+information, but the experiment cannot separate those channels cleanly.  It
+does not establish intrinsic OGSRL safety competence or failure under a
+well-observed safety target.
+
+\subsection{Role of the registered experimental scale}
+
+The observed ordering is conditional on the registered scale: a 4,000-row
+transition target with complete 25-step episodes; planner horizon 5, 96
+candidate sequences, and 32 particles; five evaluation seeds with four
+episodes per seed at horizon 50; observation noise from 0.0 to 0.4; and safe
+collapse penalty $P=5$.  Recoverable and sink populations contribute very
+different return distributions, as Figure~\ref{fig:hidden-general-gap-distributions}
+shows.  A larger data budget could improve native parameter recovery; a longer
+planner horizon or different search budget could change all methods; and a
+different penalty could change the safe-return tradeoff.  None of these
+counterfactuals was tuned after observing the hidden results, so they should be
+treated as future ablations rather than explanations already demonstrated by
+this run.
+
+\clearpage
+\section{Illustrative Trajectories}
+
+The headline result artifacts contain episode aggregates rather than complete
+per-step traces.  A separate report-only array, Slurm job
+\texttt{58328792}, generated the following visualizations after the sweep;
+all eight tasks completed with exit code \texttt{0:0}.
+It used the frozen snapshot and cached public datasets, refitted each listed
+method with the registered split and hyperparameters, and rolled out three
+fixed seeds (7001, 7051, and 7101).  The cells were selected in advance for
+interpretability: Amur tiger, Puerto Rican parrot, Iberian lynx, and Egyptian
+vulture, all at $\sigma_{\rm obs}=0.2$ in safe mode.  These 40 policy traces
+(four species $\times$ two regimes $\times$ five methods) are illustrative
+only and are excluded from every table above.
+
+Each panel shows median true abundance, observation, true reward, and action
+identifier across the three episodes.  The final row shows evaluator-only
+private unsafe frequency; dotted traces, when present, are method-side public
+risk estimates.  The dashed abundance line is the private evaluator threshold
+and was never supplied to hidden-mode policies.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.91\linewidth]{trajectory_amur_tiger_ricker_full_vs_hidden}
+\caption{Illustrative Amur tiger trajectories: recoverable, relatively large
+population. Not used in headline comparisons.}
+\label{fig:trajectory-tiger}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.91\linewidth]{trajectory_puerto_rican_parrot_ricker_full_vs_hidden}
+\caption{Illustrative Puerto Rican parrot trajectories: recoverable and
+safety-sensitive. Not used in headline comparisons.}
+\label{fig:trajectory-parrot}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.91\linewidth]{trajectory_iberian_lynx_allee_full_vs_hidden}
+\caption{Illustrative Iberian lynx trajectories under Allee dynamics: a
+nontrivial recoverable case. Not used in headline comparisons.}
+\label{fig:trajectory-lynx}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.91\linewidth]{trajectory_egyptian_vulture_ricker_full_vs_hidden}
+\caption{Illustrative Egyptian vulture trajectories: demographic-sink case.
+Not used in headline comparisons.}
+\label{fig:trajectory-vulture}
+\end{figure}
+
+\section{Registered Interpretation and Limitations}
+
+\begin{itemize}
+    \item The hidden arm is the corrected hidden-demographics,
+    structure-unknown setting.  The full arm remains runnable and scientifically
+    useful as the known-parameter comparison.
+    \item Data collection targets 4,000 rows while preserving complete
+    episodes.  The observed bounded overshoot is recorded rather than
+    truncated away or used to increase the budget.
+    \item The private safety threshold remains evaluator-only.  No public
+    threshold was invented after observing results, and no method was retuned
+    against hidden outcomes.
+    \item Public low-reward-tail error and private safe/unsafe-stratified
+    reward error are reporting diagnostics only.  They did not affect model
+    selection, hyperparameters, or the headline grid.
+    \item Safe mode is pre-registered as information-limited if both public
+    safety channels are thin.  That condition is observed here and must
+    accompany interpretation of safe-mode gaps.
+    \item The prior 721-cell prevalence calculation included duplicated
+    trajectories across penalty values and is not an independent replication.
+    It is not used as independent evidence in this report; the risk conclusion
+    is supported by the complete matched sweep reported here.
+    \item Cellwise best-general results benefit from selecting the strongest
+    of three general methods separately in each cell.  Per-method means and
+    the all-method hidden figure are provided to prevent that descriptive
+    envelope from being mistaken for a deployable selector.
+    \item Illustrative rollout plots refit policies because serialized trained
+    policies were not part of the headline artifacts.  They reproduce the
+    registered fitting path and fixed seeds, but they are not additional
+    headline experiments.
+\end{itemize}
+
+\section{Conclusion}
+
+The matched run closes the central information-routing question.  Exact
+demographic access gives the native solvers a clear advantage in the retained
+full arm.  Once all methods must infer dynamics from sanitized public data,
+the safe-mode ordering reverses broadly across families, noise levels, and
+recoverability scopes, while native structure remains competitive in yield
+mode.  The comparison therefore supports treating known-$r,K$ and hidden-$r,K$
+as separate benchmark regimes rather than merging their claims.
+
+The safety result is narrower.  Because the evaluator's safety threshold is
+private and genuine termination is exceptionally rare, public risk learning is
+nearly inert and reward-surrogate error is larger in the private penalty
+stratum.  Safe-mode outcomes should consequently be reported as performance
+under limited public safety information, not as a standalone judgment of any
+method's intrinsic safety mechanism.
+
+\appendix
+\section{Reproduction Artifacts}
+
+All tables and figures were generated programmatically with:
+\begin{verbatim}
+MPLCONFIGDIR=/tmp/hidden_rk_report_mpl PYTHONPATH=code/src \
+  python analysis/make_hidden_rk_report.py
+\end{verbatim}
+The per-step illustrative traces were produced by
+\path{analysis/capture_report_trajectories.py}; their Slurm launcher is
+\path{analysis/run_report_trajectory_capture.sh}.  Figure descriptions and
+generation commands are recorded in \path{analysis/FIGURE_MANIFEST.md}.
+Machine-readable report values and unmatched-cell status are in
+\path{analysis/hidden_rk_report_metrics.json}; table source CSVs and TeX
+fragments are under \path{analysis/} and
+\path{analysis/hidden_rk_report_tables/}.
+
+\end{document}

@@ -1,0 +1,52 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "673e720a42cea0a06a1518634a4986865b7568c6455e6f65f1da5661b0a1672d",
+    "26894e5f4bda54c65ff7be1f9384f73790336400a1e8bebd8d579859039adb41",
+    "0b25e8be7b81c8e578028fb87f6f5ab773dbd293044946c6ec26b4185da0bb4e",
+    "6682f3b6b4e67655d86c61ea1454424650a5295eeb0a05af43f4968b5917aa7b",
+    "6d3aecf2132abb697a3f8b8a68b8f01662acce59998b1fe4151e949fdfdb9980",
+    "69defbc9fd9fc8ba81784a0cdf1fdd1ec2eb10bab83b48f1f26270e4f32fc43b",
+    "34c6954c0a1c6ca6107890c4a11f4d9fd2556bf5a1d94a574b5f23d8ffce32df",
+    "425222a8449054a0272fd1bcddfe888e465223676951123b8d29ed842aaed5e3"
+  ],
+  "fit_reuse_ledger": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/launch_package/provenance/fit_reuse_ledger_216.csv",
+  "fit_reuse_ledger_sha256": "5410b0e4fd71312af601cbdd4c8f11115469483780f26c202fbe232916187ac3",
+  "fit_seconds": 0.0,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "d99c04965aaab830eca0875c816feedc04b90394b850da718e44e6342397a06f",
+    "348d0864ed8a616ed492ef067d09683cea562ab21ffa0f690873b5800120ee94",
+    "2530797dd18ce6c2c0aefdfb0257e72d6f57b1a1fcf9b7af89cdbbf4e73f3f6c",
+    "6e1f0e318fc9a42cdc091c19a30d262acbcc6f1f2a516ce297eb9a049a82f5a5",
+    "6d6a7b43cf8bd91df13479661184af3e4212c948c3c5c8197eedaf057a43087e",
+    "a7b7d5f4f7d07ac81379db78ac61aa316b8bf1d3fb7aa15440bf397f3ca74580",
+    "e43dabd22dd83a71561c73cfa11214e20eb97ae6baf00df4c3efaf7684cfc55d",
+    "8245d740a9b35f7cf8360b09c6af5643490c4448447c311fc1efa49f2fc4658e"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "reward_independent_fit": true,
+  "run_stage": "dynamics_fit",
+  "source_fit_receipt": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/ricker_only_plus_72_20260720/production/fit_receipts/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/plus_adapted_ricker_only_pbvi/fit_receipt.json",
+  "source_fit_receipt_sha256": "c2efa8804a079858aa243baee08b2226d3cdad366634583606b1509a06cf83e0",
+  "source_reward_penalty": 5.0,
+  "target_reward_penalty": 10.0,
+  "target_rows": 4000,
+  "transition_data_hash": "43e9d9b5745ded50fc5291c24c0aaa85ddcc6f330b8675a5ed71da6b90f2baeb"
+}

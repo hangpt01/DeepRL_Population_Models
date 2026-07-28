@@ -1,0 +1,13 @@
+key,citation,cmp_category,figure,covers,origin
+framing,"White, Petrovan, Christie, Martin & Sutherland (2022), BioScience 72(5):461-471",-,"13.3% of studies report a numeric cost, 8.8% a total cost",why a relative index is used,portal-framing
+H,(modelling choice),Species Management,harvest = exploitation -> revenue; absent from cost databases,"a1,a2 harvest revenue",modelling
+Ad,Adams et al. 2012,Land / Water Management,"AU$1.01/ha/yr routine, AU$1.99/ha/yr conservation-oriented",habitat/land management upkeep (a5),portal
+Gr,Green et al. 2012,Land / Water Management,"US$2.3/ha/yr actual median, US$8.3/ha/yr necessary","PA recurrent+capital mgmt (a5,a6)",portal
+Ja,James et al. 1999,Land / Water Management,global mean US$893/km2/yr (~US$8.9/ha/yr),"PA management worldwide (a5,a6)",portal
+Fr,Frazee et al. 2003,Species + Land / Water Management,US$71/ha ideal staffing+operating (Cape Floristic),intensive site management (a6),portal
+Mc,McCarthy et al. 2012,Species Management,"US$0.19/ha to US$24,487/ha; US$7.18B total (Red-Listed birds)",species recovery incl. predator/disease control (a3),portal
+La,Laycock et al. 2009,Species Management,"GBP500 to GBP7,000,000 total per species recovery programme",captive breeding / recruitment (a4),portal
+Ba,Balmford et al. 2003,Conservation Designation & Planning,"US$0.1/km2/yr to >US$1,000,000/km2/yr recurrent PA mgmt",scale/range of management cost,portal
+Y,Yong et al. 2023 (J.Appl.Ecol 60:898),Species + Land / Water Management,"AU$0.24-8,880/ha/yr across 18 threat-abatement strategies; labour 49%",predator/disease & threat control (a3),portal-referenced
+We,Weise et al. 2014 (PLOS ONE),Species Management,"translocation median US$2,393/individual; up to US$6,898; tracking 56%",translocation per animal (a10),supplementary-web
+Co,California condor programme (PBS Nature),Species Management,>US$35M captive-breeding programme since 1987,captive-breeding upper bound (a4),supplementary-web

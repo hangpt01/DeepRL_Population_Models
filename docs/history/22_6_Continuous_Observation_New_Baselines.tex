@@ -1,0 +1,525 @@
+% ============================================================================
+%  continuous-state synthetic benchmark report: Continuous-State, Noisy-Observation Setting + Selected Baselines
+%  Self-contained: compile directly with  pdflatex  (no external figures).
+%  Style follows 14_6_More_Population_Models_Stress_Test_Report.tex.
+%  Purpose: (i) specify the new continuous-observation setting, (ii) argue why it
+%  improves on the discrete-bin setting, (iii) describe the selected baselines
+%  (Delphic, OGSRL; Confounded POMDPs as anchor) with their core equations, and
+%  (iv) give an implementation-oriented experiment spec for a coding agent.
+% ============================================================================
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\reff}{r_{\mathrm{eff}}}
+\newcommand{\Keff}{K_{\mathrm{eff}}}
+\newcommand{\rbase}{r_{\mathrm{base}}}
+\newcommand{\Kbase}{K_{\mathrm{base}}}
+\newcommand{\Kref}{K_{\mathrm{ref}}}
+\newcommand{\sobs}{\sigma_{\mathrm{obs}}}
+\newcommand{\Csafe}{C_{\mathrm{safe}}}
+
+\title{Adaptive Management under Observation Error:\\
+A Continuous-State, Noisy-Observation POMDP and Selected Offline Baselines\\
+\large (continuous-state synthetic benchmark: from discrete abundance bins to continuous noisy surveys)}
+\author{Deep RL for Ecological Population Management}
+\date{2026-06-20}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report specifies the \emph{continuous-state, continuous-observation} setting
+that succeeds our discretized stress-test benchmark, and selects the offline
+model-based RL baselines we will compare against and improve upon. The earlier
+benchmark binned a continuous abundance into a finite POMDP and observed the bin
+\emph{exactly}; here the abundance is continuous and \emph{unbounded}, and the
+manager observes only a noisy real-valued survey $o_t = s_t\,\eta_t$ with
+$\eta_t \sim \mathrm{LogNormal}(0,\sobs^2)$, with a growth rate $\rbase$ (and
+structural parameters $C,\theta,z$) \emph{redrawn every episode}. The
+\textbf{primary baselines to beat remain the ecology-specific mechanistic methods},
+PLUS and MOOR; they do not run natively on a continuous noisy survey, but we adapt
+them with the same state-belief filter and an observation-error model rather than
+dropping them, because beating them is the point of the study. The
+\textbf{contribution is twofold}: (i) bringing general offline model-based RL to
+ecological adaptive management at all is already novel, and (ii) we add two recent
+A* baselines that match the new setting on its two hardest axes \textemdash\
+\textbf{Delphic Offline RL} (ICLR 2024), whose epistemic/aleatoric/\emph{delphic}
+uncertainty decomposition maps onto observation noise plus hidden episode
+parameters, and \textbf{OGSRL} (NeurIPS 2025), whose OOD guardian plus safety-cost
+constraint maps onto collapse avoidance \textemdash\ alongside our in-house
+learners (MOPO, RefPlan, BA-MCTS). \textbf{Confounded POMDPs} (ICML 2024) is the
+theoretical anchor. The final section is an implementation specification for a
+coding agent.
+\end{abstract}
+
+\section{Scope and central question}
+The stress-test phase formalised adaptive management as a \emph{discretized}
+Bayes-Adaptive MDP: a continuous abundance $s_t \in [0,1000]$ was mapped to one of
+$N{=}100$ bins $x_t = \min(\lfloor s_t/w \rfloor, N{-}1)$, $w{=}10$, and that bin
+was treated as a \emph{noise-free, fully observed} state. The only hidden
+quantities were the episode \emph{parameters} ($\rbase$, the Allee threshold $C$,
+the curvature $\theta$, the regime $z_t$); the state itself was observed exactly.
+
+continuous-state synthetic benchmark removes both simplifications at once. The abundance is now continuous and
+unbounded, and it is observed only through a noisy continuous survey. The central
+question is unchanged in spirit but harder: \emph{under decision-relevant
+misspecification \textbf{and} observation error, can general offline model-based
+learners that infer the dynamics and filter the state beat the ecology-specific
+mechanistic baselines (PLUS, MOOR) and avoid collapse?} The ecology baselines are
+the \textbf{closest and most important comparison} \textemdash\ they encode the
+domain knowledge our learners must justify replacing. They require a finite model
+and clean state, so they cannot run \emph{natively} on a continuous noisy survey;
+rather than drop them (as the stress-test report tentatively scoped), we
+\textbf{keep them as primary baselines and adapt them} with the shared state-belief
+filter and a log-normal observation model (Section~\ref{sec:eco}). Beating them is
+the evaluation; simply \emph{applying} general offline MBRL to this problem is
+already a standalone contribution.
+
+\paragraph{Why per-episode parameters make this a Bayes-Adaptive problem (and hard
+for single-model baselines).} Because $\rbase$ (and $C,\theta,z$) are redrawn each
+episode and held fixed within it, the pooled offline data is a \emph{mixture over
+models}. A single-model fitter (MOOR, which fits one Ricker $(r,K)$) recovers a
+blurred average that is wrong for most episodes and cannot represent structure, so
+per-episode variation hurts it badly. PLUS is less brittle in $r$: it maintains a
+Bayesian belief over a \emph{grid} of candidate $\rbase$ within the Ricker family
+and adapts per episode from history \textemdash\ but it has \emph{no} candidate for
+the structural hidden variables ($C,\theta,z$), so a confident wrong $r$ near a
+threshold is its failure mode. General learners that condition on the
+history/belief can infer both the per-episode latent and the non-Ricker structure;
+that capability is exactly what continuous-state synthetic benchmark tests.
+
+\section{The new setting (continuous state, noisy observation)}
+\label{sec:setting}
+
+\subsection{Latent state, hidden parameters, and discrete actions}
+The physical abundance is a continuous, unbounded, non-negative latent variable
+\begin{equation}
+s_t \in \mathcal{X} = \mathbb{R}_{\ge 0},
+\end{equation}
+with \emph{no} maximum $s_{\max}$: a ceiling was only ever needed to make the bin
+count finite, and abundance is regulated by density dependence, not by a cap. The
+hidden per-episode parameter vector is
+\begin{equation}
+m = (\rbase, C, \theta, z_t, \dots), \qquad
+\rbase \sim \mathcal{U}(r_{\mathrm{lo}}, r_{\mathrm{hi}}),
+\end{equation}
+drawn once per episode and never logged (the regime $z_t$ may switch within an
+episode). The complete latent Markov state is the pair $\,\zeta_t = (s_t, m) \in
+\mathcal{X}\times\mathcal{M}$, of which the agent observes \emph{neither}
+component directly.
+
+The action space is unchanged from the stress-test benchmark: a finite set
+\begin{equation}
+\mathcal{A} = \{0,1,\dots,A-1\}, \qquad A \in \{5,10\}.
+\end{equation}
+Each action perturbs the growth parameters additively \emph{and} applies direct
+abundance authority \emph{before} growth,
+\begin{equation}
+\reff(a) = \rbase + \Delta r(a), \quad \Keff(a) = \Kbase + \Delta K(a), \qquad
+s \;\leftarrow\; s\,(1 - h(a)) + \delta(a),
+\label{eq:authority}
+\end{equation}
+where $h(a)\in[0,1]$ is a harvest fraction and $\delta(a)\ge 0$ a stocking
+increment ($\Kbase = 500$). The $5$-action table has do-nothing, a $50\%$ harvest,
+and three support/restoration actions with $\delta\in\{60,100,160\}$; the
+$10$-action table adds a $25\%$ harvest and intermediate support levels
+($\delta$ from $40$ to $160$). This direct authority is what makes the hidden
+threshold \emph{controllable} (a manager can pull a declining stock back across
+the danger zone) and what makes the misspecification decision-relevant.
+
+\subsection{Continuous transition dynamics (base + three stress models)}
+The latent abundance evolves under the effective parameters. The base law is the
+Ricker map; the three stress models each add one hidden per-episode structure.
+Optional environmental process noise $\eta^{p}_t \sim \mathcal{N}(0,\sigma_p^2)$
+is set to $0$ in the base configuration (so observation error is studied in
+isolation) and turned on as a stress test; a non-negativity floor
+$s_{t+1}\leftarrow\max(s_{t+1},0)$ is the only clip, and $s=0$ is absorbing.
+\begin{align}
+\textbf{Ricker (base):}\quad
+& s_{t+1} = s_t \exp\!\big(\reff(1 - s_t/\Keff) + \eta^p_t\big), \\
+\textbf{Allee--Ricker } (C):\quad
+& s_{t+1} = s_t \exp\!\big(\reff(1 - s_t/\Keff)(s_t/C - 1)\big), \quad C\sim\mathcal{U}(C_{\mathrm{lo}},C_{\mathrm{hi}}), \\
+\textbf{Theta-logistic } (\theta):\quad
+& s_{t+1} = s_t + \reff\, s_t\big(1 - (s_t/\Keff)^{\theta}\big), \quad \theta\sim\mathcal{U}(\theta_{\mathrm{lo}},\theta_{\mathrm{hi}}), \\
+\textbf{Regime-switch } (z_t):\quad
+& s_{t+1} = s_t \exp\!\big(m_{z_t}\,\reff(1 - s_t/\Keff)(s_t/C_{z_t} - 1)\big),
+\end{align}
+where in the Allee map the factor $(s_t/C-1)$ flips sign below $C$ (critical
+depensation), and in the regime model the latent regime $z_t\in\{\text{safe},
+\text{harsh}\}$ persists with probability $0.9$ and switches a growth multiplier
+and threshold ($C_{\text{safe}}{=}90, C_{\text{harsh}}{=}180, m_{\text{safe}}{=}1.0,
+m_{\text{harsh}}{=}0.65$). The simulator uses these equations only to generate
+data; they are \emph{not} given to the learner, which must infer the transition
+law from offline trajectories and so remain model-agnostic.
+
+\subsection{Continuous noisy observation model}
+The manager never sees $s_t$; it observes a noisy real-valued survey through a
+multiplicative (log-normal) channel, the standard form for abundance indices,
+\begin{equation}
+o_t = s_t \cdot \eta_t, \qquad \eta_t \sim \mathrm{LogNormal}(0,\sobs^2),
+\qquad o_t \in \Omega = \mathbb{R}_{\ge 0},
+\label{eq:obs}
+\end{equation}
+equivalently $\log o_t = \log s_t + \varepsilon_t$, $\varepsilon_t\sim
+\mathcal{N}(0,\sobs^2)$, so relative error is constant across abundance levels.
+The noise level $\sobs$ controls partial observability: $\sobs{=}0$ recovers a
+fully observed continuous-state MDP (still with hidden $m$), and increasing
+$\sobs$ smoothly increases partial observability. \textbf{Why $o_t$ is not the
+state:} treating $o_t$ alone as Markov is incorrect whenever $\sobs>0$ or $m$ is
+hidden, since $o_t$ is a noisy, parameter-confounded view of $\zeta_t$. The agent
+acts on the observation history
+\begin{equation}
+h_t = (o_0, a_0, R_0, \dots, a_{t-1}, R_{t-1}, o_t),
+\end{equation}
+through a policy $\pi(a_t\mid h_t)$, or $\pi(a_t\mid b_t)$ with a belief
+$b_t \approx p(s_t, m \mid h_t)$.
+
+\subsection{Reward and safety (computed from the observation)}
+To avoid leaking the hidden true abundance into the dataset, the abundance term of
+the reward is computed from the \emph{observation}, using a saturating utility
+that is bounded by its shape rather than by any population cap:
+\begin{equation}
+R_t = \underbrace{\alpha\,\frac{o_t}{o_t + \Kref}}_{\text{abundance (from }o_t\text{)}}
+\;-\; \mathrm{cost}(a_t)
+\;-\; P\cdot\mathbb{1}\big[s_t > \Csafe \,\wedge\, s_{t+1}\le \Csafe\big],
+\qquad \alpha=1,\ \Kref=\Kbase,\ P=20,
+\label{eq:reward}
+\end{equation}
+where $o_t/(o_t+\Kref)\in[0,1)$ is dimensionless and bounded while $o_t$ stays
+unbounded. The one-time collapse penalty $P$ fires on \emph{entering} the
+near-extinct region $s\le\Csafe$ from a healthy state, and $s{=}0$ is absorbing;
+collapse is catastrophic and manifests as a near-zero survey, so it is treated as
+observable. As in the stress-test benchmark, $P{=}20$ deliberately makes one
+collapse worse than a whole good episode (achievable return is $\sim 7$--$9$),
+which is what separates a method that foresees the threshold from one that does
+not. For \emph{evaluation only}, a true-state metric
+$R^{\mathrm{true}}_t = \alpha\, s_t/(s_t+\Kref) - \mathrm{cost}(a_t) - P\cdot(\cdot)$
+is logged but never exposed to the policy or learner; safety is reported as the
+collapse rate and $\Pr(s_t<\Csafe)$, not by return alone.
+
+\subsection{Offline dataset, belief, and initialisation}
+Because every method is history/belief conditioned, the dataset preserves whole
+\emph{trajectories} with episode boundaries (not shuffled i.i.d.\ tuples):
+\begin{equation}
+\mathcal{D} = \Big\{\tau^{(i)} = \big(o_0^{(i)},a_0^{(i)},R_0^{(i)},\dots,o^{(i)}_{T_i}\big)\Big\}_{i=1}^{N},
+\end{equation}
+optionally stored per transition as
+$(o_t,a_t,R_t,o_{t+1},d_t,\mathrm{episode\_id},t)$. The true states $\{s_t\}$, the
+hidden $m$, and the noise draws are withheld. Each episode draws $m$, then an
+initial abundance on the $\Kbase$ scale,
+$s_0 \sim \mathrm{LogNormal}(\log\Kbase, \sigma_0^2)$ with $\sigma_0{=}0.7$ (median
+$500$, central $90\%$ roughly $[160,1580]$); to guarantee coverage of the
+safety-critical region, a fraction $p_{\mathrm{low}}{\approx}0.2$ of episodes
+start low, $s_0\sim\mathcal{U}(0.05\,\Kbase, 0.3\,\Kbase)=\mathcal{U}(25,150)$.
+The spread is a \emph{data-coverage} choice, not a state bound.
+
+\section{Why the continuous setting is better than the discrete-bin setting}
+The discretized benchmark was deliberately built so the tabular ecology baselines
+and exact value iteration were tractable, but the state-resolution ablation
+exposed its central weakness: at a fixed data budget, refining the bins
+($w{=}10\to2$) changed observation resolution \emph{and} per-state data density at
+the same time, and the two effects could not be separated. The continuous setting
+removes that confound and several others:
+\begin{itemize}[nosep,leftmargin=1.4em]
+\item \textbf{No discretisation aliasing.} The bin map injects artificial
+``observation noise'' (sub-bin position) that is not a real measurement process;
+the continuous model replaces it with an explicit, calibratable survey-error
+kernel \eqref{eq:obs}.
+\item \textbf{No arbitrary $s_{\max}$/bin count.} Bin count required choosing a
+maximum abundance purely to stay finite; the continuous state needs neither, so
+the abundance scale is set endogenously by $\Keff$.
+\item \textbf{Resolution and data density are decoupled.} Observation fidelity is
+now a single physical knob $\sobs$, independent of how many samples the dataset
+contains, so robustness to observation error can be measured cleanly (the Tier-1b
+confound disappears).
+\item \textbf{Genuine partial observability.} $o_t$ is no longer the Markov state,
+so the setting actually tests state estimation/filtering and belief-based control
+\textemdash\ the realistic regime for ecological surveys, which report noisy
+indices, not exact counts.
+\end{itemize}
+The cost is that the finite-model ecology baselines must be \emph{adapted} (a
+belief filter plus an observation model) rather than run as-is; we do this
+(Section~\ref{sec:eco}) rather than drop them, because they are the closest
+comparison and the target to beat.
+
+\section{Selected baselines}
+\label{sec:baselines}
+We compare four families. \emph{(i)} The \textbf{ecology-specific baselines (PLUS,
+MOOR)} \textemdash\ the primary target to beat, adapted to the continuous noisy
+setting; \emph{(ii)} our in-house general learners (MOPO, RefPlan, BA-MCTS),
+re-used with a belief-filter front-end; \emph{(iii)} two A* general offline-RL
+baselines selected as the closest comparable methods to add and improve upon
+(Delphic, OGSRL); \emph{(iv)} one theoretical anchor (Confounded POMDPs).
+
+\paragraph{Positioning.} The research claim is not ``a new algorithm in the
+abstract'' but \emph{can general, dynamics-learning offline RL replace
+domain-specific mechanistic management under misspecification and observation
+error?} Two contributions stack: (a) bringing general offline model-based RL
+(including recent A* methods) to ecological adaptive management is itself novel,
+and (b) the head-to-head against PLUS/MOOR \textemdash\ the methods that encode the
+ecological prior \textemdash\ is what makes ``beating the baseline'' meaningful.
+
+\subsection{Ecology-specific baselines (PLUS, MOOR) --- the closest target}
+\label{sec:eco}
+These commit to a Ricker-family dynamics model and are therefore intentionally
+misspecified on the (non-Ricker) Allee, theta, and regime environments; that
+misspecification, now compounded by observation noise, is exactly what the general
+learners must exploit.
+\paragraph{MOOR (Ju et al., 2025) --- single-model mechanistic offline RL.} Fit one
+Ricker stock-recruitment model by least squares, then plan optimally on it:
+\begin{equation}
+(\hat r, \hat K) = \arg\min_{r,K}\ \textstyle\sum_t \big(\hat s_{t+1} - f_{\mathrm{Ricker}}(\hat s_t, a_t; r, K)\big)^2,
+\qquad \pi_{\mathrm{MOOR}} = \text{greedy}\big(\text{VI on } \widehat{\mathrm{MDP}}(\hat r,\hat K)\big),
+\end{equation}
+where $\hat s_t$ is the filtered abundance estimate (Section~\ref{sec:filter}); the
+fitted model is Monte-Carlo discretised and solved by value iteration.
+\emph{Because it fits a single $(\hat r,\hat K)$ to data pooled over episodes with
+different $\rbase$ and non-Ricker structure, it is the most exposed to the
+per-episode hidden parameters} (in the discrete benchmark it collapsed every
+episode, $\approx -11.6$). \emph{Adaptation:} fit on filtered states (or fit a
+state-space Ricker with the log-normal observation likelihood); everything else
+unchanged.
+\paragraph{PLUS (Memarzadeh \& Boettiger, 2018) --- finite hidden-model Bayesian
+planner.} Maintain a Bayesian belief over a discrete grid of candidate models
+$\{M_k\}$ (Ricker with $r_k$ on a grid), with precomputed per-model value functions
+$Q_k$, and act by the posterior-weighted value:
+\begin{equation}
+b_t(k) \propto b_{t-1}(k)\, p(o_t \mid h_t, M_k),
+\qquad
+a_t = \arg\max_a \ \textstyle\sum_k b_t(k)\, Q_k(\hat s_t, a).
+\end{equation}
+PLUS \emph{does} adapt to per-episode $\rbase$ through $b_t(k)$, so it is more
+robust than MOOR \textemdash\ but it has \emph{no} candidate $M_k$ for the
+structural hidden variables ($C,\theta,z$); when the truth needs structure no $r$
+can mimic, its best-fit $r$ is confidently wrong and it harvests into the danger
+zone (e.g.\ it failed on theta-5a). \emph{Adaptation:} the per-model likelihood now
+uses the log-normal observation model, and the belief is over $(\text{state},k)$
+via the shared filter.
+
+\subsection{In-house general learners (with a state-belief filter)}
+MOPO, RefPlan, and BA-MCTS carry over from the stress-test benchmark. The only
+structural change is that each now consumes a \emph{belief/history} rather than a
+bin: a shared state-belief filter (Section~\ref{sec:filter}) converts $h_t$ into
+$b_t\approx p(s_t,m\mid h_t)$, and each method predicts a distribution over the
+next \emph{observation} (or latent) instead of the next bin. MOPO keeps its
+ensemble-disagreement penalty $\hat r(s,a)=\mathbb{E}[R]-\lambda\,\mathrm{Var}_i[\cdot]$;
+RefPlan keeps its doubly-Bayesian belief-then-plan loop; BA-MCTS keeps its
+belief-augmented tree search.
+
+\subsection{Delphic Offline RL (Pace et al., ICLR 2024)}
+\paragraph{Why it fits.} Delphic Offline RL targets offline RL under
+\emph{hidden confounding}: unobserved variables that influence both the logged
+actions and the outcomes. Our hidden per-episode parameters $m$ are exactly such
+confounders (the data-collection policy and the dynamics both depend on the
+hidden $\rbase, C, \theta, z$), and the new observation noise adds an aleatoric
+layer on top. Delphic is the one baseline that decomposes uncertainty into the
+three pieces we now face simultaneously.
+\paragraph{Core idea and equations.} Because confounding is \emph{nonidentifiable},
+many ``world models'' reproduce the same observed data distribution. Let
+$\Phi_\epsilon(\mathcal{D})$ be the set of models compatible with the data (each
+$\phi$ matches the observed conditionals to tolerance $\epsilon$). For a target
+value $Q^\phi(s,a)$, define the three uncertainties
+\begin{align}
+\text{aleatoric:}\quad & u_{\mathrm{ale}}(s,a) = \mathbb{E}_{\phi}\big[\mathrm{Var}\,(\text{return}\mid s,a;\phi)\big], \\
+\text{epistemic:}\quad & u_{\mathrm{epi}}(s,a) = \text{(finite-data ensemble disagreement of }Q^\phi\text{)}, \\
+\text{\textbf{delphic}:}\quad & u_{\Delta}(s,a) = \mathrm{Std}_{\phi\in\Phi_\epsilon(\mathcal{D})}\big[\,Q^\phi(s,a)\,\big],
+\label{eq:delphic}
+\end{align}
+i.e.\ delphic uncertainty is the spread of the value across \emph{compatible}
+world models that differ only in their (unidentifiable) confounding assumptions.
+The policy is optimised on a pessimistic, confounding-averse value that subtracts
+the uncertainties,
+\begin{equation}
+\widetilde{Q}(s,a) = \mathbb{E}_{\phi}\big[Q^\phi(s,a)\big]
+- \beta_{\Delta}\,u_{\Delta}(s,a) - \beta_{\mathrm{epi}}\,u_{\mathrm{epi}}(s,a),
+\qquad
+\pi^\star = \arg\max_{\pi}\ \mathbb{E}\big[\widetilde{Q}(s,\pi)\big].
+\label{eq:delphic-obj}
+\end{equation}
+In practice the compatible set is realised by an ensemble of latent-confounder
+world models (each fits the data but assumes a different confounder realisation);
+$u_\Delta$ is their predictive disagreement, and \eqref{eq:delphic-obj} is plugged
+into an off-the-shelf offline actor-critic / value-iteration backbone.
+\emph{Adaptation here:} the ``compatible-model'' ensemble is an ensemble over the
+hidden $m$ (growth/threshold/regime), $u_\Delta$ is its disagreement about
+the next-observation/return, and the penalty drives the policy away from actions
+whose value depends on which hidden regime is true \textemdash\ precisely the
+near-threshold harvests that cause collapse.
+
+\subsection{OGSRL: Offline Guarded Safe RL (Yan et al., NeurIPS 2025)}
+\paragraph{Why it fits.} OGSRL is model-based offline RL whose explicit goal is to
+improve on the behaviour policy \emph{without leaving the data-supported region and
+without violating hard safety boundaries} \textemdash\ a direct match to our
+collapse-avoidance objective and our $\Csafe$ floor. Unlike action-only
+conservatism (e.g.\ CQL), it regulates whole state-action \emph{trajectories}.
+\paragraph{Core idea and equations.} OGSRL learns a dynamics model $\widehat{T}$
+and solves a doubly-constrained problem with a \emph{dual} constraint mechanism:
+\begin{equation}
+\max_{\pi}\ \mathbb{E}_{\pi,\widehat{T}}\!\Big[\textstyle\sum_{t}\gamma^t r(s_t,a_t)\Big]
+\quad \text{s.t.}\quad
+\underbrace{(s_t,a_t)\in\mathcal{G}\ \ \forall t}_{\text{OOD guardian (reliability)}},
+\qquad
+\underbrace{\mathbb{E}_{\pi}\!\Big[\textstyle\sum_t \gamma^t c(s_t,a_t)\Big]\le d}_{\text{safety-cost budget}} .
+\label{eq:ogsrl}
+\end{equation}
+The \emph{OOD guardian} $\mathcal{G}=\{(s,a): g(s,a)\le \tau\}$ is a learned
+in-distribution region (a density / model-uncertainty score $g$ thresholded at
+$\tau$) that confines optimisation to where the offline data give support; the
+\emph{safety-cost} $c(s,a)$ encodes domain safety boundaries with budget $d$. The
+constrained program is solved by Lagrangian relaxation,
+\begin{equation}
+\max_{\pi}\ \min_{\lambda\ge 0,\ \mu\ge 0}\
+\mathbb{E}_{\pi}\Big[\textstyle\sum_t\gamma^t r\Big]
+- \lambda\Big(\mathbb{E}_{\pi}\big[\textstyle\sum_t\gamma^t c\big]-d\Big)
+- \mu\,\mathbb{E}_{\pi}\big[\textstyle\sum_t\gamma^t\,(g(s_t,a_t)-\tau)_+\big],
+\label{eq:ogsrl-lag}
+\end{equation}
+with theoretical guarantees that feasible policies stay in safe, data-supported
+regions and are near-optimal relative to the best policy the data can support.
+\emph{Adaptation here:} $g$ is the belief/ensemble OOD score over $(s,a)$ in our
+continuous state; the safety cost is $c(s,a)=\mathbb{1}[\hat s \le \Csafe]$ (or a
+smooth proxy on the belief mean $\hat s$), so the guardian keeps harvests inside
+the data manifold and the cost budget enforces the population floor.
+
+\subsection{Confounded POMDPs (Hong, Qi \& Xu, ICML 2024) --- theoretical anchor}
+This is the strict formal match: offline model-based RL for POMDPs with unobserved
+confounders. It (i) establishes a model-based \emph{identification} result for the
+effect of an action on reward and future transitions using bridge-function /
+proxy-variable arguments, (ii) builds a two-stage nonparametric off-policy
+evaluator with general function approximation, and (iii) performs \emph{conservative
+policy optimisation within confidence regions} under partial coverage,
+$\widehat{\pi} = \arg\max_{\pi}\ \min_{\phi\in\mathrm{CR}_\alpha}\ V^{\pi}(\phi)$,
+with a finite-sample suboptimality bound polynomial in sample size and horizon. We
+cite it as the principled target our practical method approximates; its
+bridge-function estimation is heavy and we do not implement it as a runnable
+baseline.
+
+\section{Experiment setting (implementation specification)}
+\label{sec:exp}
+This section is written so a coding agent (with the baseline PDFs attached) can
+implement the study. It reuses the unified evaluator and seed protocol of the
+stress-test repo. \textbf{The decisive outcome is the beats-both-baselines rate:
+the fraction of cells, per noise level, in which a general learner exceeds the
+stronger of PLUS and MOOR} \textemdash\ the same headline metric as the discrete
+benchmark, now under observation error.
+
+\subsection{Environment}
+\begin{longtable}{@{}p{3.6cm}p{11.2cm}@{}}
+\toprule
+Component & Specification \\
+\midrule
+State & continuous $s_t\in\mathbb{R}_{\ge 0}$, unbounded, $s{=}0$ absorbing. \\
+Hidden params $m$ & $\rbase\sim\mathcal{U}$ (Allee/regime $[0.12,0.30]$; theta $[0.18,0.40]$); Allee $C\in[90,150]$; regime $C_{\text{safe}}{=}90,C_{\text{harsh}}{=}180,m_{\text{safe}}{=}1.0,m_{\text{harsh}}{=}0.65$, persistence $0.9$; theta $\theta\in[\theta_{\mathrm{lo}},\theta_{\mathrm{hi}}]$. Drawn per episode, never logged. \\
+Dynamics & base Ricker + \{Allee-Ricker, theta-logistic, regime-switch\} (Eqs.~6--9); process noise $\sigma_p{=}0$ base, $>0$ stress. \\
+Actions & 5-action and 10-action tables; additive $\Delta r,\Delta K$ + direct authority $s\leftarrow s(1-h(a))+\delta(a)$ (Eq.~\ref{eq:authority}); $\Kbase{=}500$. \\
+Observation & $o_t=s_t\,\eta_t$, $\eta_t\sim\mathrm{LogNormal}(0,\sobs^2)$ (Eq.~\ref{eq:obs}); sweep $\sobs\in\{0,0.1,0.2,0.4\}$ (exact / low / moderate / high). \\
+Reward & Eq.~\ref{eq:reward}: saturating abundance from $o_t$, $-\mathrm{cost}(a)$, one-time collapse penalty $P{=}20$ on entering $s\le\Csafe$; $\Kref{=}500$. \\
+Init & $s_0\sim\mathrm{LogNormal}(\log\Kbase,0.7^2)$ with a $p_{\mathrm{low}}{=}0.2$ low-start mixture $\mathcal{U}(25,150)$. \\
+Horizon / discount & 50 steps, $\gamma{=}0.95$. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Offline data generation}
+For each of the six cells $\{\text{allee},\text{theta},\text{regime}\}\times\{5a,10a\}$
+and each $\sobs$: draw $m$ and $s_0$ per episode; roll out a behaviour policy
+(mixture of uniform-random and mildly suboptimal/heuristic harvest policies, as in
+the stress-test data collector); emit $o_t$ via Eq.~\ref{eq:obs}; compute $R_t$ via
+Eq.~\ref{eq:reward}; log \emph{whole trajectories} with episode/time indices.
+Withhold $\{s_t\}$, $m$, and noise draws. Match the stress-test data budget
+($\sim$75k transitions/cell) so results are comparable. \textbf{Calibration:} tune
+the priors/authority so the offline collapse rate sits in $\sim[0.15,0.24]$ and the
+decision-relevance gate passes (below).
+
+\subsection{Shared component: the state-belief filter}
+\label{sec:filter}
+Every method needs $h_t\!\to\! b_t\approx p(s_t,m\mid h_t)$. Implement one shared
+module, swappable between:
+\begin{enumerate}[nosep,leftmargin=1.6em]
+\item \textbf{Particle filter} over $(s_t,m)$ using the \emph{learned} dynamics
+ensemble as the proposal and the log-normal likelihood
+$p(o\mid s)=\mathrm{LogNormal}(o; \log s,\sobs^2)$ as the weight (a model-agnostic,
+paper-faithful choice); or
+\item \textbf{Recurrent/Transformer encoder} trained on $h_t$ to output sufficient
+statistics of $b_t$ (mean/variance of $s_t$, posterior over $m$).
+\end{enumerate}
+The filter output feeds all planners. Provide a \emph{filter-ablation} switch
+(belief vs.\ raw $o_t$) to quantify the value of filtering.
+
+\subsection{Methods to implement}
+\begin{longtable}{@{}p{2.4cm}p{12.4cm}@{}}
+\toprule
+Method & What to build \\
+\midrule
+\textbf{MOOR} \emph{(target)} & Least-squares Ricker $(\hat r,\hat K)$ on filtered states (or state-space fit with log-normal obs.\ likelihood); MC-discretise; value iteration; greedy. The single-model baseline. \\
+\textbf{PLUS} \emph{(target)} & Grid of Ricker-$r$ candidates $\{M_k\}$ with precomputed $Q_k$; posterior $b_t(k)\!\propto\! b_{t-1}(k)\,p(o_t\mid h_t,M_k)$; act by $\arg\max_a\sum_k b_t(k)Q_k(\hat s_t,a)$. Belief over $(\text{state},k)$ via the shared filter. \\
+MOPO & Categorical/Gaussian MLP ensemble ($N{=}5$) over next-\emph{observation}; receding-horizon planner with penalty $\hat r=\mathbb{E}[R]-\lambda\,\mathrm{Var}_i$; consume $b_t$. \\
+RefPlan & Doubly-Bayesian belief-then-plan ($M{=}15$ model ensemble): posterior over members from history, sample action sequences, score by mean$-$penalty$\cdot$std over members. \\
+BA-MCTS & Belief-augmented UCB tree search ($M{=}15$): Bayes belief update during search, ensemble target-disagreement pessimism. \\
+\textbf{Delphic} & Ensemble of compatible (hidden-$m$) world models; compute $u_\Delta$ \eqref{eq:delphic}; optimise the penalised value \eqref{eq:delphic-obj} with an offline actor-critic / value-iteration head. \\
+\textbf{OGSRL} & Learned dynamics $\widehat T$; OOD guardian $g(s,a)\!\le\!\tau$ (ensemble/density score) + safety cost $c=\mathbb{1}[\hat s\le\Csafe]$, budget $d$; solve the Lagrangian \eqref{eq:ogsrl-lag}. \\
+Confounded POMDP & Anchor only (cite). Optional: a reduced confidence-region pessimism head if time permits. \\
+\bottomrule
+\end{longtable}
+All methods act over the \emph{same} discrete $\mathcal{A}$ and the \emph{same}
+belief filter, so differences reflect the offline/uncertainty mechanism, not the
+interface.
+
+\subsection{Evaluation, metrics, and ablations}
+\textbf{Protocol.} Tune learners on calibration seeds only; report on disjoint
+held-out seeds (e.g.\ 5 seeds $\times$ 50 episodes $=250$/cell), matched across
+methods, horizon 50, $\gamma{=}0.95$.
+\textbf{Metrics.} (i) mean discounted return (operational reward, from $o_t$);
+(ii) \emph{true} return $R^{\mathrm{true}}$ (evaluation channel only);
+(iii) collapse rate and $\Pr(s_t<\Csafe)$; (iv) belief-filter quality
+(posterior RMSE of $\hat s$ vs.\ true $s$, calibration of the $m$-posterior).
+\textbf{Decision-relevance gate (carried over).} Admit a cell only if an oracle MPC
+(true dynamics, true state) beats a Ricker-MPC by a reward gap $\ge 1.0$ and a
+collapse-gap $\ge 0.05$; run the gate \emph{with} observation noise so it reflects
+continuous-state synthetic benchmark.
+\textbf{Headline ablations.} (a) \emph{Observation-noise sweep} $\sobs\in\{0,0.1,0.2,0.4\}$:
+the core continuous-state synthetic benchmark result (does the learned advantage survive noise?). (b)
+\emph{Filter ablation}: belief vs.\ raw $o_t$. (c) Optional process-noise stress
+$\sigma_p>0$.
+
+\subsection{Implementation checklist}
+\begin{enumerate}[nosep,leftmargin=1.6em]
+\item Continuous env with the four dynamics, direct-authority actions, log-normal
+observation, saturating+collapse reward, absorbing $0$; config per cell and $\sobs$.
+\item Trajectory-preserving offline data collector + calibration to the target
+collapse band; decision-relevance gate (with noise).
+\item Shared state-belief filter (particle filter first; recurrent encoder
+optional) + filter-ablation switch.
+\item Ecology baselines \emph{(the target)}: \textbf{MOOR} (single Ricker fit on
+filtered states) and \textbf{PLUS} (Ricker-$r$ grid + Bayesian belief), both
+re-pointed at the shared filter and log-normal observation likelihood.
+\item Learners: MOPO / RefPlan / BA-MCTS re-pointed at $b_t$ and next-observation
+prediction; \textbf{Delphic} (\eqref{eq:delphic}--\eqref{eq:delphic-obj});
+\textbf{OGSRL} (\eqref{eq:ogsrl}--\eqref{eq:ogsrl-lag}).
+\item Unified evaluator: returns, \textbf{beats-PLUS/MOOR rate}, collapse rate,
+$\Pr(s<\Csafe)$, filter RMSE; matched held-out seeds; noise sweep + filter ablation.
+\end{enumerate}
+
+\begin{thebibliography}{9}
+\bibitem{delphic2024} Pace, A., Yèche, H., Schölkopf, B., Rätsch, G. \& Tennenholtz, G. (2024).
+Delphic Offline Reinforcement Learning under Nonidentifiable Hidden Confounding. \emph{ICLR}.
+arXiv:2306.01157.
+\bibitem{ogsrl2025} Yan, R., Shen, X., Wachi, A., Gros, S., Zhao, A. \& Hu, X. (2025).
+Offline Guarded Safe Reinforcement Learning for Medical Treatment Optimization Strategies. \emph{NeurIPS}.
+arXiv:2505.16242.
+\bibitem{confpomdp2024} Hong, M., Qi, Z. \& Xu, Y. (2024).
+Model-based Reinforcement Learning for Confounded POMDPs. \emph{ICML}, PMLR v235.
+\bibitem{mopo2020} Yu, T.\ et al.\ (2020). MOPO: Model-based Offline Policy Optimization. \emph{NeurIPS}.
+\bibitem{refplan2025} Reflect-then-Plan: Offline Model-Based Planning through a Doubly Bayesian Lens. \emph{ICML} (2025).
+\bibitem{bamcts2026} Bayes-Adaptive Monte Carlo Tree Search for Offline Model-based RL. \emph{ICLR} (2026).
+\bibitem{plus2018} Memarzadeh, M. \& Boettiger, C. (2018). Adaptive management of ecological systems under partial observability. \emph{Biological Conservation}, 224, 9--15.
+\bibitem{moor2025} Ju, H.\ et al.\ (2025). Mechanistic model-based offline RL for fishery management. \emph{Expert Systems}.
+\end{thebibliography}
+
+\end{document}

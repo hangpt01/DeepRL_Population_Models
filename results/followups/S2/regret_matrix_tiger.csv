@@ -1,0 +1,17 @@
+population,sigma_obs,policy_family_F,evaluation_family_G,mean_regret,ci95_low,ci95_high,n_seeds,is_ricker_row,abs_exceeds_delta_R
+Amur tiger,0.1,ricker,ricker,0.0,0.0,0.0,20,True,False
+Amur tiger,0.1,ricker,allee,0.0,0.0,0.0,20,True,False
+Amur tiger,0.1,ricker,theta,-0.0031687622411231686,-0.0031687622411231686,-0.0031687622411231686,20,True,False
+Amur tiger,0.1,ricker,regime,0.0,0.0,0.0,20,True,False
+Amur tiger,0.1,allee,ricker,0.0,0.0,0.0,20,False,False
+Amur tiger,0.1,allee,allee,0.0,0.0,0.0,20,False,False
+Amur tiger,0.1,allee,theta,-0.0031687622411231686,-0.0031687622411231686,-0.0031687622411231686,20,False,False
+Amur tiger,0.1,allee,regime,0.0,0.0,0.0,20,False,False
+Amur tiger,0.1,theta,ricker,0.007531097846454671,0.007531097846454671,0.007531097846454671,20,False,False
+Amur tiger,0.1,theta,allee,0.007531097846454671,0.007531097846454671,0.007531097846454671,20,False,False
+Amur tiger,0.1,theta,theta,0.0,0.0,0.0,20,False,False
+Amur tiger,0.1,theta,regime,0.007531097846454671,0.007531097846454671,0.007531097846454671,20,False,False
+Amur tiger,0.1,regime,ricker,0.0,0.0,0.0,20,False,False
+Amur tiger,0.1,regime,allee,0.0,0.0,0.0,20,False,False
+Amur tiger,0.1,regime,theta,-0.0031687622411231686,-0.0031687622411231686,-0.0031687622411231686,20,False,False
+Amur tiger,0.1,regime,regime,0.0,0.0,0.0,20,False,False

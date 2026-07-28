@@ -1,0 +1,286 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{pdflscape}
+\usepackage{hyperref}
+
+\title{POMDP Stress Ecology Smoke Benchmark}
+\author{Claude DeepRL Population Models}
+\date{June 10, 2026}
+
+\begin{document}
+\maketitle
+
+\section{Scope}
+
+This document reports the short smoke benchmark for the three new POMDP
+stress population environments in \path{claude_build}. The goal was not to
+produce a tuned final benchmark, but to verify that the new environments,
+offline datasets, model-misspecified ecology baselines, WandB logging, Slurm
+execution, and stress metrics run end-to-end.
+
+All results are single-seed smoke results. The method evaluation used only
+10 deployment episodes per method and should be treated as a framework/demo
+check rather than a statistically stable result.
+
+\section{POMDP Environments}
+
+The agent observation is always the public discrete abundance bin
+$x_t = \lfloor s_t / 10 \rfloor$, clipped to $0,\ldots,99$. Hidden variables
+are sampled or updated inside the simulator and are exposed only through
+diagnostic \texttt{info} fields and post-hoc evaluation summaries. They are not
+present in the saved offline datasets. The saved dataset arrays contain only
+\texttt{states}, \texttt{actions}, \texttt{next\_states}, \texttt{rewards},
+\texttt{dones}, and \texttt{metadata\_json}.
+
+For all three stress environments,
+\[
+    r_{\mathrm{eff}} = r_{\mathrm{base}} + \Delta r(a), \qquad
+    K_{\mathrm{eff}} = K_{\mathrm{base}} + \Delta K(a).
+\]
+The shared reward is
+\[
+    R_{\mathrm{base}}(x_t,a_t) = x_t/100 - \mathrm{cost}(a_t),
+\]
+with discount $\gamma=0.95$ during evaluation. In
+\texttt{collapse\_sensitive} mode, a one-time penalty of 10 is subtracted when
+the transition enters $x_{t+1}\leq 5$ from a nonzero state, and the stress
+environment then makes the collapsed state absorbing at bin 0.
+
+\begin{table}[h]
+\centering
+\caption{Shared 5-action management space. Reward subtracts the listed cost,
+so the negative harvest cost acts like harvest yield.}
+\begin{tabular}{clrrr}
+\toprule
+ID & Action & $\Delta r$ & $\Delta K$ & cost \\
+\midrule
+0 & Do Nothing & 0.00 & 0 & 0.00 \\
+1 & Aggressive Harvest & -0.02 & 0 & -0.40 \\
+2 & Predator/Disease Control & 0.01 & 0 & 0.20 \\
+3 & Intensive Restoration & 0.00 & 200 & 0.30 \\
+4 & Flagship Conservation & 0.02 & 200 & 0.60 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Stress environment parameters used in this run. The growth priors are
+the retuned nondegenerate smoke settings, not the originally proposed high
+growth priors that drove almost all trajectories to collapse.}
+\begin{small}
+\begin{tabular}{p{0.15\linewidth}p{0.31\linewidth}p{0.17\linewidth}p{0.27\linewidth}}
+\toprule
+Environment & Dynamics & Hidden variables & Smoke parameters \\
+\midrule
+Allee-Ricker &
+$s_{t+1}=s_t\exp(r_e(1-s_t/K_e)(s_t/C-1))$ &
+$r_{\mathrm{base}}, C$ &
+$r_{\mathrm{base}}\sim U(0.20,0.40)$, $K=500$, $C\sim U(125,175)$ \\
+Theta-logistic &
+$s_{t+1}=s_t+r_e s_t[1-(s_t/K_e)^\theta]$ &
+$r_{\mathrm{base}}, \theta$ &
+$r_{\mathrm{base}}\sim U(0.10,0.30)$, $K=500$, $\theta\sim U(3,5)$ \\
+Regime-switch &
+$s_{t+1}=s_t\exp(g_z r_e(1-s_t/K_e)(s_t/C_z-1))$ &
+$r_{\mathrm{base}}, z_t$ &
+$r_{\mathrm{base}}\sim U(0.10,0.20)$, $K=500$, $P(z_{t+1}=z_t)=0.90$ \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{table}
+
+For regime-switching, the safe regime uses $(C,g)=(100,1.0)$ and the harsh
+regime uses $(C,g)=(200,0.75)$. Continuous abundance is clipped to $[0,1000]$.
+All environments use 100 bins and bin width 10.
+
+\section{Offline Data and Execution}
+
+For each of the six scenario settings, a saved offline dataset with
+$N=25{,}000$ transitions was generated using the \texttt{mixed\_danger\_zone}
+collection policy. The per-episode mixture was 50\% random, 30\% harvest
+pressure, and 20\% rescue. MOPO, RefPlan, and MOOR-Ricker consumed the same
+saved dataset path within each scenario. PLUS was evaluated as an ecology
+baseline directly from its configured Ricker-assumption model family and does
+not consume the saved dataset in this harness.
+
+Slurm jobs were submitted from \path{claude_build/scripts/slurm/stress_pomdp_smoke.sh}.
+The dataset array was job 56332820 with tasks 0--5 and the method array was
+job 56332834 with tasks 0--23 and concurrency cap 4. WandB was online under
+project \texttt{deeprl\_population\_models}, group
+\texttt{stress\_pomdp\_smoke\_online}. Each method task requested one GPU,
+8 CPUs, and 64 GB RAM; the ecology baselines used CPU internally but inherited
+the GPU allocation from the shared array script. Slurm recorded GPU allocation
+and node/GPU type, but not peak GPU memory.
+
+\begin{table}[h]
+\centering
+\caption{Dataset coverage diagnostics. ``Live danger'' is the fraction of
+logged states in bins 6--20, excluding already collapsed/near-zero bins.}
+\begin{tabular}{llrrrrr}
+\toprule
+Environment & Reward & $N$ & $x\leq20$ & live 6--20 & $x=0$ & $x_{t+1}\leq5$ \\
+\midrule
+Allee-Ricker & base & 25000 & 0.181 & 0.023 & 0.135 & 0.160 \\
+Allee-Ricker & collapse & 25000 & 0.181 & 0.023 & 0.157 & 0.160 \\
+Theta-logistic & base & 25000 & 0.189 & 0.033 & 0.146 & 0.158 \\
+Theta-logistic & collapse & 25000 & 0.231 & 0.024 & 0.205 & 0.210 \\
+Regime-switch & base & 25000 & 0.167 & 0.038 & 0.080 & 0.130 \\
+Regime-switch & collapse & 25000 & 0.167 & 0.038 & 0.127 & 0.130 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Method Hyperparameters}
+
+\begin{table}[h]
+\centering
+\caption{Method hyperparameters used by the smoke Slurm harness.}
+\begin{tabular}{p{0.18\linewidth}p{0.72\linewidth}}
+\toprule
+Method & Settings \\
+\midrule
+MOPO &
+\texttt{active\_model=ensemble}; pessimistic planner; ensemble size 5;
+frame stack 2; bootstrap ratio 0.8; 20 training epochs;
+$\lambda_{\mathrm{pess}}=1.0$; planner horizon 3; 1 rollout; CUDA device. \\
+RefPlan &
+\texttt{active\_model=refplan}; ensemble size 10; planning horizon 4;
+64 candidate sequences; 4 latent samples; $\kappa=5.0$;
+uncertainty penalty 0.10; CUDA device. \\
+PLUS &
+\texttt{active\_model=bioconserv18\_plus}; 21 candidate Ricker models;
+discount 0.95; transition grid 2000; \texttt{use\_env\_transition=false};
+likelihood floor $10^{-12}$; CPU device. \\
+MOOR-Ricker &
+\texttt{active\_model=moor}; misspecified Ricker dynamics family;
+learned parameters $[r,K]$; 10 restarts; L-BFGS max iteration 10;
+transition grid 1000; discount 0.95; CPU device. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Evaluation used seed 42, episode seeds 42--51, horizon 50, 10 episodes, and
+discounted cumulative reward
+\[
+    G = \sum_{t=0}^{49} 0.95^t R_t .
+\]
+The table below reports mean $\pm$ standard deviation over the 10 episodes,
+with the per-episode cumulative-reward range in brackets. ``Cat.'' is the
+fraction of episodes whose minimum abundance bin was at most 5. ``Entry'' is
+the fraction of episodes with at least one collapse-entry event. The column
+labeled $H$ is the saved \texttt{policy\_entropy} field; in the current
+implementation it is the entropy of the model-predicted next-state
+distribution under the selected action, not a stochastic action-policy entropy.
+
+\begin{landscape}
+\begin{scriptsize}
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{lllrrrrrrrrrl}
+\caption{Smoke benchmark results, sorted by cumulative reward within each
+environment/reward scenario. Peak GPU memory was not recorded.}\\
+\toprule
+Env & Reward & Method & $G$ mean $\pm$ sd & $G$ range & Final & Min & Cat. & Entry & $H$ & Unc. & Time (s) & GPU \\
+\midrule
+\endfirsthead
+\toprule
+Env & Reward & Method & $G$ mean $\pm$ sd & $G$ range & Final & Min & Cat. & Entry & $H$ & Unc. & Time (s) & GPU \\
+\midrule
+\endhead
+Allee-Ricker & base & PLUS & 15.669 $\pm$ 2.561 & [8.41, 16.77] & 44.6 & 35.6 & 0.10 & 0.00 & 0.133 & 0.104 & 16 & A40 \\
+Allee-Ricker & base & MOOR-Ricker & 15.669 $\pm$ 2.561 & [8.41, 16.77] & 44.6 & 35.6 & 0.10 & 0.00 & 0.091 & 0.000 & 139 & L40S \\
+Allee-Ricker & base & RefPlan & 15.332 $\pm$ 3.626 & [5.03, 16.77] & 44.6 & 35.6 & 0.10 & 0.00 & 0.389 & 0.374 & 61 & A40 \\
+Allee-Ricker & base & MOPO & 14.351 $\pm$ 4.651 & [1.14, 16.41] & 44.5 & 37.0 & 0.10 & 0.00 & 0.268 & 0.611 & 212 & A40 \\
+\midrule
+Allee-Ricker & collapse & PLUS & 15.087 $\pm$ 4.398 & [2.59, 16.77] & 44.6 & 35.6 & 0.10 & 0.10 & 0.133 & 0.103 & 18 & A40 \\
+Allee-Ricker & collapse & MOOR-Ricker & 15.087 $\pm$ 4.398 & [2.59, 16.77] & 44.6 & 35.6 & 0.10 & 0.10 & 0.093 & 0.000 & 27 & A40 \\
+Allee-Ricker & collapse & RefPlan & 14.702 $\pm$ 5.615 & [-1.27, 16.77] & 44.6 & 35.6 & 0.10 & 0.10 & 0.355 & 0.984 & 70 & A40 \\
+Allee-Ricker & collapse & MOPO & 14.207 $\pm$ 4.722 & [0.90, 16.36] & 44.5 & 35.4 & 0.10 & 0.10 & 0.278 & 0.858 & 145 & A40 \\
+\midrule
+Theta-logistic & base & MOPO & 13.792 $\pm$ 3.005 & [7.55, 16.56] & 44.8 & 29.1 & 0.10 & 0.00 & 0.398 & 0.577 & 142 & A40 \\
+Theta-logistic & base & PLUS & 13.555 $\pm$ 3.778 & [8.15, 16.94] & 34.8 & 22.2 & 0.30 & 0.00 & 0.194 & 0.109 & 126 & L40S \\
+Theta-logistic & base & MOOR-Ricker & 13.555 $\pm$ 3.778 & [8.15, 16.94] & 34.8 & 22.2 & 0.30 & 0.00 & 0.238 & 0.000 & 26 & A40 \\
+Theta-logistic & base & RefPlan & 11.701 $\pm$ 5.895 & [2.02, 16.94] & 34.8 & 23.0 & 0.40 & 0.00 & 0.512 & 0.388 & 52 & A40 \\
+\midrule
+Theta-logistic & collapse & MOPO & 13.221 $\pm$ 5.934 & [-3.14, 16.56] & 44.8 & 32.1 & 0.10 & 0.10 & 0.346 & 0.778 & 137 & A40 \\
+Theta-logistic & collapse & PLUS & 10.555 $\pm$ 8.556 & [-1.85, 16.94] & 34.8 & 22.2 & 0.30 & 0.30 & 0.194 & 0.109 & 16 & L40S \\
+Theta-logistic & collapse & MOOR-Ricker & 10.555 $\pm$ 8.556 & [-1.85, 16.94] & 34.8 & 22.2 & 0.30 & 0.30 & 0.336 & 0.000 & 71 & L40S \\
+Theta-logistic & collapse & RefPlan & 9.008 $\pm$ 10.947 & [-7.75, 16.94] & 34.8 & 22.2 & 0.30 & 0.30 & 0.541 & 0.320 & 146 & L40S \\
+\midrule
+Regime-switch & base & PLUS & 16.038 $\pm$ 2.187 & [9.98, 17.50] & 46.8 & 42.0 & 0.00 & 0.00 & 0.123 & 0.032 & 17 & L40S \\
+Regime-switch & base & MOOR-Ricker & 16.038 $\pm$ 2.187 & [9.98, 17.50] & 46.8 & 42.0 & 0.00 & 0.00 & 0.217 & 0.000 & 16 & L40S \\
+Regime-switch & base & RefPlan & 15.691 $\pm$ 3.095 & [7.00, 17.50] & 47.4 & 42.1 & 0.00 & 0.00 & 0.557 & 0.378 & 32 & L40S \\
+Regime-switch & base & MOPO & 14.348 $\pm$ 3.376 & [5.00, 16.87] & 47.8 & 39.9 & 0.00 & 0.00 & 0.677 & 1.151 & 136 & A40 \\
+\midrule
+Regime-switch & collapse & PLUS & 16.038 $\pm$ 2.187 & [9.98, 17.50] & 46.8 & 42.0 & 0.00 & 0.00 & 0.123 & 0.032 & 18 & A40 \\
+Regime-switch & collapse & MOOR-Ricker & 16.038 $\pm$ 2.187 & [9.98, 17.50] & 46.8 & 42.0 & 0.00 & 0.00 & 0.217 & 0.000 & 18 & A40 \\
+Regime-switch & collapse & RefPlan & 15.698 $\pm$ 3.075 & [7.07, 17.50] & 47.4 & 42.1 & 0.00 & 0.00 & 0.553 & 0.378 & 32 & L40S \\
+Regime-switch & collapse & MOPO & 15.084 $\pm$ 2.994 & [7.15, 17.26] & 47.4 & 41.8 & 0.00 & 0.00 & 0.665 & 1.059 & 100 & L40S \\
+\bottomrule
+\end{longtable}
+\end{scriptsize}
+\end{landscape}
+
+\section{Analysis}
+
+The main result is mixed rather than a clean learned-method win. MOPO is the
+best method in the theta-logistic stress setting under both reward modes. This
+is the setting where the true dynamics are most visibly outside the Ricker
+family used by PLUS and MOOR-Ricker, so this is the strongest smoke evidence
+that a learned transition model can help when the population model family is
+misspecified. In the collapse-sensitive theta setting, MOPO also has a lower
+collapse-entry rate (0.10) than the Ricker-assumption baselines (0.30).
+
+In the Allee-Ricker and regime-switch settings, PLUS and MOOR-Ricker tie for
+the highest return. The exact ties across several scenarios strongly suggest
+that the two ecology baselines are inducing the same, or nearly the same,
+deterministic policy under these smoke conditions. This should not be read as
+two independent confirmations. It more likely means the current action/reward
+structure and low-growth stress tuning make the Ricker-assumption policy good
+enough for these short-horizon episodes.
+
+The collapse-sensitive reward mostly lowers returns in settings where collapse
+entry occurs. Allee-Ricker drops by about 0.58 for the tied baselines and theta
+drops by about 3.0 for the Ricker-assumption baselines because three of ten
+episodes enter collapse. Regime-switch has zero collapse-entry events in the
+10 evaluation episodes, so the base and collapse-sensitive returns are almost
+identical. This makes the regime collapse result a useful plumbing check, but
+not a strong stress test of the collapse penalty.
+
+RefPlan is not dominant in this smoke run. It has relatively high reported
+entropy/uncertainty, especially in theta-logistic and regime-switch, but this
+does not translate to better reward with the small planning budget used here
+(64 sequences, horizon 4, 4 latent samples). This may be a tuning issue rather
+than a method failure: the run deliberately used a fast smoke configuration.
+
+MOPO is consistently the slowest method because it both trains an ensemble and
+uses model rollout planning. RefPlan is much faster here because its tabular
+planning budget is smaller. PLUS is usually fastest because it is evaluated
+directly without dataset training in this harness. MOOR-Ricker can be fast, but
+occasionally spends more wall time in mechanistic fitting/evaluation.
+
+There are three important caveats before drawing scientific conclusions.
+First, all numbers use one seed and only 10 evaluation episodes, so a single
+collapse episode changes a reported rate by 0.10. Second, the growth priors
+were retuned downward after audit because the literal initial stress priors
+made the datasets nearly all collapse. Third, peak GPU memory was not captured:
+Slurm accounting recorded GPU allocation and node type (A40 or L40S), but no
+per-method GPU memory trace.
+
+\section{Recommended Next Steps}
+
+For a real benchmark, rerun this matrix with at least three seeds and 50--200
+evaluation episodes per method. Keep the theta-logistic setting because it is
+the clearest current misspecification stress case. For Allee-Ricker and
+regime-switch, strengthen the stress either by adjusting hidden severity or by
+using a start-state/evaluation distribution that more often visits the live
+danger zone, while keeping the dataset nondegenerate. Add a lightweight
+\texttt{nvidia-smi} sampler or Slurm GPU-memory accounting wrapper if GPU
+memory is required in the final table.
+
+\end{document}

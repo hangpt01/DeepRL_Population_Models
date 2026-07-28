@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/bottlenose_dolphin/allee/sigma_0p1",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "8b97809d7fa3511de7d2ce6e7eb4aabacdde24850521dc2a856893e89f8a3b7b",
+    "e615d7bf148aec1be10bb596765366d534a663c8fc91aadcfbe62ef0e1847316",
+    "94f4c7809274a555f09fa12335acca7f878e9e37d71afb1571882b6ac96d8bb4",
+    "78fbe94ef9dc3fc53b861bc3e309c16e996ad79f5505be10b236a3c9460085a2",
+    "a38ffb17e7bcc65f55e9650f73a99e363a9d881c08044936e3c6bae0d5040cbc",
+    "7b1b9933b94af2147dcfdc62409ac4ab6d1d15bb4833c54a56c5e20f0163c922",
+    "4431839b81cb465c6a64c0483fe30b15f4799c2c5f1189c09b0dffb7de705f37",
+    "a2cd864fe1de5b4f59f93f6dbb23b58e7153899b6732a03b701a0ce5199243f5"
+  ],
+  "fit_seconds": 0.049740190617740154,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "ae1a6d2341b251d6158efab7abb93628dd4175c2dd22e33b160dfa6789931e60",
+    "2bb0e6da2268116731cc63b1a99a84f26853a047e03b6273a2920a505a6e3d29",
+    "36f2c3b612b4a18c8543ab082526426323eb5bb8fee9e10ae8df43f4e8e4fb6e",
+    "7f0b6588d121abe1be9a0baf62055f79a9907ac39e20ca56a6916e4858fbd1da",
+    "72c77b61bda4529feadc49fb1e17018871b14715f281505d0cf9b0bfe9ddda6e",
+    "1949fe2b92169afd916c9bdef306932f77d698602c67baec33d79e56956b0f36",
+    "730d167a312ac5e2820722bf6d6ed42da5b8321133baeb1eec616d311cb4cd7b",
+    "2cd724831c08604362ad8e5c06b61489af5fb2a392ef90ca77f12294f750e79d"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "519ccfa3f7da82c902eef74bb149615531e69b54cb2959159113111129194ea1"
+}

@@ -1,0 +1,17 @@
+population,sigma_obs,policy_family_F,evaluation_family_G,mean_regret,ci95_low,ci95_high,n_seeds,is_ricker_row,abs_exceeds_delta_R
+Crab-eating fox,0.2,ricker,ricker,0.0,0.0,0.0,20,True,False
+Crab-eating fox,0.2,ricker,allee,-0.45507892975874187,-0.5928161421351794,-0.3239897504103712,20,True,True
+Crab-eating fox,0.2,ricker,theta,-0.22308361653891015,-0.3019376651783346,-0.14768802568077175,20,True,True
+Crab-eating fox,0.2,ricker,regime,-0.5469504253581949,-0.6786612830549086,-0.4116623764454545,20,True,True
+Crab-eating fox,0.2,allee,ricker,-0.16725738418301103,-0.2325508894510964,-0.11111259458728333,20,False,True
+Crab-eating fox,0.2,allee,allee,0.0,0.0,0.0,20,False,False
+Crab-eating fox,0.2,allee,theta,0.046800128924816685,0.030803479549864506,0.06621493617679995,20,False,False
+Crab-eating fox,0.2,allee,regime,-0.32617380038370924,-0.40002582895885663,-0.2534539036150575,20,False,True
+Crab-eating fox,0.2,theta,ricker,-0.1467169595511481,-0.18001030262554724,-0.11800659373124112,20,False,True
+Crab-eating fox,0.2,theta,allee,-0.10826702386650125,-0.15768771866671993,-0.06367053128780456,20,False,True
+Crab-eating fox,0.2,theta,theta,0.0,0.0,0.0,20,False,False
+Crab-eating fox,0.2,theta,regime,-0.3468219605900158,-0.4345107039397127,-0.2682347309823003,20,False,True
+Crab-eating fox,0.2,regime,ricker,-0.31262216544994165,-0.3541674649760554,-0.2717922542544414,20,False,True
+Crab-eating fox,0.2,regime,allee,-0.1423162435506277,-0.20613954773046017,-0.07530389834515863,20,False,True
+Crab-eating fox,0.2,regime,theta,-0.13951225055809804,-0.18979094693401313,-0.08594446760657415,20,False,True
+Crab-eating fox,0.2,regime,regime,0.0,0.0,0.0,20,False,False

@@ -1,0 +1,467 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,longtable,tabularx,array}
+\usepackage{enumitem}
+\usepackage[T1]{fontenc}
+\usepackage[hidelinks]{hyperref}
+\setlist[itemize]{leftmargin=*}
+\setlist[enumerate]{leftmargin=*}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\st}{s_t}
+\newcommand{\snext}{s_{t+1}}
+\newcommand{\obs}{o_t}
+\newcommand{\sobs}{\sigma_{\mathrm{obs}}}
+\newcommand{\ssafe}{s_{\mathrm{safe}}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\1}{\mathbf{1}}
+\sloppy
+
+\title{Hidden-Parameter Usage by Method}
+\author{Ecology Benchmark Documentation}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Purpose and Verdict}
+
+This document is a TeX version of the hidden-parameter usage audit for the
+current real-ecology benchmark. It is documentation only: no source code,
+configuration, or experiment logic is changed by this report.
+
+The current benchmark is internally consistent with its recent documentation, but
+the documentation makes several ecological quantities public that would be hidden
+under a stricter POMDP design. The most important distinction is:
+
+\begin{itemize}
+  \item \textbf{Private/evaluator-only:} true abundance, hidden structural
+  parameters such as \code{r_base}, \code{C}, \code{theta}, latent regime,
+  true effective-growth diagnostics, reward diagnostics, and collapse/safety
+  diagnostics.
+  \item \textbf{Method-facing by current spec:} \code{rho}, \code{kappa},
+  \code{K_eff}, \code{next_rho}, \code{next_kappa}, \code{next_K_eff},
+  \code{K_ref}, \code{K_base}, \code{K_max}, \code{safety_threshold},
+  population identity, family/config identity, and action-table-derived
+  \code{delta_r}, \code{delta_K}, and \code{stocking_delta}.
+\end{itemize}
+
+Therefore the issue is not primarily a private-sidecar leak. The issue is that
+the public benchmark spec itself exposes action-specific growth set-points,
+capacity-control state, species-scale carrying-capacity quantities, and
+K-derived safety thresholds. General methods consume those mostly as public
+features and planning context. Mechanistic and native ecological methods consume
+the same public structure as exact transition/reward model inputs, which creates
+the mechanistic-planner advantage seen in the motivation experiment.
+
+\section{Documentation Basis}
+
+\begin{longtable}{p{0.30\linewidth}p{0.13\linewidth}p{0.49\linewidth}}
+\toprule
+Document & Lines & Audit implication \\
+\midrule
+\endfirsthead
+\toprule
+Document & Lines & Audit implication \\
+\midrule
+\endhead
+\code{01_problem_setting_and_design.tex} & 30--34 &
+Public history includes observations/actions plus public controls; true state,
+hidden structural parameters, regime, and true effective growth are
+evaluator-only. \\
+\code{01_problem_setting_and_design.tex} & 46--61 &
+Set-point cells define public \code{rho}, \code{kappa}, \code{K_eff}, and
+$r^{\mathrm{eff}}=\mathrm{clip}(\rho,r_{\min},r_{\max})$. \\
+\code{01_problem_setting_and_design.tex} & 91--103 &
+Public dataset has rewards and public controls; private sidecar has truth and
+structural parameters. \\
+\code{02_real_ecology_data_actions_and_costs.tex} & 26--29 &
+\code{species.csv}, \code{species_lambda.csv}, \code{actions.csv}, and
+\code{action_effects_long.csv} define population scale, lambda profiles, action
+menu, and precomputed effects. \\
+\code{02_real_ecology_data_actions_and_costs.tex} & 81--85 &
+\code{a10} uses $0.10N_0$; capacity actions use
+$(K_{\mathrm{multiplier}}-1)K_{\mathrm{base}}$ and accumulate through
+\code{kappa}. \\
+\code{02_real_ecology_data_actions_and_costs.tex} & 89--106 &
+Lambda is joined by population/action source, converted to Ricker or LGM
+set-points, then written into the real action table as \code{rho}. \\
+\code{03_state_action_reward_reference.tex} & 24--32 &
+Visibility table: \code{s}, \code{r_base}, \code{C}, \code{theta}, and
+\code{z} private; \code{rho}, \code{kappa}, and \code{K_eff} public. \\
+\code{03_state_action_reward_reference.tex} & 37--51 &
+In set-point ecology, \code{rho} carries growth and \code{K} is public because
+action table and population identity are public. \\
+\code{03_state_action_reward_reference.tex} & 59--79 &
+Reward uses the true next state, \code{K_ref = K_base}, and the configured
+safety penalty. \\
+\code{03_state_action_reward_reference.tex} & 93--99 &
+Public reward is a value-fitting target; evaluator truth remains in the private
+sidecar. \\
+\code{04_algorithm_adaptations_and_claims.tex} & 43--48 &
+Shared method infrastructure uses public controls and a public belief cache. \\
+\code{04_algorithm_adaptations_and_claims.tex} & 70--73, 102--104, 133--134, 254--256 &
+General methods are documented as using public data, beliefs, and controls, not
+private truth. \\
+\code{04_algorithm_adaptations_and_claims.tex} & 143--203 &
+Adapted \code{plus}/\code{moor} are mechanistic; \code{plus} spans candidate
+\code{K}, while \code{moor} fits Ricker \code{K} in set-point mode. \\
+\code{05_implementation_and_code_map.md} & 15--24 &
+The public/private data boundary and cache-key scheme are intentional. \\
+\code{06_experiment_protocol_and_reproducibility.md} & 34--39, 62--72 &
+Run flow resolves environment/action tables, public dataset, private sidecar,
+public belief cache, method, and paired evaluation row metadata. \\
+\code{09_motivation_native_results.tex} & 54--81, 142--150 &
+The results report explicitly identifies public action/species structure as the
+reason native methods obtain strong mechanistic planning models. \\
+\code{09_motivation_native_results.tex} & 380--407 &
+The valid next ablation must change planning-model source; \code{filter=ricker}
+or \code{filter=true_family} changes state estimation only. \\
+\code{SERVER_METHOD_ADAPTATIONS_motivation_native.md} & 33--40, 77--85, 174--231 &
+Native methods receive public action growth set-points and species capacity;
+\code{moor_native} is single-Ricker but not table-blind, while
+\code{plus_native} is model-identifying. \\
+\code{README.md} & 65--85, 99--104 &
+Glossary marks \code{rho}, \code{kappa}, \code{K_eff}, rewards, and public
+controls as public; truth and structural parameters as evaluator-only. \\
+\bottomrule
+\end{longtable}
+
+\section{Shared Exposure Channels}
+
+\begin{longtable}{p{0.23\linewidth}p{0.26\linewidth}p{0.27\linewidth}p{0.16\linewidth}}
+\toprule
+Component & Code reference & Exposed or consumed quantity & Classification \\
+\midrule
+\endfirsthead
+\toprule
+Component & Code reference & Exposed or consumed quantity & Classification \\
+\midrule
+\endhead
+Public dataset schema & \code{dataset.py:14--31} &
+\code{observations}, \code{actions}, rewards, next observations, and public
+controls \code{rho/kappa/K_eff/next_*}. & Method-facing public data. \\
+Private schema & \code{dataset.py:33--48} &
+True states, \code{r_base}, \code{C}, \code{theta}, regime, reward truth,
+\code{r_eff_true}. & Evaluator/audit-only. \\
+Collection split & \code{collector.py:295--322} &
+Writes public controls to public data and hidden truth to sidecar. & Boundary implementation. \\
+Public runtime info & \code{envs.py:148--152} &
+Runtime \code{public_info} includes public controls. & Method-facing. \\
+Private runtime truth & \code{envs.py:124--146}, \code{350--375} &
+Truth, structural parameters, safety diagnostics, \code{r_eff_true}. &
+Evaluator-only. \\
+Action effects & \code{realdata.py:195--222} &
+\code{lambda}, \code{r_setpoint_ricker}, \code{r_setpoint_lgm},
+\code{dK_step}, \code{dN}, cost. & Table source. \\
+Action resolution & \code{actions.py:140--168}, \code{204--216} &
+Maps table rows to \code{ActionSpec(delta_r, delta_K, stocking_delta, cost)}. &
+Exact table lookup. \\
+Public controls & \code{controls.py:1--10}, \code{40--70} &
+Computes \code{rho}, \code{kappa}, \code{K_eff}, and next controls from
+action specs and \code{K_base}. & Method-facing by spec. \\
+Effective growth & \code{controls.py:73--99} &
+Set-point \code{r_eff} is clipped \code{rho}; \code{r_base} is ignored in
+real set-point cells. & Simulator/proposal construction; diagnostic private. \\
+Belief features & \code{types.py:44--50}, \code{84--118} &
+Features append \code{rho}, \code{kappa/K_ref}, \code{K_eff/K_ref}; unsafe
+probability uses \code{safety_threshold}. & Method-facing feature. \\
+Learned filter proposal & \code{beliefs.py:168--215}, \code{248--291} &
+Requires controls and uses \code{next_rho}, \code{next_kappa/K_ref},
+\code{next_K_eff/K_ref}. & Method-facing filter. \\
+Mechanistic proposal & \code{beliefs.py:324--390} &
+Reads species caps, resolves actions, and precomputes exact
+\code{delta_r/delta_K/stocking_delta}. & Mechanistic table lookup. \\
+Belief cache & \code{beliefs.py:676--775} &
+Stores features plus current/next public controls. & Method-facing cache. \\
+Discrete native filter & \code{beliefs.py:580--648} &
+Native belief stores \code{rho/kappa/K_eff}; update uses native solver and
+public control advance. & Native method-facing filter. \\
+Learned dynamics & \code{dynamics.py:40--58}, \code{92--120} &
+Design includes \code{rho_next}, \code{kappa_next/K_ref},
+\code{K_eff_next/K_ref}. & Method-facing model learning. \\
+Particle MPC & \code{planning.py:69--146} &
+Rollouts copy \code{belief.rho/kappa}, advance controls, and score reward/safety. &
+Planning input. \\
+Reward model & \code{reward.py:1--13}, \code{29--63}, \code{75--117} &
+Reward is true-next-state based but logged publicly; planning reward uses
+\code{K_ref}, action costs, and safety penalty. & Public target and planner reward. \\
+Filter routing & \code{pipeline.py:146--198} &
+\code{learned}, \code{ricker}, \code{true_family}, and
+\code{native_discrete} choose proposal/filter construction. & Configuration channel. \\
+\bottomrule
+\end{longtable}
+
+\section{Variable-Channel Classification}
+
+\begin{longtable}{p{0.20\linewidth}p{0.20\linewidth}p{0.20\linewidth}p{0.29\linewidth}}
+\toprule
+Quantity & Visibility now & Estimated or exact? & Consequence \\
+\midrule
+\endfirsthead
+\toprule
+Quantity & Visibility now & Estimated or exact? & Consequence \\
+\midrule
+\endhead
+\code{rho}, \code{next_rho} & Public controls. & Exact action-table-derived values. &
+Public growth-feature exposure if r should be hidden. \\
+\code{r_eff}, \code{r_eff_true} & \code{r_eff_true} private; effective r implied by public \code{rho} and caps. &
+Exact from public controls and species caps. & Hidden-growth ambiguity mostly removed. \\
+\code{r_setpoint_ricker}, \code{r_setpoint_lgm} & Table-derived action effects. &
+Exact values from \code{action_effects_long.csv}. & Mechanistic-planner advantage. \\
+Lambda profile & Indirectly public through converted set-points. &
+Exact converted table value. & Indirect r leak. \\
+\code{r_base} & Private simulator value. &
+Not exposed to audited training/deployment paths. & Harmless evaluator-only in real set-point cells. \\
+\code{r_min}, \code{r_max} & Method-facing config. &
+Exact species table caps. & Enables exact clipping of public \code{rho}. \\
+\code{kappa}, \code{next_kappa} & Public controls. &
+Exact action-history-derived controls. & Public K feature exposure. \\
+\code{K_base} & Method-facing config. &
+Exact species table value, except \code{moor}/\code{moor_native} fit assumed K
+for their Ricker model. & Direct species-scale exposure. \\
+\code{K_eff}, \code{next_K_eff} & Public controls. &
+Exact derived \code{clip(K_base+kappa,K_min,K_max)}. & Direct effective-capacity feature. \\
+\code{K_ref} & Method-facing config. &
+Exact real default \code{K_ref=K_base}. & K leak via normalization and reward. \\
+\code{K_max} & Method-facing config. &
+Exact species table value. & Capacity-range exposure. \\
+\code{dK_step}/\code{delta_K} & Public action effect. &
+Exact action table value. & Mechanistic-planner advantage. \\
+\code{dN}/\code{stocking_delta} & Public action effect. &
+Exact action table value. & Translocation magnitude exposed. \\
+\code{s_safe}/\code{safety_threshold} & Method-facing config. &
+Exact K-derived rule. & Indirect K leak and safety-feature channel. \\
+Population identity & Method-facing row/config. &
+Exact manifest/config value. & Enables species-table lookup. \\
+\code{true_family}/\code{cfg.kind} & Method-facing config; true-family filter optional. &
+Exact cell family in config. & Structural-family leak risk; motivation generals still used learned filter. \\
+\code{C}, \code{theta}, regime \code{z} & Private/evaluator, with sampled/modelled versions in filters. &
+Truth not directly exposed. & Mostly harmless; candidate models may include a regime axis. \\
+True state, reward decomposition, unsafe/collapse diagnostics & True state and diagnostics private; scalar reward public. &
+Reward is logged public target. & Reward can train value methods but is not a filter observation. \\
+\bottomrule
+\end{longtable}
+
+\section{Per-Method Audit}
+
+\begin{longtable}{p{0.12\linewidth}p{0.10\linewidth}p{0.28\linewidth}p{0.25\linewidth}p{0.17\linewidth}}
+\toprule
+Method & Uses r/K? & Variables & Where used & Consequence \\
+\midrule
+\endfirsthead
+\toprule
+Method & Uses r/K? & Variables & Where used & Consequence \\
+\midrule
+\endhead
+\code{refplan} & Yes &
+\code{rho}, \code{kappa}, \code{next_rho}, \code{next_kappa},
+\code{next_K_eff}, \code{K_ref}, \code{safety_threshold}, reward costs. &
+\code{ContinuousDynamicsEnsemble.fit}, dynamics design, \code{ParticleMPC},
+posterior member update. &
+Public feature exposure; still learns dynamics from public data. \\
+\code{bamcts} & Yes &
+\code{rho}, \code{kappa}, \code{K_ref}, \code{safety_threshold}, reward costs,
+derived next controls through learned dynamics. &
+Dynamics fit, tree keys, simulated transitions, disagreement, reward/safety. &
+Tree search explicitly conditions on public controls. \\
+\code{ogsrl} & Yes &
+\code{rho}, \code{kappa}, \code{K_eff}, \code{K_ref},
+\code{safety_threshold}, reward costs, unsafe features. &
+Dynamics fit, KNN guardian features, actor features, rollouts, feasibility mask. &
+Broadest general-method public r/K feature channel. \\
+\code{moor_native} & Partial/yes &
+Exact action \code{r_setpoint_*}, \code{dK_step}, \code{dN}, public
+\code{kappa}, exact \code{K_ref}, \code{K_max}, \code{safety_threshold};
+fitted \code{K_hat}. &
+\code{MOORNativePolicy.fit}, \code{predict_ricker_next},
+\code{NativeSolver.build}, native discrete filter. &
+Mechanistic-planner advantage; naive in form, not table-blind. \\
+\code{plus_native} & Yes &
+Exact \code{r_setpoint_*}, \code{dK_step}, \code{dN}, \code{K_base},
+\code{K_max}, \code{K_ref}, \code{safety_threshold}, public \code{kappa},
+candidate family set. &
+\code{PLUSNativePolicy.fit}, per-family \code{NativeSolver.build},
+candidate belief bank, evidence update. &
+Model-identifying native solver; does not estimate r/K from transition data. \\
+\code{mopo} & Yes &
+\code{rho}, \code{kappa}, derived next controls, \code{K_ref},
+\code{safety_threshold}, reward costs. &
+Dynamics fit, prediction diagnostics, \code{ParticleMPC}. &
+Same public-control exposure as other learned planners. \\
+\code{delphic} & Indirect &
+Belief features include \code{rho}, \code{kappa/K_ref}, \code{K_eff/K_ref};
+public rewards. &
+Compatible-world features, CQL/Q fitting, greedy action features. &
+Indirect r/K exposure through the shared feature vector. \\
+adapted \code{plus} & Yes &
+Exact action set-points, \code{K_base}, \code{K_max}, \code{K_ref}, public
+\code{rho/kappa/K_eff}, \code{dK_step}, \code{dN}. &
+Candidate K bank, \code{MechanisticProposal}, candidate belief bank,
+\code{ParticleMPC}. &
+Mechanistic table lookup with particle-MPC rather than native solver. \\
+adapted \code{moor} & Yes &
+Exact action set-points via \code{rho_next}, \code{dK_step}, \code{dN},
+\code{K_ref}, \code{K_base/K_max} grid, public \code{kappa}. &
+\code{_predict}, grid fit, \code{MechanisticProposal}, \code{ParticleMPC}. &
+Single-Ricker mechanistic baseline; r is known in set-point mode and K is fitted. \\
+\bottomrule
+\end{longtable}
+
+\section{Method Notes}
+
+\subsection{\code{refplan}}
+
+\code{refplan} fits \code{ContinuousDynamicsEnsemble} with
+\code{env_cfg.K_ref} and \code{env_cfg}. The shared ensemble design includes
+public-control columns \code{rho_next}, \code{kappa_next/K_ref}, and
+\code{K_eff_next/K_ref}; fitting pulls \code{cache.rho} and \code{cache.kappa}.
+Planning uses \code{ParticleMPC}, which copies \code{belief.rho} and
+\code{belief.kappa} into rollout state and advances public controls. The member
+posterior update also calls \code{mean_next} with \code{belief.rho} and
+\code{belief.kappa}. See \code{refplan.py:36--100},
+\code{dynamics.py:40--120}, and \code{planning.py:69--146}.
+
+\subsection{\code{bamcts}}
+
+\code{bamcts} fits the same control-aware \code{ContinuousDynamicsEnsemble}.
+Its tree key buckets \code{rho} and \code{kappa}; simulations pass those controls
+to learned dynamics, advance public controls, compute reward/safety from config,
+and recurse on the next controls. See \code{bamcts.py:45--145}. A minor
+implementation wrinkle is that \code{observe()} calls \code{mean_next} without
+\code{rho/kappa}; this is an update inconsistency, not an extra hidden-parameter
+exposure.
+
+\subsection{\code{ogsrl}}
+
+\code{ogsrl} consumes public r/K controls in multiple places. The guardian
+feature map includes \code{rho}, \code{kappa/K_ref}, and \code{K_eff/K_ref};
+policy state features do the same; rollouts pass \code{rho/kappa} into learned
+dynamics and advance public controls. Fitting trains both dynamics and the KNN
+guardian with belief-cache controls. See \code{ogsrl.py:35--77},
+\code{164--245}, and \code{297--435}.
+
+\subsection{\code{moor_native}}
+
+\code{moor_native} reads public \code{dataset.kappa}, searches a scalar
+\code{K_hat}, and targets next observations normalized by \code{K_ref}. It then
+builds a native solver with \code{assumed_K_base=K_hat}. The prediction and
+solver paths still call \code{resolve_actions}, \code{build_reward}, and
+\code{transition_value}, so exact public action growth, capacity increments,
+translocation magnitudes, action costs, and safety scale are available. See
+\code{moor_native.py:24--55} and \code{native_solver.py:73--255}.
+
+\subsection{\code{plus_native}}
+
+\code{plus_native} does not fit r/K from public transition data. Its \code{fit}
+method ignores the dataset and builds one \code{NativeSolver} per candidate
+family. It then updates model evidence from action/observation evidence and
+acts by posterior-weighted native action values. Each candidate solver uses exact
+public action/species/reward structure. See \code{plus_native.py:1--126} and
+\code{native_solver.py:35--255}.
+
+\subsection{\code{mopo}}
+
+\code{mopo} fits the same control-aware learned dynamics ensemble as the other
+general model-based planners. It computes diagnostics with \code{beliefs.rho}
+and \code{beliefs.kappa}, and acts through \code{ParticleMPC}. See
+\code{mopo.py:18--60}.
+
+\subsection{\code{delphic}}
+
+\code{delphic} does not fit a mechanistic dynamics model, but it consumes
+\code{beliefs.features}, \code{beliefs.next_features}, and public rewards. Since
+\code{BeliefState.features} appends public controls when enabled, Delphic gets
+an indirect r/K channel. See \code{delphic.py:52--57}, \code{102--120},
+\code{182--256}, and \code{types.py:84--118}.
+
+\subsection{Adapted \code{plus}}
+
+Adapted \code{plus} uses a Ricker-style candidate bank. In set-point mode, its
+own comment states that per-action growth is known and candidate models span
+\code{K_base} to \code{K_max}. Candidate proposals are
+\code{MechanisticProposal} objects, so they call \code{resolve_actions} and
+precompute exact action lookups. Candidate belief banks preserve
+\code{rho/kappa/K_eff}. See \code{plus.py:26--163} and
+\code{beliefs.py:324--390}.
+
+\subsection{Adapted \code{moor}}
+
+Adapted \code{moor} fits a single Ricker proposal from public belief means,
+actions, and controls. In set-point mode the code treats r as known from
+\code{rho}; the fit mainly identifies K. The fitted proposal then plans with
+\code{ParticleMPC}. See \code{moor.py:23--115}.
+
+\section{Final Summary Matrix}
+
+\begin{longtable}{p{0.13\linewidth}p{0.20\linewidth}p{0.19\linewidth}p{0.20\linewidth}p{0.18\linewidth}}
+\toprule
+Method & Model learning & Belief/filter & Planning & Reward/safety or native construction \\
+\midrule
+\endfirsthead
+\toprule
+Method & Model learning & Belief/filter & Planning & Reward/safety or native construction \\
+\midrule
+\endhead
+\code{refplan} &
+\code{rho}, \code{kappa}, \code{next_*}, \code{K_ref} via learned dynamics &
+Shared cache features include \code{rho}, \code{kappa/K_ref}, \code{K_eff/K_ref} &
+\code{belief.rho/kappa}; public control advance &
+\code{K_ref}, \code{safety_threshold}, action costs. \\
+\code{bamcts} &
+Same learned dynamics controls as \code{refplan} &
+Shared cache features and posterior particles &
+\code{rho/kappa} in tree keys and rollouts &
+\code{K_ref}, \code{safety_threshold}, action costs. \\
+\code{ogsrl} &
+Same learned dynamics controls &
+Guardian/cache features with \code{rho/kappa/K_eff} &
+Actor and rollouts use \code{rho/kappa/K_eff/K_ref} &
+Unsafe features, guardian OOD, reward costs. \\
+\code{moor_native} &
+Fits \code{K_hat}; no learned general dynamics &
+\code{native_discrete} stores \code{rho/kappa/K_eff} &
+Tabular values indexed by public \code{kappa} &
+Exact \code{r_setpoint}, \code{dK_step}, \code{dN}; fitted
+\code{K_base=K_hat}; exact reward/safety config. \\
+\code{plus_native} &
+No learned dynamics; estimates family posterior only &
+Candidate native beliefs store public controls &
+Posterior mixture of native tabular values &
+Exact \code{r_setpoint}, \code{dK_step}, \code{dN}, \code{K_base},
+\code{K_max}; family bank. \\
+\code{mopo} &
+\code{rho/kappa/next_*}, \code{K_ref} via learned dynamics &
+Shared cache features &
+\code{ParticleMPC} with \code{belief.rho/kappa} &
+\code{K_ref}, \code{safety_threshold}, pessimism, action costs. \\
+\code{delphic} &
+No dynamics model; Q fitting uses public rewards and cache features &
+Belief features include public controls &
+Greedy Q over belief features &
+Public rewards; \code{safety_threshold} appears in features. \\
+adapted \code{plus} &
+No learned dynamics; candidate mechanistic bank &
+Candidate bank keeps \code{rho/kappa/K_eff} &
+ParticleMPC under exact-table mechanistic proposals &
+Exact action table; candidate K. \\
+adapted \code{moor} &
+Fits K-like Ricker proposal from public cache/actions &
+Shared filter cache &
+ParticleMPC under fitted Ricker proposal &
+Exact action table and fitted K. \\
+\bottomrule
+\end{longtable}
+
+\section{Conclusion}
+
+The audited methods do not appear to train or deploy directly on private sidecar
+arrays. The load-bearing exposure is public-by-spec: action-specific growth
+set-points, capacity controls, species-scale K quantities, K-derived safety
+thresholds, and table-derived action effects are available to methods. Learned
+general methods use these as features and rollout context. Mechanistic and native
+ecological methods use them as exact model inputs. If the next design requires
+r/K/action-table quantities to be hidden, the fix should begin by revising the
+public-information contract, not by searching for a private-file read.
+
+\end{document}

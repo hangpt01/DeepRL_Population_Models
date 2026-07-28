@@ -1,0 +1,22 @@
+\begin{longtable}{llrrrrrr}
+\caption{Matched-cell method returns and hidden-minus-full deltas (all populations).}\label{tab:matched-methods}\\
+\toprule
+Reward & Method & Cells & Full & Hidden & $\Delta$ mean & $\Delta$ med. & Hidden wins \\
+\midrule
+\endfirsthead
+\toprule
+Reward & Method & Cells & Full & Hidden & $\Delta$ mean & $\Delta$ med. & Hidden wins \\
+\midrule
+\endhead
+Safe & RefPlan & 144 & -5.308 & \underline{-5.911} & -0.603 & -0.904 & 22/144 \\
+Safe & BA-MCTS & 144 & -5.693 & -6.302 & -0.610 & -0.844 & 37/144 \\
+Safe & OGSRL & 144 & -5.064 & \textbf{-4.514} & +0.550 & +0.186 & 83/144 \\
+Safe & MOOR-native & 144 & \underline{-2.910} & -6.765 & -3.856 & -3.562 & 0/144 \\
+Safe & PLUS-native & 144 & \textbf{-2.747} & -6.077 & -3.330 & -3.143 & 0/144 \\
+Yield & RefPlan & 144 & 5.629 & 5.657 & +0.028 & +0.047 & 85/144 \\
+Yield & BA-MCTS & 144 & 6.039 & 6.040 & +0.001 & +0.006 & 72/144 \\
+Yield & OGSRL & 144 & 5.866 & 5.518 & -0.348 & -0.101 & 61/144 \\
+Yield & MOOR-native & 144 & \underline{7.391} & \textbf{6.697} & -0.694 & -0.348 & 14/144 \\
+Yield & PLUS-native & 144 & \textbf{7.557} & \underline{6.636} & -0.920 & -0.859 & 9/144 \\
+\bottomrule
+\end{longtable}

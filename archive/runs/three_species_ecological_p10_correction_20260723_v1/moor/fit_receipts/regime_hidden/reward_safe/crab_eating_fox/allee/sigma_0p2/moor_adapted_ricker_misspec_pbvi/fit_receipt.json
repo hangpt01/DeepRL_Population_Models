@@ -1,0 +1,31 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "reused_verified"
+  ],
+  "candidate_count": 1,
+  "cell": "regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "eecf7b719b2ce0330859961a6c47ab205796e213c08c557ad507faa62045aa20"
+  ],
+  "fit_reuse_ledger": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/launch_package/provenance/fit_reuse_ledger_216.csv",
+  "fit_reuse_ledger_sha256": "5410b0e4fd71312af601cbdd4c8f11115469483780f26c202fbe232916187ac3",
+  "fit_seconds": 0.0,
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "0eaadafa5a5924b6f6a4eb12011357411353414bdd5431f5f1aaa1d1dcc79319"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "reward_independent_fit": true,
+  "run_stage": "dynamics_fit",
+  "source_fit_receipt": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/fit_receipts/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/moor_adapted_ricker_misspec_pbvi/fit_receipt.json",
+  "source_fit_receipt_sha256": "4d81190e1e0a004387c4b831c87086867a1beb5cd76b2a708ae5b089b5212968",
+  "source_reward_penalty": 5.0,
+  "target_reward_penalty": 10.0,
+  "target_rows": 4000,
+  "transition_data_hash": "6ec8c14944c846adba087b11c6cd5f0f804290197fedc0b15b5e26a855fc0dca"
+}

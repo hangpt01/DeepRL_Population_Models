@@ -1,0 +1,22 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "miss_fitted"
+  ],
+  "candidate_count": 1,
+  "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p1",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "18669eb94b08824048642d461c620e9b1d9970b1b199361fc6b0254f362312ec"
+  ],
+  "fit_seconds": 902.5358179658651,
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "9e09b9f6f3d515f837a1cd2076033af884ef7848f4e9736baadd9d01c5c3626d"
+  ],
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "c5c3de2f6b8b75e3e58e09ba5e02fe4efb01c903b00f07431b2f452da5f84a2c"
+}

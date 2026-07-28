@@ -1,0 +1,100 @@
+{
+  "phase": "phase2_corrected_general_rl",
+  "submitted": false,
+  "base_commit": "5f9cf32a69d47e2d31b2ed6ee30ebbcfe84b8536",
+  "methods": [
+    "refplan",
+    "ogsrl",
+    "bamcts",
+    "delphic"
+  ],
+  "mopo": "archived_excluded_not_deleted",
+  "budget": {
+    "transitions": 4000,
+    "episode_length": 25,
+    "holdout_fraction": 0.2,
+    "episode_preserving": true
+  },
+  "shared_model": {
+    "role": "public_dynamics_ensemble",
+    "ensemble_size_primary": 5,
+    "ridge": 0.001,
+    "matched_across": [
+      "refplan",
+      "ogsrl",
+      "bamcts"
+    ],
+    "ensemble_size_sensitivity": 7,
+    "note": "common ensemble size; Delphic world_count is a separate algorithmic object"
+  },
+  "hyperparameters": {
+    "planner": {
+      "horizon": 5,
+      "sequences": 96,
+      "particles": 32,
+      "discount": 0.95,
+      "pessimism": 0.5
+    },
+    "bamcts_primary": {
+      "simulations": 256,
+      "depth": 8
+    },
+    "delphic": {
+      "world_count": 20,
+      "cql_alpha": 0.5,
+      "delphic_lambda": 0.1
+    },
+    "ogsrl": {
+      "rollout_horizon": 6,
+      "train_iterations": 30,
+      "safety_budget": 0.02,
+      "ood_budget": 0.05
+    }
+  },
+  "delphic_compat": {
+    "metric": "marginal_action_TV",
+    "tv_tolerance": 0.15,
+    "min_worlds": 3,
+    "diversity_floor": 1e-08
+  },
+  "preregistered_sensitivities_not_launched": {
+    "bamcts": [
+      {
+        "simulations": 128,
+        "depth": 5
+      },
+      {
+        "simulations": 256,
+        "depth": 8
+      },
+      {
+        "simulations": 512,
+        "depth": 12
+      }
+    ],
+    "delphic_world_count": [
+      10,
+      20,
+      30
+    ],
+    "shared_ensemble_size": [
+      5,
+      7
+    ]
+  },
+  "manifest": {
+    "file": "manifest_general_hidden.csv",
+    "cells": 288,
+    "rows": 1152,
+    "expose_rk": "hidden"
+  },
+  "code_digests_sha256": {
+    "src/real_ecology_benchmark/methods/refplan.py": "2c8c4ece129a6cc95ce6e4cd399008bbac07232ce770961b412c9d8736beb78a",
+    "src/real_ecology_benchmark/methods/ogsrl.py": "cbd02631ec68d4a4457a58c832875dbf47d11b13bf04cbe85a3eabf8716bc625",
+    "src/real_ecology_benchmark/methods/bamcts.py": "5ffd3d8962e723d0efb195e4b461262903c2b3e1e977a0781f70a9a17f8b4f05",
+    "src/real_ecology_benchmark/methods/delphic.py": "d3a2a857954290f6d80a241ab33ca767365a8aeee45475057119e28934338511",
+    "src/real_ecology_benchmark/methods/mopo.py": "6403e0d2f89a5ee1eed04bf226425e4abe2566f3aa15fac27fe10de4861dd811",
+    "src/real_ecology_benchmark/public_models.py": "59b8d336b7fdeafcd651787236091041cd68b88ab7a75d485d7e22145289f06e",
+    "src/real_ecology_benchmark/delphic_compat.py": "cf177b30ef00d51c251f4ef07850393f650853c0c38a28b69d6ae0a840d22b3a"
+  }
+}

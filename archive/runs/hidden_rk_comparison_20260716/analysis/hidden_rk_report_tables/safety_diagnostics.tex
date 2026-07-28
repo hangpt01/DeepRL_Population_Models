@@ -1,0 +1,21 @@
+\begin{table}[htbp]
+\centering
+\caption{Hidden safe-mode public risk and reward-surrogate diagnostics.}
+\label{tab:safety-diagnostics}
+\begin{tabular}{p{0.30\linewidth}rp{0.43\linewidth}}
+\toprule
+Diagnostic & Value & Interpretation \\
+\midrule
+Safe hidden cells & 144 & One surrogate per cell; method duplicates removed \\
+Genuine terminations & 12 & 576,020 public transitions \\
+Termination prevalence & 0.00208\% & Public risk target \\
+Constant-risk fallback & 140/144 & Expected under near-single-class labels \\
+Mean predicted risk & 0.03726\% & Holdout prediction \\
+Risk holdout Brier & 0.000003 & Public, report-only \\
+Reward holdout RMSE & 1.131 & Public \\
+Low-reward-tail RMSE & 2.018 & Public, report-only \\
+No-penalty RMSE & 0.940 & Evaluator-only stratum \\
+Penalty-applied RMSE & 1.809 & Evaluator-only stratum \\
+\bottomrule
+\end{tabular}
+\end{table}

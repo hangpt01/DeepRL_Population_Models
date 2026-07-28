@@ -1,0 +1,31 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "reused_verified"
+  ],
+  "candidate_count": 1,
+  "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "2fa561b13b9196892c5d3e182ec6e39d32987da81bb86dbea35582a612fc4c79"
+  ],
+  "fit_reuse_ledger": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/launch_package/provenance/fit_reuse_ledger_216.csv",
+  "fit_reuse_ledger_sha256": "5410b0e4fd71312af601cbdd4c8f11115469483780f26c202fbe232916187ac3",
+  "fit_seconds": 0.0,
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "9342794880de9e81f0876e3dca9473d3611c58bf91a92c963f7bc6e7359ef755"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "reward_independent_fit": true,
+  "run_stage": "dynamics_fit",
+  "source_fit_receipt": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/adapted_32cell_diagnostic_pending/fit_receipts/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1/moor_adapted_ricker_misspec_pbvi/fit_receipt.json",
+  "source_fit_receipt_sha256": "a4d04018a45df14371d340b1984ec0621be6ac778cb0f190a9e953c6c4c637e8",
+  "source_reward_penalty": 5.0,
+  "target_reward_penalty": 10.0,
+  "target_rows": 4000,
+  "transition_data_hash": "f075c5062e03edc1d5e7fbb62af7269400546c12d952ce53a52b62b1e8649e65"
+}

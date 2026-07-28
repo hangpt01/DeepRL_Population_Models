@@ -1,0 +1,76 @@
+{
+  "population_public": "opaque",
+  "family_private_hidden": true,
+  "collect_seconds": 0.4766696299193427,
+  "data": {
+    "transitions": 4000,
+    "episodes": 160,
+    "train_episodes": 128,
+    "holdout_episodes": 32,
+    "transitions_per_action": [
+      810,
+      181,
+      203,
+      692,
+      300,
+      333,
+      253,
+      268,
+      330,
+      305,
+      325
+    ],
+    "min_action_support": 181,
+    "actions_below_50": 0,
+    "observation_scale": 70.38124805364154
+  },
+  "dynamics": {
+    "holdout_rmse": 25.048388469856828,
+    "mean_ensemble_disagreement": 5.792389708809826
+  },
+  "behavior": {
+    "reference_nll_holdout": 24.60301100325946
+  },
+  "risk_channel": {
+    "terminated_prevalence": 0.0,
+    "risk_fallback": "constant_single_class"
+  },
+  "methods": {
+    "refplan": {
+      "fit_seconds": 0.0044197539100423455,
+      "act_ms_mean": 35.09770476259291,
+      "act_ms_p95": 35.97987601533532,
+      "posterior_entropy": 1.6094379124291003,
+      "members": 5.0
+    },
+    "ogsrl": {
+      "fit_seconds": 2.8998188369441777,
+      "act_ms_mean": 64.21818820293993,
+      "act_ms_p95": 65.23852355312556,
+      "hidden_actor_trained": 1.0,
+      "lambda_ood": 2.389599027832032,
+      "lambda_safety": 0.9449639245979071,
+      "safety_channel_degenerate": 1.0,
+      "guardian_threshold": 0.37120506209140985
+    },
+    "bamcts": {
+      "fit_seconds": 0.004425602033734322,
+      "act_ms_mean": 608.3743469184265,
+      "act_ms_p95": 667.1949433861299,
+      "tree_nodes_last": 100.0,
+      "root_belief_kl_after_one_step": 3.634497371375958e-05
+    },
+    "delphic": {
+      "fit_seconds": 7.137980247964151,
+      "act_ms_mean": 0.8815421257168055,
+      "act_ms_p95": 1.0193048277869818,
+      "compatible_worlds": 20,
+      "world_tv_max": 0.017000745110659764,
+      "world_diversity": 4.424346919397889,
+      "compat_passes": true,
+      "compat_reason": "compatible and diverse"
+    }
+  },
+  "peak_rss_mb": 158.23046875,
+  "wall_seconds_total": 28.82598391699139
+}

@@ -1,0 +1,13 @@
+citation,action_category,cost_estimate,currency,unit,description
+"Adams, et al. 2012",Land / Water Management,"routine = $1.01, conservation $1.99",AU $?,ha,routine and conservation oriented management costs on private property
+"Armsworth, et al 2013",Land / Water Management,%36 supplement to annual management expenditures,GBP,ha,number of hours spent by volunteers at a site * 7 GBP
+"Balmford, et al 2003",Conservation Designation & Planning,"$0.1 km 2 y 1 in the Russian Arctic to ove$1,000,000 km 2 y 1",US$,km2,"recurrent management costs of ""effective"" field based programs broken down into current spending and unmet costs"
+"Bruner, et al 2004",Land / Water Management + Conservation Designation & Planning,$1.1 - 2.5 billion/year for all sites,US$,ha,"parameterized a predictive model using data from Balmford et al 2003 + a new dataset from work presented at the WPC and from Culverwell 1997, Frazee 2003, and Molina 2003)"
+"da Silva, et al. 2019",Land / Water Management,,USD $,km2,Average of US$75 million a year was spent on the management of 8.7% of Brazil's PAs between 2013-2016.
+"Frazee, et al 2003",Species Management + Land / Water Management,$71/HA,US$,ha,ideal staffing and operating costs for effective managemnt
+"Green, et al 2012",Land / Water Management,actual median =$2.3/HA/yr necessary median  = $8.3/HA/yr,US$,ha,actual and necessary spend on recurrent and capital expenditures
+"James, et al 1999",Land / Water Management + Conservation Designation & Planning,varies widely by region but global mean of $893/km,US$,km^2,"List of dollars/km^2 , staffing stats, and shortfalls for countries worldwide"
+"Laycock, et al 2009",Species Management,"500 GBP - 7,000,000 GBP total for a species",Euro,N/A,"total and annual program costs (not sure if it is management only or also includes acquisition, impelementation and administration)"
+"McCarthy, et al 2012",Species Management,"0.19/ha to $24,487/ha. $7.18 billion total",US$,km2,current and needed costs for conservation activities (acquisition and management) for set of Red Listed bird species
+"Moore, et al. 2004",Land / Water Management,"total =$630 million/year, avg = $212/km/yr",US$,km^2,predicted from site level features using Balmford's model
+"Ward, et al. 2019",Land / Water Management + Species Management,,AU$,km^2,Using budget of 550 million a year AU$ already established by the Australian government to put towards umbrella species

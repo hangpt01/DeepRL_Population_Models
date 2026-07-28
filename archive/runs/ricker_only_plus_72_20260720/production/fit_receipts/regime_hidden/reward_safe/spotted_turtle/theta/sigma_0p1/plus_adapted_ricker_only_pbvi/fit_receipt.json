@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/spotted_turtle/theta/sigma_0p1",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "bfcf107275fdcc0cb86e1c8d3691171a97a8c33080f5407d058d2b8b9a3cf4c5",
+    "e0c24e3f87b82dd818ec44aacf4cb72e1e07a194a85760510b9122b5146b94b4",
+    "a86d6aa693402ba74cf967b9ddbdc7c0838ed2c591b010a8e8346e975a4ebd87",
+    "a358f15f41acc9ee08f173497fbee9b5dbc1ba8acf7ce815a423f3409b5524bd",
+    "50128140d8aebf32071d30e7a81dbfa9801f2a30336c58f61a75b3cbcf3f2d01",
+    "cd6d2adb4ab9e367b3ff65e8ef6b8645e3617622f9c2c9f1e26f86d62572800a",
+    "ba7e4e1e21a84b1569ae5d2265c56d918ce040b356c2336f82b3880a3cc8e0fc",
+    "a22f55efc28af186d55cc4802747ffbe3e5d4becc7dc75ca371f9fa1e3155d34"
+  ],
+  "fit_seconds": 0.053492702543735504,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "63a4afaf33b1cd9af607dc2905b8602cf520b67cedc4e97c5d53c7e534c5f34e",
+    "8cd6642d15f627c56efc39d00bb3c2e50eb93bc0ad7d03f0af35cd44c6cd81b5",
+    "85a64838cd52b3937e006eeb67fbe852b85cbc7236f6a41398c2bf0cccb0d725",
+    "177741911b28e86cece764f823e15ea22d1a926947c98688546c9c4d6b9060cc",
+    "0d60e58d772725a78319f8b9f7cc59bff9f9113bfbf8ede22321aaacf2308598",
+    "ca48cc3ef4929a0b952ea281375199d554936041147931ac15b19b1b2e0a8f59",
+    "6018f2475911b9dc25f9cfbfe87d9b2def79d23bc75ab8e835a997925bde716b",
+    "a4fb9c9190a27f02446647f1e83eb83eb6eeb176165a43d4079c46ea88c1a67b"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "f8c4adeb7189d350e59b0fefaa47d78f3fc699fd48457f51b071abdcc7a04a2d"
+}

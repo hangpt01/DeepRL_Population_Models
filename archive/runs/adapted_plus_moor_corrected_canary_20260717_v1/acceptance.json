@@ -1,0 +1,79 @@
+{
+  "datasets": [],
+  "passed": true,
+  "return_fields_opened": false,
+  "rows": [
+    {
+      "candidate_count": 1,
+      "finite_objectives": true,
+      "fit_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_safe/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/faithful_fit.json",
+      "planner_invocations": 200,
+      "planner_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_safe/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/planner_provenance.json",
+      "pomdp_artifact_count": 1,
+      "privacy_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_safe/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/privacy_audit.json"
+    },
+    {
+      "candidate_count": 16,
+      "finite_objectives": true,
+      "fit_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_safe/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/faithful_fit.json",
+      "planner_invocations": 3200,
+      "planner_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_safe/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/planner_provenance.json",
+      "pomdp_artifact_count": 16,
+      "privacy_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_safe/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/privacy_audit.json"
+    },
+    {
+      "candidate_count": 1,
+      "finite_objectives": true,
+      "fit_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_yield/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/faithful_fit.json",
+      "planner_invocations": 200,
+      "planner_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_yield/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/planner_provenance.json",
+      "pomdp_artifact_count": 1,
+      "privacy_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_yield/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/privacy_audit.json"
+    },
+    {
+      "candidate_count": 16,
+      "finite_objectives": true,
+      "fit_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_yield/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/faithful_fit.json",
+      "planner_invocations": 3200,
+      "planner_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_yield/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/planner_provenance.json",
+      "pomdp_artifact_count": 16,
+      "privacy_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/amur_tiger/ricker/sigma_0p1/data_real/backend_numpy/regime_hidden/reward_yield/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/privacy_audit.json"
+    },
+    {
+      "candidate_count": 1,
+      "finite_objectives": true,
+      "fit_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_safe/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/faithful_fit.json",
+      "planner_invocations": 200,
+      "planner_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_safe/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/planner_provenance.json",
+      "pomdp_artifact_count": 1,
+      "privacy_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_safe/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/privacy_audit.json"
+    },
+    {
+      "candidate_count": 16,
+      "finite_objectives": true,
+      "fit_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_safe/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/faithful_fit.json",
+      "planner_invocations": 3200,
+      "planner_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_safe/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/planner_provenance.json",
+      "pomdp_artifact_count": 16,
+      "privacy_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_safe/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/privacy_audit.json"
+    },
+    {
+      "candidate_count": 1,
+      "finite_objectives": true,
+      "fit_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_yield/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/faithful_fit.json",
+      "planner_invocations": 200,
+      "planner_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_yield/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/planner_provenance.json",
+      "pomdp_artifact_count": 1,
+      "privacy_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_yield/moor_adapted_ricker_misspec_pbvi/faithful_internal/faithful_artifacts/privacy_audit.json"
+    },
+    {
+      "candidate_count": 16,
+      "finite_objectives": true,
+      "fit_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_yield/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/faithful_fit.json",
+      "planner_invocations": 3200,
+      "planner_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_yield/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/planner_provenance.json",
+      "pomdp_artifact_count": 16,
+      "privacy_path": "real_ecology_runs/adapted_plus_moor_corrected_canary_20260717_v1/evaluation/regime_hidden/egyptian_vulture/regime/sigma_0p4/data_real/backend_numpy/regime_hidden/reward_yield/plus_adapted_mechanistic_pbvi/faithful_internal/faithful_artifacts/privacy_audit.json"
+    }
+  ]
+}

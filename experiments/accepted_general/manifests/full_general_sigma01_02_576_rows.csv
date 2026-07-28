@@ -1,0 +1,577 @@
+index,package_role,reward_mode,population,recoverable,environment,num_actions,sigma_obs,method,filter,expose_rk,target_rows,actual_rows,overshoot_rows,episode_count,collection_seed,episode_length,evaluation_seed,evaluation_seeds,evaluation_episodes,episodes_per_evaluation_seed,evaluation_horizon,horizon,sequences,pessimism,bamcts_depth,bamcts_simulations,ogsrl_cost_horizon,ogsrl_deployment_rollouts
+0,phase2e_full_sigma01_02,safe,Egyptian vulture,False,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+1,phase2e_full_sigma01_02,safe,Egyptian vulture,False,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+2,phase2e_full_sigma01_02,safe,Egyptian vulture,False,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+3,phase2e_full_sigma01_02,safe,Egyptian vulture,False,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+4,phase2e_full_sigma01_02,safe,Egyptian vulture,False,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+5,phase2e_full_sigma01_02,safe,Egyptian vulture,False,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+6,phase2e_full_sigma01_02,safe,Egyptian vulture,False,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+7,phase2e_full_sigma01_02,safe,Egyptian vulture,False,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+8,phase2e_full_sigma01_02,safe,Egyptian vulture,False,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+9,phase2e_full_sigma01_02,safe,Egyptian vulture,False,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+10,phase2e_full_sigma01_02,safe,Egyptian vulture,False,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+11,phase2e_full_sigma01_02,safe,Egyptian vulture,False,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+12,phase2e_full_sigma01_02,safe,Egyptian vulture,False,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+13,phase2e_full_sigma01_02,safe,Egyptian vulture,False,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+14,phase2e_full_sigma01_02,safe,Egyptian vulture,False,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+15,phase2e_full_sigma01_02,safe,Egyptian vulture,False,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+16,phase2e_full_sigma01_02,safe,Egyptian vulture,False,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+17,phase2e_full_sigma01_02,safe,Egyptian vulture,False,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+18,phase2e_full_sigma01_02,safe,Egyptian vulture,False,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+19,phase2e_full_sigma01_02,safe,Egyptian vulture,False,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+20,phase2e_full_sigma01_02,safe,Egyptian vulture,False,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+21,phase2e_full_sigma01_02,safe,Egyptian vulture,False,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+22,phase2e_full_sigma01_02,safe,Egyptian vulture,False,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+23,phase2e_full_sigma01_02,safe,Egyptian vulture,False,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+24,phase2e_full_sigma01_02,safe,Egyptian vulture,False,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+25,phase2e_full_sigma01_02,safe,Egyptian vulture,False,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+26,phase2e_full_sigma01_02,safe,Egyptian vulture,False,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+27,phase2e_full_sigma01_02,safe,Egyptian vulture,False,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+28,phase2e_full_sigma01_02,safe,Egyptian vulture,False,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+29,phase2e_full_sigma01_02,safe,Egyptian vulture,False,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+30,phase2e_full_sigma01_02,safe,Egyptian vulture,False,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+31,phase2e_full_sigma01_02,safe,Egyptian vulture,False,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+32,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+33,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+34,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+35,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+36,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+37,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+38,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+39,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+40,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+41,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+42,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+43,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+44,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+45,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+46,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+47,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+48,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+49,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+50,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+51,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+52,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+53,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+54,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+55,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+56,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+57,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+58,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+59,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+60,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+61,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+62,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+63,phase2e_full_sigma01_02,safe,Bottlenose dolphin,False,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+64,phase2e_full_sigma01_02,safe,Spotted turtle,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+65,phase2e_full_sigma01_02,safe,Spotted turtle,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+66,phase2e_full_sigma01_02,safe,Spotted turtle,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+67,phase2e_full_sigma01_02,safe,Spotted turtle,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+68,phase2e_full_sigma01_02,safe,Spotted turtle,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+69,phase2e_full_sigma01_02,safe,Spotted turtle,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+70,phase2e_full_sigma01_02,safe,Spotted turtle,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+71,phase2e_full_sigma01_02,safe,Spotted turtle,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+72,phase2e_full_sigma01_02,safe,Spotted turtle,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+73,phase2e_full_sigma01_02,safe,Spotted turtle,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+74,phase2e_full_sigma01_02,safe,Spotted turtle,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+75,phase2e_full_sigma01_02,safe,Spotted turtle,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+76,phase2e_full_sigma01_02,safe,Spotted turtle,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+77,phase2e_full_sigma01_02,safe,Spotted turtle,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+78,phase2e_full_sigma01_02,safe,Spotted turtle,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+79,phase2e_full_sigma01_02,safe,Spotted turtle,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+80,phase2e_full_sigma01_02,safe,Spotted turtle,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+81,phase2e_full_sigma01_02,safe,Spotted turtle,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+82,phase2e_full_sigma01_02,safe,Spotted turtle,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+83,phase2e_full_sigma01_02,safe,Spotted turtle,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+84,phase2e_full_sigma01_02,safe,Spotted turtle,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+85,phase2e_full_sigma01_02,safe,Spotted turtle,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+86,phase2e_full_sigma01_02,safe,Spotted turtle,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+87,phase2e_full_sigma01_02,safe,Spotted turtle,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+88,phase2e_full_sigma01_02,safe,Spotted turtle,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+89,phase2e_full_sigma01_02,safe,Spotted turtle,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+90,phase2e_full_sigma01_02,safe,Spotted turtle,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+91,phase2e_full_sigma01_02,safe,Spotted turtle,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+92,phase2e_full_sigma01_02,safe,Spotted turtle,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+93,phase2e_full_sigma01_02,safe,Spotted turtle,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+94,phase2e_full_sigma01_02,safe,Spotted turtle,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+95,phase2e_full_sigma01_02,safe,Spotted turtle,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+96,phase2e_full_sigma01_02,safe,Asian elephant,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+97,phase2e_full_sigma01_02,safe,Asian elephant,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+98,phase2e_full_sigma01_02,safe,Asian elephant,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+99,phase2e_full_sigma01_02,safe,Asian elephant,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+100,phase2e_full_sigma01_02,safe,Asian elephant,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+101,phase2e_full_sigma01_02,safe,Asian elephant,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+102,phase2e_full_sigma01_02,safe,Asian elephant,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+103,phase2e_full_sigma01_02,safe,Asian elephant,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+104,phase2e_full_sigma01_02,safe,Asian elephant,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+105,phase2e_full_sigma01_02,safe,Asian elephant,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+106,phase2e_full_sigma01_02,safe,Asian elephant,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+107,phase2e_full_sigma01_02,safe,Asian elephant,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+108,phase2e_full_sigma01_02,safe,Asian elephant,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+109,phase2e_full_sigma01_02,safe,Asian elephant,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+110,phase2e_full_sigma01_02,safe,Asian elephant,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+111,phase2e_full_sigma01_02,safe,Asian elephant,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+112,phase2e_full_sigma01_02,safe,Asian elephant,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+113,phase2e_full_sigma01_02,safe,Asian elephant,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+114,phase2e_full_sigma01_02,safe,Asian elephant,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+115,phase2e_full_sigma01_02,safe,Asian elephant,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+116,phase2e_full_sigma01_02,safe,Asian elephant,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+117,phase2e_full_sigma01_02,safe,Asian elephant,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+118,phase2e_full_sigma01_02,safe,Asian elephant,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+119,phase2e_full_sigma01_02,safe,Asian elephant,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+120,phase2e_full_sigma01_02,safe,Asian elephant,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+121,phase2e_full_sigma01_02,safe,Asian elephant,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+122,phase2e_full_sigma01_02,safe,Asian elephant,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+123,phase2e_full_sigma01_02,safe,Asian elephant,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+124,phase2e_full_sigma01_02,safe,Asian elephant,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+125,phase2e_full_sigma01_02,safe,Asian elephant,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+126,phase2e_full_sigma01_02,safe,Asian elephant,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+127,phase2e_full_sigma01_02,safe,Asian elephant,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+128,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+129,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+130,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+131,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+132,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+133,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+134,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+135,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+136,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+137,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+138,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+139,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+140,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+141,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+142,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+143,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+144,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+145,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+146,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+147,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+148,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+149,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+150,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+151,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+152,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+153,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+154,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+155,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+156,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+157,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+158,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+159,phase2e_full_sigma01_02,safe,Puerto Rican parrot,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+160,phase2e_full_sigma01_02,safe,Crab-eating fox,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+161,phase2e_full_sigma01_02,safe,Crab-eating fox,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+162,phase2e_full_sigma01_02,safe,Crab-eating fox,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+163,phase2e_full_sigma01_02,safe,Crab-eating fox,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+164,phase2e_full_sigma01_02,safe,Crab-eating fox,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+165,phase2e_full_sigma01_02,safe,Crab-eating fox,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+166,phase2e_full_sigma01_02,safe,Crab-eating fox,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+167,phase2e_full_sigma01_02,safe,Crab-eating fox,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+168,phase2e_full_sigma01_02,safe,Crab-eating fox,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+169,phase2e_full_sigma01_02,safe,Crab-eating fox,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+170,phase2e_full_sigma01_02,safe,Crab-eating fox,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+171,phase2e_full_sigma01_02,safe,Crab-eating fox,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+172,phase2e_full_sigma01_02,safe,Crab-eating fox,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+173,phase2e_full_sigma01_02,safe,Crab-eating fox,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+174,phase2e_full_sigma01_02,safe,Crab-eating fox,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+175,phase2e_full_sigma01_02,safe,Crab-eating fox,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+176,phase2e_full_sigma01_02,safe,Crab-eating fox,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+177,phase2e_full_sigma01_02,safe,Crab-eating fox,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+178,phase2e_full_sigma01_02,safe,Crab-eating fox,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+179,phase2e_full_sigma01_02,safe,Crab-eating fox,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+180,phase2e_full_sigma01_02,safe,Crab-eating fox,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+181,phase2e_full_sigma01_02,safe,Crab-eating fox,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+182,phase2e_full_sigma01_02,safe,Crab-eating fox,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+183,phase2e_full_sigma01_02,safe,Crab-eating fox,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+184,phase2e_full_sigma01_02,safe,Crab-eating fox,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+185,phase2e_full_sigma01_02,safe,Crab-eating fox,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+186,phase2e_full_sigma01_02,safe,Crab-eating fox,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+187,phase2e_full_sigma01_02,safe,Crab-eating fox,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+188,phase2e_full_sigma01_02,safe,Crab-eating fox,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+189,phase2e_full_sigma01_02,safe,Crab-eating fox,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+190,phase2e_full_sigma01_02,safe,Crab-eating fox,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+191,phase2e_full_sigma01_02,safe,Crab-eating fox,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+192,phase2e_full_sigma01_02,safe,Iberian lynx,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+193,phase2e_full_sigma01_02,safe,Iberian lynx,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+194,phase2e_full_sigma01_02,safe,Iberian lynx,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+195,phase2e_full_sigma01_02,safe,Iberian lynx,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+196,phase2e_full_sigma01_02,safe,Iberian lynx,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+197,phase2e_full_sigma01_02,safe,Iberian lynx,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+198,phase2e_full_sigma01_02,safe,Iberian lynx,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+199,phase2e_full_sigma01_02,safe,Iberian lynx,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+200,phase2e_full_sigma01_02,safe,Iberian lynx,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+201,phase2e_full_sigma01_02,safe,Iberian lynx,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+202,phase2e_full_sigma01_02,safe,Iberian lynx,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+203,phase2e_full_sigma01_02,safe,Iberian lynx,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+204,phase2e_full_sigma01_02,safe,Iberian lynx,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+205,phase2e_full_sigma01_02,safe,Iberian lynx,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+206,phase2e_full_sigma01_02,safe,Iberian lynx,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+207,phase2e_full_sigma01_02,safe,Iberian lynx,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+208,phase2e_full_sigma01_02,safe,Iberian lynx,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+209,phase2e_full_sigma01_02,safe,Iberian lynx,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+210,phase2e_full_sigma01_02,safe,Iberian lynx,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+211,phase2e_full_sigma01_02,safe,Iberian lynx,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+212,phase2e_full_sigma01_02,safe,Iberian lynx,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+213,phase2e_full_sigma01_02,safe,Iberian lynx,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+214,phase2e_full_sigma01_02,safe,Iberian lynx,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+215,phase2e_full_sigma01_02,safe,Iberian lynx,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+216,phase2e_full_sigma01_02,safe,Iberian lynx,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+217,phase2e_full_sigma01_02,safe,Iberian lynx,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+218,phase2e_full_sigma01_02,safe,Iberian lynx,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+219,phase2e_full_sigma01_02,safe,Iberian lynx,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+220,phase2e_full_sigma01_02,safe,Iberian lynx,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+221,phase2e_full_sigma01_02,safe,Iberian lynx,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+222,phase2e_full_sigma01_02,safe,Iberian lynx,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+223,phase2e_full_sigma01_02,safe,Iberian lynx,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+224,phase2e_full_sigma01_02,safe,Jaguar,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+225,phase2e_full_sigma01_02,safe,Jaguar,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+226,phase2e_full_sigma01_02,safe,Jaguar,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+227,phase2e_full_sigma01_02,safe,Jaguar,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+228,phase2e_full_sigma01_02,safe,Jaguar,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+229,phase2e_full_sigma01_02,safe,Jaguar,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+230,phase2e_full_sigma01_02,safe,Jaguar,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+231,phase2e_full_sigma01_02,safe,Jaguar,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+232,phase2e_full_sigma01_02,safe,Jaguar,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+233,phase2e_full_sigma01_02,safe,Jaguar,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+234,phase2e_full_sigma01_02,safe,Jaguar,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+235,phase2e_full_sigma01_02,safe,Jaguar,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+236,phase2e_full_sigma01_02,safe,Jaguar,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+237,phase2e_full_sigma01_02,safe,Jaguar,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+238,phase2e_full_sigma01_02,safe,Jaguar,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+239,phase2e_full_sigma01_02,safe,Jaguar,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+240,phase2e_full_sigma01_02,safe,Jaguar,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+241,phase2e_full_sigma01_02,safe,Jaguar,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+242,phase2e_full_sigma01_02,safe,Jaguar,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+243,phase2e_full_sigma01_02,safe,Jaguar,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+244,phase2e_full_sigma01_02,safe,Jaguar,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+245,phase2e_full_sigma01_02,safe,Jaguar,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+246,phase2e_full_sigma01_02,safe,Jaguar,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+247,phase2e_full_sigma01_02,safe,Jaguar,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+248,phase2e_full_sigma01_02,safe,Jaguar,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+249,phase2e_full_sigma01_02,safe,Jaguar,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+250,phase2e_full_sigma01_02,safe,Jaguar,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+251,phase2e_full_sigma01_02,safe,Jaguar,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+252,phase2e_full_sigma01_02,safe,Jaguar,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+253,phase2e_full_sigma01_02,safe,Jaguar,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+254,phase2e_full_sigma01_02,safe,Jaguar,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+255,phase2e_full_sigma01_02,safe,Jaguar,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+256,phase2e_full_sigma01_02,safe,Amur tiger,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+257,phase2e_full_sigma01_02,safe,Amur tiger,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+258,phase2e_full_sigma01_02,safe,Amur tiger,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+259,phase2e_full_sigma01_02,safe,Amur tiger,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+260,phase2e_full_sigma01_02,safe,Amur tiger,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+261,phase2e_full_sigma01_02,safe,Amur tiger,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+262,phase2e_full_sigma01_02,safe,Amur tiger,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+263,phase2e_full_sigma01_02,safe,Amur tiger,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+264,phase2e_full_sigma01_02,safe,Amur tiger,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+265,phase2e_full_sigma01_02,safe,Amur tiger,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+266,phase2e_full_sigma01_02,safe,Amur tiger,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+267,phase2e_full_sigma01_02,safe,Amur tiger,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+268,phase2e_full_sigma01_02,safe,Amur tiger,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+269,phase2e_full_sigma01_02,safe,Amur tiger,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+270,phase2e_full_sigma01_02,safe,Amur tiger,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+271,phase2e_full_sigma01_02,safe,Amur tiger,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+272,phase2e_full_sigma01_02,safe,Amur tiger,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+273,phase2e_full_sigma01_02,safe,Amur tiger,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+274,phase2e_full_sigma01_02,safe,Amur tiger,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+275,phase2e_full_sigma01_02,safe,Amur tiger,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+276,phase2e_full_sigma01_02,safe,Amur tiger,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+277,phase2e_full_sigma01_02,safe,Amur tiger,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+278,phase2e_full_sigma01_02,safe,Amur tiger,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+279,phase2e_full_sigma01_02,safe,Amur tiger,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+280,phase2e_full_sigma01_02,safe,Amur tiger,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+281,phase2e_full_sigma01_02,safe,Amur tiger,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+282,phase2e_full_sigma01_02,safe,Amur tiger,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+283,phase2e_full_sigma01_02,safe,Amur tiger,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+284,phase2e_full_sigma01_02,safe,Amur tiger,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+285,phase2e_full_sigma01_02,safe,Amur tiger,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+286,phase2e_full_sigma01_02,safe,Amur tiger,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+287,phase2e_full_sigma01_02,safe,Amur tiger,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+288,phase2e_full_sigma01_02,yield,Egyptian vulture,False,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+289,phase2e_full_sigma01_02,yield,Egyptian vulture,False,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+290,phase2e_full_sigma01_02,yield,Egyptian vulture,False,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+291,phase2e_full_sigma01_02,yield,Egyptian vulture,False,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+292,phase2e_full_sigma01_02,yield,Egyptian vulture,False,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+293,phase2e_full_sigma01_02,yield,Egyptian vulture,False,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+294,phase2e_full_sigma01_02,yield,Egyptian vulture,False,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+295,phase2e_full_sigma01_02,yield,Egyptian vulture,False,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+296,phase2e_full_sigma01_02,yield,Egyptian vulture,False,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+297,phase2e_full_sigma01_02,yield,Egyptian vulture,False,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+298,phase2e_full_sigma01_02,yield,Egyptian vulture,False,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+299,phase2e_full_sigma01_02,yield,Egyptian vulture,False,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+300,phase2e_full_sigma01_02,yield,Egyptian vulture,False,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+301,phase2e_full_sigma01_02,yield,Egyptian vulture,False,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+302,phase2e_full_sigma01_02,yield,Egyptian vulture,False,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+303,phase2e_full_sigma01_02,yield,Egyptian vulture,False,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+304,phase2e_full_sigma01_02,yield,Egyptian vulture,False,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+305,phase2e_full_sigma01_02,yield,Egyptian vulture,False,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+306,phase2e_full_sigma01_02,yield,Egyptian vulture,False,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+307,phase2e_full_sigma01_02,yield,Egyptian vulture,False,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+308,phase2e_full_sigma01_02,yield,Egyptian vulture,False,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+309,phase2e_full_sigma01_02,yield,Egyptian vulture,False,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+310,phase2e_full_sigma01_02,yield,Egyptian vulture,False,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+311,phase2e_full_sigma01_02,yield,Egyptian vulture,False,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+312,phase2e_full_sigma01_02,yield,Egyptian vulture,False,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+313,phase2e_full_sigma01_02,yield,Egyptian vulture,False,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+314,phase2e_full_sigma01_02,yield,Egyptian vulture,False,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+315,phase2e_full_sigma01_02,yield,Egyptian vulture,False,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+316,phase2e_full_sigma01_02,yield,Egyptian vulture,False,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+317,phase2e_full_sigma01_02,yield,Egyptian vulture,False,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+318,phase2e_full_sigma01_02,yield,Egyptian vulture,False,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+319,phase2e_full_sigma01_02,yield,Egyptian vulture,False,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+320,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+321,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+322,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+323,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+324,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+325,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+326,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+327,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+328,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+329,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+330,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+331,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+332,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+333,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+334,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+335,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+336,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+337,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+338,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+339,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+340,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+341,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+342,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+343,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+344,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+345,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+346,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+347,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+348,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+349,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+350,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+351,phase2e_full_sigma01_02,yield,Bottlenose dolphin,False,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+352,phase2e_full_sigma01_02,yield,Spotted turtle,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+353,phase2e_full_sigma01_02,yield,Spotted turtle,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+354,phase2e_full_sigma01_02,yield,Spotted turtle,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+355,phase2e_full_sigma01_02,yield,Spotted turtle,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+356,phase2e_full_sigma01_02,yield,Spotted turtle,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+357,phase2e_full_sigma01_02,yield,Spotted turtle,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+358,phase2e_full_sigma01_02,yield,Spotted turtle,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+359,phase2e_full_sigma01_02,yield,Spotted turtle,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+360,phase2e_full_sigma01_02,yield,Spotted turtle,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+361,phase2e_full_sigma01_02,yield,Spotted turtle,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+362,phase2e_full_sigma01_02,yield,Spotted turtle,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+363,phase2e_full_sigma01_02,yield,Spotted turtle,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+364,phase2e_full_sigma01_02,yield,Spotted turtle,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+365,phase2e_full_sigma01_02,yield,Spotted turtle,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+366,phase2e_full_sigma01_02,yield,Spotted turtle,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+367,phase2e_full_sigma01_02,yield,Spotted turtle,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+368,phase2e_full_sigma01_02,yield,Spotted turtle,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+369,phase2e_full_sigma01_02,yield,Spotted turtle,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+370,phase2e_full_sigma01_02,yield,Spotted turtle,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+371,phase2e_full_sigma01_02,yield,Spotted turtle,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+372,phase2e_full_sigma01_02,yield,Spotted turtle,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+373,phase2e_full_sigma01_02,yield,Spotted turtle,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+374,phase2e_full_sigma01_02,yield,Spotted turtle,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+375,phase2e_full_sigma01_02,yield,Spotted turtle,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+376,phase2e_full_sigma01_02,yield,Spotted turtle,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+377,phase2e_full_sigma01_02,yield,Spotted turtle,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+378,phase2e_full_sigma01_02,yield,Spotted turtle,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+379,phase2e_full_sigma01_02,yield,Spotted turtle,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+380,phase2e_full_sigma01_02,yield,Spotted turtle,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+381,phase2e_full_sigma01_02,yield,Spotted turtle,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+382,phase2e_full_sigma01_02,yield,Spotted turtle,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+383,phase2e_full_sigma01_02,yield,Spotted turtle,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+384,phase2e_full_sigma01_02,yield,Asian elephant,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+385,phase2e_full_sigma01_02,yield,Asian elephant,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+386,phase2e_full_sigma01_02,yield,Asian elephant,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+387,phase2e_full_sigma01_02,yield,Asian elephant,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+388,phase2e_full_sigma01_02,yield,Asian elephant,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+389,phase2e_full_sigma01_02,yield,Asian elephant,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+390,phase2e_full_sigma01_02,yield,Asian elephant,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+391,phase2e_full_sigma01_02,yield,Asian elephant,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+392,phase2e_full_sigma01_02,yield,Asian elephant,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+393,phase2e_full_sigma01_02,yield,Asian elephant,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+394,phase2e_full_sigma01_02,yield,Asian elephant,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+395,phase2e_full_sigma01_02,yield,Asian elephant,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+396,phase2e_full_sigma01_02,yield,Asian elephant,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+397,phase2e_full_sigma01_02,yield,Asian elephant,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+398,phase2e_full_sigma01_02,yield,Asian elephant,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+399,phase2e_full_sigma01_02,yield,Asian elephant,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+400,phase2e_full_sigma01_02,yield,Asian elephant,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+401,phase2e_full_sigma01_02,yield,Asian elephant,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+402,phase2e_full_sigma01_02,yield,Asian elephant,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+403,phase2e_full_sigma01_02,yield,Asian elephant,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+404,phase2e_full_sigma01_02,yield,Asian elephant,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+405,phase2e_full_sigma01_02,yield,Asian elephant,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+406,phase2e_full_sigma01_02,yield,Asian elephant,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+407,phase2e_full_sigma01_02,yield,Asian elephant,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+408,phase2e_full_sigma01_02,yield,Asian elephant,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+409,phase2e_full_sigma01_02,yield,Asian elephant,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+410,phase2e_full_sigma01_02,yield,Asian elephant,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+411,phase2e_full_sigma01_02,yield,Asian elephant,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+412,phase2e_full_sigma01_02,yield,Asian elephant,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+413,phase2e_full_sigma01_02,yield,Asian elephant,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+414,phase2e_full_sigma01_02,yield,Asian elephant,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+415,phase2e_full_sigma01_02,yield,Asian elephant,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+416,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+417,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+418,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+419,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+420,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+421,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+422,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+423,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+424,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+425,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+426,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+427,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+428,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+429,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+430,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+431,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+432,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+433,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+434,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+435,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+436,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+437,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+438,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+439,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+440,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+441,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+442,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+443,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+444,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+445,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+446,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+447,phase2e_full_sigma01_02,yield,Puerto Rican parrot,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+448,phase2e_full_sigma01_02,yield,Crab-eating fox,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+449,phase2e_full_sigma01_02,yield,Crab-eating fox,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+450,phase2e_full_sigma01_02,yield,Crab-eating fox,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+451,phase2e_full_sigma01_02,yield,Crab-eating fox,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+452,phase2e_full_sigma01_02,yield,Crab-eating fox,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+453,phase2e_full_sigma01_02,yield,Crab-eating fox,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+454,phase2e_full_sigma01_02,yield,Crab-eating fox,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+455,phase2e_full_sigma01_02,yield,Crab-eating fox,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+456,phase2e_full_sigma01_02,yield,Crab-eating fox,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+457,phase2e_full_sigma01_02,yield,Crab-eating fox,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+458,phase2e_full_sigma01_02,yield,Crab-eating fox,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+459,phase2e_full_sigma01_02,yield,Crab-eating fox,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+460,phase2e_full_sigma01_02,yield,Crab-eating fox,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+461,phase2e_full_sigma01_02,yield,Crab-eating fox,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+462,phase2e_full_sigma01_02,yield,Crab-eating fox,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+463,phase2e_full_sigma01_02,yield,Crab-eating fox,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+464,phase2e_full_sigma01_02,yield,Crab-eating fox,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+465,phase2e_full_sigma01_02,yield,Crab-eating fox,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+466,phase2e_full_sigma01_02,yield,Crab-eating fox,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+467,phase2e_full_sigma01_02,yield,Crab-eating fox,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+468,phase2e_full_sigma01_02,yield,Crab-eating fox,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+469,phase2e_full_sigma01_02,yield,Crab-eating fox,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+470,phase2e_full_sigma01_02,yield,Crab-eating fox,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+471,phase2e_full_sigma01_02,yield,Crab-eating fox,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+472,phase2e_full_sigma01_02,yield,Crab-eating fox,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+473,phase2e_full_sigma01_02,yield,Crab-eating fox,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+474,phase2e_full_sigma01_02,yield,Crab-eating fox,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+475,phase2e_full_sigma01_02,yield,Crab-eating fox,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+476,phase2e_full_sigma01_02,yield,Crab-eating fox,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+477,phase2e_full_sigma01_02,yield,Crab-eating fox,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+478,phase2e_full_sigma01_02,yield,Crab-eating fox,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+479,phase2e_full_sigma01_02,yield,Crab-eating fox,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+480,phase2e_full_sigma01_02,yield,Iberian lynx,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+481,phase2e_full_sigma01_02,yield,Iberian lynx,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+482,phase2e_full_sigma01_02,yield,Iberian lynx,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+483,phase2e_full_sigma01_02,yield,Iberian lynx,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+484,phase2e_full_sigma01_02,yield,Iberian lynx,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+485,phase2e_full_sigma01_02,yield,Iberian lynx,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+486,phase2e_full_sigma01_02,yield,Iberian lynx,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+487,phase2e_full_sigma01_02,yield,Iberian lynx,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+488,phase2e_full_sigma01_02,yield,Iberian lynx,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+489,phase2e_full_sigma01_02,yield,Iberian lynx,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+490,phase2e_full_sigma01_02,yield,Iberian lynx,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+491,phase2e_full_sigma01_02,yield,Iberian lynx,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+492,phase2e_full_sigma01_02,yield,Iberian lynx,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+493,phase2e_full_sigma01_02,yield,Iberian lynx,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+494,phase2e_full_sigma01_02,yield,Iberian lynx,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+495,phase2e_full_sigma01_02,yield,Iberian lynx,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+496,phase2e_full_sigma01_02,yield,Iberian lynx,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+497,phase2e_full_sigma01_02,yield,Iberian lynx,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+498,phase2e_full_sigma01_02,yield,Iberian lynx,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+499,phase2e_full_sigma01_02,yield,Iberian lynx,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+500,phase2e_full_sigma01_02,yield,Iberian lynx,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+501,phase2e_full_sigma01_02,yield,Iberian lynx,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+502,phase2e_full_sigma01_02,yield,Iberian lynx,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+503,phase2e_full_sigma01_02,yield,Iberian lynx,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+504,phase2e_full_sigma01_02,yield,Iberian lynx,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+505,phase2e_full_sigma01_02,yield,Iberian lynx,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+506,phase2e_full_sigma01_02,yield,Iberian lynx,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+507,phase2e_full_sigma01_02,yield,Iberian lynx,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+508,phase2e_full_sigma01_02,yield,Iberian lynx,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+509,phase2e_full_sigma01_02,yield,Iberian lynx,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+510,phase2e_full_sigma01_02,yield,Iberian lynx,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+511,phase2e_full_sigma01_02,yield,Iberian lynx,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+512,phase2e_full_sigma01_02,yield,Jaguar,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+513,phase2e_full_sigma01_02,yield,Jaguar,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+514,phase2e_full_sigma01_02,yield,Jaguar,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+515,phase2e_full_sigma01_02,yield,Jaguar,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+516,phase2e_full_sigma01_02,yield,Jaguar,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+517,phase2e_full_sigma01_02,yield,Jaguar,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+518,phase2e_full_sigma01_02,yield,Jaguar,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+519,phase2e_full_sigma01_02,yield,Jaguar,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+520,phase2e_full_sigma01_02,yield,Jaguar,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+521,phase2e_full_sigma01_02,yield,Jaguar,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+522,phase2e_full_sigma01_02,yield,Jaguar,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+523,phase2e_full_sigma01_02,yield,Jaguar,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+524,phase2e_full_sigma01_02,yield,Jaguar,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+525,phase2e_full_sigma01_02,yield,Jaguar,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+526,phase2e_full_sigma01_02,yield,Jaguar,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+527,phase2e_full_sigma01_02,yield,Jaguar,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+528,phase2e_full_sigma01_02,yield,Jaguar,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+529,phase2e_full_sigma01_02,yield,Jaguar,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+530,phase2e_full_sigma01_02,yield,Jaguar,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+531,phase2e_full_sigma01_02,yield,Jaguar,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+532,phase2e_full_sigma01_02,yield,Jaguar,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+533,phase2e_full_sigma01_02,yield,Jaguar,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+534,phase2e_full_sigma01_02,yield,Jaguar,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+535,phase2e_full_sigma01_02,yield,Jaguar,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+536,phase2e_full_sigma01_02,yield,Jaguar,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+537,phase2e_full_sigma01_02,yield,Jaguar,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+538,phase2e_full_sigma01_02,yield,Jaguar,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+539,phase2e_full_sigma01_02,yield,Jaguar,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+540,phase2e_full_sigma01_02,yield,Jaguar,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+541,phase2e_full_sigma01_02,yield,Jaguar,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+542,phase2e_full_sigma01_02,yield,Jaguar,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+543,phase2e_full_sigma01_02,yield,Jaguar,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+544,phase2e_full_sigma01_02,yield,Amur tiger,True,ricker,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+545,phase2e_full_sigma01_02,yield,Amur tiger,True,ricker,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+546,phase2e_full_sigma01_02,yield,Amur tiger,True,ricker,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+547,phase2e_full_sigma01_02,yield,Amur tiger,True,ricker,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+548,phase2e_full_sigma01_02,yield,Amur tiger,True,ricker,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+549,phase2e_full_sigma01_02,yield,Amur tiger,True,ricker,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+550,phase2e_full_sigma01_02,yield,Amur tiger,True,ricker,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+551,phase2e_full_sigma01_02,yield,Amur tiger,True,ricker,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+552,phase2e_full_sigma01_02,yield,Amur tiger,True,allee,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+553,phase2e_full_sigma01_02,yield,Amur tiger,True,allee,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+554,phase2e_full_sigma01_02,yield,Amur tiger,True,allee,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+555,phase2e_full_sigma01_02,yield,Amur tiger,True,allee,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+556,phase2e_full_sigma01_02,yield,Amur tiger,True,allee,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+557,phase2e_full_sigma01_02,yield,Amur tiger,True,allee,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+558,phase2e_full_sigma01_02,yield,Amur tiger,True,allee,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+559,phase2e_full_sigma01_02,yield,Amur tiger,True,allee,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+560,phase2e_full_sigma01_02,yield,Amur tiger,True,theta,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+561,phase2e_full_sigma01_02,yield,Amur tiger,True,theta,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+562,phase2e_full_sigma01_02,yield,Amur tiger,True,theta,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+563,phase2e_full_sigma01_02,yield,Amur tiger,True,theta,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+564,phase2e_full_sigma01_02,yield,Amur tiger,True,theta,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+565,phase2e_full_sigma01_02,yield,Amur tiger,True,theta,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+566,phase2e_full_sigma01_02,yield,Amur tiger,True,theta,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+567,phase2e_full_sigma01_02,yield,Amur tiger,True,theta,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+568,phase2e_full_sigma01_02,yield,Amur tiger,True,regime,11,0.1,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+569,phase2e_full_sigma01_02,yield,Amur tiger,True,regime,11,0.1,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+570,phase2e_full_sigma01_02,yield,Amur tiger,True,regime,11,0.1,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+571,phase2e_full_sigma01_02,yield,Amur tiger,True,regime,11,0.1,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+572,phase2e_full_sigma01_02,yield,Amur tiger,True,regime,11,0.2,refplan,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+573,phase2e_full_sigma01_02,yield,Amur tiger,True,regime,11,0.2,ogsrl,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+574,phase2e_full_sigma01_02,yield,Amur tiger,True,regime,11,0.2,bamcts,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256
+575,phase2e_full_sigma01_02,yield,Amur tiger,True,regime,11,0.2,ensemble_value_disagreement_pessimism,learned,hidden,4000,4000,0,160,116,25,7001,7001;7051;7101;7151;7201,20,4,50,5,96,0.5,8,256,25,256

@@ -1,0 +1,1989 @@
+{
+  "acceptance_version": "three_species_p10_method_specific_return_blind_v1",
+  "collapse_penalty": 10.0,
+  "completed_rows": 24,
+  "config_sha256": "10a064344e07cac16a7b2d5bd717bdce109c8970148de4295d6ff3532297fa68",
+  "decision": "PASS_LIMITED_STRUCTURAL_ACCEPTANCE",
+  "expected_rows": 24,
+  "failures": [],
+  "fit_reuse_ledger_sha256": "5410b0e4fd71312af601cbdd4c8f11115469483780f26c202fbe232916187ac3",
+  "incomplete_reasons": [],
+  "manifest_sha256": "cfe43f35ce4ff1658958a2173026ca70c7164878f2408b4b246673016dc0d2a6",
+  "method": "plus_adapted_ricker_only_pbvi",
+  "return_fields_opened": false,
+  "rows": [
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "2cc7611c7bbcb6f72cbda49db73cfc24bde41b297564581dc90a5f60cf3c0d85",
+            "family": "ricker",
+            "population": "Amur tiger",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 0
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "04f38e874ce0f95cdf69acfdd639b511c1c828972dd7e043193c751609768080",
+            "family": "ricker",
+            "population": "Amur tiger",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 1
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "a408ee1968a695414be8bf3bfdbd0f87ee60588e2b6fa68872593ecb25f07059",
+            "family": "allee",
+            "population": "Amur tiger",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 2
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "7e71172af4bc95b2c31291414af53371c1ea94393e01675d269b2b7c360324c9",
+            "family": "allee",
+            "population": "Amur tiger",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 3
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "31cb9899650536ca89f70c8a1eadcb6de98a2a1a58205ecc8c9ab9bcad4c8063",
+            "family": "theta",
+            "population": "Amur tiger",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 4
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "bd0f16b38f821b0376003c505545bd4cf7fd33382656df88ab18f1e3438ab651",
+            "family": "theta",
+            "population": "Amur tiger",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 5
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "e65ebec4cf71e20c1ae4e015fd0f15c2f9e6606d4e0affab024b9c71c2a140da",
+            "family": "regime",
+            "population": "Amur tiger",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 6
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "fb5f4a13e403816de4b46fdab8ac62c2ac8c02518c5366bf57131e688f28b351",
+            "family": "regime",
+            "population": "Amur tiger",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 7
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "8c302e49638bc20b97331a7085452482bf5d76eddd38a78f1afc476501f9fe25",
+            "family": "ricker",
+            "population": "Crab-eating fox",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 8
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "17c930ccd749ed236030de1a4eeff58925679c2d53fe6a96e697c839f849d481",
+            "family": "ricker",
+            "population": "Crab-eating fox",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 9
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "03c94a3591060c072c613cf5ce36e8c966cc310f8afd397dc38b16f19e7122e9",
+            "family": "allee",
+            "population": "Crab-eating fox",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 10
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "688d580f1e47a61dcad9b8a6cb96f1d62835bfbd0b835554cf31c8ab8bdd0c13",
+            "family": "allee",
+            "population": "Crab-eating fox",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 11
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "b198aa7a5d3989a66be4a1fc8b4b299a0552fe287b6d2e192eb237e10f34bbc7",
+            "family": "theta",
+            "population": "Crab-eating fox",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 12
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "684748d9f018313651ee689c7bc41cabcd6d8cf1cbc2b253646bef84b3937c20",
+            "family": "theta",
+            "population": "Crab-eating fox",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 13
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "b94dc4d7556acdfa3abc8c2b4ee21d7dfdedff30a95fcf8e587cb73e7deb26b3",
+            "family": "regime",
+            "population": "Crab-eating fox",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 14
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "f1ed95af136617037e389f96fffb99328be177e1a8c39bb1347f0a2c3eb8391a",
+            "family": "regime",
+            "population": "Crab-eating fox",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 15
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "c69837c29e7e8b18835176d5c623b5a11f71095557ae0f148a73caf3609b9a58",
+            "family": "ricker",
+            "population": "Egyptian vulture",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 16
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "8b70bd2152e2926c53d35abd0d5ea1fa8eb665d9a4b2e57aa1e1ca02a4485523",
+            "family": "ricker",
+            "population": "Egyptian vulture",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 17
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "c69837c29e7e8b18835176d5c623b5a11f71095557ae0f148a73caf3609b9a58",
+            "family": "allee",
+            "population": "Egyptian vulture",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 18
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "8b70bd2152e2926c53d35abd0d5ea1fa8eb665d9a4b2e57aa1e1ca02a4485523",
+            "family": "allee",
+            "population": "Egyptian vulture",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 19
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "70192fdb200123d2cdc1ac8672bcf39367024e95b24b9560fc101caf5fcc3c32",
+            "family": "theta",
+            "population": "Egyptian vulture",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 20
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "eaf5c82743bedaac1fa4a8d7cc2fee2439f3084f5e7137730ec5ef2dda82f71f",
+            "family": "theta",
+            "population": "Egyptian vulture",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 21
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "c69837c29e7e8b18835176d5c623b5a11f71095557ae0f148a73caf3609b9a58",
+            "family": "regime",
+            "population": "Egyptian vulture",
+            "sigma_obs": "0.1"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p1/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 22
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "8b70bd2152e2926c53d35abd0d5ea1fa8eb665d9a4b2e57aa1e1ca02a4485523",
+            "family": "regime",
+            "population": "Egyptian vulture",
+            "sigma_obs": "0.2"
+          },
+          "name": "manifest P=10 identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/private/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/datasets/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p2/public.npz"
+          },
+          "name": "authoritative dataset and hidden environment hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified",
+              "reused_verified"
+            ]
+          },
+          "name": "reward-independent fit reuse receipt",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "ledger_rows": 8
+          },
+          "name": "candidate-level provenance ledger coverage",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "reused cache hashes",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed structural artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and rebuilt PBVI structure",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "no temporary or partial artifacts",
+          "passed": true
+        }
+      ],
+      "position": 23
+    }
+  ],
+  "slurm": {
+    "allocated_core_hours": 102.14916666666667,
+    "records": [
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15196,
+        "exit_code": "0:0",
+        "job_id": "58493916_0",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15145,
+        "exit_code": "0:0",
+        "job_id": "58493916_1",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15118,
+        "exit_code": "0:0",
+        "job_id": "58493916_2",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15230,
+        "exit_code": "0:0",
+        "job_id": "58493916_3",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15268,
+        "exit_code": "0:0",
+        "job_id": "58493916_4",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15106,
+        "exit_code": "0:0",
+        "job_id": "58493916_5",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15300,
+        "exit_code": "0:0",
+        "job_id": "58493916_6",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15247,
+        "exit_code": "0:0",
+        "job_id": "58493916_7",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15249,
+        "exit_code": "0:0",
+        "job_id": "58493916_8",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15929,
+        "exit_code": "0:0",
+        "job_id": "58493916_9",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15155,
+        "exit_code": "0:0",
+        "job_id": "58493916_10",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 16187,
+        "exit_code": "0:0",
+        "job_id": "58493916_11",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15243,
+        "exit_code": "0:0",
+        "job_id": "58493916_12",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15399,
+        "exit_code": "0:0",
+        "job_id": "58493916_13",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15086,
+        "exit_code": "0:0",
+        "job_id": "58493916_14",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15813,
+        "exit_code": "0:0",
+        "job_id": "58493916_15",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15152,
+        "exit_code": "0:0",
+        "job_id": "58493916_16",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15036,
+        "exit_code": "0:0",
+        "job_id": "58493916_17",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15854,
+        "exit_code": "0:0",
+        "job_id": "58493916_18",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15106,
+        "exit_code": "0:0",
+        "job_id": "58493916_19",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15216,
+        "exit_code": "0:0",
+        "job_id": "58493916_20",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15202,
+        "exit_code": "0:0",
+        "job_id": "58493916_21",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15350,
+        "exit_code": "0:0",
+        "job_id": "58493916_22",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 15150,
+        "exit_code": "0:0",
+        "job_id": "58493916_23",
+        "state": "COMPLETED"
+      }
+    ]
+  }
+}

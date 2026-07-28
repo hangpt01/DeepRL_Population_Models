@@ -1,0 +1,455 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\graphicspath{{report_figures/}}
+
+\title{Real-Ecology Data Benchmark: Experiment Results}
+\author{}
+\date{2026-07-05}
+
+\begin{document}
+\maketitle
+
+\section{Summary}
+
+This report summarizes the first audited experiment set after moving from the
+dummy ecology setting to the real-ecology-data setting. The results are drawn
+from the frozen run
+\path{real_ecology_runs/psafe_overnight_20260705/}. The benchmark uses
+continuous abundance states, noisy observations, 9 real populations, 11 real
+management actions, and the real action-effect/cost tables in
+\texttt{real\_ecology\_data}. All experiment rows in the analyzed result set ran
+on the CPU/\texttt{numpy} backend.
+
+The main takeaways are:
+\begin{itemize}
+    \item The real-data benchmark is implemented and has a complete first
+    audited result set: 6480 main grid rows plus 1008 P5 raw-filter ablation
+    rows, with 0 failures.
+    \item The safe-mode penalty is locked at \texttt{collapse\_penalty = 5} as
+    an average-case operating point.
+    \item At P5, the best general learner beats the best ecological baseline on
+    96/112 recoverable cells, but not on the two sink populations.
+    \item Learned filtering gives no material control-return gain over raw
+    observations at P5; this is a control-return result, not a state-estimation
+    accuracy result.
+    \item A small representative P5 trajectory demo was run after the audited
+    tables: two populations, four methods, five paired episodes per method.
+    It provides illustrative true reward/action-over-time figures for the
+    presentation, but it is not used for the headline statistical claims.
+\end{itemize}
+
+\section{Experiment Setting}
+
+\begin{table}[htbp]
+\centering
+\caption{Real-ecology experiment setting.}
+\begin{tabular}{ll}
+\toprule
+Item & Setting \\
+\midrule
+Run directory & \texttt{real\_ecology\_runs/psafe\_overnight\_20260705/} \\
+Data source & Frozen \texttt{code/real\_ecology\_data} table \\
+Populations & 9 real populations, including 2 demographic sinks \\
+Actions & 11 real management actions \\
+Families & Ricker, Allee, theta, regime \\
+Observation noise & $\sigma_{\mathrm{obs}}\in\{0.0,0.1,0.2,0.4\}$ \\
+Methods & MOPO, RefPlan, BA-MCTS, PLUS, MOOR, Delphic, OGSRL \\
+Reward modes & safe; yield only at P10 for comparison \\
+Safety penalty mode & occupancy \\
+Penalty grid & \texttt{collapse\_penalty} $\in\{2,5,10,20\}$ \\
+Filter policy for P decision & General methods learned; PLUS/MOOR ricker \\
+Backend & \texttt{numpy} for all 7488 analyzed rows \\
+Evaluation budget & 5 seeds $\times$ 4 episodes $\times$ horizon 50 \\
+Training/data budget & 4000 transitions, episode length 25 \\
+Planner budget & horizon 5, 96 sequences, 32 particles \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Artifact provenance and completion.}
+\begin{tabular}{ll}
+\toprule
+Artifact & Value \\
+\midrule
+\texttt{all\_metrics.csv} rows & 7488 \\
+Main grid rows & 6480 \\
+P5 raw-filter ablation rows & 1008 \\
+Failures & 0 \\
+Backend labels & all \texttt{numpy} \\
+Data-table labels & single frozen \texttt{real\_ecology\_data} path \\
+Tests & 37/37 real-ecology tests passing \\
+Aggregate path & fixed in live package; frozen snapshot kept unchanged \\
+Not run & calibration gates, PLUS-GPU, sink action diagnostic, pooled agent \\
+Representative trajectory demo & 8 trace rows; 2 populations $\times$ 4 methods; 5 episodes each \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Plot Support In The Current Artifacts}
+
+The audited full-grid artifacts support aggregate reward plots, method
+comparison plots, training-convergence overview plots, final holdout
+validation-error plots, and aggregate action summaries. The full-grid
+\texttt{episodes.csv} files do not contain true per-timestep trajectories:
+they store per-episode aggregates and danger-zone action fractions, not a full
+trajectory table with timestep, state, action, and reward.
+
+For presentation visuals, a separate small P5 trajectory demo was run after the
+audited result package. It reuses the frozen code snapshot and cached P5
+datasets, captures true per-timestep state/action/reward traces for Puerto
+Rican parrot and Egyptian vulture under \texttt{ricker},
+$\sigma_{\mathrm{obs}}=0.2$, \texttt{filter=learned}, and methods OGSRL, MOPO,
+PLUS, and MOOR. These plots are illustrative trajectory examples, not
+replacement evidence for the 7488-row aggregate analysis.
+
+\begin{table}[htbp]
+\centering
+\caption{Which requested plots are supported by the current run.}
+\begin{tabular}{p{0.28\linewidth}p{0.2\linewidth}p{0.42\linewidth}}
+\toprule
+Requested plot & Supported now? & What is available \\
+\midrule
+Reward over time & Representative only & Full grid has aggregate rewards; the P5 demo has true per-step reward traces for 2 populations $\times$ 4 methods. \\
+Actions over time & Representative only & Full grid has action entropy and danger-zone action fractions; the P5 demo has per-step action traces and action-composition plots. \\
+Training convergence & Partly & Overview training-loss plots exist for penalties P2/P5/P10/P20; multi-step histories are method-dependent. \\
+Validation error & Partly & Final holdout dynamics RMSE/log-MSE are available; full validation curves are not universal. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For a future full-grid trajectory analysis, the main evaluator should log
+per-step records directly. The present trajectory figures are produced by the
+targeted trace-capture scripts in the trajectory-demo directory.
+
+\section{P\_safe Penalty Decision}
+
+Table~\ref{tab:psafe} reports the filter-consistent decision subset: general
+learners use \texttt{filter=learned}; PLUS and MOOR use \texttt{filter=ricker};
+the P5 raw rows are excluded from penalty selection.
+
+\begin{longtable}{llrrrrrr}
+\caption{P\_safe decision populations in safe mode.}\label{tab:psafe}\\
+\toprule
+Population & P & Return & Collapse & Unsafe & Final & Min & Cost \\
+\midrule
+\endfirsthead
+\toprule
+Population & P & Return & Collapse & Unsafe & Final & Min & Cost \\
+\midrule
+\endhead
+Amur tiger & 2 & 2.84 & 0.095 & 0.021 & 83.7 & 56.8 & 6.842 \\
+Amur tiger & 5 & \textbf{2.17} & 0.057 & 0.018 & 97.1 & 64.4 & 7.911 \\
+Amur tiger & 10 & 0.85 & 0.053 & 0.019 & 97.2 & 65.6 & 8.462 \\
+Amur tiger & 20 & -2.51 & 0.065 & 0.024 & 105.4 & 67.4 & 9.079 \\
+Puerto Rican parrot & 2 & 2.57 & 0.176 & 0.070 & 158.5 & 65.0 & 3.443 \\
+Puerto Rican parrot & 5 & \textbf{0.62} & 0.163 & 0.065 & 162.5 & 66.2 & 3.987 \\
+Puerto Rican parrot & 10 & -2.29 & 0.161 & 0.063 & 181.3 & 66.7 & 4.897 \\
+Puerto Rican parrot & 20 & -8.25 & 0.159 & 0.062 & 182.8 & 66.8 & 5.393 \\
+Egyptian vulture & 2 & -37.63 & 0.000 & 1.000 & 2.8 & 2.1 & 3.928 \\
+Egyptian vulture & 5 & -93.35 & 0.000 & 1.000 & 3.0 & 2.1 & 4.993 \\
+Egyptian vulture & 10 & -186.04 & 0.000 & 1.000 & 2.8 & 2.1 & 6.133 \\
+Egyptian vulture & 20 & -370.91 & 0.000 & 1.000 & 3.2 & 2.6 & 7.163 \\
+\bottomrule
+\end{longtable}
+
+The decision rule is the largest tested P that keeps both recoverable
+decision-population mean safe returns non-negative while reducing collapse
+entries versus P2. This selects \texttt{collapse\_penalty = 5}. The choice is
+average-case: individual cells remain negative, especially for the Puerto Rican
+parrot.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.82\linewidth]{report_figures/fig_psafe_decision_returns.png}
+\caption{Safe return across the penalty grid for the three decision populations.}
+\label{fig:psafe-returns}
+\end{figure}
+
+\section{General Learners Versus Ecological Baselines}
+
+At P5 in safe mode, the comparison is made on matched
+population/family/noise cells. General learners use learned filtering; PLUS and
+MOOR use the ricker filter to represent the ecological baselines.
+
+\begin{table}[htbp]
+\centering
+\caption{Best general learner versus best ecological baseline at P5.}
+\label{tab:family}
+\begin{tabular}{lrrrrr}
+\toprule
+Scope & Cells & Best general & Best baseline & $\Delta$ & Wins \\
+\midrule
+All 9 populations & 144 & -3.93 & -4.96 & +1.04 & 102/144 (70.8\%) \\
+Recoverable only & 112 & 7.74 & 6.28 & +1.46 & \textbf{96/112 (85.7\%)} \\
+Sinks only & 32 & -44.76 & -44.30 & -0.46 & 6/32 (18.8\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Per-method P5 safe comparison against PLUS-ricker and MOOR-ricker.}
+\label{tab:methods}
+\begin{tabular}{lrrrrrr}
+\toprule
+Method & Mean return & $\Delta$ PLUS & $\Delta$ MOOR & Beats both & Recov. beats & Collapse \\
+\midrule
+OGSRL & -5.06 & +0.16 & +0.26 & 81/144 & 79/112 & 0.014 \\
+BA-MCTS & -5.69 & -0.47 & -0.37 & 68/144 & 64/112 & 0.047 \\
+RefPlan & -5.31 & -0.08 & +0.02 & 38/144 & 37/112 & 0.034 \\
+MOPO & -5.45 & -0.22 & -0.13 & 34/144 & 34/112 & 0.036 \\
+Delphic & -9.77 & -4.54 & -4.44 & 33/144 & 33/112 & 0.188 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{report_figures/fig_p5_return_by_method.png}
+\caption{P5 safe return by method and population scope. Recoverable populations
+show positive returns; sinks dominate the negative all-population averages.}
+\label{fig:p5-return-method}
+\end{figure}
+
+\section{Learned-Versus-Raw Filter Ablation}
+
+The P5 raw-filter ablation compares learned filtering to raw observations on the
+same population/family/noise/method grid. The result is a clean null result for
+control return.
+
+\begin{table}[htbp]
+\centering
+\caption{P5 learned-vs-raw control ablation.}
+\label{tab:raw}
+\begin{tabular}{lrrrr}
+\toprule
+Method & Learned & Raw & Learned--raw & Unsafe learned/raw \\
+\midrule
+BA-MCTS & -5.69 & -5.37 & -0.32 & 0.126 / 0.126 \\
+Delphic & -9.76 & -9.10 & -0.67 & 0.185 / 0.199 \\
+MOOR & -4.50 & -4.69 & +0.18 & 0.112 / 0.115 \\
+MOPO & -5.45 & -5.42 & -0.03 & 0.121 / 0.122 \\
+OGSRL & -5.06 & -4.49 & -0.58 & 0.113 / 0.112 \\
+PLUS & -5.23 & -5.73 & +0.50 & 0.129 / 0.136 \\
+RefPlan & -5.31 & -5.29 & -0.02 & 0.121 / 0.121 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.72\linewidth]{report_figures/fig_learned_vs_raw_sigma.png}
+\caption{Learned-minus-raw return by observation-noise level at P5. The
+difference stays small even at $\sigma_{\mathrm{obs}}=0.4$.}
+\label{fig:raw-sigma}
+\end{figure}
+
+\section{Sink Populations}
+
+The two sink populations are reported separately and are not pooled with
+recoverable populations.
+
+\begin{table}[htbp]
+\centering
+\caption{P5 safe sink metrics under the filter-consistent policy subset.}
+\label{tab:sinks}
+\begin{tabular}{lrrrrp{0.36\linewidth}}
+\toprule
+Sink & Unsafe & Min & Final & Return & Regime \\
+\midrule
+Egyptian vulture & 1.000 & 2.1 & 3.0 & -93.3 & Always below the safety floor; penalty-dominated. \\
+Bottlenose dolphin & 0.097 & 10.4 & 13.2 & -2.8 & Mostly above relative safety floor, below absolute MVP floor. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Action Summaries}
+
+The audited full-grid run records aggregate danger-zone action fractions in
+each \texttt{episodes.csv}. Figure~\ref{fig:action-profile} shows that
+full-grid action summary at P5. The representative trajectory demo in the next
+section adds true per-timestep action traces for two selected cells.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.88\linewidth]{report_figures/fig_p5_danger_action_profile.png}
+\caption{P5 aggregate danger-zone action fractions by method. This is not an
+action-over-time plot; it is the action summary currently supported by the
+logged artifacts.}
+\label{fig:action-profile}
+\end{figure}
+
+\section{Representative Reward And Action Trajectories}
+
+Figures~\ref{fig:parrot-trajectory}--\ref{fig:vulture-actions} come from the
+small P5 trajectory demo, not the full aggregate sweep. The demo uses
+Puerto Rican parrot as a recoverable near-margin population and Egyptian
+vulture as a sink population. Each plotted method is refit on the same frozen
+P5 cached dataset used by the audited run, then rolled for five paired
+evaluation episodes. Lines show medians over those paired episodes; bands show
+the interquartile range where applicable.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\linewidth]{report_figures/puerto_rican_parrot_ricker_sigma_0p2_trajectory.png}
+\caption{Representative P5 Puerto Rican parrot trajectory demo under
+\texttt{ricker}, $\sigma_{\mathrm{obs}}=0.2$, and learned filtering. Panels show
+true state, true immediate reward, cumulative true reward, and median action id
+over time for OGSRL, MOPO, PLUS, and MOOR.}
+\label{fig:parrot-trajectory}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\linewidth]{report_figures/puerto_rican_parrot_ricker_sigma_0p2_actions.png}
+\caption{Representative P5 Puerto Rican parrot action composition over time.
+Each panel gives the per-timestep fraction of the five paired demo episodes
+selecting each real management action.}
+\label{fig:parrot-actions}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\linewidth]{report_figures/egyptian_vulture_ricker_sigma_0p2_trajectory.png}
+\caption{Representative P5 Egyptian vulture trajectory demo under
+\texttt{ricker}, $\sigma_{\mathrm{obs}}=0.2$, and learned filtering. This is the
+sink-population contrast to Figure~\ref{fig:parrot-trajectory}; it should not
+be pooled with recoverable populations.}
+\label{fig:vulture-trajectory}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\linewidth]{report_figures/egyptian_vulture_ricker_sigma_0p2_actions.png}
+\caption{Representative P5 Egyptian vulture action composition over time.
+The sink case is shown separately because its safety and reward regime differs
+qualitatively from recoverable populations.}
+\label{fig:vulture-actions}
+\end{figure}
+
+\section{Training Convergence And Validation Error}
+
+The run contains overview convergence plots for each penalty and per-cell
+\texttt{training\_history.png} files for learned/model cells. The convergence
+overview is now limited to the two iteratively trained methods with meaningful
+step-wise signals: OGSRL uses training return, where higher is better, and
+Delphic uses Bellman MSE, where lower is better. Closed-form or one-shot
+fitters (MOOR, MOPO, RefPlan, BA-MCTS, and PLUS) do not have a descent curve;
+their fit quality is summarized by the holdout-RMSE figure.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\linewidth]{report_figures/convergence_p2.png}
+\includegraphics[width=0.94\linewidth]{report_figures/convergence_p5.png}
+\caption{Training convergence for the two iteratively trained methods, shown as
+median plus interquartile range over cells. OGSRL plots training return
+(higher is better); Delphic plots Bellman MSE (lower is better). Numerically
+unstable Delphic cells are disclosed in each panel. This figure shows P2 and
+P5; Figure~\ref{fig:convergence-highp} shows P10 and P20. Closed-form and
+one-shot fitters do not have descent curves; see
+Figure~\ref{fig:holdout-rmse} for fit quality.}
+\label{fig:convergence}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\linewidth]{report_figures/convergence_p10.png}
+\includegraphics[width=0.94\linewidth]{report_figures/convergence_p20.png}
+\caption{Training convergence for P10 and P20, using the same median/IQR
+format as Figure~\ref{fig:convergence}. Delphic instability counts are 48/288
+cells at P10 and 28/144 cells at P20; the P2/P5 counts are 23/144 and 23/288.}
+\label{fig:convergence-highp}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.76\linewidth]{report_figures/fig_p5_holdout_rmse_by_method.png}
+\caption{P5 final holdout dynamics RMSE by method. This is a final validation
+error summary, not a full validation-over-time curve for every method.}
+\label{fig:holdout-rmse}
+\end{figure}
+
+\section{Potential Improvements}
+
+The current experiment is already sufficient to demonstrate the move from the
+dummy setting to real ecology data, but several natural improvements remain.
+They fall into two groups: adapting algorithms more directly to the new setting,
+and broadening the experiment design.
+
+\subsection{Algorithm Adaptation}
+
+\begin{itemize}
+    \item \textbf{Safety-aware learning objective.} The P5 result shows that
+    safe-mode performance is sensitive to the occupancy penalty and to
+    near-threshold populations such as the Puerto Rican parrot. Future learners
+    could optimize a constrained or risk-sensitive objective directly, rather
+    than treating the safety term as an ordinary scalar reward penalty.
+    \item \textbf{Sink-population policy adaptation.} The Egyptian vulture and
+    bottlenose dolphin behave differently from recoverable populations. A
+    dedicated sink diagnostic, with whole-episode action logging, should test
+    whether policies learn appropriate rescue/translocation behavior or simply
+    become penalty-dominated.
+    \item \textbf{Real-action structure.} The 11 real management actions have
+    semantic groups: no action, harvest/revenue, conservation support, habitat
+    or capacity improvement, and translocation. Algorithms could exploit this
+    structure through action embeddings, hierarchical action selection, or
+    cost-aware policy heads instead of treating action ids as unrelated labels.
+    \item \textbf{Population-conditioned or pooled learning.} This run uses
+    one agent per cell. A future pooled or multi-task agent could share
+    statistical strength across populations while conditioning on
+    population-specific quantities such as $K$, $N_0$, safety floor, and
+    action-effect caps. This should be introduced after the per-cell baseline
+    is stable.
+    \item \textbf{Estimation-control separation.} The learned-vs-raw ablation
+    found no control-return gain from learned filtering. A follow-up should
+    evaluate state-estimation accuracy directly, not only control return, so
+    any filter-value claim is tied to the correct metric.
+\end{itemize}
+
+\subsection{Experiment Setting}
+
+\begin{itemize}
+    \item \textbf{Calibration gates at P5.} The selected P5 penalty is an
+    average-case choice. Additional calibration gates could report whether it
+    is also acceptable under stricter worst-case or population-specific
+    criteria.
+    \item \textbf{Per-step logging as standard output.} The representative
+    trajectory demo required a separate trace-capture rerun. Future full runs
+    should log timestep, true state, observation, belief mean, action, immediate
+    true reward, and safety indicators directly, enabling reward/action-over-time
+    plots without a separate script.
+    \item \textbf{More representative trajectory cells.} The current trajectory
+    figures cover one recoverable near-margin population and one sink. A small
+    fixed presentation panel could add Amur tiger and bottlenose dolphin to
+    show a healthier recoverable case and the second sink regime.
+    \item \textbf{Sensitivity analysis.} The current result varies population,
+    family, observation noise, method, filter, and P value. Future runs could
+    add sensitivity to dataset size, process noise, horizon, planner budget,
+    safety-fraction convention, and action-cost scaling.
+    \item \textbf{Backend and runtime comparison.} CPU/\texttt{numpy} was fast
+    enough for the audited runs. PLUS-GPU and broader backend comparisons are
+    still useful as engineering diagnostics, but they are not needed for the
+    present scientific claim.
+\end{itemize}
+
+\section{Conclusion}
+
+The current result set is sufficient to present the transition from a dummy
+ecology benchmark to a real-ecology-data benchmark. It supports audited tables,
+aggregate reward plots, action-summary plots, convergence overview plots, and
+final validation-error plots. A small targeted P5 trace rerun additionally
+supports representative true reward/action-over-time visuals for two selected
+populations. These trajectory figures should be presented as illustrative
+examples; the quantitative claims remain the audited aggregate tables.
+
+\end{document}

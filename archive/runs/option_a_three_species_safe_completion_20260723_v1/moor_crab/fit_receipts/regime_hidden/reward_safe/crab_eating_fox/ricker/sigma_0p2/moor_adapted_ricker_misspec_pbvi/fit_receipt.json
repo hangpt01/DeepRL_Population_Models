@@ -1,0 +1,22 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "miss_fitted"
+  ],
+  "candidate_count": 1,
+  "cell": "regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "1a69d3abf37220e0e4067a6cf05a648bd0ef378a6b3498abfc3ec75d71789857"
+  ],
+  "fit_seconds": 884.6936823371798,
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "b0566d171a72fb83074c07fdeac2762969ce5e75e9eb9729c7fb5043635372a7"
+  ],
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "eb1b809a45fdb679e0268c4a6034964942c15b84ef799e5ca13f15f0bd59b825"
+}

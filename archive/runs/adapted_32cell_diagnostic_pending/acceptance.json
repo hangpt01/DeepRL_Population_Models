@@ -1,0 +1,5225 @@
+{
+  "acceptance_version": "acceptance_v2_frozen_runtime_observable_20260719",
+  "amendment_provenance": {
+    "amendment_time": "2026-07-19T14:16:11+10:00",
+    "jobs_submitted_before_amendment": false,
+    "original_table_preserved": "docs/fix_implement_ecology_baseline/PHASE2_PREREGISTRATION_AND_BUDGET_PACKAGE.md",
+    "reason": "original table required diagnostics not emitted by frozen runtime",
+    "returns_inspected_before_amendment": false
+  },
+  "decision": "INCOMPLETE",
+  "descriptive_only": [
+    {
+      "candidate_parameter_hashes": [
+        "5ac1fd0d7ce7b709227abe8e67501500ff240db17d25705c2305db08f646f7ff"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.39530525416639917
+      ],
+      "objective_trace_lengths": [
+        [
+          86,
+          77,
+          77,
+          82,
+          71,
+          102,
+          122,
+          102
+        ]
+      ],
+      "position": 1,
+      "selected_gradient_norms": [
+        0.004625708723802294
+      ],
+      "start_objectives": [
+        [
+          0.2557678849886422,
+          0.2795409773524064,
+          0.27807664964712614,
+          0.25166356467338374,
+          0.2574015852522496,
+          0.249893573152474,
+          0.25097278023576164,
+          0.2528116337716257
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "bf43a542e5e540d619a774a5c57652645fcbe40680ef2da7fa1ce3f7a47b057d"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.4125615550619643
+      ],
+      "objective_trace_lengths": [
+        [
+          117,
+          49,
+          80,
+          89,
+          124,
+          104,
+          48,
+          102
+        ]
+      ],
+      "position": 3,
+      "selected_gradient_norms": [
+        0.26341709206222486
+      ],
+      "start_objectives": [
+        [
+          0.28912451002205786,
+          0.31424510394486777,
+          0.31257498727043037,
+          0.2839365773145588,
+          0.2786702143069464,
+          0.28322848279162394,
+          0.29963287118419296,
+          0.2865209515493177
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "b8b3a347347c4c8b29d784d0b1261d02a0b82f005ec6d74c34c2d91e0341f500"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.5388398094702762
+      ],
+      "objective_trace_lengths": [
+        [
+          118,
+          64,
+          69,
+          93,
+          105,
+          107,
+          55,
+          97
+        ]
+      ],
+      "position": 5,
+      "selected_gradient_norms": [
+        0.32207442688865107
+      ],
+      "start_objectives": [
+        [
+          0.36979378197265045,
+          0.39594860527944475,
+          0.3940252615166236,
+          0.36386263182283357,
+          0.3621615001764872,
+          0.36365703132219607,
+          0.38114117386671,
+          0.36742242819326865
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "ae8efea9a558b17d991e2141c8c4dc1bd00bfbaf06d0f39127224729cd186cbe"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.8201958369929109
+      ],
+      "objective_trace_lengths": [
+        [
+          101,
+          76,
+          65,
+          91,
+          53,
+          127,
+          70,
+          96
+        ]
+      ],
+      "position": 7,
+      "selected_gradient_norms": [
+        0.03551313497907841
+      ],
+      "start_objectives": [
+        [
+          0.7182739908432251,
+          0.7499717954159079,
+          0.7466315265560719,
+          0.7155681544690468,
+          0.7265068352315935,
+          0.712227656016561,
+          0.7304552874196092,
+          0.7167095134535681
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "07c49532600da20b794b73d5609b914b9b1caa9c8d258eaaf8e7ec851a28598f"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.33354368695862874
+      ],
+      "objective_trace_lengths": [
+        [
+          109,
+          127,
+          108,
+          114,
+          49,
+          126,
+          53,
+          106
+        ]
+      ],
+      "position": 9,
+      "selected_gradient_norms": [
+        0.05895272024676476
+      ],
+      "start_objectives": [
+        [
+          0.3517238627814439,
+          0.3616955892291942,
+          0.35505687512920314,
+          0.3326592140393606,
+          0.38739763894487206,
+          0.33951148300256,
+          0.40207725954289864,
+          0.3550616489737791
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "47616043133deadd63373b38d888cccfb19ff5e112d4517077dd19faf7270b1d"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.3743219417556486
+      ],
+      "objective_trace_lengths": [
+        [
+          105,
+          39,
+          111,
+          121,
+          126,
+          127,
+          49,
+          87
+        ]
+      ],
+      "position": 11,
+      "selected_gradient_norms": [
+        0.29560904825532486
+      ],
+      "start_objectives": [
+        [
+          0.3932131297602825,
+          0.4510620218692147,
+          0.39726270628190774,
+          0.37479248134164045,
+          0.38605979430461257,
+          0.3929769747862031,
+          0.4446652434412556,
+          0.3972666767361171
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "495af43ba8a603c9e9ea2d7c9c21808b374593891e94c04de874c79d15966b5b"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.43854797981598187
+      ],
+      "objective_trace_lengths": [
+        [
+          106,
+          40,
+          109,
+          126,
+          127,
+          127,
+          49,
+          93
+        ]
+      ],
+      "position": 13,
+      "selected_gradient_norms": [
+        0.07386530972166924
+      ],
+      "start_objectives": [
+        [
+          0.49882496595426573,
+          0.565554331094877,
+          0.5018814804160703,
+          0.47715922005992384,
+          0.4984700905967916,
+          0.49942061912675295,
+          0.5592890686600411,
+          0.5019089713611636
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "3ccbecc9347e42af91fe87e7bf2fa64141a0aaf5d533b3093985aff8c5127899"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.7461595883442618
+      ],
+      "objective_trace_lengths": [
+        [
+          111,
+          37,
+          112,
+          126,
+          58,
+          120,
+          49,
+          111
+        ]
+      ],
+      "position": 15,
+      "selected_gradient_norms": [
+        0.16467102841172257
+      ],
+      "start_objectives": [
+        [
+          0.943770801452201,
+          1.0286484781010428,
+          0.9437579158424341,
+          0.9155257113572085,
+          1.0016026664780395,
+          0.9264850837740379,
+          1.0161162375862263,
+          0.9437907190369312
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "a69a2e98ce76df8536ded31b23daa479ae3d357292ac6df25bee08a69f04f539"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.2170024450174261
+      ],
+      "objective_trace_lengths": [
+        [
+          109,
+          104,
+          126,
+          109,
+          105,
+          95,
+          127,
+          82
+        ]
+      ],
+      "position": 17,
+      "selected_gradient_norms": [
+        0.014262992995339407
+      ],
+      "start_objectives": [
+        [
+          0.27666591565338056,
+          0.2831228600831482,
+          0.2766900871692087,
+          0.27373855556858556,
+          0.27480072665313193,
+          0.2866815783814094,
+          0.27340678772464827,
+          0.2800310537318988
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "609f54e4c7b43c3145ef7b984f2a71cff02e958affec460d6d0a22ebf685bfcf"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.23231653634727287
+      ],
+      "objective_trace_lengths": [
+        [
+          104,
+          127,
+          120,
+          103,
+          121,
+          127,
+          109,
+          127
+        ]
+      ],
+      "position": 19,
+      "selected_gradient_norms": [
+        0.010058281240333417
+      ],
+      "start_objectives": [
+        [
+          0.2968238628137947,
+          0.3040234195449915,
+          0.2976147138111036,
+          0.2940026758270206,
+          0.29456452132668826,
+          0.3012644236597161,
+          0.29274965946390324,
+          0.2976131471478528
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "2c29f3707b0ed1301879e4911802a19a13214337bbacfa3647f405a051093177"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.28016798407389215
+      ],
+      "objective_trace_lengths": [
+        [
+          104,
+          114,
+          88,
+          121,
+          105,
+          111,
+          107,
+          127
+        ]
+      ],
+      "position": 21,
+      "selected_gradient_norms": [
+        0.010530767142809028
+      ],
+      "start_objectives": [
+        [
+          0.36017106364760954,
+          0.36733480405354546,
+          0.36186966944815924,
+          0.35749379866735725,
+          0.35575394455085607,
+          0.3655562462214676,
+          0.3556602481616628,
+          0.36184897511514874
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "ed4c8a45d0dc8d02e8a924cd5f8e852d719e8cd13474dd27a439868c93411f82"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.5037331329698799
+      ],
+      "objective_trace_lengths": [
+        [
+          110,
+          109,
+          127,
+          103,
+          104,
+          109,
+          105,
+          106
+        ]
+      ],
+      "position": 23,
+      "selected_gradient_norms": [
+        0.00877649022701357
+      ],
+      "start_objectives": [
+        [
+          0.6665399462261716,
+          0.6732004793269813,
+          0.6701197822662075,
+          0.6623760106692197,
+          0.6598148656525419,
+          0.6732624661377957,
+          0.6598299468985902,
+          0.6700924433989398
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "ecc79ace71101ac78baa3761c83510a76455d5cbdc96a95940dbd061edeab057"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.4464836400962025
+      ],
+      "objective_trace_lengths": [
+        [
+          126,
+          116,
+          111,
+          127,
+          126,
+          108,
+          45,
+          108
+        ]
+      ],
+      "position": 25,
+      "selected_gradient_norms": [
+        0.05217640473391127
+      ],
+      "start_objectives": [
+        [
+          0.4959579770168823,
+          0.49316262015772744,
+          0.4986186741169754,
+          0.5118201632762089,
+          0.4859886709428389,
+          0.5115137916777792,
+          0.5909556774781881,
+          0.5117012260918559
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "747daad1533302e9182165e946ddb29930e7ee365bb69b7a789d2eab22e11411"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.4812662274041567
+      ],
+      "objective_trace_lengths": [
+        [
+          112,
+          116,
+          127,
+          122,
+          126,
+          114,
+          57,
+          111
+        ]
+      ],
+      "position": 27,
+      "selected_gradient_norms": [
+        0.0015350280494949547
+      ],
+      "start_objectives": [
+        [
+          0.5128278413193255,
+          0.5060789481793538,
+          0.5256519111962277,
+          0.5304306257080197,
+          0.5093088072849173,
+          0.5273188602986842,
+          0.605076347224591,
+          0.5304937585543238
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "af004afbc2068b9cdd37726b1f25ebd01e30502468c6522a9e8bb356938eb859"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.5777670618797188
+      ],
+      "objective_trace_lengths": [
+        [
+          113,
+          55,
+          116,
+          113,
+          48,
+          110,
+          56,
+          111
+        ]
+      ],
+      "position": 29,
+      "selected_gradient_norms": [
+        0.08203154459935333
+      ],
+      "start_objectives": [
+        [
+          0.6208297107129431,
+          0.7037776476019955,
+          0.6206246380396644,
+          0.6412068045197193,
+          0.7115562560781747,
+          0.6231068414143361,
+          0.7214915715492765,
+          0.6412200872050631
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "5b4d91d52652c2fef059d1875a993bc92b83c6b4de1fd5671dfa8b52a43dac5d"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.9574792535194332
+      ],
+      "objective_trace_lengths": [
+        [
+          116,
+          59,
+          63,
+          60,
+          126,
+          112,
+          127,
+          114
+        ]
+      ],
+      "position": 31,
+      "selected_gradient_norms": [
+        0.09247447073840122
+      ],
+      "start_objectives": [
+        [
+          1.0892752961914314,
+          1.2129875501111749,
+          1.2050846718381434,
+          1.1855274422938356,
+          1.0813186829208645,
+          1.103630381697773,
+          1.0772711710132092,
+          1.1191002556728264
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "f3a36430214cf7851ea049cf370c86c3d68726b6f16ab41e41d02d4f87793fcc"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.1652515852180156
+      ],
+      "objective_trace_lengths": [
+        [
+          127,
+          102,
+          110,
+          126,
+          118,
+          105,
+          127,
+          127
+        ]
+      ],
+      "position": 33,
+      "selected_gradient_norms": [
+        1.3817027032812326
+      ],
+      "start_objectives": [
+        [
+          0.16324233957790518,
+          0.17953130700200132,
+          0.1722814462368123,
+          0.16338842970849385,
+          0.17228739019204578,
+          0.17265671782537398,
+          0.1634849369399235,
+          0.17559347284699414
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "9e09b9f6f3d515f837a1cd2076033af884ef7848f4e9736baadd9d01c5c3626d"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.18372585907125705
+      ],
+      "objective_trace_lengths": [
+        [
+          120,
+          127,
+          119,
+          126,
+          89,
+          102,
+          118,
+          108
+        ]
+      ],
+      "position": 35,
+      "selected_gradient_norms": [
+        0.89915141117092
+      ],
+      "start_objectives": [
+        [
+          0.1764150154468633,
+          0.19158662678813515,
+          0.18837643381751082,
+          0.17603961134637908,
+          0.19010951039759033,
+          0.18522212102748878,
+          0.17754417540148681,
+          0.18847279158078772
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "cd735c721a9c8d94bfad3ffba06ba5b6ecb29c3fe49e99620691ed66b043bafa"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.23804255634355642
+      ],
+      "objective_trace_lengths": [
+        [
+          127,
+          127,
+          127,
+          126,
+          96,
+          71,
+          127,
+          104
+        ]
+      ],
+      "position": 37,
+      "selected_gradient_norms": [
+        0.384039940328538
+      ],
+      "start_objectives": [
+        [
+          0.2289209447124006,
+          0.2404437552347168,
+          0.23431123783732838,
+          0.22584659492876216,
+          0.23784696341778472,
+          0.23401971970550955,
+          0.22860861234868446,
+          0.23832827524685296
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "cc06f98e46f6e9e020e6b7fa60ddd532cf1f86e8abf0e5d77953fb3d72b1578f"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.5016271610826061
+      ],
+      "objective_trace_lengths": [
+        [
+          127,
+          127,
+          127,
+          127,
+          121,
+          112,
+          127,
+          127
+        ]
+      ],
+      "position": 39,
+      "selected_gradient_norms": [
+        4.037130232370178
+      ],
+      "start_objectives": [
+        [
+          0.49738458120033974,
+          0.5096538161330216,
+          0.5056571060190187,
+          0.49634764391898867,
+          0.5026531986496803,
+          0.5008839043948455,
+          0.49405524594440287,
+          0.5052852466933222
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "f3a36430214cf7851ea049cf370c86c3d68726b6f16ab41e41d02d4f87793fcc"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.1652515852180156
+      ],
+      "objective_trace_lengths": [
+        [
+          127,
+          102,
+          110,
+          126,
+          118,
+          105,
+          127,
+          127
+        ]
+      ],
+      "position": 41,
+      "selected_gradient_norms": [
+        1.3817027032812326
+      ],
+      "start_objectives": [
+        [
+          0.16324233957790518,
+          0.17953130700200132,
+          0.1722814462368123,
+          0.16338842970849385,
+          0.17228739019204578,
+          0.17265671782537398,
+          0.1634849369399235,
+          0.17559347284699414
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "9e09b9f6f3d515f837a1cd2076033af884ef7848f4e9736baadd9d01c5c3626d"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.18372585907125705
+      ],
+      "objective_trace_lengths": [
+        [
+          120,
+          127,
+          119,
+          126,
+          89,
+          102,
+          118,
+          108
+        ]
+      ],
+      "position": 43,
+      "selected_gradient_norms": [
+        0.89915141117092
+      ],
+      "start_objectives": [
+        [
+          0.1764150154468633,
+          0.19158662678813515,
+          0.18837643381751082,
+          0.17603961134637908,
+          0.19010951039759033,
+          0.18522212102748878,
+          0.17754417540148681,
+          0.18847279158078772
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "cd735c721a9c8d94bfad3ffba06ba5b6ecb29c3fe49e99620691ed66b043bafa"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.23804255634355642
+      ],
+      "objective_trace_lengths": [
+        [
+          127,
+          127,
+          127,
+          126,
+          96,
+          71,
+          127,
+          104
+        ]
+      ],
+      "position": 45,
+      "selected_gradient_norms": [
+        0.384039940328538
+      ],
+      "start_objectives": [
+        [
+          0.2289209447124006,
+          0.2404437552347168,
+          0.23431123783732838,
+          0.22584659492876216,
+          0.23784696341778472,
+          0.23401971970550955,
+          0.22860861234868446,
+          0.23832827524685296
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "cc06f98e46f6e9e020e6b7fa60ddd532cf1f86e8abf0e5d77953fb3d72b1578f"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.5016271610826061
+      ],
+      "objective_trace_lengths": [
+        [
+          127,
+          127,
+          127,
+          127,
+          121,
+          112,
+          127,
+          127
+        ]
+      ],
+      "position": 47,
+      "selected_gradient_norms": [
+        4.037130232370178
+      ],
+      "start_objectives": [
+        [
+          0.49738458120033974,
+          0.5096538161330216,
+          0.5056571060190187,
+          0.49634764391898867,
+          0.5026531986496803,
+          0.5008839043948455,
+          0.49405524594440287,
+          0.5052852466933222
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "7aa3b6ce4bf3e928dd98098225ff97e13a5c0938145b8ed7ff605a37f34dd67c"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.16573266715869317
+      ],
+      "objective_trace_lengths": [
+        [
+          124,
+          127,
+          104,
+          118,
+          127,
+          116,
+          126,
+          126
+        ]
+      ],
+      "position": 49,
+      "selected_gradient_norms": [
+        0.055169750046024334
+      ],
+      "start_objectives": [
+        [
+          0.16319435639880084,
+          0.17557648221156927,
+          0.17319738442097263,
+          0.16256799285883256,
+          0.1724826019361199,
+          0.15905630713489735,
+          0.15797080334596622,
+          0.17163425253007472
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "9342794880de9e81f0876e3dca9473d3611c58bf91a92c963f7bc6e7359ef755"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.1862457012316638
+      ],
+      "objective_trace_lengths": [
+        [
+          124,
+          127,
+          118,
+          118,
+          126,
+          80,
+          118,
+          119
+        ]
+      ],
+      "position": 51,
+      "selected_gradient_norms": [
+        0.39644114387456936
+      ],
+      "start_objectives": [
+        [
+          0.17606685987818296,
+          0.18703963781121427,
+          0.18241102889390393,
+          0.17624290501720558,
+          0.18273043622608356,
+          0.18242923629594524,
+          0.1776236366624573,
+          0.18361353381680606
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "b8f6ee56ff682033ff2def841dcc4c35172a5abb132b6856d2dc70d548a77821"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.2324601560062333
+      ],
+      "objective_trace_lengths": [
+        [
+          117,
+          90,
+          127,
+          127,
+          125,
+          111,
+          118,
+          103
+        ]
+      ],
+      "position": 53,
+      "selected_gradient_norms": [
+        0.050366011030827725
+      ],
+      "start_objectives": [
+        [
+          0.21810294218781195,
+          0.2327235552214778,
+          0.22554552649823761,
+          0.21862298901381763,
+          0.22587333607320506,
+          0.21330121652513626,
+          0.21782483337810502,
+          0.2277618049037636
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "27258286e84f32a06668389bc302dd4bd360fa0fa067b7be33a4dc72e5442316"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.4805122227286138
+      ],
+      "objective_trace_lengths": [
+        [
+          118,
+          127,
+          127,
+          114,
+          115,
+          112,
+          110,
+          126
+        ]
+      ],
+      "position": 55,
+      "selected_gradient_norms": [
+        0.05407971663061756
+      ],
+      "start_objectives": [
+        [
+          0.47701519701298484,
+          0.4890606760314986,
+          0.4847702869592412,
+          0.47595774794481316,
+          0.48352764905814843,
+          0.46881799622790593,
+          0.48199669574052684,
+          0.48420936640000173
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "f3a36430214cf7851ea049cf370c86c3d68726b6f16ab41e41d02d4f87793fcc"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.1652515852180156
+      ],
+      "objective_trace_lengths": [
+        [
+          127,
+          102,
+          110,
+          126,
+          118,
+          105,
+          127,
+          127
+        ]
+      ],
+      "position": 57,
+      "selected_gradient_norms": [
+        1.3817027032812326
+      ],
+      "start_objectives": [
+        [
+          0.16324233957790518,
+          0.17953130700200132,
+          0.1722814462368123,
+          0.16338842970849385,
+          0.17228739019204578,
+          0.17265671782537398,
+          0.1634849369399235,
+          0.17559347284699414
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "9e09b9f6f3d515f837a1cd2076033af884ef7848f4e9736baadd9d01c5c3626d"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.18372585907125705
+      ],
+      "objective_trace_lengths": [
+        [
+          120,
+          127,
+          119,
+          126,
+          89,
+          102,
+          118,
+          108
+        ]
+      ],
+      "position": 59,
+      "selected_gradient_norms": [
+        0.89915141117092
+      ],
+      "start_objectives": [
+        [
+          0.1764150154468633,
+          0.19158662678813515,
+          0.18837643381751082,
+          0.17603961134637908,
+          0.19010951039759033,
+          0.18522212102748878,
+          0.17754417540148681,
+          0.18847279158078772
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "cd735c721a9c8d94bfad3ffba06ba5b6ecb29c3fe49e99620691ed66b043bafa"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.23804255634355642
+      ],
+      "objective_trace_lengths": [
+        [
+          127,
+          127,
+          127,
+          126,
+          96,
+          71,
+          127,
+          104
+        ]
+      ],
+      "position": 61,
+      "selected_gradient_norms": [
+        0.384039940328538
+      ],
+      "start_objectives": [
+        [
+          0.2289209447124006,
+          0.2404437552347168,
+          0.23431123783732838,
+          0.22584659492876216,
+          0.23784696341778472,
+          0.23401971970550955,
+          0.22860861234868446,
+          0.23832827524685296
+        ]
+      ]
+    },
+    {
+      "candidate_parameter_hashes": [
+        "cc06f98e46f6e9e020e6b7fa60ddd532cf1f86e8abf0e5d77953fb3d72b1578f"
+      ],
+      "criterion": "4/6/7/8 observable diagnostics",
+      "holdout_normalized_survey_sse": [
+        0.5016271610826061
+      ],
+      "objective_trace_lengths": [
+        [
+          127,
+          127,
+          127,
+          127,
+          121,
+          112,
+          127,
+          127
+        ]
+      ],
+      "position": 63,
+      "selected_gradient_norms": [
+        4.037130232370178
+      ],
+      "start_objectives": [
+        [
+          0.49738458120033974,
+          0.5096538161330216,
+          0.5056571060190187,
+          0.49634764391898867,
+          0.5026531986496803,
+          0.5008839043948455,
+          0.49405524594440287,
+          0.5052852466933222
+        ]
+      ]
+    }
+  ],
+  "evaluated_gates": [
+    {
+      "classification": "EVALUABLE GATE",
+      "evidence": {
+        "runtime_digest": "f70ec7122263ec00da0a4950994dfe483ed29c71bc15e477007ca9ae0a6d2333",
+        "runtime_files_verified": 52
+      },
+      "failure_stop_scope": "whole array",
+      "name": "pre-run frozen runtime identity",
+      "passed": true
+    },
+    {
+      "classification": "EVALUABLE GATE",
+      "evidence": "a8f39d83eb70a32be2c42fabecc56ca4af4d3d40edb97f87242934085fd7ee86",
+      "failure_stop_scope": "whole array",
+      "name": "fit manifest identity",
+      "passed": true
+    },
+    {
+      "classification": "EVALUABLE GATE",
+      "evidence": "f0322718a78d485827c39661e2f1ded4cbde1d8bccd4cd053f4d1fe93dec087d",
+      "failure_stop_scope": "whole array",
+      "name": "plan manifest identity",
+      "passed": true
+    },
+    {
+      "classification": "EVALUABLE GATE",
+      "evidence": {
+        "rows_checked": 64
+      },
+      "failure_stop_scope": "whole array completion gate",
+      "name": "all registered artifact rows complete",
+      "passed": false
+    },
+    {
+      "classification": "EVALUABLE GATE",
+      "evidence": {
+        "completed_successfully": 0,
+        "expected": 128,
+        "missing_or_failed": [
+          "58391584_0",
+          "58391584_1",
+          "58391584_10",
+          "58391584_11",
+          "58391584_12",
+          "58391584_13",
+          "58391584_14",
+          "58391584_15",
+          "58391584_16",
+          "58391584_17",
+          "58391584_18",
+          "58391584_19",
+          "58391584_2",
+          "58391584_20",
+          "58391584_21",
+          "58391584_22",
+          "58391584_23",
+          "58391584_24",
+          "58391584_25",
+          "58391584_26",
+          "58391584_27",
+          "58391584_28",
+          "58391584_29",
+          "58391584_3",
+          "58391584_30",
+          "58391584_31",
+          "58391584_4",
+          "58391584_5",
+          "58391584_6",
+          "58391584_7",
+          "58391584_8",
+          "58391584_9",
+          "58391585_0",
+          "58391585_1",
+          "58391585_10",
+          "58391585_11",
+          "58391585_12",
+          "58391585_13",
+          "58391585_14",
+          "58391585_15",
+          "58391585_16",
+          "58391585_17",
+          "58391585_18",
+          "58391585_19",
+          "58391585_2",
+          "58391585_20",
+          "58391585_21",
+          "58391585_22",
+          "58391585_23",
+          "58391585_24",
+          "58391585_25",
+          "58391585_26",
+          "58391585_27",
+          "58391585_28",
+          "58391585_29",
+          "58391585_3",
+          "58391585_30",
+          "58391585_31",
+          "58391585_4",
+          "58391585_5",
+          "58391585_6",
+          "58391585_7",
+          "58391585_8",
+          "58391585_9",
+          "58391586_0",
+          "58391586_1",
+          "58391586_10",
+          "58391586_11",
+          "58391586_12",
+          "58391586_13",
+          "58391586_14",
+          "58391586_15",
+          "58391586_16",
+          "58391586_17",
+          "58391586_18",
+          "58391586_19",
+          "58391586_2",
+          "58391586_20",
+          "58391586_21",
+          "58391586_22",
+          "58391586_23",
+          "58391586_24",
+          "58391586_25",
+          "58391586_26",
+          "58391586_27",
+          "58391586_28",
+          "58391586_29",
+          "58391586_3",
+          "58391586_30",
+          "58391586_31",
+          "58391586_4",
+          "58391586_5",
+          "58391586_6",
+          "58391586_7",
+          "58391586_8",
+          "58391586_9",
+          "58391647_0",
+          "58391647_1",
+          "58391647_10",
+          "58391647_11",
+          "58391647_12",
+          "58391647_13",
+          "58391647_14",
+          "58391647_15",
+          "58391647_16",
+          "58391647_17",
+          "58391647_18",
+          "58391647_19",
+          "58391647_2",
+          "58391647_20",
+          "58391647_21",
+          "58391647_22",
+          "58391647_23",
+          "58391647_24",
+          "58391647_25",
+          "58391647_26",
+          "58391647_27",
+          "58391647_28",
+          "58391647_29",
+          "58391647_3",
+          "58391647_30",
+          "58391647_31",
+          "58391647_4",
+          "58391647_5",
+          "58391647_6",
+          "58391647_7",
+          "58391647_8",
+          "58391647_9"
+        ]
+      },
+      "failure_stop_scope": "whole array completion gate",
+      "name": "Slurm completion and successful exits",
+      "passed": false
+    },
+    {
+      "classification": "EVALUABLE GATE",
+      "evidence": {
+        "allocated_core_hours": 0,
+        "hard_ceiling": 550,
+        "protective_stop": 500,
+        "warning_threshold": 400
+      },
+      "failure_stop_scope": "whole array",
+      "name": "approved allocated-core-hour ceiling",
+      "passed": true
+    },
+    {
+      "classification": "EVALUABLE GATE",
+      "evidence": {
+        "limit_mb": 4096,
+        "max_rss_mb": null
+      },
+      "failure_stop_scope": "one cell",
+      "name": "per-task memory ceiling",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "not full scientific acceptance",
+    "optimizer convergence and boundary occupancy are not fully observable",
+    "run-specific posterior behaviour and PBVI repeatability are not fully observable",
+    "does not authorize the 288-cell experiment",
+    "4,000-transition adequacy remains unresolved",
+    "safe-mode results remain information-limited"
+  ],
+  "limited_structural_acceptance_passed": false,
+  "not_evaluable": [
+    "3: per-start L-BFGS termination status",
+    "4b: projected gradient and free/bound-active coordinates",
+    "5: parameter-boundary occupancy",
+    "7b: holdout/train error ratio",
+    "9: PLUS posterior history",
+    "10b: run-specific PBVI deterministic repeat"
+  ],
+  "original_vs_amended_criterion_mapping": [
+    {
+      "amendment": "frozen identity, privacy audit, method and planner provenance",
+      "classification": "EVALUABLE GATE",
+      "original": 1
+    },
+    {
+      "amendment": "selected fitted objectives finite",
+      "classification": "EVALUABLE GATE",
+      "original": 2
+    },
+    {
+      "amendment": "per-start termination status not emitted",
+      "classification": "NOT EVALUABLE",
+      "original": 3
+    },
+    {
+      "amendment": "traces/raw gradients reported; projected bound-aware gradient unavailable",
+      "classification": "DESCRIPTIVE ONLY",
+      "original": 4
+    },
+    {
+      "amendment": "boundary occupancy not emitted",
+      "classification": "NOT EVALUABLE",
+      "original": 5
+    },
+    {
+      "amendment": "start objectives reported without registered agreement tolerance",
+      "classification": "DESCRIPTIVE ONLY",
+      "original": 6
+    },
+    {
+      "amendment": "holdout SSE reported without comparable train ratio",
+      "classification": "DESCRIPTIVE ONLY",
+      "original": 7
+    },
+    {
+      "amendment": "candidate composition and hashes reported",
+      "classification": "DESCRIPTIVE ONLY",
+      "original": 8
+    },
+    {
+      "amendment": "posterior history not emitted outside forbidden summaries",
+      "classification": "NOT EVALUABLE",
+      "original": 9
+    },
+    {
+      "amendment": "finite/legal action values gated; deterministic repeat unavailable",
+      "classification": "EVALUABLE GATE + NOT EVALUABLE remainder",
+      "original": 10
+    },
+    {
+      "amendment": "emitted receipt/model/POMDP/planner hashes cross-checked",
+      "classification": "EVALUABLE GATE",
+      "original": 11
+    },
+    {
+      "amendment": "all receipts, artifacts, and successful task exits required",
+      "classification": "EVALUABLE GATE",
+      "original": 12
+    },
+    {
+      "amendment": "Slurm core-hours, memory, states, and exits checked",
+      "classification": "EVALUABLE GATE",
+      "original": 13
+    }
+  ],
+  "return_fields_opened": false,
+  "row_results": [
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 0
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.249893573152474
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "ea604473f72de085c91fa9c28919e1d8841ab199e99d078ceb4eaa3092696a72"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 1
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p1",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 2
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p1",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.2786702143069464
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "c700802a980326ccdac69ac54bd710c736ef31d0bbbb1af05ed7d3702a8a748b"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 3
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p2",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 4
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p2",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.3621615001764872
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "3523f09c1ea49e7bd5080b469301d252d5cf51f97cc1fa7486937f3c08c89d9f"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 5
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p4",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 6
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p4",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.712227656016561
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "f04747f0e6903b82c65f9fa52ca61ec892c68ecfb0e7e89919edcd53e0acf72c"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 7
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 8
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.3326592140393606
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "3f107faf3f97805d42fcb55536bb022390bbaf5a6f27f5b455caa17e196fce88"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 9
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p1",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 10
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p1",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.37479248134164045
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "3fa96e5237731f8fd6bfbabe30b9918e6491c45f59940a5fa98505c50374faa4"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 11
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 12
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.47715922005992384
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "426a39a7c289b0ec9dc10549ad1cc597e523d02b18e811d902034f9a71e7efde"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 13
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p4",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 14
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p4",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.9155257113572085
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "59ecdb4d11edf7f84368fbb05833c0949380b5a5ac19116297815a6e0b60f7e6"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 15
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 16
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.27340678772464827
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "ddb9f06539a6060bcc0c5d664d5b0f898a73c554d2d5231c4e15bc2963ecff0c"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 17
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p1",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 18
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p1",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.29274965946390324
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "a60abbcab3f19983112b18c8d20cc1c1cdbacd310237deb4ba52fb1893775975"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 19
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p2",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 20
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p2",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.3556602481616628
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "7bd27cda0cbf737c8a04080a6074e0129a4ac0403437ae10aacb09ea2486932f"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 21
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p4",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 22
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0p4",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.6598148656525419
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "eb31bd5b83596d2f317eaf5dc18596d12b4c296f34056edcc00f9179270a6a00"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 23
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 24
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.4859886709428389
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "b8d233436f6d99d0412df4d7d60b1a26279ea663563bcaa5fe103737f20af590"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 25
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p1",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 26
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p1",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.5060789481793538
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "454493fa790282997fdc34b594630e1aa1c8b2739f55842d2117d9e1984124ce"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 27
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p2",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 28
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p2",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.6206246380396644
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "113e546701f151fc6ce5446d3ffedadcb6a68c9bfa6163eebeb0a9cdc39868a5"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 29
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p4",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 30
+    },
+    {
+      "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/amur_tiger/regime/sigma_0p4",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1.0772711710132092
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "8e9d0b1758170025567e55d72858569165b963db958beb3262014ede908f56ae"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 31
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 32
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.16324233957790518
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "3499e086e26296f9968175b8066f4e779d9442012650c981eed930a432fb7dfe"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 33
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p1",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 34
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p1",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.17603961134637908
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "c5c3de2f6b8b75e3e58e09ba5e02fe4efb01c903b00f07431b2f452da5f84a2c"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 35
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p2",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 36
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p2",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.22584659492876216
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "1e99af609b8b477f43bd67743b97f7a2fdbe8784ab3a3396457294ae79689dc4"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 37
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p4",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 38
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p4",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.49405524594440287
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "26e0d7ebe00fcb86a30fc7b7a1f372713451a76adb8d2d51ff4efb65a306f23e"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 39
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 40
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.16324233957790518
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "3499e086e26296f9968175b8066f4e779d9442012650c981eed930a432fb7dfe"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 41
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p1",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 42
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p1",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.17603961134637908
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "c5c3de2f6b8b75e3e58e09ba5e02fe4efb01c903b00f07431b2f452da5f84a2c"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 43
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p2",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 44
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p2",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.22584659492876216
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "1e99af609b8b477f43bd67743b97f7a2fdbe8784ab3a3396457294ae79689dc4"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 45
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p4",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 46
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p4",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.49405524594440287
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "26e0d7ebe00fcb86a30fc7b7a1f372713451a76adb8d2d51ff4efb65a306f23e"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 47
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 48
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.15797080334596622
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "a10e8094e7144af00936a13693b2bd7200b1f2cffdd17198bf58bdde3122d285"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 49
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 50
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.17606685987818296
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "f075c5062e03edc1d5e7fbb62af7269400546c12d952ce53a52b62b1e8649e65"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 51
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 52
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.21330121652513626
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "f84837d52af3c6fb309504be227c15d90bd3f9b0323388380ff013103f193620"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 53
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p4",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 54
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p4",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.46881799622790593
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "a56e82a10841b07dfdbfa5a261e1abe7eb478e632644fbd4c1ee499525b96cdb"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 55
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 56
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.16324233957790518
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "3499e086e26296f9968175b8066f4e779d9442012650c981eed930a432fb7dfe"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 57
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p1",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 58
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p1",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p1",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.17603961134637908
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "c5c3de2f6b8b75e3e58e09ba5e02fe4efb01c903b00f07431b2f452da5f84a2c"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 59
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p2",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 60
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p2",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p2",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.22584659492876216
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "1e99af609b8b477f43bd67743b97f7a2fdbe8784ab3a3396457294ae79689dc4"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 61
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p4",
+            "method": "plus_adapted_mechanistic_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": null,
+          "name": "unique plan artifact exists",
+          "passed": false
+        }
+      ],
+      "method": "plus_adapted_mechanistic_pbvi",
+      "position": 62
+    },
+    {
+      "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p4",
+      "checks": [
+        {
+          "evidence": {
+            "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p4",
+            "method": "moor_adapted_ricker_misspec_pbvi"
+          },
+          "name": "fit receipt identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "actual_rows": 4000,
+            "episode_count": 160,
+            "overshoot_rows": 0,
+            "target_rows": 4000
+          },
+          "name": "complete-episode overshoot",
+          "passed": true
+        },
+        {
+          "evidence": "passed",
+          "name": "privacy passed",
+          "passed": true
+        },
+        {
+          "evidence": "moor_adapted_ricker_misspec_pbvi_v2",
+          "name": "registered method implementation",
+          "passed": true
+        },
+        {
+          "evidence": [
+            0.49405524594440287
+          ],
+          "name": "finite selected objectives",
+          "passed": true
+        },
+        {
+          "evidence": 1,
+          "name": "registered candidate count",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "ricker"
+          ],
+          "name": "MOOR single Ricker",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "parameter_hashes_match": true,
+            "transition_hashes": [
+              "26e0d7ebe00fcb86a30fc7b7a1f372713451a76adb8d2d51ff4efb65a306f23e"
+            ]
+          },
+          "name": "receipt/model/transition consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            "b0d71035bf08c6e73f61bba9e49ee43c7aa9754eb55402452dfc3753bc4726ee"
+          ],
+          "name": "regime-law consistency",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "planner_count": 1,
+            "pomdp_count": 1
+          },
+          "name": "planner/POMDP consistency",
+          "passed": true
+        },
+        {
+          "evidence": [
+            1,
+            11
+          ],
+          "name": "finite PBVI values and legal argmax",
+          "passed": true
+        }
+      ],
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "position": 63
+    }
+  ]
+}

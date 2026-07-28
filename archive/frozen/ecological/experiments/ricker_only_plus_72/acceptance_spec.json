@@ -1,0 +1,46 @@
+{
+  "acceptance_version": "acceptance_ricker_only_plus_structural_v1",
+  "decision_labels": [
+    "PASS_LIMITED_STRUCTURAL_ACCEPTANCE",
+    "PASS_WITH_WARNING_STRUCTURAL_ACCEPTANCE",
+    "FAIL_STRUCTURAL_ACCEPTANCE",
+    "INCOMPLETE"
+  ],
+  "evaluable_gates": [
+    "72 fit and 72 plan manifest rows with exact paired cell identity",
+    "method identifier plus_adapted_ricker_only_pbvi",
+    "eight unique fitted Ricker candidates per completed cell",
+    "candidate identifiers candidate_00_00 through candidate_00_07",
+    "uniform candidate prior and registered construction identifier",
+    "finite selected fitting objective for every candidate",
+    "disjoint registered fit and holdout episodes",
+    "fit-cache key, parameter, transition-data, and array hashes",
+    "atomic fit completion receipt with complete status",
+    "atomic plan completion receipt with an exact allowlisted artifact-hash set",
+    "absence of temporary files and rejection of partial final artifacts",
+    "eight independently serialized PBVI planners per completed plan row",
+    "privacy audit status passed with no forbidden-name hits",
+    "all requested Slurm work completed without exceeding the approved resource ceiling",
+    "no forbidden return field or summary file opened"
+  ],
+  "forbidden_files": [
+    "summary.json",
+    "comparative_summary.json",
+    "ranking.json"
+  ],
+  "forbidden_fields": [
+    "operational_return",
+    "true_return",
+    "survival_return",
+    "returns",
+    "ranking",
+    "rankings"
+  ],
+  "not_evaluable": [
+    "comparative or operational performance",
+    "run-specific posterior history",
+    "run-specific PBVI deterministic repeatability",
+    "per-start optimizer termination and bound-aware gradients"
+  ],
+  "scope": "Limited return-blind structural acceptance only; performance remains sealed pending separate permission."
+}

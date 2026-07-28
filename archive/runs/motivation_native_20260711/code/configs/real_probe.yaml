@@ -1,0 +1,38 @@
+# Timing-probe config for the real-ecology reward-mode experiment.
+seed: 116
+environment:
+  data_mode: real
+  population: Amur tiger
+  kind: ricker
+  control_mode: setpoint_cumulative
+  reward_mode: safe
+  observation_noise_sigma: 0.4
+dataset:
+  transitions: 2000
+  episode_length: 25
+  output: outputs/real_probe/dataset_public.npz
+  private_output: outputs/real_probe/dataset_private.npz
+filter:
+  particles: 128
+  proposal: learned
+  ess_fraction: 0.5
+model:
+  ensemble_size: 3
+  ridge: 0.001
+planner:
+  horizon: 4
+  sequences: 48
+  particles: 16
+  discount: 0.95
+  pessimism: 0.5
+evaluation:
+  seeds: [7001, 7051]
+  episodes_per_seed: 2
+  horizon: 50
+  discount: 0.95
+  output_dir: outputs/real_probe/evaluation
+training:
+  enabled: true
+  holdout_fraction: 0.2
+  plot: true
+  wandb: false

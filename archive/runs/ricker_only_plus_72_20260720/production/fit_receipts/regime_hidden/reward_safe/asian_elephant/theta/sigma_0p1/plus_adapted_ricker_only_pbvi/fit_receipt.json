@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/asian_elephant/theta/sigma_0p1",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "19439359808d831a3e24c05a7afe3311285f95ca6911272ff6d70e8d180e82f4",
+    "e4b6b752f83b560fa8af293c1dd2e957efe814b3c91a941f03dc1cb986eaf20e",
+    "3087452d2a92ac57c9781962198d6a7c1153b3fac858e9cffdee54b4619cbc8f",
+    "89083206460a9e561c4aa9e72d083517eb253c374f33caa3f9825c5e2ac13fdb",
+    "2194137b499a9f41acd8941648cbade5d35795c39f0b77915b52899c9e895981",
+    "fcda4c8f598609e7e76dd35065947ebef2fd874b3dcf4a62dbaa956b51c8660c",
+    "fd386348916f3836df2c09e4503e047014779adf79c8385b75e3d3884646f7a0",
+    "0121bb7f9672fbe601c55e2c5a304b9fc8c77cd94f4a3ab691c3410897797b2b"
+  ],
+  "fit_seconds": 0.051318843849003315,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "ac32e59d10ab897c64014e977c2816ec4aa22504d671ae31c5d3fbfbca92564b",
+    "ef7eb1e9b076d72e380df9e848244961fbe52dd275e33ff909cf87da1205d265",
+    "874c478f25d472fd034fdc0e5d34fe230249fe64abe8c684e09f83a82aba9338",
+    "8ca1e13e7d27ca0be914bd1c00f09761d991b47c5508e848f0efb9e77cd0d3f7",
+    "9aaea93709ddb716d6cb3c3c9bb5b00dc4cad1b9f2f8fd38a5ae7c683b0f3a0f",
+    "996e4a4c8d9c89e139121e72af7219e448e63e8fb949da794e32a069c8268592",
+    "d6a7467a4459a7a57acc2b75f20afacdae518c7e97e2b6cb978a3beed418a2f7",
+    "39f9e9910f011bdeeb2dbed8d621eb3eaca4d7c963d3ab26039d786b45109686"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "0809fbde6f439b41d96d88d457bb8a3ff8e6f598b4fc4725ccb70d4fe3b8ec76"
+}

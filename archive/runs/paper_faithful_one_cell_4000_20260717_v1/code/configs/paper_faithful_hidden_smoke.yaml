@@ -1,0 +1,62 @@
+# Interface/runtime smoke only; this is not a headline experiment budget.
+seed: 116
+environment:
+  data_mode: real
+  expose_rk: hidden
+  population: Amur tiger
+  kind: ricker
+  control_mode: setpoint_cumulative
+  reward_mode: safe
+  collapse_penalty: 5.0
+  safety_penalty_mode: occupancy
+  observation_noise_sigma: 0.1
+dataset:
+  transitions: 160
+  episode_length: 16
+  output: outputs/paper_faithful_hidden_smoke/dataset_public.npz
+  private_output: outputs/paper_faithful_hidden_smoke/dataset_private.npz
+filter:
+  particles: 32
+  proposal: faithful_internal
+model:
+  ensemble_size: 2
+  ridge: 0.001
+planner:
+  horizon: 2
+  sequences: 12
+  particles: 8
+  discount: 0.95
+evaluation:
+  seeds: [9001]
+  episodes_per_seed: 1
+  horizon: 6
+  discount: 0.95
+  output_dir: outputs/paper_faithful_hidden_smoke/evaluation
+training:
+  enabled: true
+  holdout_fraction: 0.2
+  plot: false
+  wandb: false
+faithful:
+  model:
+    equation_version: faithful_ecology_v1
+    forms: [ricker, allee, theta, regime]
+    candidates_per_form: 1
+    prior: uniform
+  fit:
+    optimizer: torch_lbfgs
+    starts: 2
+    iterations: 12
+    mc_paths: 4
+    history_fraction: 0.8
+    sparse_action_rows: 25
+  planner:
+    name: pbvi
+    state_bins: 15
+    capacity_bins: 5
+    observation_bins: 15
+    transition_samples: 32
+    observation_samples: 32
+    belief_points: 6
+    observation_branches: 3
+    horizon: 2

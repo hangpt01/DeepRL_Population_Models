@@ -1,0 +1,153 @@
+\documentclass[11pt]{article}
+\input{docs/benchmark/preamble.tex}
+
+\title{Problem Setting and Scientific Design}
+\author{Ecology Benchmark Documentation}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+This document defines the scientific problem that the benchmark instantiates.
+The benchmark is a partially observed ecological control problem with continuous
+latent abundance, noisy surveys, finite management actions, public logged
+datasets, and evaluator-only ecological truth.
+
+\section{POMDP}
+
+At time $t$, the latent abundance is $\st \ge 0$. Exact zero is absorbing
+extinction. The agent does not observe $\st$ directly. It receives a survey
+\[
+  \obs = \st \epsilon_t,\qquad
+  \epsilon_t \sim \mathrm{LogNormal}(0,\sobs).
+\]
+When $\sobs=0$, the observation equals the state up to numerical tolerance; when
+$\sobs>0$, the observation is median-unbiased but has mean
+$\st\exp(\sobs^2/2)$.
+
+The public history available to policies is the observation/action sequence plus
+public control fields. The true state, hidden structural parameters, regime, and
+true effective growth are evaluator-only. Logged rewards are training targets in
+the public dataset, but filtering and deployed policy updates do not use them as
+state observations.
+
+\section{Dynamics Families}
+
+The environment dispatches among four continuous map families:
+\begin{itemize}
+  \item Ricker;
+  \item Allee-Ricker;
+  \item theta-logistic;
+  \item regime-switching Allee-like dynamics.
+\end{itemize}
+
+For real and dummy ecology cells, management first applies direct
+translocation, if any, then advances public controls. The public control
+variables are
+\[
+  \rho_t,\quad \kappa_t,\quad
+  K^{\mathrm{eff}}_t =
+    \mathrm{clip}(K_{\mathrm{base}}+\kappa_t,K_{\min},K_{\max}).
+\]
+In set-point ecology cells, $\rho_{t+1}$ equals the chosen action's growth
+set-point and $\kappa$ accumulates carrying-capacity increments. Effective growth
+is
+\[
+  r^{\mathrm{eff}}_{t+1}
+  =
+  \mathrm{clip}(\rho_{t+1}, r_{\min}, r_{\max}).
+\]
+The code splits negative effective growth into unconditional mortality:
+\[
+  r_+ = \max(r^{\mathrm{eff}},0),\qquad
+  r_- = \min(r^{\mathrm{eff}},0).
+\]
+This is a benchmark convention that avoids sign pathologies when a negative
+set-point is inserted inside a density-dependent Ricker exponent.
+
+\section{Modes}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{llll}
+\toprule
+Mode & Source & Valid control & Purpose \\
+\midrule
+real & six CSVs in \code{real_ecology_data} & \code{setpoint_cumulative}
+  & paper-facing ecology setting \\
+dummy & \code{dummydata.py} & \code{setpoint_cumulative}
+  & quick real-like experiments \\
+synthetic & in-code simulators & \code{tier2_one_step}, \code{cumulative_capped}
+  & stress/reference experiments \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The historically confusing point is that \code{setpoint_cumulative} is shared by
+real and dummy ecology. The data source is controlled by \code{data_mode}, not by
+the control-mode name.
+
+\section{Dataset Boundary}
+
+The public dataset contains observations, actions, rewards, next observations,
+done flags, episode IDs, timesteps, and public controls where enabled. The
+private sidecar contains true states, next states, hidden structural parameters,
+regime values, true rewards, and true effective rates. Training code accepts the
+public dataset and belief caches, not the private sidecar.
+
+This boundary is central to the benchmark. The reward is a monotone function of
+the true next abundance after known costs are added back, so treating reward as a
+filter observation would leak hidden state. The implementation records reward as
+a supervised target and evaluation metric while keeping belief updates tied to
+observations and public controls.
+
+\section{Scientific Design Rationale}
+
+\paragraph{Continuous state.}
+The real ecology tables describe abundance and carrying capacity on physical
+scales. Keeping $\st$ continuous avoids finite abundance bins and lets collapse,
+MVP occupancy, and recovery be reported in the same units as the data.
+
+\paragraph{Set-point growth.}
+The real action table provides action-specific growth rates derived from
+population/action $\lambda$ values. Treating the action as a set-point for $r$
+keeps the intended intervention semantics: a management action selects the
+current demographic regime instead of adding an arbitrary increment to a hidden
+baseline.
+
+\paragraph{Cumulative carrying capacity.}
+Habitat and integrated conservation actions have lasting capacity effects. The
+public accumulator $\kappa$ records those effects, and the current capacity is
+clipped between the published baseline and the configured landscape ceiling.
+
+\paragraph{Occupancy safety penalty.}
+Several real populations begin depleted. A downward-crossing-only penalty would
+charge a population that crosses into the unsafe region but would not charge a
+population that starts and remains unsafe. The real safe setting therefore uses
+occupancy by default: every step with $\snext \le \ssafe$ is penalized.
+
+\paragraph{P-safe penalty.}
+The recent real-ecology experiment selected \code{collapse_penalty = 5} for the
+safe reward setting. The selection rule used the recoverable decision
+populations: choose the largest tested penalty that keeps their mean safe return
+non-negative while reducing collapse entries relative to $P=2$. At $P=10$, the
+Puerto Rican parrot mean return is already negative; at $P=20$, both recoverable
+decision populations are over-penalized. The package dataclass default is a
+general fallback; experiment configs and result bundles define the penalty for a
+particular run.
+
+\section{Evaluation Setting}
+
+Evaluation resets real and dummy ecology cells at the published or in-code
+$N_0$. The collector can sample lower starts for coverage, but this does not
+change gate/evaluation reset semantics. Reported metrics include operational
+return, true return, unsafe occupancy, collapse entry, MVP occupancy and breach,
+minimum and final abundance, persistence, economic cost, filter error, fallback
+counts, and timing.
+
+\section*{Verification}
+
+Verified against: \path{src/real_ecology_benchmark/config.py}, \path{src/real_ecology_benchmark/envs.py}, \path{src/real_ecology_benchmark/controls.py}, \path{src/real_ecology_benchmark/dataset.py}, \path{src/real_ecology_benchmark/observation.py}, \path{src/real_ecology_benchmark/reward.py}, \path{real_ecology_runs/psafe_overnight_20260705/analysis/DECISION_psafe.md} @ be96c36
+
+\end{document}

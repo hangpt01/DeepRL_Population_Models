@@ -1,0 +1,44 @@
+# Fast hidden-r/K implementation smoke; not an experiment-budget replacement.
+seed: 116
+environment:
+  data_mode: real
+  expose_rk: hidden
+  population: Amur tiger
+  kind: ricker
+  control_mode: setpoint_cumulative
+  reward_mode: safe
+  collapse_penalty: 5.0
+  safety_penalty_mode: occupancy
+  observation_noise_sigma: 0.1
+dataset:
+  transitions: 160
+  episode_length: 16
+  output: outputs/hidden_rk_smoke/dataset_public.npz
+  private_output: outputs/hidden_rk_smoke/dataset_private.npz
+filter:
+  particles: 64
+  proposal: learned
+  ess_fraction: 0.5
+model:
+  ensemble_size: 3
+  ridge: 0.001
+  native_state_bins: 31
+  native_vi_iterations: 80
+  native_vi_tolerance: 1.0e-6
+planner:
+  horizon: 3
+  sequences: 24
+  particles: 8
+  discount: 0.95
+  pessimism: 0.5
+evaluation:
+  seeds: [9001]
+  episodes_per_seed: 1
+  horizon: 8
+  discount: 0.95
+  output_dir: outputs/hidden_rk_smoke/evaluation
+training:
+  enabled: true
+  holdout_fraction: 0.2
+  plot: false
+  wandb: false

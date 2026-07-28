@@ -1,0 +1,112 @@
+\documentclass{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\begin{document}
+\section*{Phase 116 Decision-Relevant Misspecification Benchmark}
+
+This report aggregates at the seed level. Episode-level rollouts are averaged
+inside each seed before computing mean and standard deviation across seeds.
+The primary claim test is whether at least one general learned method (MOPO,
+RefPlan, or BA-MCTS) beats both fixed-family baselines (PLUS and MOOR-Ricker) in
+a majority of decision-relevant env/action-set/seed cells under collapse-sensitive
+reward. The general methods are repo-native finite-state adaptations (tabular
+dynamics ensembles / categorical MLP ensemble), not the source papers' full neural
+stacks.
+
+\paragraph{Claim checks.}
+Primary learned-method majority passed: \texttt{True}.
+Learned win fraction (any of MOPO/RefPlan/BA-MCTS beats both baselines):
+1.0 over 30 cells.
+Per-method beats-both-baselines rate: MOPO 0.9666666666666667; RefPlan 1.0; BA-MCTS 0.4666666666666667.
+RefPlan beats MOPO fraction in Allee/regime:
+0.65 over 20
+cells.
+
+\paragraph{Hyperparameters.}
+Final rows use 50 evaluation episodes,
+horizon 50, shared
+75000-transition datasets per scenario, WandB online
+logging, and frozen RefPlan/MOPO budgets recorded in the manifest. RefPlan
+tuning candidates came from
+$H\in\{8,10,12\}$, sequences $\in\{256,512,1024\}$, latent samples
+$\in\{8,12,16\}$, $\kappa\in\{2,5,10\}$, and uncertainty penalty
+$\in\{0.05,0.10,0.20\}$. MOPO tuning candidates came from horizon
+$\in\{5,8\}$, rollouts $\in\{20,25,50\}$, pessimism $\lambda\in\{0.5,1,2\}$,
+and epochs $\in\{50,100\}$.
+
+\begin{longtable}{lllrlrrr}
+\toprule
+Env & Actions & Reward & Method & Cum. reward & Collapse & Adv. & Runtime (s) \\
+\midrule
+allee\_ricker\_pomdp\_116 & 5a & base & RefPlan & 7.930 $\pm$ 0.032 & 0.000 & 0.269 & 6264 \\
+allee\_ricker\_pomdp\_116 & 5a & base & ExpertSys23 MOOR-Ricker & 7.661 $\pm$ 0.002 & 0.000 & nan & 88 \\
+allee\_ricker\_pomdp\_116 & 5a & base & MOPO & 7.661 $\pm$ 0.002 & 0.000 & 0.000 & 218 \\
+allee\_ricker\_pomdp\_116 & 5a & base & BA-MCTS & 7.530 $\pm$ 0.026 & 0.000 & -0.131 & 362 \\
+allee\_ricker\_pomdp\_116 & 5a & base & BioConserv18 PLUS & 6.042 $\pm$ 0.012 & 0.000 & nan & 88 \\
+allee\_ricker\_pomdp\_116 & 5a & collapse\_sensitive & RefPlan & 7.880 $\pm$ 0.030 & 0.000 & 1.838 & 6437 \\
+allee\_ricker\_pomdp\_116 & 5a & collapse\_sensitive & MOPO & 7.366 $\pm$ 0.289 & 0.000 & 1.324 & 232 \\
+allee\_ricker\_pomdp\_116 & 5a & collapse\_sensitive & BA-MCTS & 6.311 $\pm$ 0.047 & 0.000 & 0.269 & 343 \\
+allee\_ricker\_pomdp\_116 & 5a & collapse\_sensitive & BioConserv18 PLUS & 6.042 $\pm$ 0.012 & 0.000 & nan & 104 \\
+allee\_ricker\_pomdp\_116 & 5a & collapse\_sensitive & ExpertSys23 MOOR-Ricker & -11.590 $\pm$ 0.010 & 1.000 & nan & 106 \\
+allee\_ricker\_pomdp\_116\_10a & 10a & base & RefPlan & 7.715 $\pm$ 0.083 & 0.000 & 0.054 & 5211 \\
+allee\_ricker\_pomdp\_116\_10a & 10a & base & ExpertSys23 MOOR-Ricker & 7.661 $\pm$ 0.002 & 0.000 & nan & 88 \\
+allee\_ricker\_pomdp\_116\_10a & 10a & base & MOPO & 7.655 $\pm$ 0.008 & 0.000 & -0.006 & 202 \\
+allee\_ricker\_pomdp\_116\_10a & 10a & base & BioConserv18 PLUS & 7.303 $\pm$ 0.009 & 0.000 & nan & 88 \\
+allee\_ricker\_pomdp\_116\_10a & 10a & base & BA-MCTS & 6.905 $\pm$ 0.177 & 0.000 & -0.756 & 353 \\
+allee\_ricker\_pomdp\_116\_10a & 10a & collapse\_sensitive & MOPO & 8.088 $\pm$ 0.237 & 0.000 & 0.785 & 312 \\
+allee\_ricker\_pomdp\_116\_10a & 10a & collapse\_sensitive & RefPlan & 7.930 $\pm$ 0.038 & 0.000 & 0.627 & 6074 \\
+allee\_ricker\_pomdp\_116\_10a & 10a & collapse\_sensitive & BioConserv18 PLUS & 7.303 $\pm$ 0.009 & 0.000 & nan & 104 \\
+allee\_ricker\_pomdp\_116\_10a & 10a & collapse\_sensitive & BA-MCTS & 6.234 $\pm$ 0.058 & 0.000 & -1.068 & 345 \\
+allee\_ricker\_pomdp\_116\_10a & 10a & collapse\_sensitive & ExpertSys23 MOOR-Ricker & -11.590 $\pm$ 0.010 & 1.000 & nan & 98 \\
+regime\_switch\_pomdp\_116 & 5a & base & RefPlan & 7.731 $\pm$ 0.042 & 0.000 & 0.068 & 5917 \\
+regime\_switch\_pomdp\_116 & 5a & base & ExpertSys23 MOOR-Ricker & 7.663 $\pm$ 0.002 & 0.000 & nan & 88 \\
+regime\_switch\_pomdp\_116 & 5a & base & MOPO & 7.663 $\pm$ 0.002 & 0.000 & 0.000 & 193 \\
+regime\_switch\_pomdp\_116 & 5a & base & BA-MCTS & 7.269 $\pm$ 0.043 & 0.000 & -0.394 & 332 \\
+regime\_switch\_pomdp\_116 & 5a & base & BioConserv18 PLUS & 6.178 $\pm$ 0.011 & 0.000 & nan & 88 \\
+regime\_switch\_pomdp\_116 & 5a & collapse\_sensitive & RefPlan & 7.725 $\pm$ 0.032 & 0.000 & 1.547 & 6884 \\
+regime\_switch\_pomdp\_116 & 5a & collapse\_sensitive & MOPO & 7.468 $\pm$ 0.087 & 0.000 & 1.290 & 185 \\
+regime\_switch\_pomdp\_116 & 5a & collapse\_sensitive & BA-MCTS & 6.195 $\pm$ 0.087 & 0.000 & 0.017 & 356 \\
+regime\_switch\_pomdp\_116 & 5a & collapse\_sensitive & BioConserv18 PLUS & 6.178 $\pm$ 0.011 & 0.000 & nan & 105 \\
+regime\_switch\_pomdp\_116 & 5a & collapse\_sensitive & ExpertSys23 MOOR-Ricker & -11.570 $\pm$ 0.010 & 1.000 & nan & 109 \\
+regime\_switch\_pomdp\_116\_10a & 10a & base & ExpertSys23 MOOR-Ricker & 7.663 $\pm$ 0.002 & 0.000 & nan & 83 \\
+regime\_switch\_pomdp\_116\_10a & 10a & base & MOPO & 7.644 $\pm$ 0.014 & 0.000 & -0.019 & 202 \\
+regime\_switch\_pomdp\_116\_10a & 10a & base & BioConserv18 PLUS & 7.505 $\pm$ 0.012 & 0.000 & nan & 80 \\
+regime\_switch\_pomdp\_116\_10a & 10a & base & RefPlan & 7.458 $\pm$ 0.064 & 0.000 & -0.206 & 6326 \\
+regime\_switch\_pomdp\_116\_10a & 10a & base & BA-MCTS & 6.296 $\pm$ 0.186 & 0.000 & -1.367 & 357 \\
+regime\_switch\_pomdp\_116\_10a & 10a & collapse\_sensitive & MOPO & 7.729 $\pm$ 0.206 & 0.000 & 0.225 & 210 \\
+regime\_switch\_pomdp\_116\_10a & 10a & collapse\_sensitive & RefPlan & 7.714 $\pm$ 0.060 & 0.000 & 0.209 & 5986 \\
+regime\_switch\_pomdp\_116\_10a & 10a & collapse\_sensitive & BioConserv18 PLUS & 7.505 $\pm$ 0.012 & 0.000 & nan & 104 \\
+regime\_switch\_pomdp\_116\_10a & 10a & collapse\_sensitive & BA-MCTS & 6.066 $\pm$ 0.116 & 0.000 & -1.439 & 345 \\
+regime\_switch\_pomdp\_116\_10a & 10a & collapse\_sensitive & ExpertSys23 MOOR-Ricker & -11.570 $\pm$ 0.010 & 1.000 & nan & 91 \\
+theta\_logistic\_pomdp\_116 & 5a & base & RefPlan & 8.466 $\pm$ 0.061 & 0.000 & 0.692 & 5683 \\
+theta\_logistic\_pomdp\_116 & 5a & base & ExpertSys23 MOOR-Ricker & 7.774 $\pm$ 0.002 & 0.000 & nan & 92 \\
+theta\_logistic\_pomdp\_116 & 5a & base & BA-MCTS & 7.509 $\pm$ 0.097 & 0.000 & -0.265 & 320 \\
+theta\_logistic\_pomdp\_116 & 5a & base & MOPO & 7.307 $\pm$ 0.678 & 0.000 & -0.466 & 183 \\
+theta\_logistic\_pomdp\_116 & 5a & base & BioConserv18 PLUS & 4.929 $\pm$ 0.039 & 0.000 & nan & 87 \\
+theta\_logistic\_pomdp\_116 & 5a & collapse\_sensitive & MOPO & 8.558 $\pm$ 0.212 & 0.000 & 8.682 & 245 \\
+theta\_logistic\_pomdp\_116 & 5a & collapse\_sensitive & RefPlan & 8.499 $\pm$ 0.020 & 0.000 & 8.624 & 6627 \\
+theta\_logistic\_pomdp\_116 & 5a & collapse\_sensitive & BA-MCTS & 6.596 $\pm$ 0.095 & 0.020 & 6.720 & 363 \\
+theta\_logistic\_pomdp\_116 & 5a & collapse\_sensitive & BioConserv18 PLUS & -0.124 $\pm$ 0.199 & 0.256 & nan & 105 \\
+theta\_logistic\_pomdp\_116 & 5a & collapse\_sensitive & ExpertSys23 MOOR-Ricker & -10.576 $\pm$ 0.019 & 1.000 & nan & 105 \\
+theta\_logistic\_pomdp\_116\_10a & 10a & base & RefPlan & 8.859 $\pm$ 0.057 & 0.000 & 1.085 & 6294 \\
+theta\_logistic\_pomdp\_116\_10a & 10a & base & ExpertSys23 MOOR-Ricker & 7.774 $\pm$ 0.002 & 0.000 & nan & 80 \\
+theta\_logistic\_pomdp\_116\_10a & 10a & base & MOPO & 7.342 $\pm$ 0.677 & 0.000 & -0.432 & 296 \\
+theta\_logistic\_pomdp\_116\_10a & 10a & base & BA-MCTS & 7.145 $\pm$ 0.120 & 0.000 & -0.629 & 366 \\
+theta\_logistic\_pomdp\_116\_10a & 10a & base & BioConserv18 PLUS & 7.095 $\pm$ 0.015 & 0.000 & nan & 80 \\
+theta\_logistic\_pomdp\_116\_10a & 10a & collapse\_sensitive & MOPO & 9.172 $\pm$ 0.232 & 0.000 & 2.078 & 276 \\
+theta\_logistic\_pomdp\_116\_10a & 10a & collapse\_sensitive & RefPlan & 9.002 $\pm$ 0.044 & 0.000 & 1.907 & 6413 \\
+theta\_logistic\_pomdp\_116\_10a & 10a & collapse\_sensitive & BioConserv18 PLUS & 7.095 $\pm$ 0.015 & 0.000 & nan & 88 \\
+theta\_logistic\_pomdp\_116\_10a & 10a & collapse\_sensitive & BA-MCTS & 6.433 $\pm$ 0.175 & 0.032 & -0.661 & 349 \\
+theta\_logistic\_pomdp\_116\_10a & 10a & collapse\_sensitive & ExpertSys23 MOOR-Ricker & -10.576 $\pm$ 0.019 & 1.000 & nan & 88 \\
+\bottomrule
+\end{longtable}
+
+\paragraph{Interpretation guide.}
+Positive advantage means the learned method beat the stronger of PLUS and
+MOOR-Ricker for that seed/scenario before seed aggregation. Hidden-bucket
+tables in the companion CSV diagnose whether gains concentrate by Allee
+threshold, regime, or theta bucket. The result should not be over-claimed from
+one seed; the claim above is based on majority behavior across cells.
+
+\end{document}

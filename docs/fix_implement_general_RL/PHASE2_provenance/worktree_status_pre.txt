@@ -1,0 +1,84 @@
+?? configs/hidden_rk_smoke.yaml
+?? configs/hidden_rk.yaml
+?? configs/paper_faithful_hidden_hierarchical_weak.yaml
+?? configs/paper_faithful_hidden_one_cell_4000.yaml
+?? configs/paper_faithful_hidden_smoke.yaml
+?? configs/paper_faithful_hidden.yaml
+?? docs/fix_implement_general_RL/
+ M configs/motivation_native_b31.yaml
+ M configs/motivation_native_b91.yaml
+ M configs/motivation_native_smoke.yaml
+ M configs/motivation_native.yaml
+ M configs/real_default.yaml
+ M configs/real_experiment.yaml
+ M configs/real_probe.yaml
+ M configs/real_smoke.yaml
+ M pyproject.toml
+ M scripts/capture_trajectories.py
+ M scripts/check_docs.py
+ M scripts/make_motivation_native_manifest.py
+ M scripts/make_real_experiment_manifests.py
+ M scripts/run_motivation_acceptance.py
+ M scripts/run_real_manifest_row.py
+ M src/real_ecology_benchmark/beliefs.py
+ M src/real_ecology_benchmark/cli.py
+ M src/real_ecology_benchmark/collector.py
+ M src/real_ecology_benchmark/config.py
+ M src/real_ecology_benchmark/dataset.py
+ M src/real_ecology_benchmark/envs.py
+ M src/real_ecology_benchmark/evaluator.py
+ M src/real_ecology_benchmark/gate.py
+ M src/real_ecology_benchmark/__init__.py
+ M src/real_ecology_benchmark/manifest.py
+ M src/real_ecology_benchmark/methods/bamcts.py
+ M src/real_ecology_benchmark/methods/base.py
+ M src/real_ecology_benchmark/methods/delphic.py
+ M src/real_ecology_benchmark/methods/__init__.py
+ M src/real_ecology_benchmark/methods/moor_native.py
+ M src/real_ecology_benchmark/methods/moor.py
+ M src/real_ecology_benchmark/methods/mopo.py
+ M src/real_ecology_benchmark/methods/ogsrl.py
+ M src/real_ecology_benchmark/methods/plus_native.py
+ M src/real_ecology_benchmark/methods/plus.py
+ M src/real_ecology_benchmark/methods/refplan.py
+ M src/real_ecology_benchmark/pipeline.py
+ M src/real_ecology_benchmark/realdata.py
+ M src/real_ecology_benchmark/training_monitor.py
+ M src/real_ecology_benchmark/types.py
+ M tests/real/test_native_baselines.py
+ M tests/real/test_real_ecology.py
+ M tests/synthetic/test_methods.py
+?? scripts/hash_paper_faithful_snapshot.py
+?? scripts/make_hidden_rk_manifest.py
+?? scripts/make_paper_faithful_manifest.py
+?? scripts/prepare_corrected_adapted_canary.py
+?? scripts/prepare_paper_faithful_smoke.py
+?? scripts/run_adapted_fit_row.py
+?? scripts/run_hidden_rk_acceptance.py
+?? scripts/run_hidden_rk_phase0.py
+?? scripts/run_paper_faithful_acceptance.py
+?? scripts/run_paper_faithful_solver_probe.py
+?? scripts/slurm/run_adapted_fit_row.sh
+?? scripts/slurm/run_paper_faithful_row.sh
+?? src/real_ecology_benchmark/faithful_artifacts.py
+?? src/real_ecology_benchmark/faithful_ecology.py
+?? src/real_ecology_benchmark/faithful_fit.py
+?? src/real_ecology_benchmark/faithful_pomdp.py
+?? src/real_ecology_benchmark/methods/moor_faithful.py
+?? src/real_ecology_benchmark/methods/plus_faithful.py
+?? src/real_ecology_benchmark/native_fit.py
+?? src/real_ecology_benchmark/planners/
+?? src/real_ecology_benchmark/privacy.py
+?? src/real_ecology_benchmark/public_models.py
+?? src/real_ecology_benchmark/public_surrogate.py
+?? tests/real/faithful_fixtures.py
+?? tests/real/test_corrected_adapted_mechanistic.py
+?? tests/real/test_corrected_canary_tooling.py
+?? tests/real/test_faithful_artifacts.py
+?? tests/real/test_faithful_equations.py
+?? tests/real/test_faithful_planners.py
+?? tests/real/test_faithful_privacy.py
+?? tests/real/test_hidden_rk.py
+?? tests/real/test_moor_faithful.py
+?? tests/real/test_phase2_verification.py
+?? tests/real/test_plus_faithful.py

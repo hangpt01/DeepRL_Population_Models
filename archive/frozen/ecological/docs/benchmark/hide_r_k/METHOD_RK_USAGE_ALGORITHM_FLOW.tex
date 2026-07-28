@@ -1,0 +1,596 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\rhoctl}{\rho}
+\newcommand{\kappactl}{\kappa}
+\newcommand{\Kbase}{K_{\mathrm{base}}}
+\newcommand{\Keff}{K_{\mathrm{eff}}}
+\newcommand{\Kref}{K_{\mathrm{ref}}}
+\newcommand{\Kmax}{K_{\max}}
+\newcommand{\reff}{r_{\mathrm{eff}}}
+\newcommand{\ssafe}{s_{\mathrm{safe}}}
+
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{0pt}
+\setlist[itemize]{leftmargin=1.4em,itemsep=2pt,topsep=2pt}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=2pt,topsep=2pt}
+\sloppy
+
+\title{\textbf{How Each Method Uses Public Ecology Parameters}\\
+\large Algorithm-flow summary for the real-ecology benchmark}
+\author{Distilled from server hidden-parameter audits}
+\date{2026-07-14}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+This note is a compact, algorithm-level explanation of where the current
+real-ecology methods use quantities such as growth rate, carrying capacity, and
+other table-derived ecological parameters. It deliberately avoids detailed code
+walkthroughs. The goal is to remember the role of each algorithm and how
+supposed-to-be-hidden quantities enter its learning, belief, planning, or solver
+flow.
+
+The server audit found that the current implementation is not mainly leaking a
+private sidecar by accident. Instead, the current benchmark specification makes
+several ecological quantities public. The methods then use those public
+quantities in different ways.
+
+\section{Current Known Setting vs Upcoming Hidden Setting}
+
+The method-flow comparison in this note should be read against two different
+experimental regimes.
+
+\begin{center}
+\begin{tabularx}{\linewidth}{p{0.24\linewidth}X}
+\toprule
+Regime & Meaning \\
+\midrule
+\textbf{Current run: public-demographics / parameter-known data-rich regime} &
+This is the completed motivation-native run. It is a valid result, not a
+discarded artifact. It shows that native mechanistic ecological solvers are very
+strong when demographic/action tables are public. In this setting, the methods
+can consume public controls such as \(\rhoctl\), \(\kappactl\), \(\Keff\),
+\(\Kref\), action set-points, capacity effects, and K-derived safety quantities.
+The result is therefore best interpreted as a data-rich or public-demographics
+comparison, not as the intended hidden-parameter uncertainty test. Here,
+``data-rich'' means the species' demographics/action effects are
+well-characterized and public, not that the transition buffer is large. \\
+\addlinespace
+\textbf{Upcoming run: hidden-demographics / structure-unknown regime} &
+This is the intended uncertainty test. ``Hidden demographics'' means the
+methods may still know a population label if that is the chosen design, but they
+must not use that label to look up \(r\), \(K\), caps, action effects,
+\(\Kref\), or K-derived safety thresholds. The simulator/evaluator may still use
+the real tables privately; the methods must infer the relevant growth/capacity
+information from public trajectories. The structural family should also remain
+private evaluator/simulator metadata, not method-facing metadata, so the run
+tests hidden parameters plus model-form uncertainty rather than public table
+lookup. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The structural axis should be kept separate from the parameter-visibility axis:
+
+\begin{itemize}
+  \item \textbf{Single-Ricker naive baseline:} \code{moor_native}. This is the
+  headline naive ecological comparator because it remains locked to one Ricker
+  form.
+  \item \textbf{Closed-world form selection:} \code{plus_native}. This should be
+  reported separately because it selects among the candidate families supplied
+  to it; it is stronger than a naive single-form baseline.
+  \item \textbf{Later open-world structural uncertainty:} a possible future
+  \code{plus_native}-style experiment where candidate forms include distractors
+  or the true family is sometimes absent. This should not be mixed into the first
+  hidden-\(r,K\) repair, because it would confound the parameter-hiding fix with
+  a new structural-model experiment.
+\end{itemize}
+
+\section{Current vs Hidden Fix by Method}
+
+The table below is the most compact way to compare the completed known setting
+with the upcoming hidden-\(r,K\) fix. It is written as a design target for the
+server-side code change: the left column describes what the current run allowed,
+and the right column describes what the corrected hidden setting should allow.
+The schema fix is environment-level and applies to every method in the codebase;
+the headline hidden-\(r,K\) run uses the five-method comparison
+\code{refplan}, \code{bamcts}, \code{ogsrl}, \code{moor_native}, and
+\code{plus_native}.
+
+\begin{longtable}{p{0.17\linewidth}p{0.38\linewidth}p{0.38\linewidth}}
+\toprule
+Scope / method & Current run: public-demographics / parameter-known & Upcoming fix: hidden-demographics / structure-unknown \\
+\midrule
+\endfirsthead
+\toprule
+Scope / method & Current run: public-demographics / parameter-known & Upcoming fix: hidden-demographics / structure-unknown \\
+\midrule
+\endhead
+General public schema &
+Public dataset/belief/cache may contain \(\rhoctl\), \(\kappactl\), \(\Keff\),
+\(\Kbase\), \(\Kref\), \(\Kmax\), action set-points, \(\Delta K\), \(\Delta N\),
+K-derived \(\ssafe\), population table lookups, and family/config identity. &
+Methods may consume only sanitized public data: population label as a categorical
+token if chosen, \(o_t\), \(a_t\), action cost, reward as a label only,
+\(o_{t+1}\), and done. All \(r/K\)-derived controls, table effects, K-derived
+safety/normalization terms, and true family metadata stay private. \\
+
+\code{refplan} &
+Learns dynamics with \(\rhoctl\), \(\kappactl/\Kref\), and \(\Keff/\Kref\)
+features; MPC planning carries public controls and uses \(\Kref\)/safety reward
+terms. &
+Fit dynamics and plan from sanitized belief/observation/action features only.
+If action effects matter, infer them from data; do not pass exact \(\rhoctl\),
+\(\kappactl\), \(\Keff\), \(\Kref\), or K-derived safety features. \\
+
+\code{bamcts} &
+Uses the same control-aware learned dynamics as \code{refplan}; tree keys and
+rollouts condition on \(\rhoctl\) and \(\kappactl\). &
+Tree state and rollouts must be indistinguishable for histories with the same
+\((o,a)\) but different private \(r/K\). Learned dynamics cannot receive public
+control aliases or exact table-derived action effects. \\
+
+\code{ogsrl} &
+Uses \(\rhoctl\), \(\kappactl/\Kref\), \(\Keff/\Kref\), \(\ssafe\), and unsafe
+features in dynamics, actor features, guardian features, rollouts, and safety
+checks. &
+Remove \(r/K\)-derived features from dynamics, actor, guardian, rollout, and
+safety inputs. Safety-aware behavior must learn risk from public trajectories or
+use a public threshold that is not derived from hidden \(\Kbase\). \\
+
+\code{mopo} &
+Uses the same learned-dynamics public-control channel as the other general
+planners; planning reward uses \(\Kref\) and safety configuration. &
+Use sanitized features only. Model uncertainty should reflect uncertainty about
+hidden action effects and capacity rather than conditioning on exact public
+controls. \\
+
+\code{delphic} &
+Does not build an ecological transition model, but receives shared belief
+features containing \(\rhoctl\), \(\kappactl/\Kref\), \(\Keff/\Kref\), and
+safety terms. &
+Compatible-world and Q features must be built from sanitized public beliefs
+only. Remove hidden-parameter aliases from the shared feature vector so
+\code{delphic} cannot inherit the leak indirectly. \\
+
+adapted \code{moor} &
+Uses exact action set-points, \(\Delta K\), \(\Delta N\), and species capacity
+structure in a mechanistic Ricker proposal; mainly fits a K-like scale in
+set-point mode. &
+Mechanistic proposal cannot call table-derived exact action effects or species
+capacity. It must fit required Ricker parameters/effects from public data, or be
+reported only in the public-demographics comparison arm. \\
+
+adapted \code{plus} &
+Uses exact table-derived action effects and species capacity ranges inside a
+candidate mechanistic bank; candidate axis is mostly \(K\) because growth
+set-points are public. &
+Candidate parameters and priors must be derived from sanitized public data, not
+from species/action tables. If retained, report separately from the naive
+headline if it performs closed-world model selection. \\
+
+\code{moor_native} &
+Fits \(\hat K\), but reads exact action growth set-points, \(\Delta K\),
+\(\Delta N\), costs, \(\Kref\), and \(\ssafe\) to build its native Ricker solver. &
+Headline naive baseline. It should fit/estimate Ricker parameters and action
+effects from sanitized public data, then solve a single-Ricker model. It must not
+read species/action tables or K-derived safety/normalization values. \\
+
+\code{plus_native} &
+Builds one native solver per candidate family using exact table-derived
+\(r/K\), action effects, reward, and safety structure; updates mainly the family
+posterior. &
+Separate closed-world model-selection baseline. It may keep a family posterior,
+but all parameter candidates/priors must be fit from sanitized public data. Do
+not redesign open-world PLUS in the first hidden-\(r,K\) repair. \\
+\bottomrule
+\end{longtable}
+
+\section{Shared Benchmark Information Flow}
+
+The simulator privately owns the real ecology tables. These tables contain, for
+each population and action, quantities such as:
+\[
+  \lambda(a,p),\quad r(a,p),\quad \Delta K(a,p),\quad \Delta N(a,p),
+  \quad \Kbase(p),\quad \Kmax(p).
+\]
+
+In the current public-information design, the methods do not just see
+observations and actions. They also receive or derive public controls such as:
+\[
+  \rhoctl,\quad \kappactl,\quad \Keff,\quad \Kref,\quad \ssafe,
+\]
+where \(\rhoctl\) is the action growth set-point, \(\kappactl\) is cumulative
+capacity investment, \(\Keff\) is effective carrying capacity, \(\Kref\) is the
+reward normalizer, and \(\ssafe\) is a safety threshold.
+
+\begin{center}
+\begin{tabularx}{\linewidth}{p{0.23\linewidth}X}
+\toprule
+Quantity & Current meaning in the benchmark \\
+\midrule
+\(\rhoctl\), \(\reff\) & Growth-rate control. In the real set-point setting, the action table effectively tells the method the growth effect of the chosen action. \\
+\(\kappactl\), \(\Keff\) & Capacity-control state. These tell the method how capacity interventions accumulate and what effective capacity is being used. \\
+\(\Kbase\), \(\Kref\), \(\Kmax\) & Species-scale capacity quantities. These expose or normalize by the population's capacity scale. \\
+\(\Delta K\), \(\Delta N\) & Exact action effects for restoration and translocation. \\
+\(\ssafe\) & Safety threshold, currently derived from capacity, so it can indirectly reveal \(\Kbase\). \\
+Population identity & Public label. If it can be used to look up species tables, it becomes a demographic side channel. \\
+Family identity / \code{cfg.kind} & The true dynamics family or configuration identity. It should be treated carefully because it can leak structural information. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{The Big Distinction}
+
+The important distinction is not simply whether a method sees \(r\) or \(K\).
+The important distinction is how the method uses that information.
+
+\begin{center}
+\begin{tabularx}{\linewidth}{p{0.28\linewidth}X}
+\toprule
+Method type & How public ecology parameters are used \\
+\midrule
+General learned methods & Use \(r/K\)-derived quantities as features or rollout context for learned dynamics and policies. They still learn an approximate model from data. \\
+Mechanistic adapted methods & Use exact table-derived action/species structure inside a mechanistic proposal, then plan with particle MPC. \\
+Native ecological solvers & Build discrete ecological transition/reward solvers from exact public ecological structure. This is the strongest use of the tables. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+So the current asymmetry is:
+\[
+\text{general methods use public controls as features}
+\quad\text{whereas}\quad
+\text{ecological solvers use them as model ingredients.}
+\]
+
+\section{Method-by-Method Summary}
+
+\begin{longtable}{p{0.17\linewidth}p{0.29\linewidth}p{0.30\linewidth}p{0.16\linewidth}}
+\toprule
+Method & Algorithm context & How \(r/K\)-like quantities enter & Main consequence \\
+\midrule
+\endfirsthead
+\toprule
+Method & Algorithm context & How \(r/K\)-like quantities enter & Main consequence \\
+\midrule
+\endhead
+\code{refplan} &
+General offline model-based planner. It learns an ensemble of dynamics models and plans under a posterior over those models. &
+The learned dynamics features include \(\rhoctl\), \(\kappactl/\Kref\), and \(\Keff/\Kref\). Planning rolls particles forward while carrying public controls. &
+Uses public \(r/K\) features, but still learns dynamics from data. \\
+
+\code{bamcts} &
+Bayes-adaptive tree-search style planner. It learns a dynamics ensemble, then searches over actions in a belief/model tree. &
+The dynamics model uses the same public control features. The search tree also buckets or simulates with \(\rhoctl\) and \(\kappactl\). Reward and safety use \(\Kref\) and \(\ssafe\). &
+Tree search conditions directly on public control state. \\
+
+\code{ogsrl} &
+Offline policy-learning method with support and safety guards. It has a learned dynamics model, a KNN out-of-distribution guardian, a policy head, and safety checks. &
+Uses \(\rhoctl\), \(\kappactl/\Kref\), and \(\Keff/\Kref\) in dynamics fitting, guardian features, policy features, rollout simulation, and unsafe/safety features. &
+Broadest \(r/K\)-feature exposure among the general methods. \\
+
+\code{mopo} &
+General model-based offline RL baseline. It learns a bootstrap dynamics ensemble and penalizes uncertain model rollouts. &
+Uses public controls in the learned dynamics model and particle-MPC rollouts, similar to \code{refplan}. &
+Same public-control feature channel as the other learned planners. \\
+
+\code{delphic} &
+Compatible-world / conservative Q-learning style method. It does not build an explicit ecological transition model. &
+Receives shared belief features. Those belief features already include \(\rhoctl\), \(\kappactl/\Kref\), \(\Keff/\Kref\), and safety-related terms. &
+Indirect \(r/K\) exposure through the shared feature vector. \\
+
+adapted \code{moor} &
+Mechanistic Ricker baseline adapted to the shared particle-MPC infrastructure. It fits a simple Ricker-style model and plans with MPC. &
+In the real set-point setting, action growth is already known through public \(\rhoctl\). The method mainly fits a \(K\)-like scale, while using exact action set-points, capacity increments, and reward/safety structure. &
+Single-Ricker and misspecified off-Ricker, but not table-blind. \\
+
+adapted \code{plus} &
+Mechanistic PLUS-style particle-MPC adaptation. It keeps a bank of candidate mechanistic models and updates candidate weights. &
+Candidate models use exact action set-points and action effects. In set-point mode, the candidate axis is mostly \(K\), because action growth is already public. &
+Mechanistic planner advantage, though still using particle MPC rather than native discrete solving. \\
+
+\code{moor_native} &
+Native discrete ecological solver. It is the cleaner naive ecological baseline because it commits to one Ricker form. &
+It fits a scalar \(\hat K\), but still reads exact action growth set-points, \(\Delta K\), \(\Delta N\), action costs, \(\Kref\), and safety threshold. It does not learn action growth effects from \((o,a,o')\). &
+Naive in functional form, but still uses public demographic/action tables. \\
+
+\code{plus_native} &
+Native discrete ecological model-selection solver. It builds one solver for each candidate family and updates a posterior over the family. &
+It builds candidate solvers from exact table-derived \(r\), \(K\), \(\Delta K\), \(\Delta N\), reward, and safety structure. It does not estimate \(r/K\) from public transition data; it mainly updates the family posterior. &
+Closed-world model-identifying solver, not a naive baseline. \\
+\bottomrule
+\end{longtable}
+
+\section{General Learned Methods}
+
+\subsection{\code{refplan}}
+
+\textbf{Algorithm context.} \code{refplan} is a general offline model-based RL
+method. In this benchmark it learns an ensemble of dynamics models from the
+offline dataset. At decision time, it treats the ensemble as a posterior over
+possible dynamics models and plans by particle MPC.
+
+\textbf{Flow.}
+\[
+\text{public dataset}
+\rightarrow
+\text{belief cache}
+\rightarrow
+\text{learn ensemble dynamics}
+\rightarrow
+\text{posterior over ensemble members}
+\rightarrow
+\text{MPC planning}.
+\]
+
+\textbf{Where \(r/K\)-like information enters.} The dynamics model is fitted
+using features that include \(\rhoctl\), \(\kappactl/\Kref\), and
+\(\Keff/\Kref\). During planning, the MPC rollout carries \(\rhoctl\) and
+\(\kappactl\) forward and scores reward using \(\Kref\) and safety settings.
+
+\textbf{Interpretation.} \code{refplan} does use public ecology controls, but it
+does not get a ready-made ecological equation in the same way the native solvers
+do. It still has to learn a dynamics model.
+
+\subsection{\code{bamcts}}
+
+\textbf{Algorithm context.} \code{bamcts} is a Bayes-adaptive planning method.
+In this benchmark it uses a learned ensemble dynamics model and performs a
+tree-search style action selection over belief/model uncertainty.
+
+\textbf{Flow.}
+\[
+\text{public dataset}
+\rightarrow
+\text{learn ensemble dynamics}
+\rightarrow
+\text{tree search over actions and model samples}
+\rightarrow
+\text{execute best action}.
+\]
+
+\textbf{Where \(r/K\)-like information enters.} The learned dynamics uses the
+same public-control features as \code{refplan}. The search state also includes
+or buckets \(\rhoctl\) and \(\kappactl\), and simulated rollouts advance these
+controls.
+
+\textbf{Interpretation.} \code{bamcts} is explicitly conditioned on public
+growth/capacity controls during search. It is not blind to \(r/K\), but the
+transition model is still learned rather than supplied as a correct ecological
+model.
+
+\subsection{\code{ogsrl}}
+
+\textbf{Algorithm context.} \code{ogsrl} is an offline policy method with support
+and safety guards. It learns a policy but also uses a dynamics model, a KNN
+out-of-distribution guardian, safety critics/features, and a feasibility mask at
+deployment.
+
+\textbf{Flow.}
+\[
+\text{public belief features}
+\rightarrow
+\text{learn dynamics and support guardian}
+\rightarrow
+\text{train guarded policy}
+\rightarrow
+\text{roll out / check action support and safety}
+\rightarrow
+\text{act}.
+\]
+
+\textbf{Where \(r/K\)-like information enters.} \code{ogsrl} uses
+\(\rhoctl\), \(\kappactl/\Kref\), and \(\Keff/\Kref\) in several places:
+dynamics fitting, policy features, KNN guardian features, rollout simulation,
+and safety/unsafe features. It also uses \(\ssafe\), which can leak capacity if
+derived from \(\Kbase\).
+
+\textbf{Interpretation.} Among the general methods, \code{ogsrl} has the widest
+public \(r/K\)-derived feature exposure. But its use is still feature-based and
+learned; it is not simply solving with the exact ecological tables.
+
+\subsection{\code{mopo}}
+
+\textbf{Algorithm context.} \code{mopo} is a model-based offline RL method. It
+learns a dynamics ensemble and penalizes planning in regions where the learned
+model is uncertain.
+
+\textbf{Flow.}
+\[
+\text{offline data}
+\rightarrow
+\text{bootstrap dynamics ensemble}
+\rightarrow
+\text{uncertainty-penalized MPC planning}.
+\]
+
+\textbf{Where \(r/K\)-like information enters.} It uses the same learned-dynamics
+feature channel as \code{refplan}: \(\rhoctl\), \(\kappactl/\Kref\),
+\(\Keff/\Kref\), plus reward/safety quantities for planning.
+
+\textbf{Interpretation.} \code{mopo} receives public ecology controls as model
+features, but the dynamics remain learned and approximate.
+
+\subsection{\code{delphic}}
+
+\textbf{Algorithm context.} \code{delphic} is a compatible-world / conservative
+Q-learning style method. It does not primarily learn an ecological transition
+equation. Instead, it creates multiple compatible latent explanations and
+penalizes actions whose values vary across those explanations.
+
+\textbf{Flow.}
+\[
+\text{belief features}
+\rightarrow
+\text{compatible worlds}
+\rightarrow
+\text{world-specific value estimates}
+\rightarrow
+\text{conservative Q policy}.
+\]
+
+\textbf{Where \(r/K\)-like information enters.} It receives the shared belief
+features. Since those features include \(\rhoctl\), \(\kappactl/\Kref\), and
+\(\Keff/\Kref\), \code{delphic} indirectly receives public \(r/K\)-derived
+information.
+
+\textbf{Interpretation.} Its exposure is indirect. It does not use tables to
+construct a mechanistic ecological planner, but it still sees public control
+features.
+
+\section{Adapted Ecological Methods}
+
+\subsection{Adapted \code{moor}}
+
+\textbf{Algorithm context.} Adapted \code{moor} is a mechanistic ecological
+baseline fitted into the shared particle-MPC framework. It uses a single Ricker
+form and plans with particle MPC.
+
+\textbf{Flow.}
+\[
+\text{public belief means and actions}
+\rightarrow
+\text{fit Ricker-style K}
+\rightarrow
+\text{mechanistic proposal}
+\rightarrow
+\text{particle-MPC planning}.
+\]
+
+\textbf{Where \(r/K\)-like information enters.} In the real set-point setting,
+the action growth effect is already public through \(\rhoctl\). Therefore the
+method mainly fits a \(K\)-like scalar while relying on exact public action
+growth set-points, capacity increments, translocation magnitude, and reward
+structure.
+
+\textbf{Interpretation.} It is naive in the sense of using a single Ricker form,
+but it is not blind to the action/species table.
+
+\subsection{Adapted \code{plus}}
+
+\textbf{Algorithm context.} Adapted \code{plus} is a PLUS-style mechanistic
+method adapted to the shared particle-MPC infrastructure. It keeps a bank of
+candidate mechanistic models and updates weights/posteriors over those
+candidates.
+
+\textbf{Flow.}
+\[
+\text{candidate mechanistic models}
+\rightarrow
+\text{candidate belief banks}
+\rightarrow
+\text{posterior update from observations}
+\rightarrow
+\text{posterior-weighted MPC planning}.
+\]
+
+\textbf{Where \(r/K\)-like information enters.} Candidate proposals use exact
+public action set-points, capacity increments, translocation magnitudes, and
+species-scale capacity ranges. Because action growth is already public, the
+candidate axis becomes mostly \(K\)-like rather than action-growth-like.
+
+\textbf{Interpretation.} This is a structured mechanistic method with public
+table access. It is not the same as a method that must infer all action effects
+from \((o,a,o')\).
+
+\section{Native Ecological Solvers}
+
+\subsection{\code{moor_native}}
+
+\textbf{Algorithm context.} \code{moor_native} is the native discrete ecological
+baseline intended to be the clean naive comparator. It uses a native discrete
+belief/filter and tabular value-solving machinery, while committing to a single
+Ricker form.
+
+\textbf{Flow.}
+\[
+\text{public observations/actions}
+\rightarrow
+\text{fit } \hat K
+\rightarrow
+\text{build native Ricker transition/reward table}
+\rightarrow
+\text{discrete belief update}
+\rightarrow
+\text{tabular planning}.
+\]
+
+\textbf{Where \(r/K\)-like information enters.} It fits \(\hat K\), but it still
+uses exact action growth set-points, exact \(\Delta K\), exact \(\Delta N\),
+action costs, \(\Kref\), and \(\ssafe\). It does not estimate the action growth
+effects from public transition data.
+
+\textbf{Interpretation.} This is the best ``naive'' ecological baseline only if
+naive means single-form Ricker. It is not naive in the sense of not knowing the
+public action/species mechanisms.
+
+\subsection{\code{plus_native}}
+
+\textbf{Algorithm context.} \code{plus_native} is a native PLUS-style solver. It
+builds separate native solvers for candidate ecological families, then updates a
+posterior over which family best explains the observations.
+
+\textbf{Flow.}
+\[
+\text{exact public ecology tables}
+\rightarrow
+\text{one native solver per candidate family}
+\rightarrow
+\text{posterior over family}
+\rightarrow
+\text{posterior-weighted native action values}.
+\]
+
+\textbf{Where \(r/K\)-like information enters.} It builds candidate solvers from
+exact table-derived action growth, capacity, translocation, reward, safety, and
+species-scale information. It does not estimate \(r\) or \(K\) from public
+transition data. It mainly estimates or updates the family posterior.
+
+\textbf{Interpretation.} \code{plus_native} should not be described as the naive
+baseline. It is better described as a closed-world model-selection ecological
+solver with exact public demographic/action structure.
+
+\section{Practical Takeaways}
+
+\begin{enumerate}
+  \item The problem is not just that \(r/K\)-like values are visible. They are
+  actively used in method flows.
+  \item General methods use them mostly as learned-model features and rollout
+  context.
+  \item Mechanistic and native ecological methods use them as stronger
+  transition-model ingredients.
+  \item \code{moor_native} partly estimates \(K\), but still reads exact action
+  effects and safety/reward structure.
+  \item \code{plus_native} does not estimate \(r/K\); it updates model-family
+  beliefs while using exact public table structure.
+  \item If the intended experiment is hidden-demographics or parameter
+  uncertainty, the public/private boundary must hide action growth, capacity,
+  translocation magnitude, \(\Kref\), \(\ssafe\), and table-derived aliases from
+  all method-facing paths.
+\end{enumerate}
+
+\section{One-Sentence Summary}
+
+In the current benchmark, general methods use public \(r/K\)-derived controls as
+features for learned dynamics, while mechanistic and native ecological methods
+use the same public information as ingredients of much stronger ecological
+planning models; therefore the completed run is best described as a valid
+public-demographics / parameter-known data-rich regime, while the upcoming
+hidden-demographics run is the intended hidden-\(r,K\) and structure-unknown
+uncertainty test.
+
+\end{document}

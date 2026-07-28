@@ -1,0 +1,756 @@
+{
+  "schema": "reward_screening_v1",
+  "reference_policies_only": true,
+  "current_parity_max_abs_diff": 8.526512829121202e-14,
+  "current_parity_pass": true,
+  "cells": [
+    {
+      "population": "Amur tiger",
+      "environment": "ricker",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 10,
+        "OptionA": 0,
+        "OptionC": 10
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 148.95586718512234,
+        "OptionA": 134.8873619374846,
+        "OptionC": 149.00338970373699
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.5132047879531612,
+        "safe": {
+          "n": 3566,
+          "mean_signed_error": -0.2653221152521446,
+          "rmse": 0.7779300458156095
+        },
+        "unsafe": {
+          "n": 434,
+          "mean_signed_error": 2.0500021740696233,
+          "rmse": 3.0536992075468343
+        }
+      }
+    },
+    {
+      "population": "Amur tiger",
+      "environment": "ricker",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 10,
+        "OptionA": 0,
+        "OptionC": 10
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 148.95586718512234,
+        "OptionA": 134.8873619374846,
+        "OptionC": 149.00338970373699
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.500051763004443,
+        "safe": {
+          "n": 3566,
+          "mean_signed_error": -0.27021400306693666,
+          "rmse": 0.7806009461275484
+        },
+        "unsafe": {
+          "n": 434,
+          "mean_signed_error": 2.0954519044146473,
+          "rmse": 3.0924318008188254
+        }
+      }
+    },
+    {
+      "population": "Amur tiger",
+      "environment": "allee",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 10,
+        "OptionA": 0,
+        "OptionC": 10
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 148.95586718512234,
+        "OptionA": 134.8873619374846,
+        "OptionC": 149.00338970373699
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.43300393466430454,
+        "safe": {
+          "n": 3348,
+          "mean_signed_error": -0.3323920865016825,
+          "rmse": 1.0328228519863294
+        },
+        "unsafe": {
+          "n": 652,
+          "mean_signed_error": 1.4842199909629734,
+          "rmse": 2.6683104449534834
+        }
+      }
+    },
+    {
+      "population": "Amur tiger",
+      "environment": "allee",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 10,
+        "OptionA": 0,
+        "OptionC": 10
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 148.95586718512234,
+        "OptionA": 134.8873619374846,
+        "OptionC": 149.00338970373699
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.4242107880444861,
+        "safe": {
+          "n": 3348,
+          "mean_signed_error": -0.3374902857064557,
+          "rmse": 1.0373346626746285
+        },
+        "unsafe": {
+          "n": 652,
+          "mean_signed_error": 1.5163290195024268,
+          "rmse": 2.6909346819592677
+        }
+      }
+    },
+    {
+      "population": "Amur tiger",
+      "environment": "theta",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 10,
+        "OptionA": 0,
+        "OptionC": 10
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 140.59703138939585,
+        "OptionA": 123.18016694811028,
+        "OptionC": 140.64488895555152
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.4387444864448472,
+        "safe": {
+          "n": 3615,
+          "mean_signed_error": -0.20880976214482005,
+          "rmse": 0.6970902405365056
+        },
+        "unsafe": {
+          "n": 385,
+          "mean_signed_error": 2.0276891265553143,
+          "rmse": 3.1714207283390228
+        }
+      }
+    },
+    {
+      "population": "Amur tiger",
+      "environment": "theta",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 10,
+        "OptionA": 0,
+        "OptionC": 10
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 140.59703138939585,
+        "OptionA": 123.18016694811028,
+        "OptionC": 140.64488895555152
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.4270028552410532,
+        "safe": {
+          "n": 3615,
+          "mean_signed_error": -0.21730483591760236,
+          "rmse": 0.697393182106901
+        },
+        "unsafe": {
+          "n": 385,
+          "mean_signed_error": 2.092227171199146,
+          "rmse": 3.220776808351544
+        }
+      }
+    },
+    {
+      "population": "Amur tiger",
+      "environment": "regime",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 10,
+        "OptionA": 0,
+        "OptionC": 10
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 148.95586718512234,
+        "OptionA": 134.8873619374846,
+        "OptionC": 149.00338970373699
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.516462095465273,
+        "safe": {
+          "n": 3226,
+          "mean_signed_error": -0.3314420927240402,
+          "rmse": 1.0804410793485086
+        },
+        "unsafe": {
+          "n": 774,
+          "mean_signed_error": 1.5965681195779764,
+          "rmse": 2.8947874799361677
+        }
+      }
+    },
+    {
+      "population": "Amur tiger",
+      "environment": "regime",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 10,
+        "OptionA": 0,
+        "OptionC": 10
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 148.95586718512234,
+        "OptionA": 134.8873619374846,
+        "OptionC": 149.00338970373699
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.5099910803639292,
+        "safe": {
+          "n": 3226,
+          "mean_signed_error": -0.3407298093482452,
+          "rmse": 1.084866209831217
+        },
+        "unsafe": {
+          "n": 774,
+          "mean_signed_error": 1.621696162944964,
+          "rmse": 2.914429330860146
+        }
+      }
+    },
+    {
+      "population": "Crab-eating fox",
+      "environment": "ricker",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 1,
+        "OptionA": 1,
+        "OptionC": 1
+      },
+      "argmax_moves_Current_to_A": false,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": true,
+      "spread": {
+        "Current": 16.698823509815863,
+        "OptionA": 16.698823509815863,
+        "OptionC": 16.685999347269757
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.9866313163285528,
+        "safe": {
+          "n": 3985,
+          "mean_signed_error": -0.007150042476285447,
+          "rmse": 0.029959087566289604
+        },
+        "unsafe": {
+          "n": 15,
+          "mean_signed_error": 1.4452702064460368,
+          "rmse": 1.7027193864584578
+        }
+      }
+    },
+    {
+      "population": "Crab-eating fox",
+      "environment": "ricker",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 1,
+        "OptionA": 1,
+        "OptionC": 1
+      },
+      "argmax_moves_Current_to_A": false,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": true,
+      "spread": {
+        "Current": 16.698823509815863,
+        "OptionA": 16.698823509815863,
+        "OptionC": 16.685999347269757
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.9784686977929381,
+        "safe": {
+          "n": 3985,
+          "mean_signed_error": -0.007455216696344916,
+          "rmse": 0.03673624052050767
+        },
+        "unsafe": {
+          "n": 15,
+          "mean_signed_error": 1.4654521536710425,
+          "rmse": 1.7222793845706617
+        }
+      }
+    },
+    {
+      "population": "Crab-eating fox",
+      "environment": "allee",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 1,
+        "OptionA": 1,
+        "OptionC": 1
+      },
+      "argmax_moves_Current_to_A": false,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": true,
+      "spread": {
+        "Current": 55.86635537688184,
+        "OptionA": 53.03284075450113,
+        "OptionC": 55.87520503624526
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.5525457645379209,
+        "safe": {
+          "n": 3576,
+          "mean_signed_error": -0.1852889896980705,
+          "rmse": 0.9989122366323762
+        },
+        "unsafe": {
+          "n": 424,
+          "mean_signed_error": 1.6842522821422161,
+          "rmse": 2.9659440889575674
+        }
+      }
+    },
+    {
+      "population": "Crab-eating fox",
+      "environment": "allee",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 1,
+        "OptionA": 1,
+        "OptionC": 1
+      },
+      "argmax_moves_Current_to_A": false,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": true,
+      "spread": {
+        "Current": 55.86635537688184,
+        "OptionA": 53.03284075450113,
+        "OptionC": 55.87520503624526
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.528506288557776,
+        "safe": {
+          "n": 3576,
+          "mean_signed_error": -0.2025009735891895,
+          "rmse": 1.0194353508202945
+        },
+        "unsafe": {
+          "n": 424,
+          "mean_signed_error": 1.7968198004182125,
+          "rmse": 3.048006567894063
+        }
+      }
+    },
+    {
+      "population": "Crab-eating fox",
+      "environment": "theta",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 1,
+        "OptionA": 1,
+        "OptionC": 1
+      },
+      "argmax_moves_Current_to_A": false,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": true,
+      "spread": {
+        "Current": 16.619930328871835,
+        "OptionA": 16.619930328871835,
+        "OptionC": 16.608937045963465
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.9220060962612716,
+        "safe": {
+          "n": 3981,
+          "mean_signed_error": -0.018637646916301327,
+          "rmse": 0.07308651011124566
+        },
+        "unsafe": {
+          "n": 19,
+          "mean_signed_error": 2.7936649195642755,
+          "rmse": 3.7535456943469994
+        }
+      }
+    },
+    {
+      "population": "Crab-eating fox",
+      "environment": "theta",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 1,
+        "OptionA": 1,
+        "OptionC": 1
+      },
+      "argmax_moves_Current_to_A": false,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": true,
+      "spread": {
+        "Current": 16.619930328871835,
+        "OptionA": 16.619930328871835,
+        "OptionC": 16.608937045963465
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.9343318250244141,
+        "safe": {
+          "n": 3981,
+          "mean_signed_error": -0.018408878986392648,
+          "rmse": 0.06775103455898847
+        },
+        "unsafe": {
+          "n": 19,
+          "mean_signed_error": 2.8753251779684663,
+          "rmse": 3.8427561422762375
+        }
+      }
+    },
+    {
+      "population": "Crab-eating fox",
+      "environment": "regime",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 1,
+        "OptionA": 1,
+        "OptionC": 1
+      },
+      "argmax_moves_Current_to_A": false,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": true,
+      "spread": {
+        "Current": 61.30864329146237,
+        "OptionA": 57.40598606262833,
+        "OptionC": 61.327255740803466
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.6442255532528807,
+        "safe": {
+          "n": 3349,
+          "mean_signed_error": -0.27127544640828416,
+          "rmse": 1.1587802071511333
+        },
+        "unsafe": {
+          "n": 651,
+          "mean_signed_error": 1.4508707275751966,
+          "rmse": 2.545581815451142
+        }
+      }
+    },
+    {
+      "population": "Crab-eating fox",
+      "environment": "regime",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 1,
+        "OptionA": 1,
+        "OptionC": 1
+      },
+      "argmax_moves_Current_to_A": false,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": true,
+      "spread": {
+        "Current": 61.30864329146237,
+        "OptionA": 57.40598606262833,
+        "OptionC": 61.327255740803466
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.619210587256,
+        "safe": {
+          "n": 3349,
+          "mean_signed_error": -0.29280301210569126,
+          "rmse": 1.17945228455207
+        },
+        "unsafe": {
+          "n": 651,
+          "mean_signed_error": 1.5414228484876897,
+          "rmse": 2.628740299233693
+        }
+      }
+    },
+    {
+      "population": "Egyptian vulture",
+      "environment": "ricker",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 2,
+        "OptionA": 10,
+        "OptionC": 2
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 18.84670587425049,
+        "OptionA": 75.30344803568167,
+        "OptionC": 18.841185816125858
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.9611534351079474,
+        "safe": {
+          "n": 165,
+          "mean_signed_error": -0.44511168377205523,
+          "rmse": 0.786721351852998
+        },
+        "unsafe": {
+          "n": 3835,
+          "mean_signed_error": 0.024284570326910077,
+          "rmse": 0.42207823558265994
+        }
+      }
+    },
+    {
+      "population": "Egyptian vulture",
+      "environment": "ricker",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 2,
+        "OptionA": 10,
+        "OptionC": 2
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 18.84670587425049,
+        "OptionA": 75.30344803568167,
+        "OptionC": 18.841185816125858
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.918833032759542,
+        "safe": {
+          "n": 165,
+          "mean_signed_error": -0.6455294105930541,
+          "rmse": 1.1217812787828358
+        },
+        "unsafe": {
+          "n": 3835,
+          "mean_signed_error": 0.030522248190288655,
+          "rmse": 0.6129119121039678
+        }
+      }
+    },
+    {
+      "population": "Egyptian vulture",
+      "environment": "allee",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 2,
+        "OptionA": 10,
+        "OptionC": 2
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 18.84670587425049,
+        "OptionA": 75.30344803568167,
+        "OptionC": 18.841185816125858
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.9611534351079474,
+        "safe": {
+          "n": 165,
+          "mean_signed_error": -0.44511168377205523,
+          "rmse": 0.786721351852998
+        },
+        "unsafe": {
+          "n": 3835,
+          "mean_signed_error": 0.024284570326910077,
+          "rmse": 0.42207823558265994
+        }
+      }
+    },
+    {
+      "population": "Egyptian vulture",
+      "environment": "allee",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 2,
+        "OptionA": 10,
+        "OptionC": 2
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 18.84670587425049,
+        "OptionA": 75.30344803568167,
+        "OptionC": 18.841185816125858
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.918833032759542,
+        "safe": {
+          "n": 165,
+          "mean_signed_error": -0.6455294105930541,
+          "rmse": 1.1217812787828358
+        },
+        "unsafe": {
+          "n": 3835,
+          "mean_signed_error": 0.030522248190288655,
+          "rmse": 0.6129119121039678
+        }
+      }
+    },
+    {
+      "population": "Egyptian vulture",
+      "environment": "theta",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 2,
+        "OptionA": 10,
+        "OptionC": 2
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 18.890160891181978,
+        "OptionA": 76.28533757849985,
+        "OptionC": 18.884640927907185
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.9622655683842792,
+        "safe": {
+          "n": 169,
+          "mean_signed_error": -0.38048710209414627,
+          "rmse": 0.7500340547244453
+        },
+        "unsafe": {
+          "n": 3831,
+          "mean_signed_error": 0.02090594588911442,
+          "rmse": 0.4125434991857134
+        }
+      }
+    },
+    {
+      "population": "Egyptian vulture",
+      "environment": "theta",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 2,
+        "OptionA": 10,
+        "OptionC": 2
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 18.890160891181978,
+        "OptionA": 76.28533757849985,
+        "OptionC": 18.884640927907185
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.9166400955887963,
+        "safe": {
+          "n": 169,
+          "mean_signed_error": -0.5818208155475604,
+          "rmse": 1.0803956450338845
+        },
+        "unsafe": {
+          "n": 3831,
+          "mean_signed_error": 0.027810578941949674,
+          "rmse": 0.6143324358913939
+        }
+      }
+    },
+    {
+      "population": "Egyptian vulture",
+      "environment": "regime",
+      "sigma_obs": "0.1",
+      "argmax": {
+        "Current": 2,
+        "OptionA": 10,
+        "OptionC": 2
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 18.84670587425049,
+        "OptionA": 75.30344803568167,
+        "OptionC": 18.841185816125858
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.9611534351079474,
+        "safe": {
+          "n": 165,
+          "mean_signed_error": -0.44511168377205523,
+          "rmse": 0.786721351852998
+        },
+        "unsafe": {
+          "n": 3835,
+          "mean_signed_error": 0.024284570326910077,
+          "rmse": 0.42207823558265994
+        }
+      }
+    },
+    {
+      "population": "Egyptian vulture",
+      "environment": "regime",
+      "sigma_obs": "0.2",
+      "argmax": {
+        "Current": 2,
+        "OptionA": 10,
+        "OptionC": 2
+      },
+      "argmax_moves_Current_to_A": true,
+      "FLAG_option_C_moves_argmax": false,
+      "best_option_A_is_harvest": false,
+      "spread": {
+        "Current": 18.84670587425049,
+        "OptionA": 75.30344803568167,
+        "OptionC": 18.841185816125858
+      },
+      "surrogate_option_A": {
+        "holdout_R2": 0.918833032759542,
+        "safe": {
+          "n": 165,
+          "mean_signed_error": -0.6455294105930541,
+          "rmse": 1.1217812787828358
+        },
+        "unsafe": {
+          "n": 3835,
+          "mean_signed_error": 0.030522248190288655,
+          "rmse": 0.6129119121039678
+        }
+      }
+    }
+  ],
+  "option_C_any_argmax_move": false,
+  "vulture_option_A_all_nonharvest": true,
+  "accepted_artifacts_modified": false,
+  "reranked": false
+}

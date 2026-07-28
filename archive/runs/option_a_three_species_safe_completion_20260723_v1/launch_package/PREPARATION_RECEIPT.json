@@ -1,0 +1,181 @@
+{
+  "cache_audit": {
+    "moor": {
+      "candidate_slots": 8,
+      "existing_cache_metadata_files": 0,
+      "new_candidate_fits": 8,
+      "output_root": "moor_crab",
+      "rows": 8,
+      "verified_reusable_candidate_slots": 0
+    },
+    "plus": {
+      "candidate_slots": 16,
+      "existing_cache_metadata_files": 0,
+      "new_candidate_fits": 16,
+      "output_root": "plus_alignment",
+      "rows": 2,
+      "verified_reusable_candidate_slots": 0
+    }
+  },
+  "frozen_inputs": {
+    "general_manifest": "1526ce08dcf1b1d148232c075d41dbd78f0cfa2d7119cff9e330f965b6451df4",
+    "moor_config": "1b45850cfad0a2b08ea2021c19169c8c0935c3baa95ef6350a7fd1f8a3f617ac",
+    "moor_fit": "a8f39d83eb70a32be2c42fabecc56ca4af4d3d40edb97f87242934085fd7ee86",
+    "moor_plan": "f0322718a78d485827c39661e2f1ded4cbde1d8bccd4cd053f4d1fe93dec087d",
+    "moor_runtime": "f70ec7122263ec00da0a4950994dfe483ed29c71bc15e477007ca9ae0a6d2333",
+    "plus_config": "b871668bae1c971795267bc402c3450e1fe6a628b4e8fee91b1300cfd73fbc26",
+    "plus_fit": "cb478f860b5c523407f4f11f3731904285d2a23164103ed667180ff56b9abdea",
+    "plus_freeze": "3285a9cc512576fe6648558ecafa5d5715de6fddd91678fc33e2bbf641286dd4",
+    "plus_plan": "398780b8267af1b53f4092994eb001caa335537910905190dc58acad23595cc2",
+    "plus_runtime": "7628816c85a39d49373892a0e72d1751de2f0a32dd003b93a54ca1f3e151982c",
+    "registry": "474d1a65d2e5ec28c741f5b7ac5691be891712e753ee6a9a6590337d62f5f0c4"
+  },
+  "manifest_sha256": {
+    "moor_fit": "517fdbd4cf38ad2b2cd2cdee217118941e9e90b683fc8ffba1cc119fdc172db8",
+    "moor_plan": "08092f7ae576ed96b02354c9b97a8993730e74d89e592785e3fa1f9de9544c7f",
+    "plus_fit": "b52d41a16032930929e57dee3cdaa3f90429d7ed4d5c67e9a10043f40233fc57",
+    "plus_plan": "937ac4a7089a7c0ff2d7c6bf0a088b2aa725b5e6c2cd67b369bd940a76ff028c"
+  },
+  "package_schema": "option_a_three_species_safe_completion_v1",
+  "return_fields_opened": false,
+  "reuse": {
+    "exact_moor_method_cells": 16,
+    "exact_plus_method_cells": 22,
+    "general_rl_method_cells": 96,
+    "new_moor_method_cells": 8,
+    "new_plus_method_cells": 2
+  },
+  "scope": {
+    "families": [
+      "ricker",
+      "allee",
+      "theta",
+      "regime"
+    ],
+    "final_method_cells": 144,
+    "methods": 6,
+    "new_scientific_rows": 10,
+    "reward_mode": "safe",
+    "sigma_obs": [
+      "0.1",
+      "0.2"
+    ],
+    "species": [
+      "Amur tiger",
+      "Crab-eating fox",
+      "Egyptian vulture"
+    ]
+  },
+  "staged_data": [
+    {
+      "dataset_sha256": "b198aa7a5d3989a66be4a1fc8b4b299a0552fe287b6d2e192eb237e10f34bbc7",
+      "family": "theta",
+      "private_file_sha256": "d218555eb0241630795bc51dbac9124da6873941889fa879d2304a1ddcbacaed",
+      "public_file_sha256": "c31fc43f6e597c1b448bd66c00e76047d84abdb1b8b010f0783bbe9a69fc5b90",
+      "sigma_obs": "0.1",
+      "staged_private": "plus_alignment/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/truth.npz",
+      "staged_public": "plus_alignment/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/public.npz",
+      "staged_surrogate": "plus_alignment/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+      "surrogate_file_sha256": "6741a85fa240b3627f70b8a546dd81967a3971a19ba98e71d30a140348b7987c"
+    },
+    {
+      "dataset_sha256": "684748d9f018313651ee689c7bc41cabcd6d8cf1cbc2b253646bef84b3937c20",
+      "family": "theta",
+      "private_file_sha256": "2f9c13a0b4e6bada592bb2e9fbb3db051ce3566bb7e43f03c527cb8114692bfe",
+      "public_file_sha256": "173ff154b5f0fba5c32c3c91480dde488ad2fef4feb09dae6cfc1bbbe269938e",
+      "sigma_obs": "0.2",
+      "staged_private": "plus_alignment/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/truth.npz",
+      "staged_public": "plus_alignment/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/public.npz",
+      "staged_surrogate": "plus_alignment/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+      "surrogate_file_sha256": "2381a269e31e081ce32ffc84cf5eaaa1e054ad81fc02d20940cd55b4f62e6df2"
+    },
+    {
+      "dataset_sha256": "8c302e49638bc20b97331a7085452482bf5d76eddd38a78f1afc476501f9fe25",
+      "family": "ricker",
+      "private_file_sha256": "59ea4e27cccb74a6fdbb5893a61ee6bf535fbddf94d44d568b97079d93faa18b",
+      "public_file_sha256": "58a5ba22fee585ef8b91abf6de42de10c6caa1aa9795b8721e726602a8d526f0",
+      "sigma_obs": "0.1",
+      "staged_private": "moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p1/truth.npz",
+      "staged_public": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p1/public.npz",
+      "staged_surrogate": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p1/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+      "surrogate_file_sha256": "99b95ada5416654eacaa43de267755b4e612f1e1dc585cbf9977efb7023dba0c"
+    },
+    {
+      "dataset_sha256": "17c930ccd749ed236030de1a4eeff58925679c2d53fe6a96e697c839f849d481",
+      "family": "ricker",
+      "private_file_sha256": "9c4c8cf5768639627bbaee3156e16a414b6539ecaaaeb59425a982a17dadcee8",
+      "public_file_sha256": "186c094d6496c84339c0177ebdcbf423e20f22bf143ab59eae87fdc0b37eef05",
+      "sigma_obs": "0.2",
+      "staged_private": "moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2/truth.npz",
+      "staged_public": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2/public.npz",
+      "staged_surrogate": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+      "surrogate_file_sha256": "03d6bb8c1fe556aeed080a04bfaf682ef42f55dbe192da1335f4a333f14c07e2"
+    },
+    {
+      "dataset_sha256": "03c94a3591060c072c613cf5ce36e8c966cc310f8afd397dc38b16f19e7122e9",
+      "family": "allee",
+      "private_file_sha256": "33d64a238b5fda33e288bbbd92bc76d69d60db514ceee2eb792fc82ec02ea0ce",
+      "public_file_sha256": "9c61c13b1839513e1af5a3aaa4fab7a49e71b3717451ffa744e5b3370df455ce",
+      "sigma_obs": "0.1",
+      "staged_private": "moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1/truth.npz",
+      "staged_public": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1/public.npz",
+      "staged_surrogate": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+      "surrogate_file_sha256": "6a343241cca7737acd49754388e3aa880c24978558d7f05d326abbc71c756f3c"
+    },
+    {
+      "dataset_sha256": "688d580f1e47a61dcad9b8a6cb96f1d62835bfbd0b835554cf31c8ab8bdd0c13",
+      "family": "allee",
+      "private_file_sha256": "4149e293d70a59b000a3b947ce663fb3de282fb404cea857f02be00718a467e5",
+      "public_file_sha256": "7d1b2fc8a1949dda6f53f39eff1dbfe220719d0cbad9f8956ab7ca2d08e87e19",
+      "sigma_obs": "0.2",
+      "staged_private": "moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/truth.npz",
+      "staged_public": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.npz",
+      "staged_surrogate": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+      "surrogate_file_sha256": "4d9305a94509e2bb4eacd4b25b8ac4ba138a29e269dd240eba81684b1ecc7a4b"
+    },
+    {
+      "dataset_sha256": "b198aa7a5d3989a66be4a1fc8b4b299a0552fe287b6d2e192eb237e10f34bbc7",
+      "family": "theta",
+      "private_file_sha256": "d218555eb0241630795bc51dbac9124da6873941889fa879d2304a1ddcbacaed",
+      "public_file_sha256": "c31fc43f6e597c1b448bd66c00e76047d84abdb1b8b010f0783bbe9a69fc5b90",
+      "sigma_obs": "0.1",
+      "staged_private": "moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/truth.npz",
+      "staged_public": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/public.npz",
+      "staged_surrogate": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+      "surrogate_file_sha256": "6741a85fa240b3627f70b8a546dd81967a3971a19ba98e71d30a140348b7987c"
+    },
+    {
+      "dataset_sha256": "684748d9f018313651ee689c7bc41cabcd6d8cf1cbc2b253646bef84b3937c20",
+      "family": "theta",
+      "private_file_sha256": "2f9c13a0b4e6bada592bb2e9fbb3db051ce3566bb7e43f03c527cb8114692bfe",
+      "public_file_sha256": "173ff154b5f0fba5c32c3c91480dde488ad2fef4feb09dae6cfc1bbbe269938e",
+      "sigma_obs": "0.2",
+      "staged_private": "moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/truth.npz",
+      "staged_public": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/public.npz",
+      "staged_surrogate": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+      "surrogate_file_sha256": "2381a269e31e081ce32ffc84cf5eaaa1e054ad81fc02d20940cd55b4f62e6df2"
+    },
+    {
+      "dataset_sha256": "b94dc4d7556acdfa3abc8c2b4ee21d7dfdedff30a95fcf8e587cb73e7deb26b3",
+      "family": "regime",
+      "private_file_sha256": "d6d52fc2221b14d9b38ec789fb098daad998654d7e8debfeec1005647f14cb02",
+      "public_file_sha256": "9c46bd6d9c169ebdd67809bad29ce8bfa74f81f3a30e21ff757623e19a1ecaa6",
+      "sigma_obs": "0.1",
+      "staged_private": "moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/truth.npz",
+      "staged_public": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/public.npz",
+      "staged_surrogate": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+      "surrogate_file_sha256": "92cb50ed685c639133e323512fd94105e4bb3568b8ba574306f4292d36d34ed4"
+    },
+    {
+      "dataset_sha256": "f1ed95af136617037e389f96fffb99328be177e1a8c39bb1347f0a2c3eb8391a",
+      "family": "regime",
+      "private_file_sha256": "46a81f51b1e4ba75a8b5a98e70ca94649c0175c1d8ab61f9a3017af02653dc4e",
+      "public_file_sha256": "5b27a75c0dbf85e4763d9b40f4c7b8431fc0162dba5fabb35582e1171010ea17",
+      "sigma_obs": "0.2",
+      "staged_private": "moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2/truth.npz",
+      "staged_public": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2/public.npz",
+      "staged_surrogate": "moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+      "surrogate_file_sha256": "2df05d5bce68eb7d308b6468032390c527f30c535943076fdd1f37d4f64fbf1a"
+    }
+  ]
+}

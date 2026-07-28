@@ -1,0 +1,236 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{graphicx}
+\geometry{a4paper, margin=1in}
+
+\title{Model-Based Offline RL for AM with Population Models}
+
+\begin{document}
+
+\maketitle
+
+\section{Problem Setting (The hidden parameter MDP Formulation)}
+The problem is framed as a restricted Partially Observable Markov Decision Process (POMDP) where the state space is factored into a fully observable component and a completely hidden, stationary component.
+
+\begin{itemize}
+    \item \textbf{Factored State Space ($\mathcal{S} = \mathcal{X} \times \mathcal{M}$):}
+    \begin{itemize}
+        \item $\mathcal{X}$ is the set of fully observable, discrete abundance intervals (e.g., $x \in \{0, 1, \dots, 100\}$).
+        \item $\mathcal{M}$ is the hidden model parameter space. In this case, $\mathcal{M}$ represents the specific intrinsic growth rate $r$ driving the current environment. $r$ is stationary for a given episode or species but remains hidden from the agent.
+    \end{itemize}
+    
+    \item \textbf{Action Space ($\mathcal{A}$):} A finite set of discrete management actions. Each action applies additive perturbations $(\Delta r(a), \Delta K(a))$ to the hidden growth rate and the carrying capacity, and carries a cost $c(a)$ (see Part 1, \S2 for the 5- and 10-action tables). The effective parameters are $r_{\mathrm{eff}}(a) = r_{\mathrm{base}} + \Delta r(a)$ and $K_{\mathrm{eff}}(a) = K_{\mathrm{base}} + \Delta K(a)$.
+    
+    \item \textbf{Observations ($\Omega$):} Assuming zero observation noise ($\epsilon_t = 0$) on the discrete bins, the observation $o_t$ is exactly the discrete state $x_t$. The parameter $r$ remains unobserved.
+    
+    \item \textbf{Transition Dynamics ($\mathcal{T}$):} The probability of transitioning to the next discrete abundance state $x_{t+1}$ depends strictly on the current discrete state $x_t$, the action $a_t$, and the hidden model $r$: 
+    $$P(x_{t+1} | x_t, a_t, r)$$
+\end{itemize}
+
+\noindent \textbf{Comparison to the AAAI21 Framework:} Traditional hmMDP solvers restrict $\mathcal{X}$ to very few states (e.g., 2 states) to analytically find a small set of models $\mathcal{M}$ that span all optimal policies. This formulation expands $\mathcal{X}$ to 50--1000 states. Because exact analytical solvers fail at this scale, analytical spanning is replaced with Model-Based Offline RL, which learns an empirical transition function directly from a dataset.
+
+\section{The Simulation Environment (Data Generation)}
+To generate the offline dataset $\mathcal{D} = \{(x_t, a_t, x_{t+1})\}$, the simulation environment runs in continuous space but outputs discrete observations.
+
+\paragraph{Continuous Hidden Update}
+$$s_{t+1} = s_t \exp\left(r \left(1 - \frac{s_t}{K(a_t)}\right)\right)$$
+\textit{(Note: Environmental process noise $\eta_t = 0$. Open for further noise}
+
+\paragraph{Discretization (The ``Observation'')}
+The continuous abundance $s_{t+1}$ is mapped to a discrete state index $x_{t+1}$ using a defined set of intervals (e.g., $x_{t+1} = \lfloor s_{t+1} / \text{bin\_width} \rfloor$).
+
+\paragraph{Data Logging}
+The environment logs the tuple $(x_t, a_t, x_{t+1})$. The true continuous state $s_t$ and the intrinsic growth rate $r$ are discarded and remain hidden from the final dataset.
+
+\section{The Model-Based Deep RL Pipeline}
+The RL architecture operates across three distinct phases to ensure scalability, safety, and adaptability.
+
+\subsection{Phase 1: Offline Model Learning (The Black-Box Ensemble)}
+As the state space is too large for simple empirical counting, the methodology relies on deep function approximation.
+\begin{itemize}
+    \item The system is treated as a pure black box; no prior knowledge of the true parameters $r$, $K(a_t)$, or the underlying ecological equation (e.g., the Ricker model) is assumed.
+    \item Instead of a discrete probability table, an ensemble of $N$ deep neural networks $f_{\theta_i}(x_t, a_t)$ is used to approximate the transition dynamics $\hat{P}(x_{t+1} | x_t, a_t)$.
+    \item Each network in the ensemble is trained independently on bootstrapped subsets of the offline dataset $\mathcal{D}$ to capture epistemic uncertainty.
+\end{itemize}
+
+\subsection{Phase 2: Safe Planning via Pessimism (Handling OOD Shifts)}
+When training data and the real environment differ (Distribution Shift), a standard RL agent may make confident but catastrophic mistakes. In ecology, an Out-of-Distribution (OOD) mistake can result in the collapse of a species. This risk is mitigated using uncertainty-penalized planning (e.g., the MOPO or MOReL algorithms).
+
+\begin{itemize}
+    \item \textbf{Quantifying Epistemic Uncertainty:} If an action is considered in a well-represented state, all $N$ networks will interpolate safely and predict a similar next-state distribution. Conversely, in an OOD state, the networks will extrapolate in different directions, resulting in high variance.
+    \item \textbf{Applying the Pessimism Penalty:} When the ensemble disagrees, a ``pessimistic'' reward penalty proportional to the predictive variance is applied. This ensures the planning algorithm avoids uncertain actions and restricts the agent to regions of the state-space well-represented in the offline data.
+\end{itemize}
+
+\subsection{Phase 3: Online Adaptation (Adaptive Management)}
+Freezing the model ($\hat{\mathcal{T}}$) and policy ($\pi^*$) after the offline phase would defeat the purpose of \textbf{Adaptive Management (AM)}. The method requires the agent to update during execution to bridge the offline-to-online gap.
+
+\begin{itemize}
+    \item \textbf{Contrast with Multi-Model hmMDPs:} Traditional AM approaches define a discrete set of candidate models and update a belief state over them. This approach is computationally expensive and brittle if the true parameters fall outside the predefined set.
+    \item \textbf{The Black-Box Continuous Update:} Instead of relying on predefined matrices, the ensemble of neural networks is maintained. As new real-world observations $(x_t, a_t, x_{t+1})$ are collected, online gradient updates are performed on the ensemble's weights. 
+    \item \textbf{Closing the Loop:} As the models update with new data, predictions converge. The uncertainty variance drops, the pessimism penalty is lifted, and the agent can confidently manage newly discovered parts of the environment.
+\end{itemize}
+
+\newpage
+\section*{Part 1: The Environment Setup (Data Generator)}
+
+In this redesigned setting, the agent's actions alter both the intrinsic growth rate ($r$) and the carrying capacity ($K$) via additive perturbations, which is ecologically more realistic than altering $K$ alone --- most real management interventions (predator control, supplementary feeding, captive breeding) act on vital rates rather than on habitat size. The base intrinsic growth rate $r_{\mathrm{base}}$ is treated as a \emph{hidden} parameter, fixed within an episode but resampled across episodes, formalising the Bayes-Adaptive (hmMDP) structure of the problem.
+
+\subsection*{1. Hidden and Known Biological Parameters}
+\begin{itemize}
+    \item \textbf{Hidden Intrinsic Growth Rate ($r_{\mathrm{base}}$):} Drawn at the start of each episode from a known prior, $r_{\mathrm{base}} \sim \mathcal{U}(0.95, 1.00)$, then held fixed. The agent never observes $r_{\mathrm{base}}$ directly; it must infer it from observed transitions during planning.
+    \item \textbf{Base Carrying Capacity ($K_{\mathrm{base}}$):} Known and fixed at $K_{\mathrm{base}} = 500$.
+    \item \textbf{Effective parameters per timestep:} Each action $a_t$ contributes additive deltas $\Delta r(a_t)$ and $\Delta K(a_t)$, giving
+    \[
+        r_{\mathrm{eff}}(a_t) = r_{\mathrm{base}} + \Delta r(a_t), \qquad K_{\mathrm{eff}}(a_t) = K_{\mathrm{base}} + \Delta K(a_t).
+    \]
+\end{itemize}
+
+\subsection*{2. Action Space}
+
+Each action specifies an ecological intervention with associated $(\Delta r, \Delta K)$ effects and a real-valued cost $c(a)$. Harvest actions carry \emph{negative} costs (i.e.\ revenue); conservation actions carry positive costs.
+
+\subsubsection*{2.1 Smaller Configuration (5 Actions)}
+
+The smaller set is used for initial pipeline validation. Each action exercises a different code path, covering every sign combination of $(\Delta r, \Delta K)$.
+
+\begin{center}
+\begin{tabular}{clrrrl}
+\hline
+$a$ & Name & $\Delta r$ & $\Delta K$ & $c(a)$ & Ecological interpretation \\
+\hline
+0 & Do Nothing                  & $0$     & $0$    & $0.00$  & Passive monitoring; natural baseline \\
+1 & Aggressive Harvest          & $-0.02$ & $0$    & $-0.40$ & Heavy culling; revenue offsets cost \\
+2 & Predator / Disease Control  & $+0.01$ & $0$    & $+0.20$ & Reduces mortality; raises $r_{\mathrm{eff}}$ \\
+3 & Intensive Restoration       & $0$     & $+200$ & $+0.30$ & Major habitat works; raises $K_{\mathrm{eff}}$ \\
+4 & Flagship Conservation       & $+0.02$ & $+200$ & $+0.60$ & Breeding + intensive restoration combined \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection*{2.2 Full Configuration (10 Actions)}
+
+The full set adds intermediate-strength actions and additional combined interventions, making the optimal policy non-trivial under cost constraints.
+
+\begin{center}
+\resizebox{1.085\linewidth}{!}{%
+\begin{tabular}{clrrrl}
+\hline
+$a$ & Name & $\Delta r$ & $\Delta K$ & $c(a)$ & Ecological interpretation \\
+\hline
+0 & Do Nothing                          & $0$     & $0$    & $0.00$  & Passive monitoring; natural baseline \\
+1 & Sustainable Harvest                 & $-0.01$ & $0$    & $-0.20$ & Light culling / quota fishing; small revenue \\
+2 & Aggressive Harvest                  & $-0.02$ & $0$    & $-0.40$ & Heavy culling; larger revenue, larger penalty \\
+3 & Predator / Disease Control          & $+0.01$ & $0$    & $+0.20$ & Predator removal / pathogen treatment \\
+4 & Breeding / Recruitment Support      & $+0.02$ & $0$    & $+0.40$ & Captive breeding, supplementary feeding \\
+5 & Moderate Restoration                & $0$     & $+100$ & $+0.15$ & Fencing, fire management, planting \\
+6 & Intensive Restoration               & $0$     & $+200$ & $+0.30$ & Reserve expansion, revegetation \\
+7 & Integrated Conservation (light)     & $+0.01$ & $+100$ & $+0.35$ & Predator control + moderate restoration \\
+8 & Adaptive Conservation Trial         & $+0.01$ & $+200$ & $+0.50$ & Predator control + intensive restoration \\
+9 & Flagship Conservation Programme     & $+0.02$ & $+200$ & $+0.60$ & Breeding + intensive restoration combined \\
+\hline
+\end{tabular}%
+}
+\end{center}
+
+\subsection*{3. Transition Dynamics}
+
+The continuous next state is computed via the Ricker map under the effective parameters:
+\[
+    s_{t+1} = s_t \cdot \exp\!\left( r_{\mathrm{eff}}(a_t) \cdot \left(1 - \frac{s_t}{K_{\mathrm{eff}}(a_t)} \right) \right).
+\]
+Process and observation noise are set to zero in the current configuration ($\eta_t = 0$, $\epsilon_t = 0$); all stochasticity perceived by the agent arises from state aliasing introduced by discretisation and from the hidden episode-level draw of $r_{\mathrm{base}}$.
+
+\subsection*{4. Reward Function}
+
+The reward depends only on the current state and current action (predefined, not learned):
+\[
+    R(x_t, a_t) = \alpha \cdot \frac{x_t}{x_{\max}} - c(a_t), \qquad \alpha = 1, \quad x_{\max} = 100.
+\]
+The first term rewards keeping the discrete abundance bin high; the second term internalises the cost (or revenue, if negative) of the management action. This makes the optimal policy genuinely non-trivial even with $r_{\mathrm{base}}$ known: aggressive interventions (e.g.\ $a_9$) yield large ecological gains but at large cost, so the agent must weigh the marginal ecological return against the marginal monetary expenditure.
+
+\subsection*{5. State Space Discretization}
+\begin{itemize}
+    \item \textbf{Maximum Continuous Abundance:} $1000$.
+    \item \textbf{Discrete States ($\mathcal{X}$):} $100$ intervals of width $10$, indexed $x \in \{0, 1, \dots, 99\}$.
+    \item \textbf{Discretisation rule for logging:} $x_t = \lfloor s_t / 10 \rfloor$ (clipped to $\mathcal{X}$).
+\end{itemize}
+
+\subsection*{6. The Trajectory Generation Loop}
+
+The environment generates the offline dataset $\mathcal{D} = \{(x_t, a_t, R_t, x_{t+1})\}$ via the following loop:
+\begin{enumerate}
+    \item Sample a hidden growth rate $r_{\mathrm{base}} \sim \mathcal{U}(0.95, 1.00)$ for the episode.
+    \item Sample a continuous starting state $s_0 \sim \mathcal{U}(1, 999)$.
+    \item At each timestep $t$:
+    \begin{enumerate}
+        \item Compute the discrete state $x_t = \lfloor s_t / 10 \rfloor$.
+        \item Select an action $a_t \in \mathcal{A}$ via a uniform-random (or suboptimal) data-collection policy.
+        \item Look up $\Delta r(a_t)$ and $\Delta K(a_t)$ from Table 2.1 (smaller) or Table 2.2 (full); set $r_{\mathrm{eff}} = r_{\mathrm{base}} + \Delta r(a_t)$ and $K_{\mathrm{eff}} = K_{\mathrm{base}} + \Delta K(a_t)$.
+        \item Compute the next continuous state $s_{t+1}$ via the Ricker equation above.
+        \item Compute the immediate reward $R_t = R(x_t, a_t)$.
+        \item Compute the next discrete state $x_{t+1} = \lfloor s_{t+1} / 10 \rfloor$.
+        \item Log the tuple $(x_t, a_t, R_t, x_{t+1})$ to $\mathcal{D}$.
+    \end{enumerate}
+    \item The continuous states $\{s_t\}$ and the hidden $r_{\mathrm{base}}$ are discarded from the logged dataset; the agent only ever observes the discrete tuples.
+\end{enumerate}
+
+\newpage
+
+\section*{Part 2: The Black-Box Ensemble Architecture}
+
+For this setting, a \textbf{Categorical Probabilistic Ensemble} is implemented, inspired by the MOPO architecture and modified for discrete states. Since the states are binned, a Categorical Softmax Output is utilized.
+
+\subsection*{The Model: Bootstrapped MLP Ensemble with Embeddings}
+
+The architecture consists of $N = 5$ identical, independent neural networks. The configuration for one of those networks (using PyTorch terminology) is as follows:
+
+\paragraph{1. The Input Layer (Embeddings)}
+Because the states and actions are discrete, embedding layers are used rather than raw integers to avoid incorrect assumptions regarding the scale of the state indices.
+\begin{quote}
+    \texttt{StateEmbedding = nn.Embedding(num\_embeddings=100, embedding\_dim=32)}\\
+    \texttt{ActionEmbedding = nn.Embedding(num\_embeddings=5, embedding\_dim=16)}
+\end{quote}
+These vectors are concatenated to produce a flat input vector of size 48. The action embedding's \texttt{num\_embeddings} matches the active action set: $5$ for the default configuration (Table 2.1) and $10$ for the full variant (Table 2.2); the embedding dimension (and hence the $48$/$96$ input sizes) is unchanged.
+
+\paragraph{2. State Aliasing Buffer (Frame Stacking)}
+To provide velocity context and mitigate POMDP observation noise from discretization, the last two time-steps are provided as input:
+\begin{quote}
+    \texttt{Network Input: [StateEmbed(t-1), ActionEmbed(t-1), StateEmbed(t), ActionEmbed(t)]}
+\end{quote}
+
+\paragraph{3. The Hidden Layers}
+A standard Multi-Layer Perceptron (MLP) is used for data efficiency.
+\begin{quote}
+    \texttt{Layer 1: Linear(96, 256) + ReLU()}\\
+    \texttt{Layer 2: Linear(256, 256) + ReLU()}\\
+    \texttt{Layer 3: Linear(256, 256) + ReLU()}
+\end{quote}
+
+\paragraph{4. The Output Layer (Categorical Distribution)}
+\begin{quote}
+    \texttt{Output Layer: Linear(256, 100)}
+\end{quote}
+The output is a vector of 100 logits. Applying a Softmax function yields a probability distribution over all 100 possible next states.
+
+\subsection*{The Training Process}
+
+To achieve the ensemble effect required for uncertainty detection:
+\begin{enumerate}
+    \item Five networks are initialized with different random weights.
+    \item The offline dataset $\mathcal{D}$ is shuffled.
+    \item Each network is trained on a different 80\% split of the dataset.
+    \item \texttt{CrossEntropyLoss} is used to treat next-state prediction as a 100-class classification problem.
+\end{enumerate}
+
+\subsection*{Rationale for the Architecture}
+
+\begin{itemize}
+    \item \textbf{Model-Agnostic:} The network is a standard MLP and requires no prior knowledge of ecological parameters.
+    \item \textbf{Data Efficiency:} Through the use of embeddings and a classification framework, the network learns the underlying growth dynamics efficiently from moderate data.
+    \item \textbf{Uncertainty Quantification:} If the ensemble is queried regarding an infrequently visited state, the five networks will output divergent distributions. The variance across these distributions is calculated to trigger the pessimism penalty.
+\end{itemize}
+
+\end{document}

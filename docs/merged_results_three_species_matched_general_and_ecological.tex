@@ -1,0 +1,630 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=17mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{pdflscape}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\setlist{nosep}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\renewcommand{\arraystretch}{1.12}
+\title{Three-species matched general-RL and ecological comparison\\Safe reward, common \(P=10\)}
+\author{Frozen general-RL results with accepted P=10 adapted PLUS and MOOR correction}
+\date{24 July 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report gives the fair matched safe-reward comparison requested for Amur tiger,
+Crab-eating fox, and Egyptian vulture.  It combines 96 accepted frozen general-RL
+method-cells with 48 newly planned and evaluated ecological method-cells under the
+same \(P=10\) objective: 3 species \(\times\) 4 hidden families \(\times\) 2
+observation-noise levels \(\times\) 6 methods \(=144\) method-cells.  The adapted
+PLUS and MOOR policies were re-planned for \(P=10\); this is not a re-scoring of
+their historical \(P=5\) policies.  Every result uses 20 evaluation episodes.
+\end{abstract}
+
+\tableofcontents
+
+\section{Primary fair matched safe-return results}
+These are the first result tables by design.  Ricker is the in-family control for
+the two form-committed ecological methods; Allee, theta-logistic, and
+regime-switching are out-of-family tests.  PLUS and MOOR denote the registered
+adapted implementations, not exact paper reproductions.  Species remain separate:
+Amur tiger and Crab-eating fox are recoverable cases, whereas Egyptian vulture is
+a demographic sink.
+
+
+\begin{table}[p]
+\centering
+\small
+\setlength{\tabcolsep}{3.0pt}
+\begin{tabular}{@{}lc*{6}{c}@{}}
+\toprule
+Family & Noise & RefPlan & OGSRL & BA-MCTS & EVD & PLUS P=10 & MOOR P=10 \\
+\midrule
+Ricker & 0.1 & \shortstack{2.009\\$\pm$ 0.652} & \shortstack{4.173\\$\pm$ 0.172} & \shortstack{1.105\\$\pm$ 0.914} & \shortstack{-13.831\\$\pm$ 5.100} & \shortstack{4.224\\$\pm$ 0.000} & \shortstack{4.224\\$\pm$ 0.000} \\
+Ricker & 0.2 & \shortstack{2.168\\$\pm$ 0.681} & \shortstack{4.312\\$\pm$ 0.209} & \shortstack{1.292\\$\pm$ 1.420} & \shortstack{-15.638\\$\pm$ 4.769} & \shortstack{4.224\\$\pm$ 0.000} & \shortstack{4.224\\$\pm$ 0.000} \\
+\addlinespace[1.5pt]
+Allee & 0.1 & \shortstack{3.174\\$\pm$ 0.765} & \shortstack{2.912\\$\pm$ 0.502} & \shortstack{1.229\\$\pm$ 1.136} & \shortstack{-13.091\\$\pm$ 2.217} & \shortstack{4.224\\$\pm$ 0.000} & \shortstack{4.224\\$\pm$ 0.000} \\
+Allee & 0.2 & \shortstack{3.454\\$\pm$ 0.685} & \shortstack{4.716\\$\pm$ 0.203} & \shortstack{1.278\\$\pm$ 1.830} & \shortstack{-11.637\\$\pm$ 2.927} & \shortstack{4.224\\$\pm$ 0.000} & \shortstack{4.224\\$\pm$ 0.000} \\
+\addlinespace[1.5pt]
+Theta-logistic & 0.1 & \shortstack{2.014\\$\pm$ 0.674} & \shortstack{4.163\\$\pm$ 0.413} & \shortstack{-0.431\\$\pm$ 0.971} & \shortstack{-11.277\\$\pm$ 2.820} & \shortstack{4.264\\$\pm$ 0.000} & \shortstack{4.264\\$\pm$ 0.000} \\
+Theta-logistic & 0.2 & \shortstack{2.359\\$\pm$ 0.975} & \shortstack{3.218\\$\pm$ 0.444} & \shortstack{1.273\\$\pm$ 0.817} & \shortstack{-11.713\\$\pm$ 5.575} & \shortstack{4.264\\$\pm$ 0.000} & \shortstack{4.264\\$\pm$ 0.000} \\
+\addlinespace[1.5pt]
+Regime-switching & 0.1 & \shortstack{1.261\\$\pm$ 0.686} & \shortstack{2.612\\$\pm$ 0.793} & \shortstack{-0.782\\$\pm$ 1.140} & \shortstack{-12.046\\$\pm$ 6.810} & \shortstack{4.224\\$\pm$ 0.000} & \shortstack{4.224\\$\pm$ 0.000} \\
+Regime-switching & 0.2 & \shortstack{1.611\\$\pm$ 0.814} & \shortstack{2.751\\$\pm$ 0.480} & \shortstack{0.360\\$\pm$ 1.084} & \shortstack{-12.012\\$\pm$ 8.527} & \shortstack{4.224\\$\pm$ 0.000} & \shortstack{4.224\\$\pm$ 0.000} \\
+\bottomrule
+\end{tabular}
+\caption{Amur tiger (declining recoverable): fair matched safe-reward comparison. Each entry is mean discounted return $\pm$ within-cell sample SD, $n=20$.}
+\end{table}
+
+\begin{table}[p]
+\centering
+\small
+\setlength{\tabcolsep}{3.0pt}
+\begin{tabular}{@{}lc*{6}{c}@{}}
+\toprule
+Family & Noise & RefPlan & OGSRL & BA-MCTS & EVD & PLUS P=10 & MOOR P=10 \\
+\midrule
+Ricker & 0.1 & \shortstack{9.937\\$\pm$ 0.156} & \shortstack{10.131\\$\pm$ 0.001} & \shortstack{9.613\\$\pm$ 0.246} & \shortstack{10.130\\$\pm$ 0.000} & \shortstack{10.396\\$\pm$ 0.029} & \shortstack{10.386\\$\pm$ 0.026} \\
+Ricker & 0.2 & \shortstack{10.024\\$\pm$ 0.156} & \shortstack{10.130\\$\pm$ 0.000} & \shortstack{9.617\\$\pm$ 0.355} & \shortstack{10.124\\$\pm$ 0.019} & \shortstack{10.384\\$\pm$ 0.025} & \shortstack{10.386\\$\pm$ 0.037} \\
+\addlinespace[1.5pt]
+Allee & 0.1 & \shortstack{6.744\\$\pm$ 6.912} & \shortstack{10.130\\$\pm$ 0.000} & \shortstack{10.697\\$\pm$ 0.532} & \shortstack{10.269\\$\pm$ 0.033} & \shortstack{11.394\\$\pm$ 0.346} & \shortstack{11.711\\$\pm$ 0.103} \\
+Allee & 0.2 & \shortstack{7.948\\$\pm$ 0.803} & \shortstack{10.130\\$\pm$ 0.000} & \shortstack{10.201\\$\pm$ 0.558} & \shortstack{10.397\\$\pm$ 0.076} & \shortstack{10.967\\$\pm$ 0.369} & \shortstack{11.611\\$\pm$ 0.228} \\
+\addlinespace[1.5pt]
+Theta-logistic & 0.1 & \shortstack{9.549\\$\pm$ 0.343} & \shortstack{10.142\\$\pm$ 0.009} & \shortstack{10.614\\$\pm$ 0.244} & \shortstack{10.137\\$\pm$ 0.000} & \shortstack{10.220\\$\pm$ 0.141} & \shortstack{10.146\\$\pm$ 0.000} \\
+Theta-logistic & 0.2 & \shortstack{9.610\\$\pm$ 0.316} & \shortstack{10.163\\$\pm$ 0.039} & \shortstack{10.448\\$\pm$ 0.314} & \shortstack{10.137\\$\pm$ 0.000} & \shortstack{10.311\\$\pm$ 0.121} & \shortstack{10.137\\$\pm$ 0.000} \\
+\addlinespace[1.5pt]
+Regime-switching & 0.1 & \shortstack{6.842\\$\pm$ 3.609} & \shortstack{10.130\\$\pm$ 0.000} & \shortstack{10.075\\$\pm$ 0.710} & \shortstack{10.287\\$\pm$ 0.104} & \shortstack{10.454\\$\pm$ 0.569} & \shortstack{10.153\\$\pm$ 0.283} \\
+Regime-switching & 0.2 & \shortstack{4.313\\$\pm$ 12.005} & \shortstack{10.130\\$\pm$ 0.000} & \shortstack{9.372\\$\pm$ 0.773} & \shortstack{10.306\\$\pm$ 0.104} & \shortstack{10.591\\$\pm$ 0.483} & \shortstack{10.142\\$\pm$ 0.288} \\
+\bottomrule
+\end{tabular}
+\caption{Crab-eating fox (strong-growth recoverable): fair matched safe-reward comparison. Each entry is mean discounted return $\pm$ within-cell sample SD, $n=20$.}
+\end{table}
+
+\begin{table}[p]
+\centering
+\small
+\setlength{\tabcolsep}{3.0pt}
+\begin{tabular}{@{}lc*{6}{c}@{}}
+\toprule
+Family & Noise & RefPlan & OGSRL & BA-MCTS & EVD & PLUS P=10 & MOOR P=10 \\
+\midrule
+Ricker & 0.1 & \shortstack{-186.816\\$\pm$ 0.544} & \shortstack{-188.368\\$\pm$ 0.107} & \shortstack{-189.608\\$\pm$ 0.848} & \shortstack{-187.839\\$\pm$ 0.329} & \shortstack{-187.265\\$\pm$ 0.000} & \shortstack{-187.265\\$\pm$ 0.000} \\
+Ricker & 0.2 & \shortstack{-187.239\\$\pm$ 0.656} & \shortstack{-188.685\\$\pm$ 0.329} & \shortstack{-190.351\\$\pm$ 1.174} & \shortstack{-187.818\\$\pm$ 0.382} & \shortstack{-187.265\\$\pm$ 0.000} & \shortstack{-187.265\\$\pm$ 0.000} \\
+\addlinespace[1.5pt]
+Allee & 0.1 & \shortstack{-186.816\\$\pm$ 0.544} & \shortstack{-188.368\\$\pm$ 0.107} & \shortstack{-189.608\\$\pm$ 0.848} & \shortstack{-187.839\\$\pm$ 0.329} & \shortstack{-187.265\\$\pm$ 0.000} & \shortstack{-187.265\\$\pm$ 0.000} \\
+Allee & 0.2 & \shortstack{-187.239\\$\pm$ 0.656} & \shortstack{-188.685\\$\pm$ 0.329} & \shortstack{-190.351\\$\pm$ 1.174} & \shortstack{-187.818\\$\pm$ 0.382} & \shortstack{-187.265\\$\pm$ 0.000} & \shortstack{-187.265\\$\pm$ 0.000} \\
+\addlinespace[1.5pt]
+Theta-logistic & 0.1 & \shortstack{-186.768\\$\pm$ 0.526} & \shortstack{-188.258\\$\pm$ 0.058} & \shortstack{-189.796\\$\pm$ 0.719} & \shortstack{-187.785\\$\pm$ 0.367} & \shortstack{-187.240\\$\pm$ 0.000} & \shortstack{-187.240\\$\pm$ 0.000} \\
+Theta-logistic & 0.2 & \shortstack{-187.168\\$\pm$ 0.622} & \shortstack{-188.194\\$\pm$ 0.233} & \shortstack{-190.095\\$\pm$ 0.935} & \shortstack{-187.773\\$\pm$ 0.366} & \shortstack{-187.240\\$\pm$ 0.000} & \shortstack{-187.240\\$\pm$ 0.000} \\
+\addlinespace[1.5pt]
+Regime-switching & 0.1 & \shortstack{-186.816\\$\pm$ 0.544} & \shortstack{-188.368\\$\pm$ 0.107} & \shortstack{-189.608\\$\pm$ 0.848} & \shortstack{-187.839\\$\pm$ 0.329} & \shortstack{-187.265\\$\pm$ 0.000} & \shortstack{-187.265\\$\pm$ 0.000} \\
+Regime-switching & 0.2 & \shortstack{-187.239\\$\pm$ 0.656} & \shortstack{-188.685\\$\pm$ 0.329} & \shortstack{-190.351\\$\pm$ 1.174} & \shortstack{-187.818\\$\pm$ 0.382} & \shortstack{-187.265\\$\pm$ 0.000} & \shortstack{-187.265\\$\pm$ 0.000} \\
+\bottomrule
+\end{tabular}
+\caption{Egyptian vulture (demographic sink): fair matched safe-reward comparison. Each entry is mean discounted return $\pm$ within-cell sample SD, $n=20$.}
+\end{table}
+
+
+\clearpage
+\section{Evaluation-comparability audit}
+The comparison passes the evaluator-definition audit.  Exact dataset identity
+alone was not treated as sufficient.  The general, PLUS, and MOOR runtimes have
+byte-identical evaluator, environment, reward, action, real-data, and public type
+implementations where those components determine evaluation.  The method-specific
+configuration differences affect fitting and planning, not the common hidden
+evaluation simulator.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}p{3.3cm}p{11.2cm}@{}}
+\toprule
+Item & Verified common definition\\
+\midrule
+Reward & \(R_t=s_{t+1}/(s_{t+1}+K_{\rm ref})-c(a_t)-10\,\mathbf{1}[s_{t+1}\le s_{\rm safe}]\), with \(\alpha=1\), true next state, occupancy penalty, and no additional scaling.\\
+Return & \(\sum_{t=0}^{49}0.95^t R_t\); all tables use the same 50-step horizon and discount \(0.95\).\\
+Initial state & Registered deterministic population-specific \(N_0\): evaluation uses low-start probability \(0\) and initial log-SD \(0\).\\
+Hidden simulator & Exact registered population, Ricker/Allee/theta-logistic/regime-switching identity, parameters, process randomness, and authoritative private dataset hash.\\
+Observation & Same log-normal observation model and cell-specific \(\sigma_{\rm obs}\in\{0.1,0.2\}\).\\
+Episodes & Five blocks \(7001,7051,7101,7151,7201\), four episodes per block, giving seeds 7001--7004, 7051--7054, 7101--7104, 7151--7154, and 7201--7204.\\
+Actions & Identical ordered 11-action table, population/family-specific effects, cost, and action-to-intervention mapping.\\
+Safety metrics & Collapse entry is a transition from above to at/below \(s_{\rm safe}\); unsafe fraction counts unsafe states over the 51-state episode trace; persistence is final state \(>s_{\rm safe}\); abundance metrics use the same true-state trace.\\
+\bottomrule
+\end{tabular}
+\caption{Common-evaluator audit. All 24 species--family--noise cells also have one exact authoritative dataset SHA-256 shared by all six methods.}
+\end{table}
+
+\subsection{Common 11-action semantics}
+\begin{center}\small
+\begin{tabular}{@{}cll@{}}
+\toprule
+ID & Intervention & Public channel\\
+\midrule
+0 & Do nothing & none\\
+1 & Sustainable harvest & demographic rate\\
+2 & Aggressive harvest & demographic rate\\
+3 & Predator/disease control & demographic rate\\
+4 & Breeding/recruitment support & demographic rate\\
+5 & Moderate restoration & carrying capacity\\
+6 & Intensive restoration & carrying capacity\\
+7 & Integrated conservation (light) & rate + capacity\\
+8 & Adaptive conservation trial & rate + capacity\\
+9 & Flagship conservation programme & rate + capacity\\
+10 & Translocation & direct state increment\\
+\bottomrule
+\end{tabular}
+\end{center}
+Action effects are resolved from the same authoritative table for each population
+and hidden family; IDs are categorical and are not treated as an ordinal scale.
+
+\section{Shared six-method outcomes}
+Unsafe occupancy, persistence, and collapse entry are defined identically and are
+therefore compared directly.  For a sink already below its safety threshold,
+collapse entry can be zero while unsafe occupancy is one and persistence is zero;
+collapse entry must not be interpreted alone.
+
+
+\begin{landscape}
+\begin{center}\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{longtable}{@{}llc*{6}{r}@{}}
+\caption{Unsafe fraction. Values are 20-episode cell means.}\\
+\toprule
+Species & Family & Noise & RefPlan & OGSRL & BA-MCTS & EVD & PLUS P=10 & MOOR P=10 \\
+\midrule\endfirsthead
+\multicolumn{9}{c}{\tablename\ \thetable\ continued}\\
+\toprule
+Species & Family & Noise & RefPlan & OGSRL & BA-MCTS & EVD & PLUS P=10 & MOOR P=10 \\
+\midrule\endhead
+\midrule\multicolumn{9}{r}{Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+Amur tiger & Ricker & 0.1 & 0.000 & 0.000 & 0.000 & 0.288 & 0.000 & 0.000 \\
+Amur tiger & Ricker & 0.2 & 0.000 & 0.000 & 0.000 & 0.308 & 0.000 & 0.000 \\
+Amur tiger & Allee & 0.1 & 0.000 & 0.000 & 0.000 & 0.273 & 0.000 & 0.000 \\
+Amur tiger & Allee & 0.2 & 0.000 & 0.000 & 0.000 & 0.253 & 0.000 & 0.000 \\
+Amur tiger & Theta-logistic & 0.1 & 0.000 & 0.000 & 0.000 & 0.242 & 0.000 & 0.000 \\
+Amur tiger & Theta-logistic & 0.2 & 0.000 & 0.000 & 0.000 & 0.243 & 0.000 & 0.000 \\
+Amur tiger & Regime-switching & 0.1 & 0.000 & 0.000 & 0.000 & 0.248 & 0.000 & 0.000 \\
+Amur tiger & Regime-switching & 0.2 & 0.000 & 0.000 & 0.000 & 0.237 & 0.000 & 0.000 \\
+\addlinespace[2pt]
+Crab-eating fox & Ricker & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Ricker & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Allee & 0.1 & 0.004 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Allee & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Theta-logistic & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Theta-logistic & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Regime-switching & 0.1 & 0.012 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Regime-switching & 0.2 & 0.020 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+\addlinespace[2pt]
+Egyptian vulture & Ricker & 0.1 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Egyptian vulture & Ricker & 0.2 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Egyptian vulture & Allee & 0.1 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Egyptian vulture & Allee & 0.2 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Egyptian vulture & Theta-logistic & 0.1 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Egyptian vulture & Theta-logistic & 0.2 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Egyptian vulture & Regime-switching & 0.1 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Egyptian vulture & Regime-switching & 0.2 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+\addlinespace[2pt]
+\end{longtable}
+\end{center}
+\end{landscape}
+
+\begin{landscape}
+\begin{center}\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{longtable}{@{}llc*{6}{r}@{}}
+\caption{Persistence. Values are 20-episode cell means.}\\
+\toprule
+Species & Family & Noise & RefPlan & OGSRL & BA-MCTS & EVD & PLUS P=10 & MOOR P=10 \\
+\midrule\endfirsthead
+\multicolumn{9}{c}{\tablename\ \thetable\ continued}\\
+\toprule
+Species & Family & Noise & RefPlan & OGSRL & BA-MCTS & EVD & PLUS P=10 & MOOR P=10 \\
+\midrule\endhead
+\midrule\multicolumn{9}{r}{Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+Amur tiger & Ricker & 0.1 & 1.000 & 1.000 & 1.000 & 0.000 & 1.000 & 1.000 \\
+Amur tiger & Ricker & 0.2 & 1.000 & 1.000 & 1.000 & 0.000 & 1.000 & 1.000 \\
+Amur tiger & Allee & 0.1 & 1.000 & 1.000 & 1.000 & 0.000 & 1.000 & 1.000 \\
+Amur tiger & Allee & 0.2 & 1.000 & 1.000 & 1.000 & 0.000 & 1.000 & 1.000 \\
+Amur tiger & Theta-logistic & 0.1 & 1.000 & 1.000 & 1.000 & 0.000 & 1.000 & 1.000 \\
+Amur tiger & Theta-logistic & 0.2 & 1.000 & 1.000 & 1.000 & 0.000 & 1.000 & 1.000 \\
+Amur tiger & Regime-switching & 0.1 & 1.000 & 1.000 & 1.000 & 0.000 & 1.000 & 1.000 \\
+Amur tiger & Regime-switching & 0.2 & 1.000 & 1.000 & 1.000 & 0.000 & 1.000 & 1.000 \\
+\addlinespace[2pt]
+Crab-eating fox & Ricker & 0.1 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Crab-eating fox & Ricker & 0.2 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Crab-eating fox & Allee & 0.1 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Crab-eating fox & Allee & 0.2 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Crab-eating fox & Theta-logistic & 0.1 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Crab-eating fox & Theta-logistic & 0.2 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Crab-eating fox & Regime-switching & 0.1 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+Crab-eating fox & Regime-switching & 0.2 & 0.950 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 \\
+\addlinespace[2pt]
+Egyptian vulture & Ricker & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Ricker & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Allee & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Allee & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Theta-logistic & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Theta-logistic & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Regime-switching & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Regime-switching & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+\addlinespace[2pt]
+\end{longtable}
+\end{center}
+\end{landscape}
+
+\begin{landscape}
+\begin{center}\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{longtable}{@{}llc*{6}{r}@{}}
+\caption{Collapse-entry rate. Values are 20-episode cell means.}\\
+\toprule
+Species & Family & Noise & RefPlan & OGSRL & BA-MCTS & EVD & PLUS P=10 & MOOR P=10 \\
+\midrule\endfirsthead
+\multicolumn{9}{c}{\tablename\ \thetable\ continued}\\
+\toprule
+Species & Family & Noise & RefPlan & OGSRL & BA-MCTS & EVD & PLUS P=10 & MOOR P=10 \\
+\midrule\endhead
+\midrule\multicolumn{9}{r}{Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+Amur tiger & Ricker & 0.1 & 0.000 & 0.000 & 0.000 & 1.000 & 0.000 & 0.000 \\
+Amur tiger & Ricker & 0.2 & 0.000 & 0.000 & 0.000 & 1.000 & 0.000 & 0.000 \\
+Amur tiger & Allee & 0.1 & 0.000 & 0.000 & 0.000 & 1.000 & 0.000 & 0.000 \\
+Amur tiger & Allee & 0.2 & 0.000 & 0.000 & 0.000 & 1.000 & 0.000 & 0.000 \\
+Amur tiger & Theta-logistic & 0.1 & 0.000 & 0.000 & 0.000 & 1.000 & 0.000 & 0.000 \\
+Amur tiger & Theta-logistic & 0.2 & 0.000 & 0.000 & 0.000 & 1.000 & 0.000 & 0.000 \\
+Amur tiger & Regime-switching & 0.1 & 0.000 & 0.000 & 0.000 & 1.000 & 0.000 & 0.000 \\
+Amur tiger & Regime-switching & 0.2 & 0.000 & 0.000 & 0.000 & 1.000 & 0.000 & 0.000 \\
+\addlinespace[2pt]
+Crab-eating fox & Ricker & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Ricker & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Allee & 0.1 & 0.050 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Allee & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Theta-logistic & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Theta-logistic & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Regime-switching & 0.1 & 0.150 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Crab-eating fox & Regime-switching & 0.2 & 0.200 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+\addlinespace[2pt]
+Egyptian vulture & Ricker & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Ricker & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Allee & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Allee & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Theta-logistic & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Theta-logistic & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Regime-switching & 0.1 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Egyptian vulture & Regime-switching & 0.2 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+\addlinespace[2pt]
+\end{longtable}
+\end{center}
+\end{landscape}
+
+\section{Species-separated summary}
+
+\begin{table}[p]
+\centering\small
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+Species & Method & Mean & Cell SD & Range & Cells \\
+\midrule
+Amur tiger & RefPlan & 2.256 & 0.739 & [1.261, 3.454] & 8 \\
+Amur tiger & OGSRL & 3.607 & 0.821 & [2.612, 4.716] & 8 \\
+Amur tiger & BA-MCTS & 0.665 & 0.849 & [-0.782, 1.292] & 8 \\
+Amur tiger & EVD & -12.656 & 1.468 & [-15.638, -11.277] & 8 \\
+Amur tiger & PLUS P=10 & 4.234 & 0.018 & [4.224, 4.264] & 8 \\
+Amur tiger & MOOR P=10 & 4.234 & 0.018 & [4.224, 4.264] & 8 \\
+\addlinespace[2pt]
+Crab-eating fox & RefPlan & 8.121 & 2.044 & [4.313, 10.024] & 8 \\
+Crab-eating fox & OGSRL & 10.136 & 0.012 & [10.130, 10.163] & 8 \\
+Crab-eating fox & BA-MCTS & 10.080 & 0.500 & [9.372, 10.697] & 8 \\
+Crab-eating fox & EVD & 10.224 & 0.105 & [10.124, 10.397] & 8 \\
+Crab-eating fox & PLUS P=10 & 10.590 & 0.397 & [10.220, 11.394] & 8 \\
+Crab-eating fox & MOOR P=10 & 10.584 & 0.673 & [10.137, 11.711] & 8 \\
+\addlinespace[2pt]
+Egyptian vulture & RefPlan & -187.013 & 0.225 & [-187.239, -186.768] & 8 \\
+Egyptian vulture & OGSRL & -188.451 & 0.203 & [-188.685, -188.194] & 8 \\
+Egyptian vulture & BA-MCTS & -189.971 & 0.354 & [-190.351, -189.608] & 8 \\
+Egyptian vulture & EVD & -187.816 & 0.025 & [-187.839, -187.773] & 8 \\
+Egyptian vulture & PLUS P=10 & -187.259 & 0.011 & [-187.265, -187.240] & 8 \\
+Egyptian vulture & MOOR P=10 & -187.259 & 0.011 & [-187.265, -187.240] & 8 \\
+\addlinespace[2pt]
+\bottomrule
+\end{tabular}
+\caption{Species-separated descriptive summary across the eight matched family--noise cells. Cell SD is dispersion of the eight cell means, not an evaluation-episode SD. The sink is not pooled with recoverable species.}
+\end{table}
+
+
+\section{Method-specific diagnostics and interpretation}
+The ecological methods use reward-independent fitted demographic caches but newly
+built reward-dependent POMDP components and newly solved \(P=10\) PBVI policies.
+PLUS uses eight Ricker candidates with a uniform prior; MOOR uses its registered
+adapted Ricker-misspecified route.  Neither method receives the hidden family
+label.  Equal or nearly equal returns can arise from constant or nearly constant
+policies and must not be called algorithmic equivalence.
+
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Species & Adapted method & Mean entropy & Constant-episode cells & Minimum PBVI margin \\
+\midrule
+Amur tiger & PLUS P=10 & 0.000 & 8/8 & 0.0579 \\
+Amur tiger & MOOR P=10 & 0.000 & 8/8 & 0.0581 \\
+Crab-eating fox & PLUS P=10 & 0.501 & 0/8 & 0.0005 \\
+Crab-eating fox & MOOR P=10 & 0.269 & 1/8 & 0.0124 \\
+Egyptian vulture & PLUS P=10 & 0.000 & 8/8 & 0.1735 \\
+Egyptian vulture & MOOR P=10 & 0.000 & 8/8 & 0.2455 \\
+\bottomrule
+\end{tabular}
+\caption{Method-specific ecological policy diagnostics. ``Constant-episode'' means every episode in that cell had zero within-episode action entropy; it does not prove algorithmic equivalence. PBVI margin is the smallest final action-value top-one/top-two gap across candidates and cells.}
+\end{table}
+
+
+The four general methods retain their own diagnostics (for example OGSRL fallback)
+outside the shared tables.  PBVI margin, candidate entropy, fallback count, and
+action entropy are method-specific mechanisms and are not inserted as if they
+were common outcomes.  Descriptive return differences are not multiplicity-
+adjusted rankings.
+
+\section{Supplementary general-RL-only yield results}
+The \(P=10\) correction is safe-only.  The historical general-RL yield outcomes
+remain valid within their own reward mode, but no PLUS or MOOR yield policies were
+planned or evaluated.  Yield is therefore never placed in a six-method table.
+
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Species & General-RL method & Mean across 8 cells & Cell SD & Cells \\
+\midrule
+Amur tiger & RefPlan & 3.113 & 0.303 & 8 \\
+Amur tiger & OGSRL & 2.600 & 1.334 & 8 \\
+Amur tiger & BA-MCTS & 3.903 & 0.570 & 8 \\
+Amur tiger & EVD & 4.371 & 0.506 & 8 \\
+\addlinespace[1.5pt]
+Crab-eating fox & RefPlan & 9.195 & 0.744 & 8 \\
+Crab-eating fox & OGSRL & 10.139 & 0.013 & 8 \\
+Crab-eating fox & BA-MCTS & 10.169 & 0.202 & 8 \\
+Crab-eating fox & EVD & 10.187 & 0.100 & 8 \\
+\addlinespace[1.5pt]
+Egyptian vulture & RefPlan & 0.538 & 0.025 & 8 \\
+Egyptian vulture & OGSRL & -3.829 & 0.189 & 8 \\
+Egyptian vulture & BA-MCTS & 0.500 & 0.357 & 8 \\
+Egyptian vulture & EVD & 2.010 & 0.034 & 8 \\
+\addlinespace[1.5pt]
+\bottomrule
+\end{tabular}
+\caption{Supplementary general-RL-only yield summary. PLUS and MOOR were not evaluated for yield and are intentionally absent.}
+\end{table}
+
+
+\section{Provenance and acceptance chronology}
+All 216 reward-independent fitted-model slots were reused after complete cache
+identity and artifact-hash validation: 192 PLUS candidate slots and 24 MOOR
+fitted-model slots; zero fits were recomputed.  Reuse did not treat a \(P=5\)
+full-configuration cache as a \(P=10\) policy cache.  All 24 PLUS and all 24 MOOR
+reward-dependent POMDP/planner/evaluation rows were executed under \(P=10\).
+
+Slurm arrays \texttt{58493916} (PLUS) and \texttt{58493918} (MOOR) completed
+24/24 tasks with exit status 0:0.  Return-blind acceptance jobs
+\texttt{58493967} and \texttt{58493968} then returned
+\texttt{PASS\_LIMITED\_STRUCTURAL\_ACCEPTANCE}, 24/24 each, with
+\texttt{return\_fields\_opened=false}.  Outcomes were opened only after those
+gates passed and the user returned with explicit instruction to fill this report.
+
+\begin{description}[style=nextline]
+\item[P=10 experiment root.]
+{\tiny\path{/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/}}
+\item[Launch-package digest.]
+\texttt{13f6fcdf12450efb09f3c62c60db05c4c41007f64356a3999eb5d38d7e34368d}
+\item[PLUS manifest/config.]
+\texttt{cfe43f35ce4ff1658958a2173026ca70c7164878f2408b4b246673016dc0d2a6}\\
+\texttt{10a064344e07cac16a7b2d5bd717bdce109c8970148de4295d6ff3532297fa68}
+\item[MOOR manifest/config.]
+\texttt{f890c9a7a535fe903bf7a40ecf992a9881341b84103b9e0dc7e10be002fc6d57}\\
+\texttt{a3655a846d951439177da350ddf40ddc6d4962b42b317582dd29e72ca05323bd}
+\item[Fit-reuse ledger.]
+\texttt{5410b0e4fd71312af601cbdd4c8f11115469483780f26c202fbe232916187ac3}
+\end{description}
+
+\appendix
+\section{Historical \(P=5\) ecological experiment---not matched returns}
+The earlier ecological outputs are preserved unchanged as adapted/inspired results
+under a different reward.  Their policies were planned with \(P=5\), so their
+returns are not inserted into, ranked with, or used to fill any \(P=10\) matched
+table.  The earlier global Ricker-only PLUS experiment also remains honestly
+classified as 71/72 because index 51 timed out.  Those historical artifacts and
+acceptance receipts were neither overwritten nor relabelled by this correction.
+
+\section{Complete 144-cell audit table}
+
+
+\begin{landscape}
+\begin{center}\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}lllclrrrrrr@{}}
+\caption{Complete accepted P=10 safe comparison: all 144 method-cells.}\\
+\toprule
+Species & Family & Noise & Method & Return mean & SD & Unsafe & Persist. & Collapse & Min.\ $N$ & Cost \\
+\midrule\endfirsthead
+\multicolumn{11}{c}{\tablename\ \thetable\ continued}\\
+\toprule
+Species & Family & Noise & Method & Return mean & SD & Unsafe & Persist. & Collapse & Min.\ $N$ & Cost \\
+\midrule\endhead
+\midrule\multicolumn{11}{r}{Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+Amur tiger & Ricker & 0.1 & RefPlan-inspired & 2.009 & 0.652 & 0.000 & 1.000 & 0.000 & 176.736 & 19.127 \\
+Amur tiger & Ricker & 0.1 & OGSRL-inspired & 4.173 & 0.172 & 0.000 & 1.000 & 0.000 & 104.157 & 8.453 \\
+Amur tiger & Ricker & 0.1 & BA-MCTS-inspired & 1.105 & 0.914 & 0.000 & 1.000 & 0.000 & 197.288 & 23.573 \\
+Amur tiger & Ricker & 0.1 & EVD & -13.831 & 5.100 & 0.288 & 0.000 & 1.000 & 11.707 & 4.523 \\
+Amur tiger & Ricker & 0.1 & PLUS P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Ricker & 0.1 & MOOR P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Ricker & 0.2 & RefPlan-inspired & 2.168 & 0.681 & 0.000 & 1.000 & 0.000 & 175.379 & 19.179 \\
+Amur tiger & Ricker & 0.2 & OGSRL-inspired & 4.312 & 0.209 & 0.000 & 1.000 & 0.000 & 103.581 & 7.749 \\
+Amur tiger & Ricker & 0.2 & BA-MCTS-inspired & 1.292 & 1.420 & 0.000 & 1.000 & 0.000 & 199.816 & 22.812 \\
+Amur tiger & Ricker & 0.2 & EVD & -15.638 & 4.769 & 0.308 & 0.000 & 1.000 & 9.712 & 4.787 \\
+Amur tiger & Ricker & 0.2 & PLUS P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Ricker & 0.2 & MOOR P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Allee & 0.1 & RefPlan-inspired & 3.174 & 0.765 & 0.000 & 1.000 & 0.000 & 176.895 & 17.142 \\
+Amur tiger & Allee & 0.1 & OGSRL-inspired & 2.912 & 0.502 & 0.000 & 1.000 & 0.000 & 99.415 & 8.764 \\
+Amur tiger & Allee & 0.1 & BA-MCTS-inspired & 1.229 & 1.136 & 0.000 & 1.000 & 0.000 & 199.430 & 25.947 \\
+Amur tiger & Allee & 0.1 & EVD & -13.091 & 2.217 & 0.273 & 0.000 & 1.000 & 9.908 & 4.499 \\
+Amur tiger & Allee & 0.1 & PLUS P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Allee & 0.1 & MOOR P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Allee & 0.2 & RefPlan-inspired & 3.454 & 0.685 & 0.000 & 1.000 & 0.000 & 145.029 & 14.448 \\
+Amur tiger & Allee & 0.2 & OGSRL-inspired & 4.716 & 0.203 & 0.000 & 1.000 & 0.000 & 92.047 & 6.328 \\
+Amur tiger & Allee & 0.2 & BA-MCTS-inspired & 1.278 & 1.830 & 0.000 & 1.000 & 0.000 & 200.000 & 24.094 \\
+Amur tiger & Allee & 0.2 & EVD & -11.637 & 2.927 & 0.253 & 0.000 & 1.000 & 9.146 & 3.799 \\
+Amur tiger & Allee & 0.2 & PLUS P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Allee & 0.2 & MOOR P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Theta-logistic & 0.1 & RefPlan-inspired & 2.014 & 0.674 & 0.000 & 1.000 & 0.000 & 167.968 & 18.354 \\
+Amur tiger & Theta-logistic & 0.1 & OGSRL-inspired & 4.163 & 0.413 & 0.000 & 1.000 & 0.000 & 109.132 & 6.835 \\
+Amur tiger & Theta-logistic & 0.1 & BA-MCTS-inspired & -0.431 & 0.971 & 0.000 & 1.000 & 0.000 & 199.124 & 29.363 \\
+Amur tiger & Theta-logistic & 0.1 & EVD & -11.277 & 2.820 & 0.242 & 0.000 & 1.000 & 14.871 & 6.211 \\
+Amur tiger & Theta-logistic & 0.1 & PLUS P=10 & 4.264 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Theta-logistic & 0.1 & MOOR P=10 & 4.264 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Theta-logistic & 0.2 & RefPlan-inspired & 2.359 & 0.975 & 0.000 & 1.000 & 0.000 & 162.335 & 17.559 \\
+Amur tiger & Theta-logistic & 0.2 & OGSRL-inspired & 3.218 & 0.444 & 0.000 & 1.000 & 0.000 & 83.822 & 7.982 \\
+Amur tiger & Theta-logistic & 0.2 & BA-MCTS-inspired & 1.273 & 0.817 & 0.000 & 1.000 & 0.000 & 199.363 & 24.003 \\
+Amur tiger & Theta-logistic & 0.2 & EVD & -11.713 & 5.575 & 0.243 & 0.000 & 1.000 & 14.829 & 5.612 \\
+Amur tiger & Theta-logistic & 0.2 & PLUS P=10 & 4.264 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Theta-logistic & 0.2 & MOOR P=10 & 4.264 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Regime-switching & 0.1 & RefPlan-inspired & 1.261 & 0.686 & 0.000 & 1.000 & 0.000 & 184.169 & 23.571 \\
+Amur tiger & Regime-switching & 0.1 & OGSRL-inspired & 2.612 & 0.793 & 0.000 & 1.000 & 0.000 & 101.138 & 9.945 \\
+Amur tiger & Regime-switching & 0.1 & BA-MCTS-inspired & -0.782 & 1.140 & 0.000 & 1.000 & 0.000 & 200.000 & 32.191 \\
+Amur tiger & Regime-switching & 0.1 & EVD & -12.046 & 6.810 & 0.248 & 0.000 & 1.000 & 3.371 & 2.889 \\
+Amur tiger & Regime-switching & 0.1 & PLUS P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Regime-switching & 0.1 & MOOR P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Regime-switching & 0.2 & RefPlan-inspired & 1.611 & 0.814 & 0.000 & 1.000 & 0.000 & 180.497 & 22.521 \\
+Amur tiger & Regime-switching & 0.2 & OGSRL-inspired & 2.751 & 0.480 & 0.000 & 1.000 & 0.000 & 79.262 & 8.937 \\
+Amur tiger & Regime-switching & 0.2 & BA-MCTS-inspired & 0.360 & 1.084 & 0.000 & 1.000 & 0.000 & 199.552 & 26.894 \\
+Amur tiger & Regime-switching & 0.2 & EVD & -12.012 & 8.527 & 0.237 & 0.000 & 1.000 & 7.190 & 4.553 \\
+Amur tiger & Regime-switching & 0.2 & PLUS P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Amur tiger & Regime-switching & 0.2 & MOOR P=10 & 4.224 & 0.000 & 0.000 & 1.000 & 0.000 & 200.000 & 15.625 \\
+Crab-eating fox & Ricker & 0.1 & RefPlan-inspired & 9.937 & 0.156 & 0.000 & 1.000 & 0.000 & 38.885 & -2.479 \\
+Crab-eating fox & Ricker & 0.1 & OGSRL-inspired & 10.131 & 0.001 & 0.000 & 1.000 & 0.000 & 21.354 & -4.997 \\
+Crab-eating fox & Ricker & 0.1 & BA-MCTS-inspired & 9.613 & 0.246 & 0.000 & 1.000 & 0.000 & 40.409 & 0.168 \\
+Crab-eating fox & Ricker & 0.1 & EVD & 10.130 & 0.000 & 0.000 & 1.000 & 0.000 & 21.297 & -5.000 \\
+Crab-eating fox & Ricker & 0.1 & PLUS P=10 & 10.396 & 0.029 & 0.000 & 1.000 & 0.000 & 37.015 & -3.565 \\
+Crab-eating fox & Ricker & 0.1 & MOOR P=10 & 10.386 & 0.026 & 0.000 & 1.000 & 0.000 & 37.292 & -3.562 \\
+Crab-eating fox & Ricker & 0.2 & RefPlan-inspired & 10.024 & 0.156 & 0.000 & 1.000 & 0.000 & 38.115 & -2.876 \\
+Crab-eating fox & Ricker & 0.2 & OGSRL-inspired & 10.130 & 0.000 & 0.000 & 1.000 & 0.000 & 21.297 & -5.000 \\
+Crab-eating fox & Ricker & 0.2 & BA-MCTS-inspired & 9.617 & 0.355 & 0.000 & 1.000 & 0.000 & 40.267 & 0.007 \\
+Crab-eating fox & Ricker & 0.2 & EVD & 10.124 & 0.019 & 0.000 & 1.000 & 0.000 & 21.339 & -4.985 \\
+Crab-eating fox & Ricker & 0.2 & PLUS P=10 & 10.384 & 0.025 & 0.000 & 1.000 & 0.000 & 33.561 & -4.042 \\
+Crab-eating fox & Ricker & 0.2 & MOOR P=10 & 10.386 & 0.037 & 0.000 & 1.000 & 0.000 & 34.293 & -3.968 \\
+Crab-eating fox & Allee & 0.1 & RefPlan-inspired & 6.744 & 6.912 & 0.004 & 1.000 & 0.050 & 33.360 & 8.067 \\
+Crab-eating fox & Allee & 0.1 & OGSRL-inspired & 10.130 & 0.000 & 0.000 & 1.000 & 0.000 & 21.297 & -5.000 \\
+Crab-eating fox & Allee & 0.1 & BA-MCTS-inspired & 10.697 & 0.532 & 0.000 & 1.000 & 0.000 & 38.773 & 0.126 \\
+Crab-eating fox & Allee & 0.1 & EVD & 10.269 & 0.033 & 0.000 & 1.000 & 0.000 & 27.571 & -4.837 \\
+Crab-eating fox & Allee & 0.1 & PLUS P=10 & 11.394 & 0.346 & 0.000 & 1.000 & 0.000 & 40.126 & -3.003 \\
+Crab-eating fox & Allee & 0.1 & MOOR P=10 & 11.711 & 0.103 & 0.000 & 1.000 & 0.000 & 41.000 & -3.188 \\
+Crab-eating fox & Allee & 0.2 & RefPlan-inspired & 7.948 & 0.803 & 0.000 & 1.000 & 0.000 & 36.569 & 8.714 \\
+Crab-eating fox & Allee & 0.2 & OGSRL-inspired & 10.130 & 0.000 & 0.000 & 1.000 & 0.000 & 21.297 & -5.000 \\
+Crab-eating fox & Allee & 0.2 & BA-MCTS-inspired & 10.201 & 0.558 & 0.000 & 1.000 & 0.000 & 39.708 & 1.792 \\
+Crab-eating fox & Allee & 0.2 & EVD & 10.397 & 0.076 & 0.000 & 1.000 & 0.000 & 29.650 & -4.731 \\
+Crab-eating fox & Allee & 0.2 & PLUS P=10 & 10.967 & 0.369 & 0.000 & 1.000 & 0.000 & 37.381 & -3.288 \\
+Crab-eating fox & Allee & 0.2 & MOOR P=10 & 11.611 & 0.228 & 0.000 & 1.000 & 0.000 & 40.315 & -3.156 \\
+Crab-eating fox & Theta-logistic & 0.1 & RefPlan-inspired & 9.549 & 0.343 & 0.000 & 1.000 & 0.000 & 40.271 & 3.103 \\
+Crab-eating fox & Theta-logistic & 0.1 & OGSRL-inspired & 10.142 & 0.009 & 0.000 & 1.000 & 0.000 & 21.795 & -4.987 \\
+Crab-eating fox & Theta-logistic & 0.1 & BA-MCTS-inspired & 10.614 & 0.244 & 0.000 & 1.000 & 0.000 & 40.834 & -0.688 \\
+Crab-eating fox & Theta-logistic & 0.1 & EVD & 10.137 & 0.000 & 0.000 & 1.000 & 0.000 & 21.432 & -4.995 \\
+Crab-eating fox & Theta-logistic & 0.1 & PLUS P=10 & 10.220 & 0.141 & 0.000 & 1.000 & 0.000 & 23.669 & -4.942 \\
+Crab-eating fox & Theta-logistic & 0.1 & MOOR P=10 & 10.146 & 0.000 & 0.000 & 1.000 & 0.000 & 21.684 & -4.950 \\
+Crab-eating fox & Theta-logistic & 0.2 & RefPlan-inspired & 9.610 & 0.316 & 0.000 & 1.000 & 0.000 & 39.395 & 1.417 \\
+Crab-eating fox & Theta-logistic & 0.2 & OGSRL-inspired & 10.163 & 0.039 & 0.000 & 1.000 & 0.000 & 22.811 & -4.972 \\
+Crab-eating fox & Theta-logistic & 0.2 & BA-MCTS-inspired & 10.448 & 0.314 & 0.000 & 1.000 & 0.000 & 40.531 & -0.711 \\
+Crab-eating fox & Theta-logistic & 0.2 & EVD & 10.137 & 0.000 & 0.000 & 1.000 & 0.000 & 21.404 & -5.000 \\
+Crab-eating fox & Theta-logistic & 0.2 & PLUS P=10 & 10.311 & 0.121 & 0.000 & 1.000 & 0.000 & 26.253 & -4.780 \\
+Crab-eating fox & Theta-logistic & 0.2 & MOOR P=10 & 10.137 & 0.000 & 0.000 & 1.000 & 0.000 & 21.404 & -5.000 \\
+Crab-eating fox & Regime-switching & 0.1 & RefPlan-inspired & 6.842 & 3.609 & 0.012 & 1.000 & 0.150 & 23.118 & 8.965 \\
+Crab-eating fox & Regime-switching & 0.1 & OGSRL-inspired & 10.130 & 0.000 & 0.000 & 1.000 & 0.000 & 21.297 & -5.000 \\
+Crab-eating fox & Regime-switching & 0.1 & BA-MCTS-inspired & 10.075 & 0.710 & 0.000 & 1.000 & 0.000 & 37.058 & 1.715 \\
+Crab-eating fox & Regime-switching & 0.1 & EVD & 10.287 & 0.104 & 0.000 & 1.000 & 0.000 & 27.520 & -4.675 \\
+Crab-eating fox & Regime-switching & 0.1 & PLUS P=10 & 10.454 & 0.569 & 0.000 & 1.000 & 0.000 & 36.945 & -2.368 \\
+Crab-eating fox & Regime-switching & 0.1 & MOOR P=10 & 10.153 & 0.283 & 0.000 & 1.000 & 0.000 & 24.165 & -4.459 \\
+Crab-eating fox & Regime-switching & 0.2 & RefPlan-inspired & 4.313 & 12.005 & 0.020 & 0.950 & 0.200 & 22.994 & 9.606 \\
+Crab-eating fox & Regime-switching & 0.2 & OGSRL-inspired & 10.130 & 0.000 & 0.000 & 1.000 & 0.000 & 21.297 & -5.000 \\
+Crab-eating fox & Regime-switching & 0.2 & BA-MCTS-inspired & 9.372 & 0.773 & 0.000 & 1.000 & 0.000 & 33.094 & 4.626 \\
+Crab-eating fox & Regime-switching & 0.2 & EVD & 10.306 & 0.104 & 0.000 & 1.000 & 0.000 & 27.999 & -4.623 \\
+Crab-eating fox & Regime-switching & 0.2 & PLUS P=10 & 10.591 & 0.483 & 0.000 & 1.000 & 0.000 & 37.912 & -2.348 \\
+Crab-eating fox & Regime-switching & 0.2 & MOOR P=10 & 10.142 & 0.288 & 0.000 & 1.000 & 0.000 & 24.287 & -4.419 \\
+Egyptian vulture & Ricker & 0.1 & RefPlan-inspired & -186.816 & 0.544 & 1.000 & 0.000 & 0.000 & 9.642 & 10.776 \\
+Egyptian vulture & Ricker & 0.1 & OGSRL-inspired & -188.368 & 0.107 & 1.000 & 0.000 & 0.000 & 40.960 & 15.969 \\
+Egyptian vulture & Ricker & 0.1 & BA-MCTS-inspired & -189.608 & 0.848 & 1.000 & 0.000 & 0.000 & 8.200 & 16.209 \\
+Egyptian vulture & Ricker & 0.1 & EVD & -187.839 & 0.329 & 1.000 & 0.000 & 0.000 & 0.429 & 7.156 \\
+Egyptian vulture & Ricker & 0.1 & PLUS P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+Egyptian vulture & Ricker & 0.1 & MOOR P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+Egyptian vulture & Ricker & 0.2 & RefPlan-inspired & -187.239 & 0.656 & 1.000 & 0.000 & 0.000 & 11.929 & 11.930 \\
+Egyptian vulture & Ricker & 0.2 & OGSRL-inspired & -188.685 & 0.329 & 1.000 & 0.000 & 0.000 & 40.912 & 16.831 \\
+Egyptian vulture & Ricker & 0.2 & BA-MCTS-inspired & -190.351 & 1.174 & 1.000 & 0.000 & 0.000 & 3.622 & 17.212 \\
+Egyptian vulture & Ricker & 0.2 & EVD & -187.818 & 0.382 & 1.000 & 0.000 & 0.000 & 0.429 & 7.138 \\
+Egyptian vulture & Ricker & 0.2 & PLUS P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+Egyptian vulture & Ricker & 0.2 & MOOR P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+Egyptian vulture & Allee & 0.1 & RefPlan-inspired & -186.816 & 0.544 & 1.000 & 0.000 & 0.000 & 9.642 & 10.776 \\
+Egyptian vulture & Allee & 0.1 & OGSRL-inspired & -188.368 & 0.107 & 1.000 & 0.000 & 0.000 & 40.960 & 15.969 \\
+Egyptian vulture & Allee & 0.1 & BA-MCTS-inspired & -189.608 & 0.848 & 1.000 & 0.000 & 0.000 & 8.200 & 16.209 \\
+Egyptian vulture & Allee & 0.1 & EVD & -187.839 & 0.329 & 1.000 & 0.000 & 0.000 & 0.429 & 7.156 \\
+Egyptian vulture & Allee & 0.1 & PLUS P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+Egyptian vulture & Allee & 0.1 & MOOR P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+Egyptian vulture & Allee & 0.2 & RefPlan-inspired & -187.239 & 0.656 & 1.000 & 0.000 & 0.000 & 11.929 & 11.930 \\
+Egyptian vulture & Allee & 0.2 & OGSRL-inspired & -188.685 & 0.329 & 1.000 & 0.000 & 0.000 & 40.912 & 16.831 \\
+Egyptian vulture & Allee & 0.2 & BA-MCTS-inspired & -190.351 & 1.174 & 1.000 & 0.000 & 0.000 & 3.622 & 17.212 \\
+Egyptian vulture & Allee & 0.2 & EVD & -187.818 & 0.382 & 1.000 & 0.000 & 0.000 & 0.429 & 7.138 \\
+Egyptian vulture & Allee & 0.2 & PLUS P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+Egyptian vulture & Allee & 0.2 & MOOR P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+Egyptian vulture & Theta-logistic & 0.1 & RefPlan-inspired & -186.768 & 0.526 & 1.000 & 0.000 & 0.000 & 10.273 & 10.895 \\
+Egyptian vulture & Theta-logistic & 0.1 & OGSRL-inspired & -188.258 & 0.058 & 1.000 & 0.000 & 0.000 & 41.000 & 15.856 \\
+Egyptian vulture & Theta-logistic & 0.1 & BA-MCTS-inspired & -189.796 & 0.719 & 1.000 & 0.000 & 0.000 & 8.453 & 16.745 \\
+Egyptian vulture & Theta-logistic & 0.1 & EVD & -187.785 & 0.367 & 1.000 & 0.000 & 0.000 & 0.524 & 7.125 \\
+Egyptian vulture & Theta-logistic & 0.1 & PLUS P=10 & -187.240 & 0.000 & 1.000 & 0.000 & 0.000 & 0.524 & 9.375 \\
+Egyptian vulture & Theta-logistic & 0.1 & MOOR P=10 & -187.240 & 0.000 & 1.000 & 0.000 & 0.000 & 0.524 & 9.375 \\
+Egyptian vulture & Theta-logistic & 0.2 & RefPlan-inspired & -187.168 & 0.622 & 1.000 & 0.000 & 0.000 & 12.834 & 11.965 \\
+Egyptian vulture & Theta-logistic & 0.2 & OGSRL-inspired & -188.194 & 0.233 & 1.000 & 0.000 & 0.000 & 39.083 & 15.494 \\
+Egyptian vulture & Theta-logistic & 0.2 & BA-MCTS-inspired & -190.095 & 0.935 & 1.000 & 0.000 & 0.000 & 4.075 & 17.113 \\
+Egyptian vulture & Theta-logistic & 0.2 & EVD & -187.773 & 0.366 & 1.000 & 0.000 & 0.000 & 0.524 & 7.134 \\
+Egyptian vulture & Theta-logistic & 0.2 & PLUS P=10 & -187.240 & 0.000 & 1.000 & 0.000 & 0.000 & 0.524 & 9.375 \\
+Egyptian vulture & Theta-logistic & 0.2 & MOOR P=10 & -187.240 & 0.000 & 1.000 & 0.000 & 0.000 & 0.524 & 9.375 \\
+Egyptian vulture & Regime-switching & 0.1 & RefPlan-inspired & -186.816 & 0.544 & 1.000 & 0.000 & 0.000 & 9.642 & 10.776 \\
+Egyptian vulture & Regime-switching & 0.1 & OGSRL-inspired & -188.368 & 0.107 & 1.000 & 0.000 & 0.000 & 40.960 & 15.969 \\
+Egyptian vulture & Regime-switching & 0.1 & BA-MCTS-inspired & -189.608 & 0.848 & 1.000 & 0.000 & 0.000 & 8.200 & 16.209 \\
+Egyptian vulture & Regime-switching & 0.1 & EVD & -187.839 & 0.329 & 1.000 & 0.000 & 0.000 & 0.429 & 7.156 \\
+Egyptian vulture & Regime-switching & 0.1 & PLUS P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+Egyptian vulture & Regime-switching & 0.1 & MOOR P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+Egyptian vulture & Regime-switching & 0.2 & RefPlan-inspired & -187.239 & 0.656 & 1.000 & 0.000 & 0.000 & 11.929 & 11.930 \\
+Egyptian vulture & Regime-switching & 0.2 & OGSRL-inspired & -188.685 & 0.329 & 1.000 & 0.000 & 0.000 & 40.912 & 16.831 \\
+Egyptian vulture & Regime-switching & 0.2 & BA-MCTS-inspired & -190.351 & 1.174 & 1.000 & 0.000 & 0.000 & 3.622 & 17.212 \\
+Egyptian vulture & Regime-switching & 0.2 & EVD & -187.818 & 0.382 & 1.000 & 0.000 & 0.000 & 0.429 & 7.138 \\
+Egyptian vulture & Regime-switching & 0.2 & PLUS P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+Egyptian vulture & Regime-switching & 0.2 & MOOR P=10 & -187.265 & 0.000 & 1.000 & 0.000 & 0.000 & 0.429 & 9.375 \\
+\end{longtable}
+\end{center}
+\end{landscape}
+
+
+\section{Reporting boundaries}
+\begin{enumerate}
+\item This is a selected three-species benchmark, not a nine-population result.
+\item Ricker is a correct-form inductive bias for the ecological methods; the
+other three hidden families deliberately test form misspecification.  Results
+must be reported family by family.
+\item The claim supported here is a comparison of form-committed adapted
+ecological planning with form-flexible general MBRL under the registered
+conditions, not a universal statement that one class beats the other.
+\item Within-cell SD is conditional on one fitted policy and one registered
+dataset; it is not uncertainty over independent datasets or refits.
+\item PLUS and MOOR are registered adapted implementations, not exact paper
+reproductions.
+\end{enumerate}
+
+\end{document}

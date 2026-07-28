@@ -1,0 +1,46 @@
+{
+  "acceptance_jobs": {
+    "moor": {
+      "dependency": "afterany:58493918",
+      "initial_state": "PENDING_DEPENDENCY",
+      "job_id": "58493968"
+    },
+    "plus": {
+      "dependency": "afterany:58493916",
+      "initial_state": "PENDING_DEPENDENCY",
+      "job_id": "58493967"
+    }
+  },
+  "fit_candidate_slots_recomputed": 0,
+  "fit_candidate_slots_reused": 216,
+  "launch_package_digest": "13f6fcdf12450efb09f3c62c60db05c4c41007f64356a3999eb5d38d7e34368d",
+  "moor": {
+    "array": "0-23%24",
+    "cpus_per_task": 1,
+    "first_observed_start_aest": "2026-07-23T23:36:24+10:00",
+    "initial_running_tasks": 24,
+    "job_id": "58493918",
+    "memory_per_task": "4G",
+    "time_limit": "01:00:00"
+  },
+  "partition": "m3h",
+  "planners_and_evaluations_submitted": 48,
+  "plus": {
+    "array": "0-23%24",
+    "cpus_per_task": 1,
+    "first_observed_start_aest": "2026-07-23T23:36:24+10:00",
+    "initial_running_tasks": 24,
+    "job_id": "58493916",
+    "memory_per_task": "4G",
+    "time_limit": "06:00:00"
+  },
+  "qos": "m3h",
+  "return_fields_opened": false,
+  "submission_times_aest": {
+    "moor": "2026-07-23T23:36:23+10:00",
+    "moor_acceptance": "2026-07-23T23:36:35+10:00",
+    "plus": "2026-07-23T23:36:17+10:00",
+    "plus_acceptance": "2026-07-23T23:36:30+10:00"
+  },
+  "submission_schema": "three_species_ecological_p10_submission_v1"
+}

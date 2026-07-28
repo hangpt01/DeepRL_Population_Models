@@ -1,0 +1,12 @@
+action,name_original,name_mechanistic,channel,lambda_source,K_multiplier,dN_fraction,ciu,cost_step,interpretation,cost_range,cost_source_keys
+a0,Do Nothing,Do nothing,none,a0,1.0,0.0,0,0.0,passive monitoring,-,-
+a1,Sustainable Harvest,2x adult mortality,rate,a1,1.0,0.0,,-0.05,light culling (revenue),revenue,H
+a2,Aggressive Harvest,2x adult + 2x juvenile mortality,rate,a2,1.0,0.0,,-0.1,heavy culling (revenue),revenue,H
+a3,Predator / Disease Control,0.5x adult mortality,rate,a3,1.0,0.0,2,0.25,predator removal / pathogen treatment,"$0.19-24,487/ha","Mc,Y"
+a4,Breeding / Recruitment Support,0.5x adult + 0.5x juvenile mortality,rate,a4,1.0,0.0,4,0.5,"captive breeding, supplementary feeding",GBP500-7M/species,"La,Co"
+a5,Moderate Restoration,K x1.1,capacity,a0,1.1,0.0,1.5,0.1875,"fencing, fire management, planting",$1-9/ha/yr,"Ad,Gr,Ja"
+a6,Intensive Restoration,K x1.3,capacity,a0,1.3,0.0,4,0.5,"reserve expansion, revegetation",$71/ha; $893/km2,"Fr,Ja"
+a7,Integrated Conservation (light),0.5x adult mort + K x1.1,rate+capacity,a3,1.1,0.0,3.5,0.4375,predator control + moderate restoration,sum a3+a5,"Mc,Ad"
+a8,Adaptive Conservation Trial,0.5x adult mort + K x1.3,rate+capacity,a3,1.3,0.0,6,0.75,predator control + intensive restoration,sum a3+a6,"Mc,Fr"
+a9,Flagship Conservation Programme,0.5x adult+juv mort + K x1.3,rate+capacity,a4,1.3,0.0,8,1.0,breeding + intensive restoration,sum a4+a6,"La,Fr"
+a10,Translocation,translocation (+10% N0 to N),state,a0,1.0,0.1,2.5,0.3125,add 10% of N0 to current abundance N,"$2,393-6,898/individual",We

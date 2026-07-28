@@ -1,0 +1,52 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "510f87878b20188555eb76f03c70a2a2198cef6b178d0f9eedbc8552617bcfd4",
+    "8687468dc27bc82f0d2a06056e66e8f624c3e99619800dc9f4127a648ba1d8bc",
+    "7ba303f46d4a73a7cd06923c7a5c6b9642fee67767a4d0da1073a9b59b5db0fe",
+    "c52ec1a286b38712477583347d887155c883d572131679fc72398802b454bf6d",
+    "87fd9de172c27d28bb7fa1e67799898fb0d44f26e283ae4f53cfd1823f9646f0",
+    "40ed3aeb3dfe2d7e8a925a6155c5b5010dc08f6fcf5ddd5afa2d74fa49997830",
+    "a344f7e18fd2d3381ff42dcf13ac25a9f32e0495d27771b03ad6ac0f5b54c0af",
+    "0b0737095597d18322aeef52d5c40cdbb496a73138b97dfbc3fa05e34b04f826"
+  ],
+  "fit_reuse_ledger": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/launch_package/provenance/fit_reuse_ledger_216.csv",
+  "fit_reuse_ledger_sha256": "5410b0e4fd71312af601cbdd4c8f11115469483780f26c202fbe232916187ac3",
+  "fit_seconds": 0.0,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "c988d9f6c2bcdb89a6e4378dd1ae8b490e59320577cccf64ed7c789d9ed2ec2c",
+    "43a2474cc27867a44ac94a6bc1a7137820f900be4e526f4d5d444ed1bd1da8f0",
+    "08bf603a23fd0e8716974c2bce80af0293f84084103a1720a3b27af6bfbcce4e",
+    "91efc857ab12b3e5e997f0a0fe6d17c7ab466d56c65615596fff3b7c2bc34c2e",
+    "b8eaf23c9d7fdeb67065f8e6447cb348ccdb28feec8bead11096cbf93f107cb4",
+    "e3a1342fdb000c152d1a19e704e3065fdba3d3e3073f56c2fd830e1c8e62bddf",
+    "3524829aa0716398413a4c208b35e0d37cebc2f020a7efce110e8879e30990ec",
+    "9c099d4036a01b914ff4e2ec5e7b89cc76be9cfe259e4869e81272179ffab4de"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "reward_independent_fit": true,
+  "run_stage": "dynamics_fit",
+  "source_fit_receipt": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/ricker_only_plus_72_20260720/production/fit_receipts/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/plus_adapted_ricker_only_pbvi/fit_receipt.json",
+  "source_fit_receipt_sha256": "d675044951bcd41fabc437db0de8e26494b9a0e78c7552aa50c4b02a6b13b1ac",
+  "source_reward_penalty": 5.0,
+  "target_reward_penalty": 10.0,
+  "target_rows": 4000,
+  "transition_data_hash": "426a39a7c289b0ec9dc10549ad1cc597e523d02b18e811d902034f9a71e7efde"
+}

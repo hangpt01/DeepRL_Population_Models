@@ -1,0 +1,246 @@
+{
+  "receipt_schema": "three_species_diagnostic_replay_final_v1",
+  "stage": "COMPLETE: Tier A, Tier B, and Stage S1",
+  "date_melbourne": "2026-07-27",
+  "purpose": "Instrumented REPLAY of accepted P=10 policies with side-effect-free logging. Supersedes nothing and re-ranks nothing.",
+  "controlling_artifacts_immutable": {
+    "MATCHED_P10_144_METHOD_CELLS.csv": "7431318803e468c13ff3008acdc530c0d9f9a919cc29a6fe04951fc8a2cadc1c",
+    "verified_after_all_replays": true,
+    "note": "The accepted CSV and its receipt remain the sole controlling result and were not modified."
+  },
+  "return_blindness": "NOT claimed: the parity gate deliberately uses accepted returns as the invariant.",
+  "no_refit": {
+    "recomputed_fits": 0,
+    "plus_moor_demographic_fit_cache": "all 216 slots reused by hash",
+    "tier_b_public_ensemble": "five-member public observation-space ensemble fitted deterministically at each general-method build; this is the accepted non-faithful build path and is not a demographic-slot recomputation"
+  },
+  "thread_config": {
+    "OMP_NUM_THREADS": 1,
+    "MKL_NUM_THREADS": 1,
+    "OPENBLAS_NUM_THREADS": 1,
+    "NUMEXPR_NUM_THREADS": 1,
+    "VECLIB_MAXIMUM_THREADS": 1
+  },
+  "hardware": {
+    "fleet_node": "m3h101 Intel Xeon Platinum 8452Y (Sapphire Rapids)",
+    "constraint": "--constraint=xenon-8452Y",
+    "reason": "m3h also contains AMD EPYC9454 nodes whose BLAS kernel breaks the 1e-9 parity contract",
+    "checkpoint_cross_arch": "A6 MOOR also reproduced to 0.0 on login-node Intel 6548Y+"
+  },
+  "software": {
+    "numpy": "2.2.6",
+    "blas": "scipy-openblas / OpenBLAS 0.3.29 DYNAMIC_ARCH"
+  },
+  "jobs": {
+    "A6_moor_arch_checkpoint": "58548481",
+    "A6_plus_checkpoint": "58548480",
+    "tier_A_array": {
+      "job": "58569801",
+      "tasks": 10,
+      "node": "m3h101",
+      "all_exit_codes": "0:0",
+      "plus_elapsed_range": "04:11:11..04:13:06",
+      "moor_elapsed_range": "00:31:41..00:32:08"
+    },
+    "tier_B_array": {
+      "job": "58577745",
+      "tasks": 12,
+      "node": "m3h101",
+      "all_exit_codes": "0:0",
+      "start": "2026-07-27T21:19:57+10:00",
+      "last_completion": "2026-07-27T22:09:55+10:00",
+      "method_elapsed": {
+        "refplan": "00:01:42..00:01:43",
+        "ogsrl": "00:07:46..00:08:17",
+        "bamcts_with_return_trace": "00:48:00..00:49:58",
+        "evd": "00:00:05..00:00:06"
+      }
+    },
+    "cancelled": {
+      "58540799": "A6 PLUS recompute-path attempt; rule-2 non-compliant and superseded before outputs"
+    }
+  },
+  "parity_gate": {
+    "tolerance": {
+      "PASS": "<=1e-9",
+      "INVESTIGATE": "<=1e-6",
+      "FAIL": ">1e-6"
+    },
+    "fields": [
+      "return_mean",
+      "return_sd",
+      "unsafe_fraction",
+      "persistence",
+      "collapse_entry",
+      "min_population",
+      "economic_cost"
+    ],
+    "tier_A": {
+      "fleet_cells": 10,
+      "checkpoint_cells": 2,
+      "pass": 12,
+      "max_abs_diff": 0.0
+    },
+    "tier_B": {
+      "cells": 12,
+      "pass": 12,
+      "max_abs_diff": 0.0,
+      "dataset_hash_match_count": 12
+    },
+    "all_parity_receipts": {
+      "count": 24,
+      "pass": 24,
+      "investigate": 0,
+      "fail": 0,
+      "max_abs_diff": 0.0,
+      "recomputed_fits_values": [
+        0
+      ]
+    }
+  },
+  "tier_A_logging": {
+    "code_source": "real_ecology_runs/ricker_only_plus_72_20260720/runtime_snapshot_routing_fix",
+    "build_path": "faithful_internal with frozen demographic fit-cache reuse",
+    "plus_q_capture": "captured from the frozen act() action_values calls; not recomputed",
+    "shadow": "11-action transition_value shadow asserts environment state and all RNG bit-generator states unchanged at every step"
+  },
+  "tier_B_logging": {
+    "code_source": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/code/src",
+    "config": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/code/configs/general_phase2e_full_sigma01_02.yaml",
+    "data_root": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe",
+    "surrogate": "public.regime_hidden.public_surrogate.v2.seed20116.npz, loaded from each accepted cell",
+    "build_path": "accepted NON-faithful path: learned public filter/cache, episode-disjoint 80/20 split, deterministic public ensemble fit, then unmodified ContinuousEvaluator.run",
+    "source_hashes": {
+      "refplan.py": "c65865b2c9c270d499701827ad2c754e0f9cf02b31febd6916d5dd6494c0fbf1",
+      "ogsrl.py": "da965bc320f3cbfaf381a46aaa77a7eb0ef7c3b6b7b493bee02e338544e6993b",
+      "bamcts.py": "5ffd3d8962e723d0efb195e4b461262903c2b3e1e977a0781f70a9a17f8b4f05",
+      "ensemble_value_disagreement.py": "ab2d953f5a46ef4892830095bc8d496cc587fc0426b6e705736b5c3b905f171e",
+      "public_models.py": "f23e8aa566a2e92bd017a5bd25b8f93accb39debabe30337cf0788241ab92abb",
+      "general_phase2e_full_sigma01_02.yaml": "4e878a9ec7d528af0bfb4948e78036dc864f0d2b158a2fdf5559b24798b1222b"
+    },
+    "logging_contract": {
+      "refplan": "copies 5-member model posterior, filtering belief, action scores, and already-computed marginalized member returns; lambda_ref=0 action derived from those arrays",
+      "ogsrl": "copies predicted C25, safety budget/slack, both duals, OOD/guardian/override/fallback diagnostics",
+      "bamcts": "copies root Q, root visit counts, max depth, node count, and root model belief from the completed tree",
+      "evd": "copies Qbar, across-member Q variance, and pessimistic Q; surrogate_reward_t is absent because EVD fits raw dataset.rewards",
+      "rng": "post-act logger copies leave all discovered policy/planner/dynamics RNG states unchanged"
+    }
+  },
+  "acceptance_criteria": {
+    "1_recomputed_fits_zero": true,
+    "2_all_7_field_parity_le_1e-9": true,
+    "3_every_episode_50_steps_51_states": true,
+    "4_reward_reconstruction_tier_A_le_1e-9": true,
+    "5_all_actions_legal": true,
+    "6_deterministic_repeatability": true,
+    "7_logging_side_effect_free": true,
+    "8_no_private_field_to_method": true,
+    "9_tier_B_dataset_hash_matches_accepted": true,
+    "10_M14_schema_separation": "RefPlan belief/filter columns present and valid; OGSRL, BA-MCTS, and EVD columns explicitly absent"
+  },
+  "diagnostics": {
+    "A2_plus": {
+      "switch_vs_MAP": 0.709,
+      "M5_raw_disagreement": 0.8956745867659512,
+      "M5_centred_disagreement": 0.10508362618136342,
+      "M5_centred_over_raw": 0.1173234428374184,
+      "accepted_return_plus": 10.966745450258198,
+      "accepted_return_moor": 11.61093636068979,
+      "finding": "posterior averaging changes actions frequently and is harmful in this cell"
+    },
+    "A1_margin_mass": {
+      "plus_fraction_below_1e-3": 0.053,
+      "plus_min": 0.000017615200921916596,
+      "moor_fraction_below_1e-3": 0.04,
+      "moor_min": 0.00029402732702932255
+    },
+    "A5_return_sd": {
+      "plus": 9.112518314015307e-16,
+      "moor": 9.112518314015307e-16,
+      "reported_3dp": 0.0,
+      "note": "despite per-episode theta redraw; exact accepted parity"
+    },
+    "M11_EVD_switch_fraction_lambda_V_0": {
+      "B1": 0.001,
+      "B2": 0.004,
+      "B3": 0.002,
+      "B2_recovery_rank_Qbar": [
+        "a5",
+        "a10",
+        "a6",
+        "a4",
+        "a3",
+        "a7",
+        "a9",
+        "a8"
+      ]
+    },
+    "M12_OGSRL": {
+      "B1": {
+        "bind_fraction": 0.0,
+        "mean_slack": 0.09610794105583267,
+        "s_low": 15.146730284667465,
+        "true_s_safe_evaluator_only": 10.25,
+        "guardian_override_fraction": 0.0,
+        "hard_fallback_fraction": 0.0
+      },
+      "B2": {
+        "bind_fraction": 0.0,
+        "mean_slack": 0.08159942572246243,
+        "s_low": 35.910533267617424,
+        "true_s_safe_evaluator_only": 25.0,
+        "guardian_override_fraction": 0.995,
+        "hard_fallback_fraction": 0.031
+      },
+      "B3": {
+        "bind_fraction": 0.0,
+        "mean_slack": 0.0697238813784588,
+        "s_low": 26.53583788747671,
+        "true_s_safe_evaluator_only": 25.0,
+        "guardian_override_fraction": 0.929,
+        "hard_fallback_fraction": 0.184
+      }
+    },
+    "M14": "No belief/filtering columns exist for OGSRL, BA-MCTS, or EVD; they are not presented beside PLUS/MOOR/RefPlan filtering diagnostics.",
+    "refplan_switch_fraction_lambda_ref_0": {
+      "B1": 0.064,
+      "B2": 0.055,
+      "B3": 0.074
+    },
+    "bamcts": {
+      "mean_root_visits": 256.0,
+      "max_depth": 7,
+      "mean_tree_nodes": {
+        "B1": 97.963,
+        "B2": 93.363,
+        "B3": 108.544
+      }
+    }
+  },
+  "constant_action_reference_only": {
+    "artifact": "derived/S1_constant_action_sweep.csv",
+    "rows": 264,
+    "discipline": "evaluator-only reference policies; never a seventh method; no ranking, method, reward, or hyperparameter changed",
+    "headroom": "14/24 cells a constant reference matches or beats the best accepted learned method"
+  },
+  "artifact_hashes": {
+    "scripts/run_diagnostic_replay.py": "d78b21de2a34004e59bb3553abe82d0d8b31a04e37f2ce11f8eb852954e47ed1",
+    "scripts/replay_array.sbatch": "7ad53af4df7162eec47c608d8c29580877fd36698d5e7deaacdb09c974acea3e",
+    "scripts/run_tier_b_replay.py": "924889e3c6a026cfe48b70996a022e5b36ba90fc53d8faadf93fa4e251c6c258",
+    "scripts/tier_b_array.sbatch": "6eaa08cf39b0fa354bee3f052e6cc98b08f49ded4243a7b705cc121f61bd65fc",
+    "scripts/constant_action_sweep.py": "6858792b6e5f7a82938751c5f1956602444dcb8b4ed224deaee42d25f60e215a",
+    "scripts/a0_baseline.py": "da8a7239f21f5c630a27ea2747d7230063208c21f4ba0c69b8746dffaeb7de8f",
+    "derived/S1_constant_action_sweep.csv": "8facc39bb14a562af04640612ab1ef698789acd1f1ed7c4c0fdfec8f493fce4d",
+    "tier_A_parity_name_hash_bundle": "6cac500cff2af63d8bd9797e247bf5be0dd891930be79ad1c98265bf5dc720b2",
+    "tier_B_parity_name_hash_bundle": "17bf760c5e67ca385da77f958fb34b8d8876d3c8cff66a40fed7c38cea8cd92c",
+    "tier_A_npz_name_hash_bundle": "a2bb625005411d211820439ac7c754b20be1df28c6123a7eb26fb0ce9b87c334",
+    "tier_B_npz_name_hash_bundle": "5adeb71837d0e170ce9c7ae7293bf898d89039de8a6f42dfed1dcd2cc1384db8",
+    "tier_A_derived_name_hash_bundle": "a616aa04486b29b53b4eb314454a010e86f682b68d824d3fadbd5efe6518c2bc",
+    "tier_B_derived_name_hash_bundle": "7294c15e3bac62fd4ff95c3ab849b46918fee95290f52bd282e9aa0a5a8e869c",
+    "bundle_hash_definition": "SHA256 over sorted repetitions of basename + NUL + binary SHA256(file)"
+  },
+  "output_format": ".npz plus .scalars.csv.gz because pyarrow/pandas are unavailable in the replay environment",
+  "supersedes": [],
+  "reranks": false,
+  "open_items": []
+}

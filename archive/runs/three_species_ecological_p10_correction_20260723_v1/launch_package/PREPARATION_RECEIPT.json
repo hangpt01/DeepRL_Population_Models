@@ -1,0 +1,586 @@
+{
+  "config_sha256": {
+    "moor": "a3655a846d951439177da350ddf40ddc6d4962b42b317582dd29e72ca05323bd",
+    "plus": "10a064344e07cac16a7b2d5bd717bdce109c8970148de4295d6ff3532297fa68"
+  },
+  "fit_reuse": {
+    "moor_candidate_slots": 24,
+    "plus_candidate_slots": 192,
+    "recomputed_fits": 0,
+    "source_fit_receipts": 48
+  },
+  "fit_reuse_ledger_sha256": "5410b0e4fd71312af601cbdd4c8f11115469483780f26c202fbe232916187ac3",
+  "frozen_inputs": {
+    "accepted_table": "c10f308bd189228ed0e724cdc34c363d2a472f42c73bdeda948eb98f4586521b",
+    "general_manifest": "1526ce08dcf1b1d148232c075d41dbd78f0cfa2d7119cff9e330f965b6451df4",
+    "moor_runtime": "f70ec7122263ec00da0a4950994dfe483ed29c71bc15e477007ca9ae0a6d2333",
+    "plus_runtime": "7628816c85a39d49373892a0e72d1751de2f0a32dd003b93a54ca1f3e151982c",
+    "registry": "474d1a65d2e5ec28c741f5b7ac5691be891712e753ee6a9a6590337d62f5f0c4"
+  },
+  "manifest_sha256": {
+    "moor": "f890c9a7a535fe903bf7a40ecf992a9881341b84103b9e0dc7e10be002fc6d57",
+    "plus": "cfe43f35ce4ff1658958a2173026ca70c7164878f2408b4b246673016dc0d2a6"
+  },
+  "new_outcomes_opened": false,
+  "package_schema": "three_species_ecological_p10_correction_v1",
+  "runtime_source_modified": false,
+  "scope": {
+    "collapse_penalty": 10.0,
+    "families": [
+      "ricker",
+      "allee",
+      "theta",
+      "regime"
+    ],
+    "method_cells_per_method": 24,
+    "methods": [
+      "plus_adapted_ricker_only_pbvi",
+      "moor_adapted_ricker_misspec_pbvi"
+    ],
+    "reward_mode": "safe",
+    "sigma_obs": [
+      "0.1",
+      "0.2"
+    ],
+    "species": [
+      "Amur tiger",
+      "Crab-eating fox",
+      "Egyptian vulture"
+    ],
+    "total_method_cells": 48
+  },
+  "staged_data": {
+    "moor": [
+      {
+        "dataset_sha256": "2cc7611c7bbcb6f72cbda49db73cfc24bde41b297564581dc90a5f60cf3c0d85",
+        "family": "ricker",
+        "population": "Amur tiger",
+        "private_file_sha256": "fc681a899686b063613a99519579af21794ba40d0b20517f6557bac8704021da",
+        "public_file_sha256": "b8dce12ab815ab5e095841aa8971f97a2c1abc6606f1352e6db525fcfdf18103",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "27e2c839a3dea42243cd376c5abfe5a90f49703671e12aa4067173491e09bcdb",
+        "target_private": "moor/private/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "04f38e874ce0f95cdf69acfdd639b511c1c828972dd7e043193c751609768080",
+        "family": "ricker",
+        "population": "Amur tiger",
+        "private_file_sha256": "2a97f3a9ff55c04926a64603f8a8f1fc577dedcda436544803a9d8918ed46cba",
+        "public_file_sha256": "e599bd403f6fbeec384f86b48fa05891bfedeb4d3f3117c19b6be855f0cf969c",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "efb453af9ffc45377ca76411d59164508962105e2407c8e2cd4131bcd1e260d8",
+        "target_private": "moor/private/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "a408ee1968a695414be8bf3bfdbd0f87ee60588e2b6fa68872593ecb25f07059",
+        "family": "allee",
+        "population": "Amur tiger",
+        "private_file_sha256": "2dbdd5df64838a1ed494ee4955830d7ccc0b4e17e7e6899eafc8744531e20640",
+        "public_file_sha256": "b2ea7c674d565548ba28809ce64e6113e1159a0140ccd9197a190d286bea7858",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "b726ea639c9f37a1734f9326455d9c17e2de419bfa6ec19daa445d27cb2f4dbb",
+        "target_private": "moor/private/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "7e71172af4bc95b2c31291414af53371c1ea94393e01675d269b2b7c360324c9",
+        "family": "allee",
+        "population": "Amur tiger",
+        "private_file_sha256": "1658f587cc2b1144362bd90182efce1bd33b65d35c47c1e9dae4320d705b8668",
+        "public_file_sha256": "9e9c3a6d4bcee3c27c785f46ce17b66e1c9099c446213f46ebcfa3c3851f771c",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "be0f835b7f0a9e8c3c63ca681998acc900678b08776bc6277b50bdfdd4d5da7c",
+        "target_private": "moor/private/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "31cb9899650536ca89f70c8a1eadcb6de98a2a1a58205ecc8c9ab9bcad4c8063",
+        "family": "theta",
+        "population": "Amur tiger",
+        "private_file_sha256": "c0cf3550cbc5390db04f2d9e9ca3e77f0a1251b7db4944720525dc853d2b9935",
+        "public_file_sha256": "a51bb184430f6b3c68e9d854af56392b74bad034e06b1c50a7985d13467048cb",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "03ca1584b1b68ac189fc13e7e61ea8743ec661d7757cbf96aa9980b2fe18caf5",
+        "target_private": "moor/private/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "bd0f16b38f821b0376003c505545bd4cf7fd33382656df88ab18f1e3438ab651",
+        "family": "theta",
+        "population": "Amur tiger",
+        "private_file_sha256": "8a8a93e2e4b81de10863cfeeae440d65b8cf360d49e446872f4735ddbec9e3ee",
+        "public_file_sha256": "d614e1ade2a14857d1292212e6e0acd7d983e78a85db19dc661878fad77913c6",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "034b9539cbeac444a958735626f458051ba891d5ec97ab843b3cd1bb8e5d74c9",
+        "target_private": "moor/private/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "e65ebec4cf71e20c1ae4e015fd0f15c2f9e6606d4e0affab024b9c71c2a140da",
+        "family": "regime",
+        "population": "Amur tiger",
+        "private_file_sha256": "e88f84b1d6a4b68ddb001e420024eec6c7562ba2b8066c95f0e79490356953f0",
+        "public_file_sha256": "c739792dc7eea3b0edfc439cde1814b3ba9956e0cb6043f564c93f7a5027952c",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "4acd3c511200e2ddaaf347fa125ce6fdf30e1f6acd498daed911a767d8f50974",
+        "target_private": "moor/private/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "fb5f4a13e403816de4b46fdab8ac62c2ac8c02518c5366bf57131e688f28b351",
+        "family": "regime",
+        "population": "Amur tiger",
+        "private_file_sha256": "31e9235b4c4da615c48d73c2d2beaaa43af9ab2e61db29da3520e7a7a184eb0c",
+        "public_file_sha256": "d27f035005ea92da342e996f7b515f24108355faa1e86c2c12d179c72577f278",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "673fa364df2ad29405a2d85a522e916b7f2cab1378584b7c711f359e67c9556d",
+        "target_private": "moor/private/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "8c302e49638bc20b97331a7085452482bf5d76eddd38a78f1afc476501f9fe25",
+        "family": "ricker",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "59ea4e27cccb74a6fdbb5893a61ee6bf535fbddf94d44d568b97079d93faa18b",
+        "public_file_sha256": "58a5ba22fee585ef8b91abf6de42de10c6caa1aa9795b8721e726602a8d526f0",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "99b95ada5416654eacaa43de267755b4e612f1e1dc585cbf9977efb7023dba0c",
+        "target_private": "moor/private/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "17c930ccd749ed236030de1a4eeff58925679c2d53fe6a96e697c839f849d481",
+        "family": "ricker",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "9c4c8cf5768639627bbaee3156e16a414b6539ecaaaeb59425a982a17dadcee8",
+        "public_file_sha256": "186c094d6496c84339c0177ebdcbf423e20f22bf143ab59eae87fdc0b37eef05",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "03d6bb8c1fe556aeed080a04bfaf682ef42f55dbe192da1335f4a333f14c07e2",
+        "target_private": "moor/private/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "03c94a3591060c072c613cf5ce36e8c966cc310f8afd397dc38b16f19e7122e9",
+        "family": "allee",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "33d64a238b5fda33e288bbbd92bc76d69d60db514ceee2eb792fc82ec02ea0ce",
+        "public_file_sha256": "9c61c13b1839513e1af5a3aaa4fab7a49e71b3717451ffa744e5b3370df455ce",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "6a343241cca7737acd49754388e3aa880c24978558d7f05d326abbc71c756f3c",
+        "target_private": "moor/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "688d580f1e47a61dcad9b8a6cb96f1d62835bfbd0b835554cf31c8ab8bdd0c13",
+        "family": "allee",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "4149e293d70a59b000a3b947ce663fb3de282fb404cea857f02be00718a467e5",
+        "public_file_sha256": "7d1b2fc8a1949dda6f53f39eff1dbfe220719d0cbad9f8956ab7ca2d08e87e19",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "4d9305a94509e2bb4eacd4b25b8ac4ba138a29e269dd240eba81684b1ecc7a4b",
+        "target_private": "moor/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "b198aa7a5d3989a66be4a1fc8b4b299a0552fe287b6d2e192eb237e10f34bbc7",
+        "family": "theta",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "d218555eb0241630795bc51dbac9124da6873941889fa879d2304a1ddcbacaed",
+        "public_file_sha256": "c31fc43f6e597c1b448bd66c00e76047d84abdb1b8b010f0783bbe9a69fc5b90",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "6741a85fa240b3627f70b8a546dd81967a3971a19ba98e71d30a140348b7987c",
+        "target_private": "moor/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "684748d9f018313651ee689c7bc41cabcd6d8cf1cbc2b253646bef84b3937c20",
+        "family": "theta",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "2f9c13a0b4e6bada592bb2e9fbb3db051ce3566bb7e43f03c527cb8114692bfe",
+        "public_file_sha256": "173ff154b5f0fba5c32c3c91480dde488ad2fef4feb09dae6cfc1bbbe269938e",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "2381a269e31e081ce32ffc84cf5eaaa1e054ad81fc02d20940cd55b4f62e6df2",
+        "target_private": "moor/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "b94dc4d7556acdfa3abc8c2b4ee21d7dfdedff30a95fcf8e587cb73e7deb26b3",
+        "family": "regime",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "d6d52fc2221b14d9b38ec789fb098daad998654d7e8debfeec1005647f14cb02",
+        "public_file_sha256": "9c46bd6d9c169ebdd67809bad29ce8bfa74f81f3a30e21ff757623e19a1ecaa6",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "92cb50ed685c639133e323512fd94105e4bb3568b8ba574306f4292d36d34ed4",
+        "target_private": "moor/private/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "f1ed95af136617037e389f96fffb99328be177e1a8c39bb1347f0a2c3eb8391a",
+        "family": "regime",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "46a81f51b1e4ba75a8b5a98e70ca94649c0175c1d8ab61f9a3017af02653dc4e",
+        "public_file_sha256": "5b27a75c0dbf85e4763d9b40f4c7b8431fc0162dba5fabb35582e1171010ea17",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "2df05d5bce68eb7d308b6468032390c527f30c535943076fdd1f37d4f64fbf1a",
+        "target_private": "moor/private/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "c69837c29e7e8b18835176d5c623b5a11f71095557ae0f148a73caf3609b9a58",
+        "family": "ricker",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "0bc07bf333463da3b46c41422559b9b8f52655ca5ced996cd6c44a87be2dc3fc",
+        "public_file_sha256": "c914a7b119397c01a14549d79815bcd0e092c9ebe1482988dd48654578e982ed",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "224e5ddda9304e5262df208c2e4a1ccc83e32767a37a98c200bd8edca3df7f14",
+        "target_private": "moor/private/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "8b70bd2152e2926c53d35abd0d5ea1fa8eb665d9a4b2e57aa1e1ca02a4485523",
+        "family": "ricker",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "1779739607aedc98660de04694b6456c529782e94aa98aebc82d597a00e18d96",
+        "public_file_sha256": "910d37f230a26a242c08e2542b91c6894636ed60459593a5b33e22780440247d",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "b47f23e84f965fae54bffb16984487818224235d4493ea278fd8fe4a22827430",
+        "target_private": "moor/private/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "c69837c29e7e8b18835176d5c623b5a11f71095557ae0f148a73caf3609b9a58",
+        "family": "allee",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "f39885ace9850e28dc78285e03e06bd2e972ea49fb4b317ad1e2d14b68b43021",
+        "public_file_sha256": "c914a7b119397c01a14549d79815bcd0e092c9ebe1482988dd48654578e982ed",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "224e5ddda9304e5262df208c2e4a1ccc83e32767a37a98c200bd8edca3df7f14",
+        "target_private": "moor/private/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "8b70bd2152e2926c53d35abd0d5ea1fa8eb665d9a4b2e57aa1e1ca02a4485523",
+        "family": "allee",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "723dbc35b8e979204303fe3e1713a0191ca4b1c4bc772538a9a661ddf5668823",
+        "public_file_sha256": "910d37f230a26a242c08e2542b91c6894636ed60459593a5b33e22780440247d",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "b47f23e84f965fae54bffb16984487818224235d4493ea278fd8fe4a22827430",
+        "target_private": "moor/private/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "70192fdb200123d2cdc1ac8672bcf39367024e95b24b9560fc101caf5fcc3c32",
+        "family": "theta",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "c185db3aed45c2564ced7a620dde9dc09c7df7ca34486adff8503a7052d3e582",
+        "public_file_sha256": "6353441e82cf6a2e76d2eee54b00542170b5d8fcf3987a36321298d6ad9aaa5c",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "9229e88a9fc053d262a81e2079f03334f6b3d2e8b48c4f5ef5df893a0d39204d",
+        "target_private": "moor/private/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "eaf5c82743bedaac1fa4a8d7cc2fee2439f3084f5e7137730ec5ef2dda82f71f",
+        "family": "theta",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "2064737bc5f2bdfa4127893d09475d60cf20d391dc7cf741a99c8aea76fd45bf",
+        "public_file_sha256": "fba1c9bcbc98608a87fd9208d15721ed881daadcf7b870f4d8d7a4046ca393e1",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "bdef7c4afef2a62b8d950cd5965fc541533ed6c21f6837333fb86b89e4c55839",
+        "target_private": "moor/private/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "c69837c29e7e8b18835176d5c623b5a11f71095557ae0f148a73caf3609b9a58",
+        "family": "regime",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "c0a6cbbdc23d009f0ce6fd7016b9431c6b73ce34fff23da95225bbb85e6ffb32",
+        "public_file_sha256": "c914a7b119397c01a14549d79815bcd0e092c9ebe1482988dd48654578e982ed",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "224e5ddda9304e5262df208c2e4a1ccc83e32767a37a98c200bd8edca3df7f14",
+        "target_private": "moor/private/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p1/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "8b70bd2152e2926c53d35abd0d5ea1fa8eb665d9a4b2e57aa1e1ca02a4485523",
+        "family": "regime",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "5471bae11383f3e59f7336710ee6d1d04e99517842db2fbe751aabbdadb941c8",
+        "public_file_sha256": "910d37f230a26a242c08e2542b91c6894636ed60459593a5b33e22780440247d",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "b47f23e84f965fae54bffb16984487818224235d4493ea278fd8fe4a22827430",
+        "target_private": "moor/private/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p2/truth.npz",
+        "target_public": "moor/datasets/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p2/public.npz"
+      }
+    ],
+    "plus": [
+      {
+        "dataset_sha256": "2cc7611c7bbcb6f72cbda49db73cfc24bde41b297564581dc90a5f60cf3c0d85",
+        "family": "ricker",
+        "population": "Amur tiger",
+        "private_file_sha256": "fc681a899686b063613a99519579af21794ba40d0b20517f6557bac8704021da",
+        "public_file_sha256": "b8dce12ab815ab5e095841aa8971f97a2c1abc6606f1352e6db525fcfdf18103",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "27e2c839a3dea42243cd376c5abfe5a90f49703671e12aa4067173491e09bcdb",
+        "target_private": "plus/private/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "04f38e874ce0f95cdf69acfdd639b511c1c828972dd7e043193c751609768080",
+        "family": "ricker",
+        "population": "Amur tiger",
+        "private_file_sha256": "2a97f3a9ff55c04926a64603f8a8f1fc577dedcda436544803a9d8918ed46cba",
+        "public_file_sha256": "e599bd403f6fbeec384f86b48fa05891bfedeb4d3f3117c19b6be855f0cf969c",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "efb453af9ffc45377ca76411d59164508962105e2407c8e2cd4131bcd1e260d8",
+        "target_private": "plus/private/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/amur_tiger/ricker/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "a408ee1968a695414be8bf3bfdbd0f87ee60588e2b6fa68872593ecb25f07059",
+        "family": "allee",
+        "population": "Amur tiger",
+        "private_file_sha256": "2dbdd5df64838a1ed494ee4955830d7ccc0b4e17e7e6899eafc8744531e20640",
+        "public_file_sha256": "b2ea7c674d565548ba28809ce64e6113e1159a0140ccd9197a190d286bea7858",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "b726ea639c9f37a1734f9326455d9c17e2de419bfa6ec19daa445d27cb2f4dbb",
+        "target_private": "plus/private/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "7e71172af4bc95b2c31291414af53371c1ea94393e01675d269b2b7c360324c9",
+        "family": "allee",
+        "population": "Amur tiger",
+        "private_file_sha256": "1658f587cc2b1144362bd90182efce1bd33b65d35c47c1e9dae4320d705b8668",
+        "public_file_sha256": "9e9c3a6d4bcee3c27c785f46ce17b66e1c9099c446213f46ebcfa3c3851f771c",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "be0f835b7f0a9e8c3c63ca681998acc900678b08776bc6277b50bdfdd4d5da7c",
+        "target_private": "plus/private/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "31cb9899650536ca89f70c8a1eadcb6de98a2a1a58205ecc8c9ab9bcad4c8063",
+        "family": "theta",
+        "population": "Amur tiger",
+        "private_file_sha256": "c0cf3550cbc5390db04f2d9e9ca3e77f0a1251b7db4944720525dc853d2b9935",
+        "public_file_sha256": "a51bb184430f6b3c68e9d854af56392b74bad034e06b1c50a7985d13467048cb",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "03ca1584b1b68ac189fc13e7e61ea8743ec661d7757cbf96aa9980b2fe18caf5",
+        "target_private": "plus/private/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "bd0f16b38f821b0376003c505545bd4cf7fd33382656df88ab18f1e3438ab651",
+        "family": "theta",
+        "population": "Amur tiger",
+        "private_file_sha256": "8a8a93e2e4b81de10863cfeeae440d65b8cf360d49e446872f4735ddbec9e3ee",
+        "public_file_sha256": "d614e1ade2a14857d1292212e6e0acd7d983e78a85db19dc661878fad77913c6",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "034b9539cbeac444a958735626f458051ba891d5ec97ab843b3cd1bb8e5d74c9",
+        "target_private": "plus/private/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/amur_tiger/theta/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "e65ebec4cf71e20c1ae4e015fd0f15c2f9e6606d4e0affab024b9c71c2a140da",
+        "family": "regime",
+        "population": "Amur tiger",
+        "private_file_sha256": "e88f84b1d6a4b68ddb001e420024eec6c7562ba2b8066c95f0e79490356953f0",
+        "public_file_sha256": "c739792dc7eea3b0edfc439cde1814b3ba9956e0cb6043f564c93f7a5027952c",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "4acd3c511200e2ddaaf347fa125ce6fdf30e1f6acd498daed911a767d8f50974",
+        "target_private": "plus/private/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "fb5f4a13e403816de4b46fdab8ac62c2ac8c02518c5366bf57131e688f28b351",
+        "family": "regime",
+        "population": "Amur tiger",
+        "private_file_sha256": "31e9235b4c4da615c48d73c2d2beaaa43af9ab2e61db29da3520e7a7a184eb0c",
+        "public_file_sha256": "d27f035005ea92da342e996f7b515f24108355faa1e86c2c12d179c72577f278",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "673fa364df2ad29405a2d85a522e916b7f2cab1378584b7c711f359e67c9556d",
+        "target_private": "plus/private/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/amur_tiger/regime/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "8c302e49638bc20b97331a7085452482bf5d76eddd38a78f1afc476501f9fe25",
+        "family": "ricker",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "59ea4e27cccb74a6fdbb5893a61ee6bf535fbddf94d44d568b97079d93faa18b",
+        "public_file_sha256": "58a5ba22fee585ef8b91abf6de42de10c6caa1aa9795b8721e726602a8d526f0",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "99b95ada5416654eacaa43de267755b4e612f1e1dc585cbf9977efb7023dba0c",
+        "target_private": "plus/private/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "17c930ccd749ed236030de1a4eeff58925679c2d53fe6a96e697c839f849d481",
+        "family": "ricker",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "9c4c8cf5768639627bbaee3156e16a414b6539ecaaaeb59425a982a17dadcee8",
+        "public_file_sha256": "186c094d6496c84339c0177ebdcbf423e20f22bf143ab59eae87fdc0b37eef05",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "03d6bb8c1fe556aeed080a04bfaf682ef42f55dbe192da1335f4a333f14c07e2",
+        "target_private": "plus/private/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "03c94a3591060c072c613cf5ce36e8c966cc310f8afd397dc38b16f19e7122e9",
+        "family": "allee",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "33d64a238b5fda33e288bbbd92bc76d69d60db514ceee2eb792fc82ec02ea0ce",
+        "public_file_sha256": "9c61c13b1839513e1af5a3aaa4fab7a49e71b3717451ffa744e5b3370df455ce",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "6a343241cca7737acd49754388e3aa880c24978558d7f05d326abbc71c756f3c",
+        "target_private": "plus/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "688d580f1e47a61dcad9b8a6cb96f1d62835bfbd0b835554cf31c8ab8bdd0c13",
+        "family": "allee",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "4149e293d70a59b000a3b947ce663fb3de282fb404cea857f02be00718a467e5",
+        "public_file_sha256": "7d1b2fc8a1949dda6f53f39eff1dbfe220719d0cbad9f8956ab7ca2d08e87e19",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "4d9305a94509e2bb4eacd4b25b8ac4ba138a29e269dd240eba81684b1ecc7a4b",
+        "target_private": "plus/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "b198aa7a5d3989a66be4a1fc8b4b299a0552fe287b6d2e192eb237e10f34bbc7",
+        "family": "theta",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "d218555eb0241630795bc51dbac9124da6873941889fa879d2304a1ddcbacaed",
+        "public_file_sha256": "c31fc43f6e597c1b448bd66c00e76047d84abdb1b8b010f0783bbe9a69fc5b90",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "6741a85fa240b3627f70b8a546dd81967a3971a19ba98e71d30a140348b7987c",
+        "target_private": "plus/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "684748d9f018313651ee689c7bc41cabcd6d8cf1cbc2b253646bef84b3937c20",
+        "family": "theta",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "2f9c13a0b4e6bada592bb2e9fbb3db051ce3566bb7e43f03c527cb8114692bfe",
+        "public_file_sha256": "173ff154b5f0fba5c32c3c91480dde488ad2fef4feb09dae6cfc1bbbe269938e",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "2381a269e31e081ce32ffc84cf5eaaa1e054ad81fc02d20940cd55b4f62e6df2",
+        "target_private": "plus/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "b94dc4d7556acdfa3abc8c2b4ee21d7dfdedff30a95fcf8e587cb73e7deb26b3",
+        "family": "regime",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "d6d52fc2221b14d9b38ec789fb098daad998654d7e8debfeec1005647f14cb02",
+        "public_file_sha256": "9c46bd6d9c169ebdd67809bad29ce8bfa74f81f3a30e21ff757623e19a1ecaa6",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "92cb50ed685c639133e323512fd94105e4bb3568b8ba574306f4292d36d34ed4",
+        "target_private": "plus/private/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "f1ed95af136617037e389f96fffb99328be177e1a8c39bb1347f0a2c3eb8391a",
+        "family": "regime",
+        "population": "Crab-eating fox",
+        "private_file_sha256": "46a81f51b1e4ba75a8b5a98e70ca94649c0175c1d8ab61f9a3017af02653dc4e",
+        "public_file_sha256": "5b27a75c0dbf85e4763d9b40f4c7b8431fc0162dba5fabb35582e1171010ea17",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "2df05d5bce68eb7d308b6468032390c527f30c535943076fdd1f37d4f64fbf1a",
+        "target_private": "plus/private/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "c69837c29e7e8b18835176d5c623b5a11f71095557ae0f148a73caf3609b9a58",
+        "family": "ricker",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "0bc07bf333463da3b46c41422559b9b8f52655ca5ced996cd6c44a87be2dc3fc",
+        "public_file_sha256": "c914a7b119397c01a14549d79815bcd0e092c9ebe1482988dd48654578e982ed",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "224e5ddda9304e5262df208c2e4a1ccc83e32767a37a98c200bd8edca3df7f14",
+        "target_private": "plus/private/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "8b70bd2152e2926c53d35abd0d5ea1fa8eb665d9a4b2e57aa1e1ca02a4485523",
+        "family": "ricker",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "1779739607aedc98660de04694b6456c529782e94aa98aebc82d597a00e18d96",
+        "public_file_sha256": "910d37f230a26a242c08e2542b91c6894636ed60459593a5b33e22780440247d",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "b47f23e84f965fae54bffb16984487818224235d4493ea278fd8fe4a22827430",
+        "target_private": "plus/private/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/egyptian_vulture/ricker/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "c69837c29e7e8b18835176d5c623b5a11f71095557ae0f148a73caf3609b9a58",
+        "family": "allee",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "f39885ace9850e28dc78285e03e06bd2e972ea49fb4b317ad1e2d14b68b43021",
+        "public_file_sha256": "c914a7b119397c01a14549d79815bcd0e092c9ebe1482988dd48654578e982ed",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "224e5ddda9304e5262df208c2e4a1ccc83e32767a37a98c200bd8edca3df7f14",
+        "target_private": "plus/private/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "8b70bd2152e2926c53d35abd0d5ea1fa8eb665d9a4b2e57aa1e1ca02a4485523",
+        "family": "allee",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "723dbc35b8e979204303fe3e1713a0191ca4b1c4bc772538a9a661ddf5668823",
+        "public_file_sha256": "910d37f230a26a242c08e2542b91c6894636ed60459593a5b33e22780440247d",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "b47f23e84f965fae54bffb16984487818224235d4493ea278fd8fe4a22827430",
+        "target_private": "plus/private/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "70192fdb200123d2cdc1ac8672bcf39367024e95b24b9560fc101caf5fcc3c32",
+        "family": "theta",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "c185db3aed45c2564ced7a620dde9dc09c7df7ca34486adff8503a7052d3e582",
+        "public_file_sha256": "6353441e82cf6a2e76d2eee54b00542170b5d8fcf3987a36321298d6ad9aaa5c",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "9229e88a9fc053d262a81e2079f03334f6b3d2e8b48c4f5ef5df893a0d39204d",
+        "target_private": "plus/private/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "eaf5c82743bedaac1fa4a8d7cc2fee2439f3084f5e7137730ec5ef2dda82f71f",
+        "family": "theta",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "2064737bc5f2bdfa4127893d09475d60cf20d391dc7cf741a99c8aea76fd45bf",
+        "public_file_sha256": "fba1c9bcbc98608a87fd9208d15721ed881daadcf7b870f4d8d7a4046ca393e1",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "bdef7c4afef2a62b8d950cd5965fc541533ed6c21f6837333fb86b89e4c55839",
+        "target_private": "plus/private/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2/public.npz"
+      },
+      {
+        "dataset_sha256": "c69837c29e7e8b18835176d5c623b5a11f71095557ae0f148a73caf3609b9a58",
+        "family": "regime",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "c0a6cbbdc23d009f0ce6fd7016b9431c6b73ce34fff23da95225bbb85e6ffb32",
+        "public_file_sha256": "c914a7b119397c01a14549d79815bcd0e092c9ebe1482988dd48654578e982ed",
+        "sigma_obs": "0.1",
+        "surrogate_file_sha256": "224e5ddda9304e5262df208c2e4a1ccc83e32767a37a98c200bd8edca3df7f14",
+        "target_private": "plus/private/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p1/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p1/public.npz"
+      },
+      {
+        "dataset_sha256": "8b70bd2152e2926c53d35abd0d5ea1fa8eb665d9a4b2e57aa1e1ca02a4485523",
+        "family": "regime",
+        "population": "Egyptian vulture",
+        "private_file_sha256": "5471bae11383f3e59f7336710ee6d1d04e99517842db2fbe751aabbdadb941c8",
+        "public_file_sha256": "910d37f230a26a242c08e2542b91c6894636ed60459593a5b33e22780440247d",
+        "sigma_obs": "0.2",
+        "surrogate_file_sha256": "b47f23e84f965fae54bffb16984487818224235d4493ea278fd8fe4a22827430",
+        "target_private": "plus/private/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p2/truth.npz",
+        "target_public": "plus/datasets/regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0p2/public.npz"
+      }
+    ]
+  }
+}

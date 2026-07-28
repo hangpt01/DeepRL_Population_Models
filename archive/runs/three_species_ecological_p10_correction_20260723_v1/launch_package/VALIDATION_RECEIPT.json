@@ -1,0 +1,36 @@
+{
+  "acceptance_forbidden_sentinel_passed": true,
+  "decision": "PASS",
+  "dynamic_cache_identity": {
+    "moor": {
+      "candidate_slots": 24,
+      "group": "moor",
+      "rows": 24
+    },
+    "plus": {
+      "candidate_slots": 192,
+      "group": "plus",
+      "rows": 24
+    }
+  },
+  "fit_reuse_candidate_slots": 216,
+  "fits_recomputed": 0,
+  "hashes": {
+    "dry_run_moor": "f65050667555425907eb53ac0c976c77ff928b5b8218cbc8817dc47d68ac9d1e",
+    "dry_run_plus": "0054398872447c297f90121873fef07e42c69a3a9c2f11a5798d38e105093f0b",
+    "fit_reuse_ledger": "5410b0e4fd71312af601cbdd4c8f11115469483780f26c202fbe232916187ac3",
+    "moor_config": "a3655a846d951439177da350ddf40ddc6d4962b42b317582dd29e72ca05323bd",
+    "moor_manifest": "f890c9a7a535fe903bf7a40ecf992a9881341b84103b9e0dc7e10be002fc6d57",
+    "plus_config": "10a064344e07cac16a7b2d5bd717bdce109c8970148de4295d6ff3532297fa68",
+    "plus_manifest": "cfe43f35ce4ff1658958a2173026ca70c7164878f2408b4b246673016dc0d2a6"
+  },
+  "plan_rows": {
+    "moor": 24,
+    "plus": 24
+  },
+  "planners_and_evaluations": 48,
+  "return_fields_opened": false,
+  "unique_method_dependency_keys": 48,
+  "unique_output_directories": 48,
+  "validation_schema": "three_species_p10_pre_submission_v1"
+}

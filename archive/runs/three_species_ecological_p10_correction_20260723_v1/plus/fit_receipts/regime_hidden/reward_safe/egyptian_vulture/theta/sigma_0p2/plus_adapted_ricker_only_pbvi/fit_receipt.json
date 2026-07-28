@@ -1,0 +1,52 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified",
+    "reused_verified"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "c9f0b4fdd4fee223c48b4e082c4eb75fba9c946d699c8cb6f0efdeb2b83ed532",
+    "dfcab4e81cd38fadd19d6c8f7dcf72f99eb847eabfd2f195a93218ce0655014a",
+    "8b0b75b5b8cac56b7aef49227acc66afe34ffee53647d5bd29b2f607a47de045",
+    "2c2f1064aad817c46d1b1915025246053acb33cd7cf13be79d2af33739fc6265",
+    "45edeaacfec095260aa510c9b70f5543eedd866532377eaff3dff3e7b03b839b",
+    "7b0c512a715d16bd653cdec8163990f9fc2be65233c3fb78f0f83f6803029877",
+    "1ac43309f399e8af4a9c6712bad30359f9dc4f2c8c929b236059017a608907ee",
+    "f328b47ef1d58ba1c2010d8c2ad0f288ba54e92528113931d9351e95eaf09802"
+  ],
+  "fit_reuse_ledger": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/launch_package/provenance/fit_reuse_ledger_216.csv",
+  "fit_reuse_ledger_sha256": "5410b0e4fd71312af601cbdd4c8f11115469483780f26c202fbe232916187ac3",
+  "fit_seconds": 0.0,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "c610ba317a23b1b27a064054fe6f965e9deb08ae5fffb0443f3ffcc9d1756a82",
+    "1a2947e2c3f8073bc429f63d346a5b818f8b4b277b6b30f9a4fcc970737122d1",
+    "2ac1cd07dab1f26b6ba1d0e195aff41861fc5c4d12c7bf8d8a27f9c0d9cc8238",
+    "0d12a4febaa3f3ab75719bba7a123fdaad3f57c1ebdaa031be8ea64ec31781a3",
+    "36ddcefadebfde851f5f20dbbce52cf75f033d3775b25e85fa18ca317c5fd2f3",
+    "5d4d344c013f9288f6a4679f55b5cdad1a9eb098fb117950d00254b8056c351a",
+    "baf9fb2a9ac5ccc04d3cd12562a84efd6a182c11e2cd9bfaed0f35be8053d870",
+    "eb30e85a83649c53bd5666f191cfa287279d610b7e1c3a97388a7d202bd06f13"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "reward_independent_fit": true,
+  "run_stage": "dynamics_fit",
+  "source_fit_receipt": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/ricker_only_plus_72_20260720/production/fit_receipts/regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p2/plus_adapted_ricker_only_pbvi/fit_receipt.json",
+  "source_fit_receipt_sha256": "12b8078d829cd23bba9ed75e10eb6a970cb3609b0ef7399068d10da9c6855e7c",
+  "source_reward_penalty": 5.0,
+  "target_reward_penalty": 10.0,
+  "target_rows": 4000,
+  "transition_data_hash": "f84837d52af3c6fb309504be227c15d90bd3f9b0323388380ff013103f193620"
+}

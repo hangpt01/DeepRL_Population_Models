@@ -1,0 +1,133 @@
+\documentclass[11pt]{article}
+\input{docs/benchmark/preamble.tex}
+
+\title{State, Action, Reward, and Metric Reference}
+\author{Ecology Benchmark Documentation}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+This is the canonical reference for state variables, action semantics, reward
+channels, safety thresholds, and evaluator metrics across real, dummy, and
+synthetic modes.
+
+\section{State Variables}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+Variable & Visibility & Meaning \\
+\midrule
+$s_t$ & private/evaluator & true continuous abundance; exact zero is terminal \\
+$o_t$ & public & log-normal survey observation \\
+$r_{\mathrm{base}}$ & private & hidden baseline growth draw for synthetic and shared interface \\
+$C$ & private & Allee threshold \\
+$\theta$ & private & theta-logistic curvature \\
+$z_t$ & private & regime indicator for the switching family \\
+$\rho_t$ & public when controls enabled & growth set-point/control state \\
+$\kappa_t$ & public when controls enabled & capacity accumulator \\
+$K^{\mathrm{eff}}_t$ & public when controls enabled & clipped effective capacity \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+For set-point ecology cells, the hidden baseline draw is not added to the action
+set-point; $\rho$ already carries the growth value used by the transition after
+data-derived clipping.
+
+\section{Action Semantics}
+
+Real and dummy ecology cells use set-point growth and cumulative capacity:
+\[
+  \rho_{t+1} = \Delta r(a_t),\qquad
+  \kappa_{t+1} = \kappa_t + \Delta K(a_t).
+\]
+The code implements this through \code{accumulator_decay_r = 1.0} and
+\code{accumulator_decay_K = 0.0}. Capacity is public because it is a manager-owned
+consequence of previous actions. The effective growth rate is public in
+set-point ecology because the population identity and action table are public.
+
+Synthetic one-step control uses action effects for the next transition only.
+Synthetic cumulative-control rows retain public accumulators and support
+regression/reference experiments.
+
+\section{Reward}
+
+The real and dummy set-point reward is computed on the true next state and then
+logged into the public dataset:
+\[
+  R_t =
+  \alpha\frac{\snext}{\snext+K_{\mathrm{ref}}}
+  - c(a_t)
+  - P_m\chi_t.
+\]
+For real cells, $K_{\mathrm{ref}}=K_{\mathrm{base}}$ for the selected population.
+The two main reward modes share the benefit and cost terms:
+\[
+  P_m =
+  \begin{cases}
+    0, & \code{reward_mode = yield},\\
+    \code{collapse_penalty}, & \code{reward_mode = safe}.
+  \end{cases}
+\]
+
+The penalty indicator is configured separately. Occupancy charges
+$\chi_t=\1\{\snext \le \ssafe\}$; crossing charges only a first downward crossing
+from above the floor. Real safe-mode defaults to occupancy.
+
+\section{Safety Floors}
+
+The real default safety fraction is depletion-aware:
+\begin{itemize}
+  \item large/healthy populations use $0.10K_{\mathrm{base}}$;
+  \item mid-scale or moderately depleted populations use at least
+    $0.20K_{\mathrm{base}}$;
+  \item smallest or severely depleted populations use at least
+    $0.25K_{\mathrm{base}}$.
+\end{itemize}
+The MVP threshold is a separate diagnostic, fixed at 50 individuals by default.
+
+\section{Public Reward vs Evaluator Truth}
+
+The public reward is the logged target used by value-fitting methods. It is not a
+filter observation. Evaluator truth is kept in the private sidecar and includes
+the true state trajectory, safety-entry flags, private structural parameters, and
+true reward diagnostics. This split lets all methods train on the same public
+information while still allowing paired, truth-aware evaluation.
+
+\section{Metrics}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+Metric & Meaning \\
+\midrule
+operational return & discounted sum of the reward channel used by the method row \\
+true return & evaluator truth-channel return; equal to operational return for real set-point reward \\
+collapse entry & whether a trajectory entered the below-safety region from above \\
+unsafe occupancy & fraction of evaluated steps with $s_t \le \ssafe$ \\
+MVP fraction / breach & occupancy and any-hit diagnostics for $s_t \le 50$ \\
+persistence & final abundance remains above the safety floor \\
+economic cost & accumulated action cost index \\
+filter RMSE / log-RMSE & latent-state estimation diagnostics where a filter exists \\
+fallback count & deployment fallback usage for guarded methods \\
+wall time & filter and planner timing, recorded separately \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Mode Differences}
+
+Real and dummy modes share action semantics and reward structure. They differ in
+where populations/actions/effects come from: CSVs for real, in-code tables for
+dummy. Synthetic modes are retained for stress/reference experiments and may use
+older reward conventions in historical configs.
+
+\section*{Verification}
+
+Verified against: \path{src/real_ecology_benchmark/reward.py}, \path{src/real_ecology_benchmark/envs.py}, \path{src/real_ecology_benchmark/evaluator.py}, \path{src/real_ecology_benchmark/gate.py}, \path{src/real_ecology_benchmark/config.py}, \path{src/real_ecology_benchmark/controls.py}, \path{src/real_ecology_benchmark/dataset.py} @ be96c36
+
+\end{document}

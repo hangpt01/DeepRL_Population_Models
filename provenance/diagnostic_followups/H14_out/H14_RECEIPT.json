@@ -1,0 +1,30 @@
+{
+  "schema": "H14_reinstrument_receipt_v1",
+  "cells": [
+    "B1",
+    "B2",
+    "B3"
+  ],
+  "methods": [
+    "refplan",
+    "ogsrl",
+    "bamcts"
+  ],
+  "arms": 9,
+  "parity_pass": 9,
+  "parity_max_abs_diff": 0.0,
+  "recomputed_fits": 0,
+  "EVD_exempt": true,
+  "surrogate_reward_t_present": true,
+  "logging_after_act": true,
+  "logging_consumed_rng": false,
+  "accepted_artifacts_modified": false,
+  "reranked": false,
+  "jobs": {
+    "anchor": "58579344",
+    "remaining_array": "58579415"
+  },
+  "outputs": [
+    "H14_M13.csv"
+  ]
+}

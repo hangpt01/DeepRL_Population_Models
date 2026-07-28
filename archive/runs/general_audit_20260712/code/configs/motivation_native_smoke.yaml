@@ -1,0 +1,44 @@
+# Tiny smoke config for native discrete baseline implementation checks.
+seed: 116
+environment:
+  data_mode: real
+  population: Amur tiger
+  kind: ricker
+  control_mode: setpoint_cumulative
+  reward_mode: safe
+  collapse_penalty: 5.0
+  safety_penalty_mode: occupancy
+  observation_noise_sigma: 0.0
+dataset:
+  transitions: 160
+  episode_length: 16
+  output: outputs/motivation_native_smoke/dataset_public.npz
+  private_output: outputs/motivation_native_smoke/dataset_private.npz
+filter:
+  particles: 64
+  proposal: native_discrete
+  ess_fraction: 0.5
+model:
+  ensemble_size: 3
+  ridge: 0.001
+  native_state_bins: 31
+  native_fit_grid: 11
+  native_vi_iterations: 80
+  native_vi_tolerance: 1.0e-6
+planner:
+  horizon: 3
+  sequences: 24
+  particles: 8
+  discount: 0.95
+  pessimism: 0.5
+evaluation:
+  seeds: [7001]
+  episodes_per_seed: 1
+  horizon: 50
+  discount: 0.95
+  output_dir: outputs/motivation_native_smoke/evaluation
+training:
+  enabled: true
+  holdout_fraction: 0.2
+  plot: false
+  wandb: false

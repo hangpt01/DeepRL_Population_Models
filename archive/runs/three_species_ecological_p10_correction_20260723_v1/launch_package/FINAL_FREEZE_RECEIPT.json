@@ -1,0 +1,41 @@
+{
+  "experiment_root": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1",
+  "freeze_schema": "three_species_ecological_p10_launch_freeze_v1",
+  "package_digest_excluding_this_receipt": "13f6fcdf12450efb09f3c62c60db05c4c41007f64356a3999eb5d38d7e34368d",
+  "package_files": {
+    "DRY_RUN_MOOR.json": "f65050667555425907eb53ac0c976c77ff928b5b8218cbc8817dc47d68ac9d1e",
+    "DRY_RUN_PLUS.json": "0054398872447c297f90121873fef07e42c69a3a9c2f11a5798d38e105093f0b",
+    "PREPARATION_RECEIPT.json": "3b3a611d577c033e500797aa6ebacfd86fbfc59df186a39c2e758d8dd97a110b",
+    "VALIDATION_RECEIPT.json": "34cba313c37564d8e26279e783efcb01ddf4e8c6307692a0f7e2e909941f340e",
+    "configs/moor_ricker_p10.yaml": "a3655a846d951439177da350ddf40ddc6d4962b42b317582dd29e72ca05323bd",
+    "configs/plus_ricker_only_p10.yaml": "10a064344e07cac16a7b2d5bd717bdce109c8970148de4295d6ff3532297fa68",
+    "manifests/moor_p10_plan_24.csv": "f890c9a7a535fe903bf7a40ecf992a9881341b84103b9e0dc7e10be002fc6d57",
+    "manifests/plus_p10_plan_24.csv": "cfe43f35ce4ff1658958a2173026ca70c7164878f2408b4b246673016dc0d2a6",
+    "provenance/FIT_REWARD_INDEPENDENCE_AUDIT.json": "7f1e3cfd08aefd91c073c9eca91b2ea2289338445a72b5b266b1e2bb8ca425be",
+    "provenance/fit_reuse_ledger_216.csv": "5410b0e4fd71312af601cbdd4c8f11115469483780f26c202fbe232916187ac3",
+    "scripts/accept_p10_method.py": "4ead5af27abe56b54fa93f0edac70aaeef31f050094178cb78844281d624a383",
+    "scripts/dispatch_p10_plan.py": "8399497bf7dc2aa5996a0ec18ed0679e3fb3fe60939965b2c48bdecba30ddef2",
+    "scripts/freeze_p10_package.py": "3418664af92cb740569911484bbc4b8fa360e68ac0760f9a0ad3b87fd7acf214",
+    "scripts/prepare_p10_correction.py": "d5a941cfa2363a06f05e8ed94f7106804404e14185685fff6e0ec249d23fb368",
+    "scripts/validate_p10_package.py": "17b82cd156f530ed0173de32f6fb05d8abd66960c2dece88a61dca6a2beedbf8",
+    "slurm/run_acceptance_p10.sh": "685c8f7abe0e2d006a66a4f626751dfc88ca577d95b162a41a81a77125dddb1f",
+    "slurm/run_moor_p10.sh": "16a1ad09ee5f99b9824e558c64f1054580a043d8cc7b506d646b08d0e2640799",
+    "slurm/run_plus_p10.sh": "143d0819e63e9637acad3ecb8c15f49d45640c861a1871dac1c711088c75545a"
+  },
+  "return_fields_opened": false,
+  "runtime_tree_digests": {
+    "moor_corrected": "bcae6d7dfad6c34856583d02cb109b59c06316ac03887fef6da5a91089974e30",
+    "plus_ricker_only_routing_fix": "13e196b515470dad57d4979ca4112db648a5da3f1cdcf8d3d77efd65ceff297b"
+  },
+  "scientific_target": {
+    "collapse_penalty": 10.0,
+    "fit_candidate_slots_recomputed": 0,
+    "fit_candidate_slots_reused": 216,
+    "method_cells": 48,
+    "methods": [
+      "plus_adapted_ricker_only_pbvi",
+      "moor_adapted_ricker_misspec_pbvi"
+    ],
+    "planners_and_evaluations": 48
+  }
+}

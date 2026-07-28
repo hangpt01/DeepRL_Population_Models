@@ -1,0 +1,31 @@
+# Small smoke cell for fast end-to-end checks.
+seed: 116
+environment:
+  population: Amur tiger
+  kind: ricker
+  reward_mode: safe
+  observation_noise_sigma: 0.1
+dataset:
+  transitions: 600
+  episode_length: 15
+  output: outputs/real_smoke/dataset_public.npz
+  private_output: outputs/real_smoke/dataset_private.npz
+filter:
+  particles: 96
+  proposal: reference
+model:
+  ensemble_size: 3
+planner:
+  horizon: 3
+  sequences: 24
+  particles: 12
+evaluation:
+  seeds: [9001]
+  episodes_per_seed: 2
+  horizon: 12
+  output_dir: outputs/real_smoke/evaluation
+training:
+  enabled: true
+  holdout_fraction: 0.2
+  plot: true
+  wandb: false

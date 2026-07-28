@@ -1,0 +1,26 @@
+repository_root: /path/to/DeepRL_Population_Models
+scratch_project: /path/to/Claude_DeepRL_Population_Models
+runs_root: /path/to/Claude_DeepRL_Population_Models/real_ecology_runs
+p10_data_root: /path/to/three_species_ecological_p10_correction_20260723_v1
+p10_package: /path/to/DeepRL_Population_Models/experiments/accepted_p10
+general_run_root: /path/to/general_phase2e_full_sigma01_02_20260720_v1
+general_data_root: /path/to/general_phase2e_full_sigma01_02_20260720_v1/quarantine
+general_package: /path/to/DeepRL_Population_Models/experiments/accepted_general
+replay_output: /path/to/temporary/diagnostic_replay
+followups_output: /path/to/temporary/followups
+
+# Equivalent environment overrides used by the verification harness:
+# DEEPRL_SCRATCH_PROJECT
+# DEEPRL_RUNS_ROOT
+# DEEPRL_P10_DATA_ROOT
+# DEEPRL_P10_PACKAGE
+# DEEPRL_REPLAY_OUTPUT
+# DEEPRL_FOLLOWUPS_OUTPUT
+# DEEPRL_ACCEPTED_CSV
+# DEEPRL_ECOLOGICAL_SRC
+# DEEPRL_ECOLOGICAL_SCRIPTS
+# DEEPRL_GENERAL_RUN_ROOT
+# DEEPRL_GENERAL_DATA_ROOT
+# DEEPRL_GENERAL_PACKAGE
+# DEEPRL_GENERAL_SRC
+# DEEPRL_GENERAL_SCRIPTS

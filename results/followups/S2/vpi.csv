@@ -1,0 +1,17 @@
+population,prior,perfect_family_information_value,best_common_policy_value,best_common_policy,VPI,exceeds_delta_VPI,within_family_prior_ceiling
+Crab-eating fox,uniform,11.709550349552014,11.597892585641539,allee,0.11165776391047544,True,
+Crab-eating fox,ricker_0p5,11.48680690531509,11.368170925702781,majority,0.11863597961230887,True,
+Crab-eating fox,ricker_0p7,11.308612149925548,11.198115889025399,majority,0.11049626090014897,True,
+Crab-eating fox,nonricker,11.843196416094171,11.742658576238203,allee,0.10053783985596887,True,
+Crab-eating fox,within_ricker,11.041320016841237,11.041320016841237,ricker_fixed_parameter_oracle,,,0.0
+Crab-eating fox,within_allee,11.981698310117322,12.11380727029244,allee_fixed_parameter_oracle,,,-0.13210896017511864
+Crab-eating fox,within_theta,11.678201918897667,11.690651881147012,theta_fixed_parameter_oracle,,,-0.012449962249345248
+Crab-eating fox,within_regime,12.13698115235184,11.888450729118851,regime_fixed_parameter_oracle,,,0.2485304232329888
+Amur tiger,uniform,5.734959130524084,5.740607453908926,theta,-0.005648323384842335,False,
+Amur tiger,ricker_0p5,5.730974158362824,5.737250073234873,theta,-0.006275914872048816,False,
+Amur tiger,ricker_0p7,5.727786180633818,5.734564168695631,theta,-0.006777988061812401,False,
+Amur tiger,nonricker,5.737350113820838,5.742621882313359,theta,-0.005271768492520756,False,
+Amur tiger,within_ricker,5.723004214040307,5.723004214040307,ricker_fixed_parameter_oracle,,,0.0
+Amur tiger,within_allee,5.723004214040307,5.723004214040307,allee_fixed_parameter_oracle,,,0.0
+Amur tiger,within_theta,5.770823879975412,5.770823879975412,theta_fixed_parameter_oracle,,,0.0
+Amur tiger,within_regime,5.723004214040307,5.723004214040307,regime_fixed_parameter_oracle,,,0.0

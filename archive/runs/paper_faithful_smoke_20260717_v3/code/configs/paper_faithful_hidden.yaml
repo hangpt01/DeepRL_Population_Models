@@ -1,0 +1,64 @@
+# Registered hidden-only configuration for paper-faithful PLUS/MOOR adaptations.
+seed: 116
+environment:
+  data_mode: real
+  expose_rk: hidden
+  population: Amur tiger
+  kind: ricker
+  control_mode: setpoint_cumulative
+  reward_mode: safe
+  collapse_penalty: 5.0
+  safety_penalty_mode: occupancy
+  observation_noise_sigma: 0.1
+dataset:
+  transitions: 4000
+  episode_length: 25
+  output: outputs/paper_faithful_hidden/dataset_public.npz
+  private_output: outputs/paper_faithful_hidden/dataset_private.npz
+filter:
+  particles: 64
+  proposal: faithful_internal
+model:
+  ensemble_size: 3
+  ridge: 0.001
+planner:
+  horizon: 5
+  sequences: 96
+  particles: 32
+  discount: 0.95
+evaluation:
+  seeds: [7001, 7051, 7101, 7151, 7201]
+  episodes_per_seed: 4
+  horizon: 50
+  discount: 0.95
+  output_dir: outputs/paper_faithful_hidden/evaluation
+training:
+  enabled: true
+  holdout_fraction: 0.2
+  plot: true
+  wandb: false
+faithful:
+  model:
+    equation_version: faithful_ecology_v1
+    forms: [ricker, allee, theta, regime]
+    candidates_per_form: 4
+    prior: uniform
+    minimum_candidate_distance: 0.0001
+  fit:
+    optimizer: torch_lbfgs
+    starts: 8
+    iterations: 100
+    mc_paths: 16
+    history_fraction: 0.8
+    sparse_action_rows: 25
+  planner:
+    name: pbvi
+    state_bins: 41
+    capacity_bins: 9
+    observation_bins: 41
+    transition_samples: 256
+    observation_samples: 256
+    belief_points: 32
+    observation_branches: 7
+    horizon: 5
+

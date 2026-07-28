@@ -1,0 +1,22 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit"
+  ],
+  "candidate_count": 1,
+  "cell": "regime_hidden/reward_safe/egyptian_vulture/regime/sigma_0",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "fcd30d63548c9aa1035c262d360c41305153bb466ec2243d4ddb5d861db69903"
+  ],
+  "fit_seconds": 948.0535702854395,
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "f3a36430214cf7851ea049cf370c86c3d68726b6f16ab41e41d02d4f87793fcc"
+  ],
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "3499e086e26296f9968175b8066f4e779d9442012650c981eed930a432fb7dfe"
+}

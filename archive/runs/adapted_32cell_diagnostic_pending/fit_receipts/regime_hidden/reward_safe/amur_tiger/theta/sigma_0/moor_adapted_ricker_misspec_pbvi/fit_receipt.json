@@ -1,0 +1,22 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "miss_fitted"
+  ],
+  "candidate_count": 1,
+  "cell": "regime_hidden/reward_safe/amur_tiger/theta/sigma_0",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "bcddd627b9a599112040272b18727899fa23666aac383d0284f828a049c348bb"
+  ],
+  "fit_seconds": 882.5358371799812,
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "a69a2e98ce76df8536ded31b23daa479ae3d357292ac6df25bee08a69f04f539"
+  ],
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "ddb9f06539a6060bcc0c5d664d5b0f898a73c554d2d5231c4e15bc2963ecff0c"
+}

@@ -1,0 +1,22 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "miss_fitted"
+  ],
+  "candidate_count": 1,
+  "cell": "regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "a77fe07b40c3195a56c61d84af9be4ad6935a03bd1d232545dd45cae4515130d"
+  ],
+  "fit_seconds": 910.30599139072,
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "b67d63beadb0ad4b1f97edff2fe3e2d8558c3bfda44c63b6f432cff34bdc191f"
+  ],
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "68a2532eca19a841300c1036c0bb63d454840974d36453ffeba035b37cdc114b"
+}

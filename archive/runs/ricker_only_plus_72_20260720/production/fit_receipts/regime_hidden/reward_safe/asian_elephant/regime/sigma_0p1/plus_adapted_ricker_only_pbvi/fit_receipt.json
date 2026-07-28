@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/asian_elephant/regime/sigma_0p1",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "a6b6d86ab0b0e3aa1a81b855b02879846bf49f63d6040b1ab61aec24d3bc0e46",
+    "de9ffcec708d1a877446aa901d2d32894afea605ec151709e3e0146f56ff93c0",
+    "f931679e11608ff1d8381541206c95ee16ce1cf8708f145223f6f6d70d0c8951",
+    "4fb242e9373fdd23e912c76db97645e9a8aa040e7742008e47c354c3a3e49773",
+    "65f5c698b5c33ebb14fef01ce63d3d93430cbf12a5215c58e63a267dd5301b39",
+    "786e77c47b42e4282a968ba37b0026e6ba7a813416a09bbbf0624fb05378bc26",
+    "8035cb18875e911bfb6927ab095e9ed5112514893462d364d686f6708294627a",
+    "8d4b1ade9f0fc172786d2d155bc4add96391e12858445d9e3170bf60857cbb53"
+  ],
+  "fit_seconds": 0.0486031761392951,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "55262c7cf5398adef8e77645ee074f621f9c61ea8f5578ed7c639eb9853c9eb5",
+    "fa397f451ac2190e8fa7c587e526d2f6b2e89bad0b6a7ae2ff6dd3fdab6f0097",
+    "63a0952a0ae8a6a7857b09ba7183b08ccbd1801102318d62352d4928d0fce664",
+    "9263435e63859a03fd6cb618b65d592481d19a22d97d00940fdf03d48d96795f",
+    "3cc5c26d32fcd808e68fcd62fda11901db8dafc9d1373ff9336c321661ddc6c7",
+    "500a6b074b8944e0d1dc908de6e0d98d668801607d66c703bae78fbafa8e9434",
+    "39abef438c694307a6b17624b7e6689a9551a647c61e6286039f7ae85b91db58",
+    "d07612b6f056ca8ce8f410ca0a756de603e23771746fe94feb2f88b77055e10d"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "d684e75c8a9974113f187fbf7e10bc01e4ae8de8728703a68ec08e45a3209d23"
+}

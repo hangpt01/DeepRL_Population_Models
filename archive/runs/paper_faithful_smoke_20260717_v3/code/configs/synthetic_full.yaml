@@ -1,0 +1,50 @@
+seed: 116
+environment:
+  data_mode: synthetic
+  kind: allee
+  num_actions: 5
+  control_mode: tier2_one_step
+  horizon: 50
+  K_base: 500.0
+  r_base_low: 0.12
+  r_base_high: 0.30
+  C_low: 90.0
+  C_high: 150.0
+  theta_low: 3.0
+  theta_high: 6.0
+  regime_persistence: 0.90
+  process_noise_sigma: 0.0
+  observation_noise_sigma: 0.2
+  safety_threshold: 50.0
+  collapse_penalty: 20.0
+  alpha: 1.0
+  K_ref: 500.0
+  initial_log_sigma: 0.7
+  low_start_probability: 0.2
+  privileged_behavior: true
+dataset:
+  transitions: 75000
+  episode_length: 25
+  output: outputs/dataset_public.npz
+  private_output: outputs/dataset_private.npz
+filter:
+  particles: 1024
+  proposal: learned
+  ess_fraction: 0.5
+  proposal_sigma: 0.15
+  context_rejuvenation: 0.025
+model:
+  ensemble_size: 15
+  ridge: 0.001
+planner:
+  horizon: 5
+  sequences: 64
+  particles: 16
+  discount: 0.95
+  pessimism: 0.5
+evaluation:
+  seeds: [7001, 7051, 7101, 7151, 7201]
+  episodes_per_seed: 50
+  horizon: 50
+  discount: 0.95
+  output_dir: outputs/evaluation

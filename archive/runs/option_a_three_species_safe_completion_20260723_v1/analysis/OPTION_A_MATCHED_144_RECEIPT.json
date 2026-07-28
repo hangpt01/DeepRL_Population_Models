@@ -1,0 +1,36 @@
+{
+  "families": [
+    "ricker",
+    "allee",
+    "theta",
+    "regime"
+  ],
+  "method_cells": 144,
+  "methods": [
+    "refplan",
+    "ogsrl",
+    "bamcts",
+    "ensemble_value_disagreement_pessimism",
+    "plus_adapted_ricker_only_pbvi",
+    "moor_adapted_ricker_misspec_pbvi"
+  ],
+  "moor_acceptance_decision": "PASS_LIMITED_STRUCTURAL_ACCEPTANCE",
+  "moor_acceptance_sha256": "5e1bb4f48bff32dbc047692910fb7f94d9a510f0c4d92970dd017a6f54fce9a1",
+  "outcomes_opened_after_acceptance": true,
+  "outcomes_opened_at": "2026-07-23T21:23:21.625640+10:00",
+  "plus_acceptance_decision": "PASS_LIMITED_STRUCTURAL_ACCEPTANCE",
+  "plus_acceptance_sha256": "b182840da1016a0ba566758cad7f9e3cf9ffb6db0a3cc9b5e13bb04b4d92a841",
+  "receipt_schema": "option_a_matched_144_results_v1",
+  "returns_opened_at_acceptance_gate": false,
+  "reward_mode": "safe",
+  "sigma_obs": [
+    "0.1",
+    "0.2"
+  ],
+  "species": [
+    "Amur tiger",
+    "Crab-eating fox",
+    "Egyptian vulture"
+  ],
+  "table_sha256": "c10f308bd189228ed0e724cdc34c363d2a472f42c73bdeda948eb98f4586521b"
+}

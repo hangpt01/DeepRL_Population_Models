@@ -1,0 +1,41 @@
+# Real-ecology (Tier-4) default cell.
+# A cell fixes one real population under one map family; K_base/K_max/N0, the
+# data-derived set-point caps, and the per-population safety floor are filled
+# from ../real_ecology_data by config.real_environment().
+seed: 116
+environment:
+  data_mode: real
+  population: Amur tiger
+  kind: ricker          # ricker | allee | theta | regime
+  control_mode: setpoint_cumulative
+  reward_mode: safe     # safe (P>0, collapse-aware headline) | yield (P=0, baseline-style)
+  observation_noise_sigma: 0.2
+dataset:
+  transitions: 4000
+  episode_length: 25
+  output: outputs/real/dataset_public.npz
+  private_output: outputs/real/dataset_private.npz
+filter:
+  particles: 256
+  proposal: learned
+  ess_fraction: 0.5
+model:
+  ensemble_size: 5
+  ridge: 0.001
+planner:
+  horizon: 5
+  sequences: 96
+  particles: 32
+  discount: 0.95
+  pessimism: 0.5
+evaluation:
+  seeds: [7001, 7051, 7101, 7151, 7201]
+  episodes_per_seed: 4
+  horizon: 50
+  discount: 0.95
+  output_dir: outputs/real/evaluation
+training:
+  enabled: true
+  holdout_fraction: 0.2
+  plot: true
+  wandb: false

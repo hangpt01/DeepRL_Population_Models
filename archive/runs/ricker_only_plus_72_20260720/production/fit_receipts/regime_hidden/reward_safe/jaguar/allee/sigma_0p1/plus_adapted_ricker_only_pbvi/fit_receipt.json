@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/jaguar/allee/sigma_0p1",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "432b34648231595c56cc725ffe982b948f3624ab7d66674969f2e02df0c2fc1b",
+    "b9072cb0c8ed7079b0cde690c6fcbaece1de7a8704eb4dab2cde60fa09e94457",
+    "7b79ef2db0fc66a88ce34abeb49177c0cd81e6b41e4aa4fa078fca2cd4100a6c",
+    "16176447c826c2ee464b809d26593143887bba68ea537948d575de66cec0cd55",
+    "c58956c585e385eeeba96db46802acaede01f7f32a95177b6b76157caeb09bc4",
+    "4c4098fcb1390255901e30dee6864110ddb315a1492ad94c9a3f8237d7aabd69",
+    "845ae805163fde4d2af9565911e47f57d453139fa4df582907270b1834e1fa76",
+    "3ba991f5eeabd18c8e8405eebc29c5d679334a7a0a9bc95123b11fbab600462d"
+  ],
+  "fit_seconds": 0.05104960408061743,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "621fdec1ea82e321a9e0c27b3b7095d30b32075605e12b1a258ef82d0f771d81",
+    "54a33ebfcba3b11944c18f549f6f1363b28a145f07b5d674efb4ca5c54297201",
+    "e70eb520bf52451b6ddd23f901e04a1245dd1b7c948b0e90e0de972457f0132d",
+    "cb2205e49ddac3cbfe0b2750c8e7e48f58d7d3cc36e24371130dc55c7ae959a1",
+    "3887be44da786e268a44ff7fe275dbfa8a696e19531fc37abf26c80c020235d8",
+    "5673f5a62b420a4fb5a8ac3821b22161b3149161f9eace6314de2fdf5586b762",
+    "556a9e64efef736874db8c76cef75543128b495cd8713d206d9555cec6116176",
+    "fd70bbd2e1d107e00099ed845be54a4ca257f36516bd4d1d5235e881a7098026"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "c69a7bff40bfa27a160400e43790660f589650ce834b755a3232eeb51939a8ce"
+}

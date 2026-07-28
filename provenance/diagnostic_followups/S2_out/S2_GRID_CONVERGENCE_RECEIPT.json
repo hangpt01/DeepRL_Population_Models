@@ -1,0 +1,32 @@
+{
+  "schema": "S2_grid_convergence_v1",
+  "resolutions": [
+    41,
+    81,
+    161,
+    321
+  ],
+  "fox_VPI_raw": [
+    0.11165776391047544,
+    0.10472503441981829,
+    0.12797517821693916,
+    0.12792793635186683
+  ],
+  "tiger_VPI_raw": [
+    -0.005648323384842335,
+    0.0002590881877502227,
+    7.385717428931571e-05,
+    9.542380955540608e-05
+  ],
+  "fox_last_grid_abs_change": 4.724186507232275e-05,
+  "tiger_last_grid_abs_change": 2.1566635266090373e-05,
+  "theoretical_nonnegative_VPI_enforced": false,
+  "raw_values_retained": true,
+  "S2_decided": true,
+  "decision_note": "Decided only if the last two fox grids both clear delta_VPI and change by <0.01, while tiger stays nonnegative and changes by <0.001.",
+  "recomputed_fits": 0,
+  "reranked": false,
+  "accepted_values_read": false,
+  "accepted_artifacts_modified": false,
+  "elapsed_seconds": 113.28922247886658
+}

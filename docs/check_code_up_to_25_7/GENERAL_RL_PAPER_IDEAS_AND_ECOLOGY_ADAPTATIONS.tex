@@ -1,0 +1,583 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1.8cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{pdflscape}
+\usepackage{microtype}
+
+\definecolor{paperblue}{HTML}{245B78}
+\definecolor{adaptgreen}{HTML}{2D6A4F}
+\definecolor{warnred}{HTML}{9B2226}
+\definecolor{softgray}{HTML}{F2F4F5}
+\hypersetup{colorlinks=true,linkcolor=paperblue,citecolor=paperblue,urlcolor=paperblue}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\paperidea}[1]{\textcolor{paperblue}{\textbf{#1}}}
+\newcommand{\adaptation}[1]{\textcolor{adaptgreen}{\textbf{#1}}}
+\newcommand{\limitation}[1]{\textcolor{warnred}{\textbf{#1}}}
+\newcommand{\method}[1]{\texttt{#1}}
+
+\title{General Offline RL under Hidden Ecological Demographics\\
+Paper Ideas, Current Implementations, Adaptations, and Next Improvements}
+\author{Supervisor-facing technical explanation}
+\date{Current implementation record: 20 July 2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Why this document exists}
+
+This document explains four general offline reinforcement-learning methods used in the
+hidden-demographics real-ecology benchmark. It is written for a reader who does not inspect the
+code and may not remember the papers in detail. Its goals are to:
+
+\begin{enumerate}[leftmargin=*]
+  \item remind the reader of each paper's basic algorithmic idea;
+  \item explain the mechanism retained in the current implementation;
+  \item distinguish necessary ecological adaptations from computational approximations;
+  \item state honestly what is \emph{not} reproduced;
+  \item provide tables that can be converted directly into supervisor slides; and
+  \item identify the most important future improvements.
+\end{enumerate}
+
+The four registered methods are:
+
+\begin{enumerate}[leftmargin=*]
+  \item RefPlan-inspired posterior-adaptive planning;
+  \item OGSRL-inspired guarded constrained policy optimization;
+  \item BA-MCTS-inspired Bayes-adaptive tree search; and
+  \item ensemble value-disagreement pessimism, motivated by Delphic pessimism only at the idea
+  level.
+\end{enumerate}
+
+\noindent\fcolorbox{warnred}{softgray}{\parbox{0.94\linewidth}{
+\textbf{Important naming rule.} The first three methods retain recognizable paper-defining
+mechanisms but remain benchmark adaptations. The fourth is \emph{not} a Delphic reproduction: it
+does not fit latent causal worlds and its variance must not be called Delphic uncertainty.
+}}
+
+\section{Ecological decision problem}
+
+\subsection{What is hidden?}
+
+The central benchmark question is whether a general learner can make useful management decisions
+without being told the demographic structure. In hidden mode, methods do not receive intrinsic or
+action-specific demographic parameters, carrying capacities, the true family label, the private
+safety threshold, or native mechanistic solver access. During deployment they receive noisy public
+survey observations, action history, and public management information.
+
+This changes the learning problem from ``optimize a known population model'' to ``infer enough
+predictive structure from an offline log to act under structural uncertainty.''
+
+\subsection{Matched data and evaluation}
+
+\begin{table}[ht]
+\centering
+\caption{Common setting for all four general methods.}
+\begin{tabularx}{\linewidth}{P{0.30\linewidth}Y}
+\toprule
+Component & Registered setting \\
+\midrule
+Populations & 9 populations: 7 recoverable and 2 demographic sinks \\
+Demographic families & Ricker, Allee, theta-logistic, and regime-switching \\
+Observation noise & $\sigma_{\mathrm{obs}}\in\{0.1,0.2\}$ in the matched full package \\
+Reward modes & Safe and yield \\
+Actions & 11 discrete conservation-management actions \\
+Offline budget & 4,000 transitions per public dataset cell \\
+Episode structure & 160 complete episodes of 25 transitions \\
+Train/holdout & Episode-preserving 80/20 split: 128/32 episodes, about 3,200/800 rows \\
+Evaluation & 5 seeds, 4 episodes per seed, 50 steps per episode: 20 episodes and 1,000 decisions per method-cell \\
+Discount & $\gamma=0.95$ \\
+Shared public model & Five ridge-linear bootstrap dynamics members, ridge $10^{-3}$ \\
+Compute & One numerical thread and one allocated CPU per task \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The matched full package contains
+\[
+9\ \text{populations}\times 4\ \text{families}\times 2\ \text{noise levels}
+\times 2\ \text{rewards}=144\ \text{data cells},
+\]
+and
+\[
+144\ \text{cells}\times 4\ \text{methods}=576\ \text{method rows}.
+\]
+
+All four methods share the same public dataset within a cell. For 140 of 144 cells, the public
+files are byte-identical to the ecological comparison data. Four Crab-eating fox/theta files
+contained five additional partial-episode rows; the current package retains the exact 160 complete
+ecological episodes and omits those partial rows, preserving a common 4,000-transition design.
+
+\section{Four methods at a glance}
+
+\begin{landscape}
+\begin{table}[p]
+\centering
+\small
+\caption{Conceptual comparison of the four current methods.}
+\begin{tabularx}{\linewidth}{P{0.15\linewidth}P{0.20\linewidth}P{0.19\linewidth}P{0.25\linewidth}Y}
+\toprule
+Method & Paper-level question & Uncertainty represented now & Decision rule now & Online adaptation \\
+\midrule
+RefPlan-inspired & Which deployment dynamics model should be trusted, and how should that belief affect planning? & Posterior over five public dynamics members & History-conditioned prior proposes sequences; posterior-weighted mean return minus uncertainty penalty scores them & Model posterior updates after public transitions \\
+\addlinespace
+OGSRL-inspired & Can a policy optimize reward while avoiding unsupported and publicly risky regions? & kNN support/OOD risk and public low-abundance occupancy & Offline-trained Lagrangian actor with OOD and safety duals; feasibility checked with predictive paths & Public belief updates; actor is fixed after offline training \\
+\addlinespace
+BA-MCTS-inspired & How should planning account for future observations that change model belief? & Categorical model belief stored at each simulated tree history & 256-simulation, depth-8 MCTS with likelihood update inside the tree & Belief updates within simulated histories and after public observations \\
+\addlinespace
+Value-disagreement pessimism & Which actions have unstable long-run value across fitted estimators? & Variance across 20 episode-bootstrap conservative Q estimators & $\overline Q(s,a)-0.1\,\mathrm{Var}_m[Q_m(s,a)]$ & No online fit update; ensemble evaluated at current public features \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\end{landscape}
+
+\section{RefPlan-inspired: reflect on evidence, then plan}
+
+\subsection{Paper reminder}
+
+Reflect-then-Plan views offline model-based planning through a ``doubly Bayesian'' lens
+\cite{refplan2025}. First, a conservative offline policy provides a prior over plausible plans.
+Second, the agent maintains a belief over dynamics models and updates it from real deployment
+observations. The belief is marginalized into MPPI-style planning, and uncertain predicted returns
+are penalized.
+
+The key identity condition is:
+\[
+\text{deployment evidence}\longrightarrow\text{model posterior}
+\longrightarrow\text{different plan}.
+\]
+Computing a posterior but ignoring it during planning would not be RefPlan in substance.
+
+\subsection{Current algorithm}
+
+The current method fits two distinct public objects:
+
+\begin{enumerate}[leftmargin=*]
+  \item a five-member bootstrap dynamics ensemble; and
+  \item a standardized multinomial behavior-policy prior.
+\end{enumerate}
+
+The policy prior is mixed with a uniform floor:
+\[
+\widetilde\pi_{\mathrm{prior}}(a\mid h)
+=0.9\,\pi_{\mathrm{prior}}(a\mid h)+0.1\,\mathrm{Uniform}(a).
+\]
+For every candidate plan, the method samples an action from this prior, propagates a
+posterior-predictive public state, updates the simulated public history, reevaluates the prior, and
+continues through the planning horizon. Thus later actions depend on simulated history rather than
+reusing only the root-state action distribution.
+
+For candidate sequence $u$, model-member returns $R_m(u)$, and current posterior $w_m$, the
+reflected score is approximately
+\[
+S(u)=\sum_m w_mR_m(u)
+-\lambda_{\mathrm{ref}}
+\sqrt{\sum_m w_m\left(R_m(u)-\sum_jw_jR_j(u)\right)^2}.
+\]
+The highest-scoring sequence supplies the next action. After the real public transition, member
+weights are updated by likelihood and planning starts again.
+
+\subsection{What is close, adapted, and omitted?}
+
+\begin{table}[ht]
+\centering
+\caption{RefPlan fidelity and adaptation.}
+\begin{tabularx}{\linewidth}{P{0.25\linewidth}P{0.19\linewidth}Y}
+\toprule
+Component & Status & Explanation \\
+\midrule
+Separate policy prior & Retained/adapted & Public calibrated behavior policy replaces a deep conservative offline-RL policy \\
+Deployment model posterior & Retained & Updated from public transition evidence \\
+Belief affects planning & Retained & Candidate values are marginalized with posterior weights \\
+Return uncertainty penalty & Retained & Posterior-weighted return spread reduces the score \\
+MPPI softmax inference & Approximated & Discrete sequence proposal plus reflected-score argmax \\
+Deep latent history encoder & Omitted & Public linear history features are used instead \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Primary settings.}
+Five model members, planning horizon 5, 96 candidate sequences, 32 public belief particles,
+uniform-prior floor 0.10, return-pessimism coefficient 0.5, and discount 0.95.
+
+\paragraph{Allowed claim.}
+\adaptation{RefPlan-inspired history-conditioned public-prior planning with a separate,
+deployment-updated dynamics posterior.}
+
+\paragraph{Improvements.}
+A recurrent latent dynamics model, a genuinely conservative offline-RL prior, MPPI softmax
+weighting, longer-horizon sensitivity, and calibrated posterior likelihoods would move the method
+closer to the paper.
+
+\section{OGSRL-inspired: optimize inside a guarded model}
+
+\subsection{Paper reminder}
+
+Offline Guarded Safe RL learns a guardian for the in-distribution state-action region, constructs a
+guarded transition model, and then performs constrained policy optimization in that model
+\cite{ogsrl2025}. The original experiments use KDE/kNN components and CPO. The paper permits other
+constrained optimizers, but a trained multi-step constrained policy is central to the method.
+
+Conceptually:
+\[
+\max_\pi V_r^\pi
+\quad\text{subject to}\quad
+V_{\mathrm{OOD}}^\pi\leq d_{\mathrm{OOD}},
+\qquad
+V_c^\pi\leq d_c.
+\]
+
+\subsection{Current algorithm}
+
+The current method fits the shared public dynamics ensemble and a public kNN support guardian. It
+then trains a linear softmax actor, critic, and two Lagrange multipliers for 30 iterations. One
+constraint measures OOD exposure; the other uses a public low-abundance proxy because the private
+ecological safety threshold is hidden.
+
+Let $s_{\mathrm{low}}$ be the 20th percentile of positive training observations. The public step
+cost is
+\[
+c(o')=\mathrm{clip}\left(\frac{s_{\mathrm{low}}-o'}{s_{\mathrm{low}}},0,1\right).
+\]
+The normalized 25-step occupancy is
+\[
+C_{25}=\sum_{t=0}^{24}
+\frac{\gamma^t}{\sum_{j=0}^{24}\gamma^j}\,c(o_{t+1}),
+\qquad \gamma=0.95.
+\]
+The budget is the arithmetic mean of $C_{25}$ over complete training behavior episodes. There is no
+post-hoc floor or cap.
+
+During training and deployment, cost is applied inside each sampled predictive path before
+averaging. Deployment compares every forced first action with 256 deterministic-common-random-number
+paths, balanced over five model members, and follows the actor for continuation actions. The
+estimated quantity is
+\[
+\mathbb E_{\text{belief, member, predictive residual, actor}}[C_{25}].
+\]
+
+\subsection{What is close, adapted, and omitted?}
+
+\begin{table}[ht]
+\centering
+\caption{OGSRL fidelity and adaptation.}
+\begin{tabularx}{\linewidth}{P{0.25\linewidth}P{0.19\linewidth}Y}
+\toprule
+Component & Status & Explanation \\
+\midrule
+OOD guardian & Retained/adapted & Public kNN support model approximates the paper's guardian \\
+Guarded learned model & Retained & Unsupported transitions/actions contribute to the constraint \\
+Constrained policy optimization & Retained/adapted & Lagrangian softmax actor replaces CPO \\
+Domain safety cost & Privacy adaptation & Public low-abundance occupancy replaces the hidden private objective \\
+Safety guarantee & Removed & The public proxy cannot guarantee the private ecological criterion \\
+Rich dynamics/noise model & Approximated & Observation-space residual combines process and survey predictive error \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Primary settings.}
+Five dynamics members, 30 actor iterations, 128 rollout starts, 25-step cost horizon, 256 deployment
+paths per forced action, and discount 0.95.
+
+\paragraph{Allowed claim.}
+\adaptation{OGSRL-inspired guarded constrained actor using public OOD and low-abundance proxies.}
+There is no guarantee for the private ecological safety objective.
+
+\paragraph{Improvements.}
+Separate latent process and observation models, CPO/trust-region optimization, calibrated guardian
+thresholds, predictive-path sensitivity, and preregistered public-risk alternatives are the main
+next steps.
+
+\section{BA-MCTS-inspired: update model belief inside search}
+
+\subsection{Paper reminder}
+
+Bayes-Adaptive MCTS models offline MBRL as a Bayes-adaptive MDP
+\cite{bamcts2026}. The planning state includes both physical state and belief over possible world
+models. A simulated observation changes that belief, so search can value actions partly because of
+what they may reveal.
+
+The ideal Bayesian update is
+\[
+b_{t+1}(m)\propto b_t(m)
+p_m(o_{t+1}\mid h_t,a_t).
+\]
+The paper combines this idea with PUCT, double progressive widening for continuous problems, deep
+ensembles, and an outer policy/value distillation loop. It also explains why fixing one root-sampled
+model throughout a DPW rollout is insufficient for its method.
+
+\subsection{Current algorithm}
+
+The current planner uses five public dynamics members. Every simulated tree history carries its
+own categorical member belief in log space. A model is sampled from the current node belief, a
+public successor is generated, and member weights are updated from the simulated public transition
+likelihood before recursion.
+
+Management actions are already discrete, so action progressive widening is unnecessary. Continuous
+survey observations are grouped into public tree buckets. At each real decision, the method runs
+256 simulations to depth 8 and then replans after the next real observation.
+
+\subsection{What is close, adapted, and omitted?}
+
+\begin{table}[ht]
+\centering
+\caption{BA-MCTS fidelity and adaptation.}
+\begin{tabularx}{\linewidth}{P{0.25\linewidth}P{0.19\linewidth}Y}
+\toprule
+Component & Status & Explanation \\
+\midrule
+BAMDP model belief & Retained & Categorical belief over public ensemble members \\
+In-tree posterior update & Retained & Likelihood update occurs after each simulated transition \\
+Model sampled from current belief & Retained & No fixed root model for the whole rollout \\
+PUCT/MCTS search & Adapted & Finite discrete actions and public observation buckets \\
+Double progressive widening & Partly omitted & Action-DPW unnecessary; state handling is bucketed \\
+Outer policy/value distillation & Omitted & Search is used directly at evaluation time \\
+Deep world ensemble & Approximated & Five linear bootstrap dynamics members \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Primary settings.}
+Five model members, 256 simulations, depth 8, UCB coefficient 1.25, and discount 0.95. A small
+registered sensitivity may compare 128/depth 5 and 512/depth 12.
+
+\paragraph{Allowed claim.}
+\adaptation{BA-MCTS-inspired public ensemble tree search with genuine in-tree Bayesian model-belief
+updates.}
+
+\paragraph{Improvements.}
+Larger calibrated ensembles, deeper search, learned policy/value priors, outer distillation, and
+better continuous-observation tree handling would make the system closer to the paper.
+
+\section{Value-disagreement pessimism: Delphic-motivated only}
+
+\subsection{Delphic paper reminder}
+
+Delphic Offline RL addresses nonidentifiable hidden confounding
+\cite{delphic2024}. It fits several latent causal worlds that are observationally compatible with
+the same behavior data. A policy is evaluated in every retained world, Delphic uncertainty is the
+cross-world variance in $Q$, and a pessimism penalty discourages decisions whose value depends on
+unidentifiable counterfactual assumptions.
+
+This ecology benchmark contains a relevant confounding pattern: the data-collection behavior policy
+may use privileged true abundance while hidden methods see noisy surveys. Nevertheless, a true
+Delphic adaptation would still require coherent latent behavior, transition, and reward worlds
+fitted to the same observable trajectory distribution.
+
+\subsection{Why the current method has a different name}
+
+An earlier local construction generated disagreement by directly perturbing Q outside support.
+That could manufacture the desired variance pattern and did not correspond to complete fitted
+causal worlds. It was rejected. The current method therefore uses a neutral empirical estimator and
+does not claim Delphic uncertainty.
+
+For each of $M=20$ members, complete training episodes are resampled with replacement and an
+independent conservative linear fitted-Q estimator is trained. Members differ only through their
+bootstrap data and deterministic seed. No random term is added directly to Q.
+
+With
+\[
+\overline Q(o,a)=\frac{1}{M}\sum_{m=1}^M Q_m(o,a),
+\qquad
+V_Q(o,a)=\frac{1}{M}\sum_{m=1}^M
+\left(Q_m(o,a)-\overline Q(o,a)\right)^2,
+\]
+the action score is
+\[
+S(o,a)=\overline Q(o,a)-0.1V_Q(o,a).
+\]
+
+The penalty is operational but weak: in audited Amur and vulture holdouts, it changed about
+0.125--0.375\% of actions relative to pure ensemble-mean Q. This is a mechanism observation, not a
+performance claim.
+
+\subsection{What is retained, adapted, and absent?}
+
+\begin{table}[ht]
+\centering
+\caption{Relationship between Delphic and the current value-disagreement method.}
+\begin{tabularx}{\linewidth}{P{0.28\linewidth}P{0.18\linewidth}Y}
+\toprule
+Component & Status & Explanation \\
+\midrule
+Pessimism from Q disagreement & Idea retained & Actions with unstable fitted long-run value are penalized \\
+Cross-estimator Q variance & Retained generically & Variance is across bootstrap fitted-Q members \\
+Latent confounder model & Not implemented & No causal latent variable is fitted \\
+Observationally compatible worlds & Not implemented & Bootstrap estimators are not causal worlds \\
+ELBO/trajectory compatibility & Not implemented & No generative observable-likelihood gate \\
+Delphic uncertainty claim & Prohibited & Current variance is bootstrap estimation/model disagreement \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Primary settings.}
+Twenty episode-bootstrap members, 35 fitted-Q iterations, CQL-style coefficient 0.5,
+disagreement coefficient 0.1 in inverse-Q units, and discount 0.95.
+
+\paragraph{Allowed claim.}
+\adaptation{Episode-bootstrap conservative fitted-Q ensemble with empirical value-disagreement
+pessimism; Delphic-motivated at the idea level only.}
+
+\paragraph{Improvements.}
+To claim a genuine Delphic adaptation, fit discrete-latent generative worlds by episode-level
+marginal likelihood or ELBO, verify observable compatibility, and derive each $Q_w$ through that
+world's fitted transition/reward model. Otherwise the honest next steps are nonlinear Q ensembles,
+bootstrap-count sensitivity, and independently justified disagreement scaling.
+
+\section{Comparison of paper fidelity and ecological adaptation}
+
+\begin{landscape}
+\begin{longtable}{P{0.13\linewidth}P{0.20\linewidth}P{0.20\linewidth}P{0.22\linewidth}P{0.20\linewidth}}
+\caption{What was retained, why adaptation was necessary, and what remains.}\\
+\toprule
+Method & Defining paper mechanism retained & Necessary ecology adaptation & Computational approximation & Most important improvement \\
+\midrule
+\endfirsthead
+\toprule
+Method & Defining paper mechanism retained & Necessary ecology adaptation & Computational approximation & Most important improvement \\
+\midrule
+\endhead
+RefPlan-inspired & Policy prior, deployment dynamics posterior, posterior-marginalized planning, return pessimism & Public history replaces private state and demographic parameters; discrete management actions & Linear ensemble/prior, horizon 5, 96 proposals, argmax instead of MPPI softmax & Deep latent dynamics plus conservative offline-RL prior and MPPI weighting \\
+\addlinespace
+OGSRL-inspired & OOD guardian, guarded model, multi-step constrained policy optimization, two constraints & Public low-abundance proxy replaces hidden safety objective & Linear actor/model, Lagrangian optimizer, kNN guardian, 256 predictive paths & Latent process/observation model and trust-region CPO \\
+\addlinespace
+BA-MCTS-inspired & BAMDP belief and in-tree likelihood update & Discrete actions remove action-DPW; public observation buckets represent continuous surveys & Five linear members, 256 simulations, depth 8, no outer distillation & Larger calibrated ensemble and policy/value distillation \\
+\addlinespace
+Value-disagreement pessimism & Only broad idea: pessimism from unstable Q & Public offline features and fixed action set & Bootstrap linear conservative-Q ensemble & Either full latent compatible-world Delphic implementation or retain honest EVD scope \\
+\bottomrule
+\end{longtable}
+\end{landscape}
+
+\section{Current hyperparameters}
+
+\begin{landscape}
+\begin{table}[p]
+\centering
+\small
+\caption{Primary registered method settings.}
+\begin{tabularx}{\linewidth}{P{0.16\linewidth}P{0.20\linewidth}P{0.16\linewidth}P{0.18\linewidth}Y}
+\toprule
+Method & Model/training & Planning/control & Uncertainty/pessimism & Main sensitivity risk \\
+\midrule
+RefPlan & 5 dynamics members; ridge $10^{-3}$; calibrated public prior & Horizon 5; 96 sequences; 32 particles & Prior floor 0.10; return pessimism 0.5 & Short horizon or proposal budget may make planning myopic \\
+\addlinespace
+OGSRL & 5 dynamics members; 30 actor iterations; 128 starts & 25-step actor safety horizon; 256 deployment paths/action & Data-derived safety budget; OOD and safety duals & Public risk proxy and finite predictive-path calibration \\
+\addlinespace
+BA-MCTS & 5 dynamics members & 256 simulations; depth 8; UCB 1.25 & In-tree categorical model belief & Search depth/simulation budget dominates compute and quality \\
+\addlinespace
+EVD pessimism & 20 bootstrap Q members; 35 FQI iterations; CQL-style 0.5 & Greedy pessimistic Q & $\lambda_V=0.1$; empirical Q variance & Penalty is operational but changes few actions \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\end{landscape}
+
+\section{Verification and current experimental status}
+
+The frozen Phase 2E runtime passed 203/203 tests. Verification includes:
+
+\begin{itemize}[leftmargin=*]
+  \item private-information intervention invariance through
+  \method{fit -> act -> observe -> act};
+  \item RefPlan posterior sensitivity and history-conditioned prior tests;
+  \item OGSRL shared pathwise-cost, common-random-number, Jensen, dual, and action-risk tests;
+  \item BA-MCTS in-tree posterior concentration and numerical-stability tests;
+  \item bootstrap-membership, empirical-variance, no-direct-perturbation, and action-switch tests
+  for EVD pessimism; and
+  \item one-thread deterministic parity and strict return-blind receipt parsing.
+\end{itemize}
+
+A 64-row canary completed with 64/64 accepted validity receipts, no failures or retries, and no
+outcome fields opened. The matched full package contains 576 rows and uses only
+$\sigma_{\mathrm{obs}}\in\{0.1,0.2\}$. At the time of this document, it is prepared and validated;
+performance results are not included here.
+
+\section{What conclusions are and are not allowed}
+
+\begin{table}[ht]
+\centering
+\caption{Reporting guardrails.}
+\begin{tabularx}{\linewidth}{P{0.45\linewidth}Y}
+\toprule
+Allowed & Not allowed \\
+\midrule
+``RefPlan-inspired'', ``OGSRL-inspired'', and ``BA-MCTS-inspired'' & ``Exact reproduction'' or ``official implementation'' \\
+``Value-disagreement pessimism, Delphic-motivated'' & ``Delphic baseline'', ``compatible worlds'', or ``Delphic uncertainty'' \\
+Safe-mode results are information-limited under a hidden private objective & Weak safe return proves intrinsic algorithm failure \\
+Individual method comparisons and uncertainty diagnostics & Only a cellwise ``Best general'' envelope \\
+``Best general'' as a descriptive oracle upper envelope & ``Best general'' as one deployable policy \\
+4,000-transition result with data-adequacy caveat & Weak performance must be algorithmic without 4k/8k sensitivity \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Slide-ready summary}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Problem slide:} hidden $r$, $K$, family, and private safety threshold; only public
+  offline observations and actions are available.
+  \item \textbf{Method map:} RefPlan updates a dynamics posterior; OGSRL constrains an actor;
+  BA-MCTS updates belief inside search; EVD penalizes unstable fitted value.
+  \item \textbf{Four method slides:} paper idea, retained core, ecology adaptation, omitted piece.
+  \item \textbf{Fairness slide:} same 4,000 transitions, same public data hash, same evaluation
+  schedule, no private information.
+  \item \textbf{Fidelity table:} three core-preserving adaptations; one idea-level
+  Delphic-motivated heuristic.
+  \item \textbf{Limitations slide:} linear models, finite planning compute, public safety proxy,
+  data adequacy, and the need for a true latent-world Delphic implementation if that claim is desired.
+\end{enumerate}
+
+\appendix
+\section{Frozen matched-package provenance}
+
+\begin{tabularx}{\linewidth}{P{0.30\linewidth}Y}
+\toprule
+Artifact & SHA-256 \\
+\midrule
+576-row manifest & \texttt{1526ce08dcf1b1d148232c075d41dbd78f0cfa2d7119cff9e330f965b6451df4} \\
+Registration & \texttt{15fd7aa1c3ddc460fd255e5d66518d49244f81cf3dbbd291a5bdfe52b376b37a} \\
+144-cell dataset registry & \texttt{474d1a65d2e5ec28c741f5b7ac5691be891712e753ee6a9a6590337d62f5f0c4} \\
+Frozen code tree & \texttt{f615d363a525422abfb983f0eee7c433b009fff81a4d0ae4925bfdaba0f3aa72} \\
+\bottomrule
+\end{tabularx}
+
+\section{Paper references}
+
+\begin{thebibliography}{9}
+
+\bibitem{refplan2025}
+Jeong, Wang, Wang, Sanner, and Poupart.
+\newblock \emph{Reflect-then-Plan: Offline Model-Based Planning through a Doubly Bayesian Lens}.
+\newblock ICML, 2025.
+
+\bibitem{ogsrl2025}
+Yan, Shen, Wachi, Gros, Zhao, and Hu.
+\newblock \emph{Offline Guarded Safe RL for Medical Treatment Optimization Strategies}.
+\newblock NeurIPS Spotlight, 2025.
+
+\bibitem{bamcts2026}
+Chen, Xu, Chen, and Schneider.
+\newblock \emph{Bayes Adaptive Monte Carlo Tree Search for Offline Model-Based Reinforcement Learning}.
+\newblock ICLR, 2026.
+
+\bibitem{delphic2024}
+Pace, Y\`eche, Sch\"olkopf, R\"atsch, and Tennenholtz.
+\newblock \emph{Delphic Offline Reinforcement Learning under Nonidentifiable Hidden Confounding}.
+\newblock ICLR, 2024.
+
+\end{thebibliography}
+
+\end{document}

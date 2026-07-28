@@ -1,0 +1,17 @@
+profile: accepted-8452Y
+scheduler: slurm
+partition: m3h
+account: ce25
+qos: m3h
+cpus_per_task: 1
+constraint: xenon-8452Y
+threads:
+  OMP_NUM_THREADS: 1
+  MKL_NUM_THREADS: 1
+  OPENBLAS_NUM_THREADS: 1
+  NUMEXPR_NUM_THREADS: 1
+  VECLIB_MAXIMUM_THREADS: 1
+purpose: >-
+  Accepted 1e-9 parity profile. Keep distinct from portable/local profiles
+  because AMD EPYC BLAS kernels were observed to break strict parity.
+

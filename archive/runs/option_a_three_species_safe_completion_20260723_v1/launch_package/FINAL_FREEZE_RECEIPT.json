@@ -1,0 +1,79 @@
+{
+  "cache_audit": {
+    "moor": {
+      "candidate_slots": 8,
+      "existing_cache_metadata_files": 0,
+      "new_candidate_fits": 8,
+      "output_root": "moor_crab",
+      "rows": 8,
+      "verified_reusable_candidate_slots": 0
+    },
+    "plus": {
+      "candidate_slots": 16,
+      "existing_cache_metadata_files": 0,
+      "new_candidate_fits": 16,
+      "output_root": "plus_alignment",
+      "rows": 2,
+      "verified_reusable_candidate_slots": 0
+    }
+  },
+  "files": {
+    "DRY_RUN_MOOR.json": "0f5a2eaba8fa41521111e78cdeafc6b3b79a6a86602ded5132b0741e0274901a",
+    "DRY_RUN_PLUS.json": "90a01956e3709f9d216ce0b04a6f7c70f3fc834ce28210a167db61bbbc402662",
+    "PREPARATION_RECEIPT.json": "7261ba0abfe4a5529f2fca697e514dd44cd749dc4565cbf5f74d8e644dfd78dc",
+    "manifests/moor_crab_fit_8.csv": "517fdbd4cf38ad2b2cd2cdee217118941e9e90b683fc8ffba1cc119fdc172db8",
+    "manifests/moor_crab_plan_8.csv": "08092f7ae576ed96b02354c9b97a8993730e74d89e592785e3fa1f9de9544c7f",
+    "manifests/plus_alignment_fit_2.csv": "b52d41a16032930929e57dee3cdaa3f90429d7ed4d5c67e9a10043f40233fc57",
+    "manifests/plus_alignment_plan_2.csv": "937ac4a7089a7c0ff2d7c6bf0a088b2aa725b5e6c2cd67b369bd940a76ff028c",
+    "scripts/freeze_option_a.py": "c99876b63fcf8d60d6525926ce6be4f892768038cf1f0776674f6fdef6815313",
+    "scripts/option_a_acceptance.py": "4c41eb2b590b12c46330c34138eb066a0f77efb46d58a6822d869a85a9da9cea",
+    "scripts/option_a_dispatch.py": "f6234fc9487019d91278f23a3fbaf18c7f73c2fc88bcfaac5ab794ed07e0a30a",
+    "scripts/prepare_option_a.py": "f09b8e0fe47149c7fd660d3d9d0e78f90864d01c9747f788074d34a9be276815",
+    "slurm/run_acceptance.sh": "a52d9ccbe911b15a20f20477aec233d0d517adbcbcfc4515fb270417e49343d5",
+    "slurm/run_moor_array.sh": "0c87171973ed35e16aca070341558ab107d8b8447aa26e1526f1bd200af41374",
+    "slurm/run_plus_array.sh": "4b863035ba447bbf049ec700b3685aaf7f92ad9b0f632392031723c088b8fced"
+  },
+  "freeze_schema": "option_a_launch_overlay_freeze_v1",
+  "frozen_inputs": {
+    "general_manifest": "1526ce08dcf1b1d148232c075d41dbd78f0cfa2d7119cff9e330f965b6451df4",
+    "moor_config": "1b45850cfad0a2b08ea2021c19169c8c0935c3baa95ef6350a7fd1f8a3f617ac",
+    "moor_fit": "a8f39d83eb70a32be2c42fabecc56ca4af4d3d40edb97f87242934085fd7ee86",
+    "moor_plan": "f0322718a78d485827c39661e2f1ded4cbde1d8bccd4cd053f4d1fe93dec087d",
+    "moor_runtime": "f70ec7122263ec00da0a4950994dfe483ed29c71bc15e477007ca9ae0a6d2333",
+    "plus_config": "b871668bae1c971795267bc402c3450e1fe6a628b4e8fee91b1300cfd73fbc26",
+    "plus_fit": "cb478f860b5c523407f4f11f3731904285d2a23164103ed667180ff56b9abdea",
+    "plus_freeze": "3285a9cc512576fe6648558ecafa5d5715de6fddd91678fc33e2bbf641286dd4",
+    "plus_plan": "398780b8267af1b53f4092994eb001caa335537910905190dc58acad23595cc2",
+    "plus_runtime": "7628816c85a39d49373892a0e72d1751de2f0a32dd003b93a54ca1f3e151982c",
+    "registry": "474d1a65d2e5ec28c741f5b7ac5691be891712e753ee6a9a6590337d62f5f0c4"
+  },
+  "manifest_sha256": {
+    "moor_fit": "517fdbd4cf38ad2b2cd2cdee217118941e9e90b683fc8ffba1cc119fdc172db8",
+    "moor_plan": "08092f7ae576ed96b02354c9b97a8993730e74d89e592785e3fa1f9de9544c7f",
+    "plus_fit": "b52d41a16032930929e57dee3cdaa3f90429d7ed4d5c67e9a10043f40233fc57",
+    "plus_plan": "937ac4a7089a7c0ff2d7c6bf0a088b2aa725b5e6c2cd67b369bd940a76ff028c"
+  },
+  "overlay_digest": "81ec2b5dc05960e43d8bb0c6cfe14f3ff6a9d2ee86ec9b91da1699475dfba988",
+  "return_fields_opened": false,
+  "scope": {
+    "families": [
+      "ricker",
+      "allee",
+      "theta",
+      "regime"
+    ],
+    "final_method_cells": 144,
+    "methods": 6,
+    "new_scientific_rows": 10,
+    "reward_mode": "safe",
+    "sigma_obs": [
+      "0.1",
+      "0.2"
+    ],
+    "species": [
+      "Amur tiger",
+      "Crab-eating fox",
+      "Egyptian vulture"
+    ]
+  }
+}

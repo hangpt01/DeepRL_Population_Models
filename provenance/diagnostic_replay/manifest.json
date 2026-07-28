@@ -1,0 +1,159 @@
+{
+  "manifest_schema": "three_species_diagnostic_replay_final_v1",
+  "stage": "COMPLETE",
+  "root": "real_ecology_runs/three_species_diagnostic_replay_20260726_v1",
+  "purpose": "Instrumented replay of accepted P=10 policies with side-effect-free logging. Supersedes nothing and re-ranks nothing.",
+  "controlling_result_immutable": {
+    "csv": "real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/analysis/MATCHED_P10_144_METHOD_CELLS.csv",
+    "sha256": "7431318803e468c13ff3008acdc530c0d9f9a919cc29a6fe04951fc8a2cadc1c",
+    "verified_unchanged_after_all_replays": true
+  },
+  "return_blindness_claimed": false,
+  "recomputed_fits": 0,
+  "sources": {
+    "tier_A": {
+      "code": "real_ecology_runs/ricker_only_plus_72_20260720/runtime_snapshot_routing_fix",
+      "methods": [
+        "plus_adapted_ricker_only_pbvi__diagnostic_replay",
+        "moor_adapted_ricker_misspec_pbvi__diagnostic_replay"
+      ],
+      "build_path": "faithful_internal with frozen demographic fit-cache reuse"
+    },
+    "tier_B": {
+      "code": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/code/src",
+      "config": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/code/configs/general_phase2e_full_sigma01_02.yaml",
+      "data_root": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe",
+      "surrogate": "public.regime_hidden.public_surrogate.v2.seed20116.npz",
+      "methods": [
+        "RefPlan",
+        "OGSRL",
+        "BA-MCTS",
+        "EVD"
+      ],
+      "build_path": "accepted non-faithful general-method path with learned public cache, episode-disjoint 80/20 split, deterministic public-ensemble construction, and unmodified ContinuousEvaluator.run",
+      "distinct_from_tier_A": true
+    }
+  },
+  "evaluation": {
+    "seeds": [
+      7001,
+      7002,
+      7003,
+      7004,
+      7051,
+      7052,
+      7053,
+      7054,
+      7101,
+      7102,
+      7103,
+      7104,
+      7151,
+      7152,
+      7153,
+      7154,
+      7201,
+      7202,
+      7203,
+      7204
+    ],
+    "episodes": 20,
+    "horizon": 50,
+    "discount": 0.95,
+    "collapse_penalty": 10,
+    "num_actions": 11,
+    "parity_fields": [
+      "return_mean",
+      "return_sd",
+      "unsafe_fraction",
+      "persistence",
+      "collapse_entry",
+      "min_population",
+      "economic_cost"
+    ],
+    "parity_tolerance": 1e-09
+  },
+  "scope": {
+    "tier_A_cells": {
+      "A1": "Crab-eating fox / ricker / 0.2",
+      "A2": "Crab-eating fox / allee / 0.2",
+      "A3": "Crab-eating fox / regime / 0.2",
+      "A4": "Crab-eating fox / theta / 0.2",
+      "A5": "Amur tiger / theta / 0.1",
+      "A6": "Egyptian vulture / ricker / 0.1"
+    },
+    "tier_B_cells": {
+      "B1": "Crab-eating fox / regime / 0.2",
+      "B2": "Amur tiger / ricker / 0.1",
+      "B3": "Amur tiger / allee / 0.2"
+    },
+    "tier_B_diagnostics": [
+      "M11",
+      "M12",
+      "M14"
+    ]
+  },
+  "hardware": {
+    "node": "m3h101",
+    "processor": "Intel Xeon Platinum 8452Y (Sapphire Rapids)",
+    "constraint": "xenon-8452Y",
+    "threads": 1,
+    "reason": "Parity-critical: m3h also contains AMD nodes."
+  },
+  "software": {
+    "numpy": "2.2.6",
+    "openblas": "0.3.29 DYNAMIC_ARCH"
+  },
+  "jobs": {
+    "tier_A": {
+      "job": "58569801",
+      "tasks": 10,
+      "completed": 10,
+      "exit_codes": "0:0"
+    },
+    "tier_B": {
+      "job": "58577745",
+      "tasks": 12,
+      "completed": 12,
+      "exit_codes": "0:0",
+      "last_completion": "2026-07-27T22:09:55+10:00"
+    },
+    "A6_checkpoints": [
+      "58548480",
+      "58548481"
+    ]
+  },
+  "parity": {
+    "tier_A_fleet": {
+      "pass": 10,
+      "max_abs_diff": 0.0
+    },
+    "tier_A_checkpoints": {
+      "pass": 2,
+      "max_abs_diff": 0.0
+    },
+    "tier_B": {
+      "pass": 12,
+      "max_abs_diff": 0.0,
+      "dataset_hash_match_count": 12
+    },
+    "all_receipts": {
+      "count": 24,
+      "pass": 24,
+      "investigate": 0,
+      "fail": 0,
+      "max_abs_diff": 0.0
+    }
+  },
+  "outputs": {
+    "receipt": "DIAGNOSTIC_REPLAY_RECEIPT.json",
+    "summary": "SUMMARY.md",
+    "tier_A_logs": "logs/*.npz and logs/*.scalars.csv.gz",
+    "tier_B_logs": "logs/tierB_*.npz and logs/tierB_*.scalars.csv.gz",
+    "parity": "parity/*.parity.json",
+    "derived": "derived/*.json and derived/S1_constant_action_sweep.csv"
+  },
+  "constant_action_policy_status": "Evaluator-only reference policies; not a seventh method and not used to alter rankings.",
+  "method_reward_hyperparameter_changes": false,
+  "open_items": []
+}

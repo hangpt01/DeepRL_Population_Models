@@ -1,0 +1,76 @@
+{
+  "population_public": "opaque",
+  "family_private_hidden": true,
+  "collect_seconds": 0.5473799960454926,
+  "data": {
+    "transitions": 4000,
+    "episodes": 160,
+    "train_episodes": 128,
+    "holdout_episodes": 32,
+    "transitions_per_action": [
+      213,
+      139,
+      155,
+      607,
+      579,
+      68,
+      84,
+      540,
+      574,
+      522,
+      519
+    ],
+    "min_action_support": 68,
+    "actions_below_50": 0,
+    "observation_scale": 35.658636162833126
+  },
+  "dynamics": {
+    "holdout_rmse": 12.665539902077969,
+    "mean_ensemble_disagreement": 1.2313677579870668
+  },
+  "behavior": {
+    "reference_nll_holdout": 22.642473175549554
+  },
+  "risk_channel": {
+    "terminated_prevalence": 0.0,
+    "risk_fallback": "constant_single_class"
+  },
+  "methods": {
+    "refplan": {
+      "fit_seconds": 0.004620481049641967,
+      "act_ms_mean": 36.174932203721255,
+      "act_ms_p95": 36.500196444103494,
+      "posterior_entropy": 1.6094379124291003,
+      "members": 5.0
+    },
+    "ogsrl": {
+      "fit_seconds": 3.0751815480180085,
+      "act_ms_mean": 70.35123880486935,
+      "act_ms_p95": 73.01079936441965,
+      "hidden_actor_trained": 1.0,
+      "lambda_ood": 3.2146969938964842,
+      "lambda_safety": 0.9449639245979071,
+      "safety_channel_degenerate": 1.0,
+      "guardian_threshold": 0.34343331110247544
+    },
+    "bamcts": {
+      "fit_seconds": 0.003829541034065187,
+      "act_ms_mean": 589.9102210300043,
+      "act_ms_p95": 604.1915378533304,
+      "tree_nodes_last": 85.0,
+      "root_belief_kl_after_one_step": 0.00011512609141554669
+    },
+    "delphic": {
+      "fit_seconds": 7.486012024106458,
+      "act_ms_mean": 0.8553315186873078,
+      "act_ms_p95": 0.9765828319359569,
+      "compatible_worlds": 20,
+      "world_tv_max": 0.03785303479031677,
+      "world_diversity": 239.19179566756196,
+      "compat_passes": true,
+      "compat_reason": "compatible and diverse"
+    }
+  },
+  "peak_rss_mb": 158.73046875,
+  "wall_seconds_total": 18.739293398102745
+}

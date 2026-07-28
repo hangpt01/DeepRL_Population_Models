@@ -1,0 +1,439 @@
+\documentclass[11pt]{article}
+\input{docs/benchmark/preamble.tex}
+\usepackage{graphicx}
+
+\title{Motivation Experiment Results: Native Ecological Baselines}
+\author{Ecology Benchmark Documentation}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Question and Answer}
+
+The motivation experiment asked whether general offline model-based RL methods
+beat native discrete ecological baselines in the real-ecology benchmark once
+the baselines are implemented as genuine discrete-state planners rather than as
+the adapted particle-MPC methods. The expected story was that structural
+uncertainty and partial observability would make naive ecological solvers
+fragile.
+
+The completed run shows the opposite. The best native ecological solver beats
+or ties the general methods in 860 of 864 paired comparisons. \code{refplan}
+and \code{bamcts} never beat both native solvers; \code{ogsrl} does so in only
+4 of 288 paired cells. More importantly, the result survives without the
+stronger \code{plus_native} model-identifying solver: the single-Ricker
+\code{moor_native} baseline beats the best general method by 0.819 mean return
+on recoverable safe cells, and the general methods win only 6 of 112 such
+cells. The result is therefore a negative result for the original motivation,
+not a marginally inconclusive result.
+
+\section{Run Scope and Integrity}
+
+The main run contains 1440 completed evaluation summaries:
+9 populations, 4 dynamics families, 4 observation-noise values, 2 reward modes,
+and 5 methods. The resolution replicate contains 1152 native-only summaries
+at coarse and fine native grids. The launch gates passed before the sweep:
+the 288-row acceptance battery passed all 8 checks; all 288 main cells share a
+single dataset hash across methods; and the native-grid resolution check has
+0 headline flips across 288 cells.
+
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+artifact & rows & purpose & result \\
+\midrule
+main sweep & 1440 & headline comparison & complete \\
+coarse/fine native grids & 1152 & discretization sensitivity & 0 flips \\
+acceptance battery & 288 & launch gate & 8/8 pass \\
+search-budget audit & 1728 & under-tuning check & model-limited \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Benchmark Setting}
+
+The benchmark is a partially observed conservation-control problem. The hidden
+state is true population abundance. The policy observes a noisy abundance
+survey, public management controls, and the public action history, but it does
+not observe the private true state during deployment. The motivation sweep uses
+four observation-noise values, $\sobs \in \{0,0.1,0.2,0.4\}$.
+
+Each cell is a combination of one of 9 real populations, one of 4 ecological
+dynamics families, one reward mode, and one observation-noise value. The four
+dynamics families are Ricker, Allee, theta-logistic, and regime-switching. The
+action set has 11 real management actions, including do-nothing, harvest,
+restoration, integrated conservation, and translocation-style interventions.
+The action table publicly determines action-specific growth set-points and
+carrying-capacity effects; the species table publicly determines the
+population-specific carrying-capacity scale.
+
+The main comparison uses two reward modes. The yield mode removes the collapse
+penalty and behaves like a production baseline. The safe mode uses an
+occupancy-style safety penalty with collapse penalty $P=5$, so populations are
+penalized while they remain below the cell's safety threshold. Each public
+offline dataset contains 4000 logged transitions. Evaluation uses 5 seed blocks,
+4 episodes per seed, and horizon 50.
+
+This public structure is the central reason the result is surprising. The
+benchmark was intended to stress ecological baselines with partial observability
+and structural uncertainty, but it also exposes enough action/species
+information for a simple mechanistic solver to build a strong planning model.
+
+\section{Methods and Adaptations}
+
+The method names in this report are benchmark-native adaptations, not
+paper-faithful reproductions of the original deep-RL systems.
+
+\begin{center}
+\begin{tabularx}{\linewidth}{p{0.18\linewidth}p{0.25\linewidth}X}
+\toprule
+method & role in this experiment & adaptation used here \\
+\midrule
+\code{refplan} & general offline MBRL & posterior ensemble planner over a learned
+linear \code{ContinuousDynamicsEnsemble}; plans with particle MPC. \\
+\code{bamcts} & general offline MBRL & belief-rooted finite-action tree search over
+the same learned linear dynamics family. \\
+\code{ogsrl} & general offline MBRL & guarded offline policy with learned linear
+dynamics, a kNN support guardian, safety/OOD constraints, and a low-capacity
+linear actor. \\
+\code{moor_native} & native ecological baseline & single fitted Ricker model,
+discrete abundance belief, tabular transition/reward model, and value-iteration
+action values. This is the genuinely naive ecological baseline. \\
+\code{plus_native} & native ecological solver & posterior over four mechanistic
+forms, each discretized and solved independently. This is stronger than a naive
+baseline because it can identify the true form from observations. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The distinction between adapted and native ecological methods matters. Earlier
+benchmark methods named \code{plus} and \code{moor} are mechanistic
+particle-MPC adaptations. The motivation experiment instead uses
+\code{plus_native} and \code{moor_native}, routed through
+\code{filter=native_discrete}, so the native methods use their own discretized
+beliefs and tabular solvers rather than the shared learned particle filter.
+
+\code{moor_native} is naive in the relevant sense: it commits to a single
+Ricker-form model even when the true family is Allee, theta-logistic, or
+regime-switching. \code{plus_native} is not naive. It maintains a posterior over
+the four mechanistic forms. A one-episode diagnostic on Iberian lynx,
+$\sobs=0.2$, safe mode shows that \code{plus_native} rapidly identifies the
+true form:
+
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+true family & $P(\mathrm{Ricker})$ & $P(\mathrm{Allee})$ & $P(\theta)$ & $P(\mathrm{regime})$ \\
+\midrule
+Ricker & 0.999 & 0.000 & 0.000 & 0.001 \\
+Allee & 0.000 & 0.901 & 0.001 & 0.098 \\
+theta-logistic & 0.000 & 0.021 & 0.917 & 0.062 \\
+regime-switching & 0.000 & 0.097 & 0.000 & 0.903 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Thus the best-native statistic is best understood as a comparison against the
+best ecological solver, including one that is close to a form-oracle. The
+cleaner naive-baseline result is the comparison against \code{moor_native}
+alone.
+
+\section{Why the General Methods Fail Here}
+
+The general methods fail because they are model-limited. They must learn a
+dynamics model from the offline dataset, then plan through that learned model.
+The native methods instead build mechanistic transition tables from public
+ecological structure: action-specific growth set-points, carrying-capacity
+effects, and species-scale carrying capacity.
+
+Changing \code{filter=ricker} or \code{filter=true_family} would not give the
+general methods the same information. Those settings change state estimation,
+but \code{refplan}, \code{bamcts}, and \code{ogsrl} still fit and plan with
+their own learned \code{ContinuousDynamicsEnsemble}. A valid information
+ablation must change the planning model source itself.
+
+The search-budget audit supports this diagnosis. Increasing planner/search
+budget closes only 21\% of the mean gap, and deeper rollouts make all three
+general methods worse on recoverable populations. That is the expected pattern
+when model error compounds over rollout depth. The failure is therefore not
+simply an optimization crash, a missing training log, or an insufficient search
+budget.
+
+\section{What Plots Are Available}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{p{0.26\linewidth}p{0.35\linewidth}X}
+\toprule
+plot family & available from completed artifacts? & interpretation \\
+\midrule
+training / validation loss
+& Partly. Every row has \code{training_history.csv/json}; the main run has
+1152 per-row training-history PNGs. \code{refplan}, \code{bamcts}, and
+\code{ogsrl} record train/holdout dynamics log-MSE; \code{ogsrl} additionally
+records an actor-loss trace over update steps.
+& Useful for sanity and model-quality diagnostics. It does not rescue the
+original motivation: the learned models have finite holdout error, while the
+native baselines use nearly exact public ecological tables. \\
+\addlinespace
+return / reward over time
+& Per-episode total return is available in \code{episodes.csv} and
+\code{summary.json}. Per-timestep reward traces are not saved by the completed
+main evaluator.
+& Aggregate return figures are available and are the right primary evidence.
+Per-timestep reward curves would require a targeted trace regeneration, not a
+new headline experiment. \\
+\addlinespace
+actions over time, all methods in one figure
+& Not as a saved artifact of the completed main run. The evaluator stores action
+entropy and danger-zone action fractions, but not the full per-timestep action
+sequence. The repository already has trajectory capture/plotting scripts; they
+need native-method routing before they can produce the requested all-method
+panel for this experiment.
+& Do not claim action-over-time evidence from the audited sweep itself. A paired
+illustrative trace can be regenerated from frozen configs and datasets, but it
+should be labelled illustrative rather than treated as a headline statistic. \\
+\addlinespace
+action taken in danger zone
+& Yes. \code{episodes.csv} includes
+\code{danger_action_0_fraction} through \code{danger_action_10_fraction}.
+& This is a meaningful safety diagnostic. It should be reported as a
+conditional action-composition check, with recoverable populations separated
+from demographic sinks. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Headline Returns}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\linewidth]{docs/benchmark/figures/motivation_native/moor_native_returns_by_family.pdf}
+\caption{Recoverable safe-mode cells, pooled over observation-noise levels.
+Bars show the best general method versus \code{moor_native}, the single-Ricker
+native baseline. The gap is negative for every dynamics family and is larger on
+the non-Ricker families where the Ricker assumption is false. This is the clean
+naive-baseline comparison, without the \code{plus_native} form-identification
+confound.}
+\label{fig:motivation-moor-family}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+family & best general & \code{moor_native} & gap \\
+\midrule
+Ricker & 7.749 & 8.386 & -0.636 \\
+Allee & 7.762 & 8.544 & -0.782 \\
+theta-logistic & 7.828 & 8.777 & -0.950 \\
+regime-switching & 7.462 & 8.370 & -0.908 \\
+all & 7.700 & 8.519 & -0.819 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Figure~\ref{fig:motivation-moor-family} is the cleanest figure for the
+motivation. It does not support the original hypothesis. A misspecified
+single-Ricker ecological solver beats the general methods by more on the
+families where its own assumption is false than on the family where it is
+correct. The best general method beats \code{moor_native} in only 6 of 112
+recoverable safe-mode cells. Model-form misspecification costs the native
+solver less than learned-model error costs the general methods.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\linewidth]{docs/benchmark/figures/motivation_native/headline_returns_by_family.pdf}
+\caption{Recoverable safe-mode cells, pooled over observation-noise levels.
+Bars show the best general method versus the best native ecological solver,
+where the native side may choose between \code{moor_native} and
+\code{plus_native}. This is the strongest ecological-solver comparison, but it
+should not be described as purely naive because \code{plus_native} identifies
+the mechanistic form quickly.}
+\label{fig:motivation-family}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+family & best general & best native solver & gap \\
+\midrule
+Ricker & 7.749 & 8.420 & -0.670 \\
+Allee & 7.762 & 8.895 & -1.133 \\
+theta-logistic & 7.828 & 8.935 & -1.107 \\
+regime-switching & 7.462 & 8.698 & -1.235 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Figure~\ref{fig:motivation-family} shows that adding the model-identifying
+\code{plus_native} solver widens the gap, but does not create it. The negative
+result already holds against the genuinely naive \code{moor_native} baseline.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{docs/benchmark/figures/motivation_native/all_methods_returns_by_family.pdf}
+\caption{All five methods on recoverable safe-mode cells, averaged by dynamics
+family. The figure shows that the native advantage is not caused by one weak
+general method: all three general methods sit below \code{moor_native} and
+\code{plus_native} on every family.}
+\label{fig:motivation-all-methods}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.74\linewidth]{docs/benchmark/figures/motivation_native/native_gap_by_sigma.pdf}
+\caption{Best-general minus best-native return on recoverable safe cells by
+observation-noise level. The gap remains negative at every $\sobs$. Increased
+observation noise is therefore not the source of the native-baseline advantage.}
+\label{fig:motivation-sigma}
+\end{figure}
+
+\section{Training Diagnostics}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.74\linewidth]{docs/benchmark/figures/motivation_native/training_dynamics_log_mse.pdf}
+\caption{Train and holdout dynamics log-MSE for the learned general methods,
+averaged over the main sweep. This is a model-quality diagnostic. It should not
+be read as a training-convergence plot for \code{refplan} or \code{bamcts},
+which record final fit diagnostics rather than a multi-step optimization trace.}
+\label{fig:motivation-dynmse}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.74\linewidth]{docs/benchmark/figures/motivation_native/ogsrl_surrogate_loss.pdf}
+\caption{\code{ogsrl} actor surrogate loss over update steps, averaged over
+the main sweep. The trace is stable enough to rule out an obvious optimization
+crash, but stable training does not imply competitive ecological control.}
+\label{fig:motivation-ogsrl-loss}
+\end{figure}
+
+The training plots are meaningful, but they support a diagnostic story rather
+than the original motivation. The general methods are not failing because the
+training logs are missing or because \code{ogsrl} visibly diverges. The
+search-budget audit is more decisive: increasing planner/search budget closes
+only 21\% of the mean gap, and deeper rollouts make all three general methods
+worse on recoverable populations. That pattern is consistent with compounding
+model error, not with a simple shortage of search.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.72\linewidth]{docs/benchmark/figures/motivation_native/search_budget_gap.pdf}
+\caption{Clean search-budget audit on 72 recoverable safe cells. The as-run
+best general method trails the best native solver by 1.216 mean return; the
+best tuned general configuration still trails by 0.962. Tuning closes only
+21\% of the gap and raises the win count from 2/72 to 3/72, so the negative
+result is not explained by insufficient search budget.}
+\label{fig:motivation-search-budget}
+\end{figure}
+
+\section{Danger-Zone Actions}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{docs/benchmark/figures/motivation_native/danger_zone_action_composition.pdf}
+\caption{Conditional action composition when the previous true state is in the
+danger band $\ssafe < s_t \le 4\ssafe$, split between recoverable populations
+and demographic sinks. The figure is computed from the
+\code{danger_action_*_fraction} fields in \code{episodes.csv}. It is an
+action-selection diagnostic, not a per-timestep trajectory trace.}
+\label{fig:motivation-danger-actions}
+\end{figure}
+
+The danger-zone action data are available and useful, especially for checking
+that policies do not all collapse to the same passive action near the safety
+boundary. They do not, however, rescue the original conservation-motivation
+claim. Among recoverable populations, collapse entry is essentially zero for
+both general and native methods at every noise level, but the danger band is not
+empty: 7{,}099 of 11{,}200 recoverable safe-mode episodes (63.4\%) enter
+$\ssafe < s_t \le 4\ssafe$. Thus Figure~\ref{fig:motivation-danger-actions}
+does measure decisions under real safety pressure. The distinction is that
+recoverable populations repeatedly approach the boundary and avoid collapse,
+whereas the two demographic sinks are structurally different; they contribute
+1{,}600 of 3{,}200 safe-mode danger-band episodes and are therefore shown
+separately.
+
+\section{What the Plots Support}
+
+The figures support the following reading:
+\begin{itemize}
+  \item The native ecological baselines are strong because the environment gives
+  them public per-action growth set-points and public carrying-capacity
+  baselines. For \code{moor_native}, remaining Ricker-form misspecification is
+  second-order for action ranking; for \code{plus_native}, the form posterior
+  resolves the structural family quickly.
+  \item The general methods are model-limited. They must learn dynamics from
+  4000 logged transitions, and increasing rollout depth worsens performance
+  rather than improving it.
+  \item The original positive motivation---general offline MBRL beats naive
+  ecological baselines under structural uncertainty---is not supported by this
+  experiment.
+\end{itemize}
+
+The figures therefore support a reframed paper result: in this real-ecology
+setting, a well-specified discretized ecological solver is a very strong
+baseline, and even a misspecified single-Ricker native solver is hard for
+general offline MBRL to beat. That is still a meaningful scientific result, but
+it is a negative result relative to the planned story.
+
+\section{Potential Next Step}
+
+The most decision-relevant next step is a planning-model source ablation. The
+current interpretation is that the native baselines win because the benchmark
+gives them public action-specific growth and carrying-capacity structure, while
+the general methods must learn an approximate dynamics model from the offline
+dataset. The existing evidence is consistent with this diagnosis, especially
+because deeper search worsens the general methods, but it is still indirect.
+
+The direct test is to give the general planners the same mechanistic dynamics
+source as the native ecological baselines while keeping the rest of their
+planning machinery intact. This cannot be tested by merely changing
+\code{filter=ricker} or \code{filter=true_family}: those settings change the
+state-estimation proposal, while \code{refplan}, \code{bamcts}, and
+\code{ogsrl} still fit and plan with their own learned
+\code{ContinuousDynamicsEnsemble}. A valid ablation therefore needs an explicit
+planning-model switch, for example
+\code{model.dynamics_source \in \{learned,ricker,true_family\}}, with
+\code{learned} as the default and a bit-identical no-op proof before any new
+run is accepted.
+
+This ablation is the experiment that can still change the paper decision. If
+the general methods close most of the native gap when they plan with the same
+mechanistic model, the informational-asymmetry diagnosis is confirmed and an
+environment redesign is a plausible route to recovering the original
+motivation. If the gap remains, the diagnosis must shift from information to
+solver structure or policy class, and redesigning only the public ecological
+tables is unlikely to rescue the planned story. In that case the honest paper
+framing is the negative result: in this real-ecology setting, native ecological
+solvers are hard to beat.
+
+A paired trajectory diagnostic remains useful, but as an illustrative companion
+rather than the primary next experiment. After the model-source ablation, a
+small set of pre-registered cells---for example Amur tiger/Ricker, Iberian
+lynx/Allee, and Egyptian vulture/theta-logistic---should be regenerated with
+per-timestep true state, observation, action, and reward for all five methods.
+Those traces can show whether the measured gap comes from earlier intervention,
+more persistent capacity-building actions, avoidance of harvest near the safety
+boundary, or different responses to model error. They should remain qualitative
+mechanism figures; the audited quantitative claims should remain the 1440-row
+main sweep, the 1152-row resolution replicate, the 1728-row search-budget
+audit, and any future model-source ablation.
+
+\section{If Per-Timestep Figures Are Needed}
+
+Reward-over-time and action-over-time figures for all methods in one panel
+cannot be derived from the completed main-run artifacts alone. The evaluator
+kept the per-step arrays internally but saved only per-episode summaries. The
+repository already contains \path{scripts/capture_trajectories.py} and
+\path{scripts/plot_trajectories.py}; the missing work is to route
+\code{plus_native}/\code{moor_native} through \code{native_discrete} and reuse
+the frozen real-ecology datasets rather than the synthetic default. Those
+traces should be labelled illustrative, because the audited statistics remain
+the 1440-row main sweep and the 1152-row resolution replicate.
+
+\section*{Verification}
+
+Verified against: \path{real_ecology_runs/motivation_native_20260711/analysis/aggregate_main.json}, \path{real_ecology_runs/motivation_native_20260711/analysis/resolution_check.json}, \path{real_ecology_runs/motivation_native_20260711/outputs/main}, \path{real_ecology_runs/general_audit_20260712/analysis/budget_verdict_clean.json}, \path{docs/benchmark/SERVER_REVIEW_standalone_report_readiness.md}, \path{src/real_ecology_benchmark/evaluator.py}, \path{scripts/plot_motivation_native_results.py} @ e74526e5e70d959d02311df8f095479f937e1d7b
+
+\end{document}

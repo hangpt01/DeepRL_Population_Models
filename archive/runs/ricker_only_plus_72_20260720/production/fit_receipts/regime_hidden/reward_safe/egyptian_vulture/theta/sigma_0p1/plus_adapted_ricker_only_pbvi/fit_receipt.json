@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p1",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "608c8b40d7fdd093914b75c27a3174bf944adcd964065ea175bdd43a9f17da5a",
+    "12d35130a6c794568c34320624fa9d12268d2863a7812d4348f344b825012342",
+    "f10d746a3a2c0fda123a1e39d8819b4d661d5b0990436ec770c5e7465f892ab2",
+    "a9a7793f1dec4da809dcad1502e2f303915538b6a084d0a7d2da519d65c30271",
+    "807e6b31d81deb08a8634d62bad57b7c75c9d3789b77c436a00edec74ea2c334",
+    "c67bc826178bbb0a2537b64926f9c2d0bd4be4e9acf798b7f392767718d8475c",
+    "c2e04c660a3f681ed5df4bda4b9f9fb4e0f0be977f39a7acba5da0a00f07e0d1",
+    "4d49b98b0e6797acaf822229d4fe6d4328c56e2d6852d8a3e0151540d58352e9"
+  ],
+  "fit_seconds": 0.05325497407466173,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "6a6d0b8d1853101bbf1f08e6ef142b805bd4fbf4d03605d348775fb206bcbcaa",
+    "9a5e4993f6d3da4c0eb3629205edbd2ebd8074ebeee2d454823a1c5ee205ce93",
+    "18b44e1a84b8acddfb0b852aac987da053060b46164b1328b3f4debab070a348",
+    "ca809fa2043b130c68ae26bfc786a5ab8d7f5dc6d66457973d8324f82525838f",
+    "f067207c4379ee924373d975369ce8be11940b3686a71feae82d3624b708d5a7",
+    "251f476056ebab227d8c9afaa539171daad6109b6781cf424116c024334a8ef7",
+    "1195c9fc3bd6ae592252e70aac75c0248a185ac72a81bd404a173bb9f5265c32",
+    "bc3b9292e75ac64c02648980473d48ade6437a6123edb36d4ffaca7b52903223"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "f075c5062e03edc1d5e7fbb62af7269400546c12d952ce53a52b62b1e8649e65"
+}

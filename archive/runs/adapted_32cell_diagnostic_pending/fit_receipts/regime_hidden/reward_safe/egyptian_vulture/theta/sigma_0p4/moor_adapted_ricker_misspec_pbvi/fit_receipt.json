@@ -1,0 +1,22 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "miss_fitted"
+  ],
+  "candidate_count": 1,
+  "cell": "regime_hidden/reward_safe/egyptian_vulture/theta/sigma_0p4",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "105702d287fc0015a9bae72216a79ab85d35b4c145fdf1abbce33542196b8670"
+  ],
+  "fit_seconds": 788.3636751044542,
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "27258286e84f32a06668389bc302dd4bd360fa0fa067b7be33a4dc72e5442316"
+  ],
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "a56e82a10841b07dfdbfa5a261e1abe7eb478e632644fbd4c1ee499525b96cdb"
+}

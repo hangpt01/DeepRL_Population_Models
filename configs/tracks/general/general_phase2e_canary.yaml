@@ -1,0 +1,46 @@
+# Frozen Phase 2E hidden general-RL mechanism/pipeline canary configuration.
+# One evaluation episode is produced but remains quarantined and unread until
+# separate structural acceptance and human authorization.
+seed: 116
+environment:
+  data_mode: real
+  expose_rk: hidden
+  population: Egyptian vulture
+  kind: regime
+  control_mode: setpoint_cumulative
+  reward_mode: safe
+  observation_noise_sigma: 0.4
+dataset:
+  transitions: 4000
+  episode_length: 25
+  output: outputs/general_phase2e/datasets/public.npz
+  private_output: outputs/general_phase2e/private/truth.npz
+filter:
+  particles: 256
+  proposal: learned
+  ess_fraction: 0.5
+model:
+  ensemble_size: 5
+  ridge: 0.001
+planner:
+  horizon: 5
+  sequences: 96
+  particles: 32
+  discount: 0.95
+  pessimism: 0.5
+  bamcts_depth: 8
+  bamcts_simulations: 256
+  ogsrl_cost_horizon: 25
+  ogsrl_deployment_rollouts: 256
+  ogsrl_low_abundance_quantile: 0.20
+evaluation:
+  seeds: [9001]
+  episodes_per_seed: 1
+  horizon: 50
+  discount: 0.95
+  output_dir: outputs/general_phase2e/quarantine/performance
+training:
+  enabled: true
+  holdout_fraction: 0.2
+  plot: false
+  wandb: false

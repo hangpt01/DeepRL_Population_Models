@@ -1,0 +1,13 @@
+{
+  "artifact_schema": "faithful_artifacts_v1",
+  "planners": [
+    {
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 6,
+      "model_hash": "9efb77c547d2744f66268f67cd6367e4afa5417cafc62922eaeb726581ab005d",
+      "name": "pbvi",
+      "seed": 49116
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+common_name,action,name_original,channel,N0,K_base,K_max,r_min_ricker,r_max_ricker,r_min_lgm,r_max_lgm,lambda,r_setpoint_ricker,r_setpoint_lgm,dK_step,dN,cost_step
+Egyptian vulture,a0,Do Nothing,none,41,325,650,-0.2558,-0.0098,-0.2257,-0.0098,0.9128,-0.0912,-0.0872,0.0,0.0,0.0
+Egyptian vulture,a1,Sustainable Harvest,rate,41,325,650,-0.2558,-0.0098,-0.2257,-0.0098,0.8042,-0.2179,-0.1958,0.0,0.0,-0.05
+Egyptian vulture,a2,Aggressive Harvest,rate,41,325,650,-0.2558,-0.0098,-0.2257,-0.0098,0.7743,-0.2558,-0.2257,0.0,0.0,-0.1
+Egyptian vulture,a3,Predator / Disease Control,rate,41,325,650,-0.2558,-0.0098,-0.2257,-0.0098,0.9804,-0.0198,-0.0196,0.0,0.0,0.25
+Egyptian vulture,a4,Breeding / Recruitment Support,rate,41,325,650,-0.2558,-0.0098,-0.2257,-0.0098,0.9902,-0.0098,-0.0098,0.0,0.0,0.5
+Egyptian vulture,a5,Moderate Restoration,capacity,41,325,650,-0.2558,-0.0098,-0.2257,-0.0098,0.9128,-0.0912,-0.0872,32.5,0.0,0.1875
+Egyptian vulture,a6,Intensive Restoration,capacity,41,325,650,-0.2558,-0.0098,-0.2257,-0.0098,0.9128,-0.0912,-0.0872,97.5,0.0,0.5
+Egyptian vulture,a7,Integrated Conservation (light),rate+capacity,41,325,650,-0.2558,-0.0098,-0.2257,-0.0098,0.9804,-0.0198,-0.0196,32.5,0.0,0.4375
+Egyptian vulture,a8,Adaptive Conservation Trial,rate+capacity,41,325,650,-0.2558,-0.0098,-0.2257,-0.0098,0.9804,-0.0198,-0.0196,97.5,0.0,0.75
+Egyptian vulture,a9,Flagship Conservation Programme,rate+capacity,41,325,650,-0.2558,-0.0098,-0.2257,-0.0098,0.9902,-0.0098,-0.0098,97.5,0.0,1.0
+Egyptian vulture,a10,Translocation,state,41,325,650,-0.2558,-0.0098,-0.2257,-0.0098,0.9128,-0.0912,-0.0872,0.0,4.1,0.3125
+Bottlenose dolphin,a0,Do Nothing,none,25,35,70,-0.1492,-0.0212,-0.1386,-0.021,0.9376,-0.0644,-0.0624,0.0,0.0,0.0
+Bottlenose dolphin,a1,Sustainable Harvest,rate,25,35,70,-0.1492,-0.0212,-0.1386,-0.021,0.8661,-0.1438,-0.1339,0.0,0.0,-0.05
+Bottlenose dolphin,a2,Aggressive Harvest,rate,25,35,70,-0.1492,-0.0212,-0.1386,-0.021,0.8614,-0.1492,-0.1386,0.0,0.0,-0.1
+Bottlenose dolphin,a3,Predator / Disease Control,rate,25,35,70,-0.1492,-0.0212,-0.1386,-0.021,0.9775,-0.0228,-0.0225,0.0,0.0,0.25
+Bottlenose dolphin,a4,Breeding / Recruitment Support,rate,25,35,70,-0.1492,-0.0212,-0.1386,-0.021,0.979,-0.0212,-0.021,0.0,0.0,0.5
+Bottlenose dolphin,a5,Moderate Restoration,capacity,25,35,70,-0.1492,-0.0212,-0.1386,-0.021,0.9376,-0.0644,-0.0624,3.5,0.0,0.1875
+Bottlenose dolphin,a6,Intensive Restoration,capacity,25,35,70,-0.1492,-0.0212,-0.1386,-0.021,0.9376,-0.0644,-0.0624,10.5,0.0,0.5
+Bottlenose dolphin,a7,Integrated Conservation (light),rate+capacity,25,35,70,-0.1492,-0.0212,-0.1386,-0.021,0.9775,-0.0228,-0.0225,3.5,0.0,0.4375
+Bottlenose dolphin,a8,Adaptive Conservation Trial,rate+capacity,25,35,70,-0.1492,-0.0212,-0.1386,-0.021,0.9775,-0.0228,-0.0225,10.5,0.0,0.75
+Bottlenose dolphin,a9,Flagship Conservation Programme,rate+capacity,25,35,70,-0.1492,-0.0212,-0.1386,-0.021,0.979,-0.0212,-0.021,10.5,0.0,1.0
+Bottlenose dolphin,a10,Translocation,state,25,35,70,-0.1492,-0.0212,-0.1386,-0.021,0.9376,-0.0644,-0.0624,0.0,2.5,0.3125
+Amur tiger,a0,Do Nothing,none,200,250,500,-0.4753,0.0707,-0.3783,0.0733,0.9552,-0.0458,-0.0448,0.0,0.0,0.0
+Amur tiger,a1,Sustainable Harvest,rate,200,250,500,-0.4753,0.0707,-0.3783,0.0733,0.8305,-0.1857,-0.1695,0.0,0.0,-0.05
+Amur tiger,a2,Aggressive Harvest,rate,200,250,500,-0.4753,0.0707,-0.3783,0.0733,0.6217,-0.4753,-0.3783,0.0,0.0,-0.1
+Amur tiger,a3,Predator / Disease Control,rate,200,250,500,-0.4753,0.0707,-0.3783,0.0733,1.0279,0.0275,0.0279,0.0,0.0,0.25
+Amur tiger,a4,Breeding / Recruitment Support,rate,200,250,500,-0.4753,0.0707,-0.3783,0.0733,1.0733,0.0707,0.0733,0.0,0.0,0.5
+Amur tiger,a5,Moderate Restoration,capacity,200,250,500,-0.4753,0.0707,-0.3783,0.0733,0.9552,-0.0458,-0.0448,25.0,0.0,0.1875
+Amur tiger,a6,Intensive Restoration,capacity,200,250,500,-0.4753,0.0707,-0.3783,0.0733,0.9552,-0.0458,-0.0448,75.0,0.0,0.5
+Amur tiger,a7,Integrated Conservation (light),rate+capacity,200,250,500,-0.4753,0.0707,-0.3783,0.0733,1.0279,0.0275,0.0279,25.0,0.0,0.4375
+Amur tiger,a8,Adaptive Conservation Trial,rate+capacity,200,250,500,-0.4753,0.0707,-0.3783,0.0733,1.0279,0.0275,0.0279,75.0,0.0,0.75
+Amur tiger,a9,Flagship Conservation Programme,rate+capacity,200,250,500,-0.4753,0.0707,-0.3783,0.0733,1.0733,0.0707,0.0733,75.0,0.0,1.0
+Amur tiger,a10,Translocation,state,200,250,500,-0.4753,0.0707,-0.3783,0.0733,0.9552,-0.0458,-0.0448,0.0,20.0,0.3125
+Spotted turtle,a0,Do Nothing,none,31,31,62,-0.0619,0.0201,-0.06,0.0203,0.995,-0.005,-0.005,0.0,0.0,0.0
+Spotted turtle,a1,Sustainable Harvest,rate,31,31,62,-0.0619,0.0201,-0.06,0.0203,0.9633,-0.0374,-0.0367,0.0,0.0,-0.05
+Spotted turtle,a2,Aggressive Harvest,rate,31,31,62,-0.0619,0.0201,-0.06,0.0203,0.94,-0.0619,-0.06,0.0,0.0,-0.1
+Spotted turtle,a3,Predator / Disease Control,rate,31,31,62,-0.0619,0.0201,-0.06,0.0203,1.0111,0.011,0.0111,0.0,0.0,0.25
+Spotted turtle,a4,Breeding / Recruitment Support,rate,31,31,62,-0.0619,0.0201,-0.06,0.0203,1.0203,0.0201,0.0203,0.0,0.0,0.5
+Spotted turtle,a5,Moderate Restoration,capacity,31,31,62,-0.0619,0.0201,-0.06,0.0203,0.995,-0.005,-0.005,3.1,0.0,0.1875
+Spotted turtle,a6,Intensive Restoration,capacity,31,31,62,-0.0619,0.0201,-0.06,0.0203,0.995,-0.005,-0.005,9.3,0.0,0.5
+Spotted turtle,a7,Integrated Conservation (light),rate+capacity,31,31,62,-0.0619,0.0201,-0.06,0.0203,1.0111,0.011,0.0111,3.1,0.0,0.4375
+Spotted turtle,a8,Adaptive Conservation Trial,rate+capacity,31,31,62,-0.0619,0.0201,-0.06,0.0203,1.0111,0.011,0.0111,9.3,0.0,0.75
+Spotted turtle,a9,Flagship Conservation Programme,rate+capacity,31,31,62,-0.0619,0.0201,-0.06,0.0203,1.0203,0.0201,0.0203,9.3,0.0,1.0
+Spotted turtle,a10,Translocation,state,31,31,62,-0.0619,0.0201,-0.06,0.0203,0.995,-0.005,-0.005,0.0,3.1,0.3125
+Asian elephant,a0,Do Nothing,none,60,120,240,-0.0005,0.0283,-0.0005,0.0287,1.0189,0.0187,0.0189,0.0,0.0,0.0
+Asian elephant,a1,Sustainable Harvest,rate,60,120,240,-0.0005,0.0283,-0.0005,0.0287,1.005,0.005,0.005,0.0,0.0,-0.05
+Asian elephant,a2,Aggressive Harvest,rate,60,120,240,-0.0005,0.0283,-0.0005,0.0287,0.9995,-0.0005,-0.0005,0.0,0.0,-0.1
+Asian elephant,a3,Predator / Disease Control,rate,60,120,240,-0.0005,0.0283,-0.0005,0.0287,1.0263,0.026,0.0263,0.0,0.0,0.25
+Asian elephant,a4,Breeding / Recruitment Support,rate,60,120,240,-0.0005,0.0283,-0.0005,0.0287,1.0287,0.0283,0.0287,0.0,0.0,0.5
+Asian elephant,a5,Moderate Restoration,capacity,60,120,240,-0.0005,0.0283,-0.0005,0.0287,1.0189,0.0187,0.0189,12.0,0.0,0.1875
+Asian elephant,a6,Intensive Restoration,capacity,60,120,240,-0.0005,0.0283,-0.0005,0.0287,1.0189,0.0187,0.0189,36.0,0.0,0.5
+Asian elephant,a7,Integrated Conservation (light),rate+capacity,60,120,240,-0.0005,0.0283,-0.0005,0.0287,1.0263,0.026,0.0263,12.0,0.0,0.4375
+Asian elephant,a8,Adaptive Conservation Trial,rate+capacity,60,120,240,-0.0005,0.0283,-0.0005,0.0287,1.0263,0.026,0.0263,36.0,0.0,0.75
+Asian elephant,a9,Flagship Conservation Programme,rate+capacity,60,120,240,-0.0005,0.0283,-0.0005,0.0287,1.0287,0.0283,0.0287,36.0,0.0,1.0
+Asian elephant,a10,Translocation,state,60,120,240,-0.0005,0.0283,-0.0005,0.0287,1.0189,0.0187,0.0189,0.0,6.0,0.3125
+Puerto Rican parrot,a0,Do Nothing,none,78,250,500,-0.1441,0.1367,-0.1342,0.1465,1.0625,0.0606,0.0625,0.0,0.0,0.0
+Puerto Rican parrot,a1,Sustainable Harvest,rate,78,250,500,-0.1441,0.1367,-0.1342,0.1465,0.9801,-0.0201,-0.0199,0.0,0.0,-0.05
+Puerto Rican parrot,a2,Aggressive Harvest,rate,78,250,500,-0.1441,0.1367,-0.1342,0.1465,0.8658,-0.1441,-0.1342,0.0,0.0,-0.1
+Puerto Rican parrot,a3,Predator / Disease Control,rate,78,250,500,-0.1441,0.1367,-0.1342,0.1465,1.1058,0.1006,0.1058,0.0,0.0,0.25
+Puerto Rican parrot,a4,Breeding / Recruitment Support,rate,78,250,500,-0.1441,0.1367,-0.1342,0.1465,1.1465,0.1367,0.1465,0.0,0.0,0.5
+Puerto Rican parrot,a5,Moderate Restoration,capacity,78,250,500,-0.1441,0.1367,-0.1342,0.1465,1.0625,0.0606,0.0625,25.0,0.0,0.1875
+Puerto Rican parrot,a6,Intensive Restoration,capacity,78,250,500,-0.1441,0.1367,-0.1342,0.1465,1.0625,0.0606,0.0625,75.0,0.0,0.5
+Puerto Rican parrot,a7,Integrated Conservation (light),rate+capacity,78,250,500,-0.1441,0.1367,-0.1342,0.1465,1.1058,0.1006,0.1058,25.0,0.0,0.4375
+Puerto Rican parrot,a8,Adaptive Conservation Trial,rate+capacity,78,250,500,-0.1441,0.1367,-0.1342,0.1465,1.1058,0.1006,0.1058,75.0,0.0,0.75
+Puerto Rican parrot,a9,Flagship Conservation Programme,rate+capacity,78,250,500,-0.1441,0.1367,-0.1342,0.1465,1.1465,0.1367,0.1465,75.0,0.0,1.0
+Puerto Rican parrot,a10,Translocation,state,78,250,500,-0.1441,0.1367,-0.1342,0.1465,1.0625,0.0606,0.0625,0.0,7.8,0.3125
+Iberian lynx,a0,Do Nothing,none,89,165,330,-0.0364,0.1745,-0.0357,0.1906,1.1166,0.1103,0.1166,0.0,0.0,0.0
+Iberian lynx,a1,Sustainable Harvest,rate,89,165,330,-0.0364,0.1745,-0.0357,0.1906,1.0149,0.0148,0.0149,0.0,0.0,-0.05
+Iberian lynx,a2,Aggressive Harvest,rate,89,165,330,-0.0364,0.1745,-0.0357,0.1906,0.9643,-0.0364,-0.0357,0.0,0.0,-0.1
+Iberian lynx,a3,Predator / Disease Control,rate,89,165,330,-0.0364,0.1745,-0.0357,0.1906,1.1687,0.1559,0.1687,0.0,0.0,0.25
+Iberian lynx,a4,Breeding / Recruitment Support,rate,89,165,330,-0.0364,0.1745,-0.0357,0.1906,1.1906,0.1745,0.1906,0.0,0.0,0.5
+Iberian lynx,a5,Moderate Restoration,capacity,89,165,330,-0.0364,0.1745,-0.0357,0.1906,1.1166,0.1103,0.1166,16.5,0.0,0.1875
+Iberian lynx,a6,Intensive Restoration,capacity,89,165,330,-0.0364,0.1745,-0.0357,0.1906,1.1166,0.1103,0.1166,49.5,0.0,0.5
+Iberian lynx,a7,Integrated Conservation (light),rate+capacity,89,165,330,-0.0364,0.1745,-0.0357,0.1906,1.1687,0.1559,0.1687,16.5,0.0,0.4375
+Iberian lynx,a8,Adaptive Conservation Trial,rate+capacity,89,165,330,-0.0364,0.1745,-0.0357,0.1906,1.1687,0.1559,0.1687,49.5,0.0,0.75
+Iberian lynx,a9,Flagship Conservation Programme,rate+capacity,89,165,330,-0.0364,0.1745,-0.0357,0.1906,1.1906,0.1745,0.1906,49.5,0.0,1.0
+Iberian lynx,a10,Translocation,state,89,165,330,-0.0364,0.1745,-0.0357,0.1906,1.1166,0.1103,0.1166,0.0,8.9,0.3125
+Jaguar,a0,Do Nothing,none,325,325,650,-0.0307,0.2259,-0.0302,0.2534,1.1721,0.1588,0.1721,0.0,0.0,0.0
+Jaguar,a1,Sustainable Harvest,rate,325,325,650,-0.0307,0.2259,-0.0302,0.2534,1.1277,0.1202,0.1277,0.0,0.0,-0.05
+Jaguar,a2,Aggressive Harvest,rate,325,325,650,-0.0307,0.2259,-0.0302,0.2534,0.9698,-0.0307,-0.0302,0.0,0.0,-0.1
+Jaguar,a3,Predator / Disease Control,rate,325,325,650,-0.0307,0.2259,-0.0302,0.2534,1.1948,0.178,0.1948,0.0,0.0,0.25
+Jaguar,a4,Breeding / Recruitment Support,rate,325,325,650,-0.0307,0.2259,-0.0302,0.2534,1.2534,0.2259,0.2534,0.0,0.0,0.5
+Jaguar,a5,Moderate Restoration,capacity,325,325,650,-0.0307,0.2259,-0.0302,0.2534,1.1721,0.1588,0.1721,32.5,0.0,0.1875
+Jaguar,a6,Intensive Restoration,capacity,325,325,650,-0.0307,0.2259,-0.0302,0.2534,1.1721,0.1588,0.1721,97.5,0.0,0.5
+Jaguar,a7,Integrated Conservation (light),rate+capacity,325,325,650,-0.0307,0.2259,-0.0302,0.2534,1.1948,0.178,0.1948,32.5,0.0,0.4375
+Jaguar,a8,Adaptive Conservation Trial,rate+capacity,325,325,650,-0.0307,0.2259,-0.0302,0.2534,1.1948,0.178,0.1948,97.5,0.0,0.75
+Jaguar,a9,Flagship Conservation Programme,rate+capacity,325,325,650,-0.0307,0.2259,-0.0302,0.2534,1.2534,0.2259,0.2534,97.5,0.0,1.0
+Jaguar,a10,Translocation,state,325,325,650,-0.0307,0.2259,-0.0302,0.2534,1.1721,0.1588,0.1721,0.0,32.5,0.3125
+Crab-eating fox,a0,Do Nothing,none,41,41,82,-0.0131,0.4418,-0.013,0.5555,1.3813,0.323,0.3813,0.0,0.0,0.0
+Crab-eating fox,a1,Sustainable Harvest,rate,41,41,82,-0.0131,0.4418,-0.013,0.5555,1.2334,0.2098,0.2334,0.0,0.0,-0.05
+Crab-eating fox,a2,Aggressive Harvest,rate,41,41,82,-0.0131,0.4418,-0.013,0.5555,0.987,-0.0131,-0.013,0.0,0.0,-0.1
+Crab-eating fox,a3,Predator / Disease Control,rate,41,41,82,-0.0131,0.4418,-0.013,0.5555,1.4592,0.3779,0.4592,0.0,0.0,0.25
+Crab-eating fox,a4,Breeding / Recruitment Support,rate,41,41,82,-0.0131,0.4418,-0.013,0.5555,1.5555,0.4418,0.5555,0.0,0.0,0.5
+Crab-eating fox,a5,Moderate Restoration,capacity,41,41,82,-0.0131,0.4418,-0.013,0.5555,1.3813,0.323,0.3813,4.1,0.0,0.1875
+Crab-eating fox,a6,Intensive Restoration,capacity,41,41,82,-0.0131,0.4418,-0.013,0.5555,1.3813,0.323,0.3813,12.3,0.0,0.5
+Crab-eating fox,a7,Integrated Conservation (light),rate+capacity,41,41,82,-0.0131,0.4418,-0.013,0.5555,1.4592,0.3779,0.4592,4.1,0.0,0.4375
+Crab-eating fox,a8,Adaptive Conservation Trial,rate+capacity,41,41,82,-0.0131,0.4418,-0.013,0.5555,1.4592,0.3779,0.4592,12.3,0.0,0.75
+Crab-eating fox,a9,Flagship Conservation Programme,rate+capacity,41,41,82,-0.0131,0.4418,-0.013,0.5555,1.5555,0.4418,0.5555,12.3,0.0,1.0
+Crab-eating fox,a10,Translocation,state,41,41,82,-0.0131,0.4418,-0.013,0.5555,1.3813,0.323,0.3813,0.0,4.1,0.3125

@@ -1,0 +1,655 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=24mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!55!black,
+  urlcolor=blue!55!black,
+  citecolor=blue!55!black,
+  pdftitle={PLUS and MOOR: Ricker-Assumption Stress Test in a Conservation Benchmark}
+}
+
+\setlist{leftmargin=*,itemsep=0.25em,topsep=0.35em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlength{\emergencystretch}{3em}
+\renewcommand{\arraystretch}{1.16}
+
+\newcommand{\method}[1]{\textsc{#1}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\statusbox}[1]{%
+  \begin{center}
+  \fcolorbox{black!55}{yellow!10}{\parbox{0.92\textwidth}{#1}}
+  \end{center}}
+\newcommand{\takeaway}[1]{%
+  \begin{center}
+  \fcolorbox{blue!55!black}{blue!4}{\parbox{0.92\textwidth}{\textbf{Take-away.} #1}}
+  \end{center}}
+
+\title{PLUS and MOOR Under Hidden Demographics\\
+\large From the Original Ideas to a Ricker-Assumption Stress Test in Real-Ecology Conservation Data}
+\author{Supervisor-facing methods explanation and slide-preparation reference}
+\date{20 July 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document explains, without requiring access to the code, the basic ideas behind PLUS and MOOR,
+why the earlier benchmark implementations were appropriately described only as PLUS-inspired and
+MOOR-inspired, and how the current implementations restore the defining algorithmic structures of
+the papers. It then explains the conservation-specific adaptations and the current stress-test
+design: both ecological methods assume Ricker dynamics, Ricker environments form the in-family
+control, and Allee, theta-logistic, and regime-switching environments form three genuine
+out-of-family tests. The final sections separate implementation validity from empirical performance
+and identify concrete improvements for a later, stronger study.
+\end{abstract}
+
+\statusbox{\textbf{Current evidence status.} The scientific methods described here are
+paper-aligned adaptations, not exact reproductions. The earlier cross-family PLUS configuration is
+a separate frozen extension. The current Ricker-only PLUS production design contains 72 cells and
+eight Ricker candidates per cell. Its first reduced structural smoke test stopped before fitting
+because a launch parser attempted to convert the truthful sentinel
+\code{regime_path_count=not_applicable} to an integer. No production job or performance inspection
+occurred. The parser must be fixed, provenance refrozen where affected, and the smoke test passed
+before the production experiment is described as executed or accepted.}
+
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\newpage
+
+\section{The research question in one page}
+
+The benchmark asks how to choose conservation interventions when important demographic quantities
+are hidden. The manager sees historical action--survey episodes and receives future noisy surveys,
+but does not receive the true ecological family, true demographic parameters, or the private safety
+state. The scientific comparison is between two broad sources of strength:
+
+\begin{itemize}
+  \item \textbf{Ecological inductive bias:} use mechanistic population models to constrain what
+  dynamics are considered plausible.
+  \item \textbf{Black-box flexibility:} learn transitions, values, or policies with fewer explicit
+  ecological commitments.
+\end{itemize}
+
+PLUS and MOOR are useful ecological comparators because they use mechanistic knowledge differently.
+PLUS retains several fixed mechanistic explanations and updates their probabilities online. MOOR
+fits one mechanistic explanation offline and commits to it. This distinction remains meaningful even
+when both methods assume the same Ricker family.
+
+The present stress test deliberately gives both methods the same family-level assumption:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{True hidden environment} & \textbf{Ricker-only PLUS} & \textbf{Ricker MOOR} \\
+\midrule
+Ricker & In-family control & In-family control \\
+Allee & Out-of-family misspecification & Out-of-family misspecification \\
+Theta-logistic & Out-of-family misspecification & Out-of-family misspecification \\
+Regime-switching & Out-of-family misspecification & Out-of-family misspecification \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\takeaway{There are four hidden environment families in total: one assumed family (Ricker) and
+three non-Ricker stress-test families. The family label is hidden in every cell, including the
+Ricker control.}
+
+\section{Minimal POMDP reminder}
+
+A partially observable Markov decision process (POMDP) separates the unobserved ecological state
+from the noisy observation available to the manager. At time $t$:
+
+\begin{enumerate}
+  \item the system has a latent state $s_t$, including population abundance and relevant context;
+  \item the manager holds a belief $b_t(s)=P(s_t=s\mid\text{history})$;
+  \item the manager chooses conservation action $a_t$;
+  \item the ecosystem transitions under $P(s_{t+1}\mid s_t,a_t)$;
+  \item the manager observes survey $o_{t+1}$ under $P(o_{t+1}\mid s_{t+1})$; and
+  \item Bayes' rule updates the belief before the next decision.
+\end{enumerate}
+
+A POMDP policy must account for both ecological consequences and information. An action can be
+valuable because it improves the population, because it produces informative observations, or both.
+This is precisely where a belief-state planner differs from a fully observed controller or a QMDP
+shortcut that largely assumes uncertainty will disappear after one step.
+
+\section{Published PLUS: the basic idea}
+
+\subsection{Uncertainty over complete mechanistic models}
+
+PLUS represents scientific uncertainty with a finite bank of complete candidate POMDPs
+$M_1,\ldots,M_J$. A candidate is not merely a regression curve or a label. It contains a complete
+transition law, observation law, reward interface, discretized state representation, and fixed
+ecological parameterization. Each candidate is solved separately.
+
+PLUS maintains two types of uncertainty:
+
+\begin{itemize}
+  \item a within-candidate state belief $b_t^j$ for each model $M_j$; and
+  \item a model posterior $w_t^j=P(M_j\mid\text{history})$ over candidates.
+\end{itemize}
+
+After action $a_t$ and observation $o_{t+1}$, candidate $j$ supplies its own predictive evidence:
+
+\begin{equation}
+w_{t+1}^j \propto w_t^j
+p(o_{t+1}\mid b_t^j,a_t,M_j),
+\qquad \sum_{j=1}^J w_{t+1}^j=1.
+\end{equation}
+
+The action is selected from posterior-weighted candidate values:
+
+\begin{equation}
+a_t^*=\arg\max_a\sum_{j=1}^J w_t^j Q_j(b_t^j,a).
+\end{equation}
+
+Parameters remain fixed during deployment. ``Learning'' in PLUS is sequential Bayesian
+discrimination among the registered candidates, not continuous online refitting.
+
+\subsection{What the paper requires---and what it does not}
+
+The defining PLUS structure requires complete fixed candidate POMDPs, separate solutions, separate
+beliefs, sequential model evidence, and posterior-weighted decisions. It does \emph{not} require
+the bank to contain several ecological families, and it does not require exactly 16 candidates.
+A finite bank of distinct Ricker parameterizations is therefore still recognizably PLUS.
+
+The original work used SARSOP-based policy representations in a fisheries setting. The present
+implementation uses finite-horizon PBVI in a conservation setting. That solver substitution must be
+disclosed and checked, but it does not replace the Bayesian candidate-model structure.
+
+\section{Published MOOR: the basic idea}
+
+MOOR makes a different commitment. It fits one mechanistic population model offline from an ordered
+historical trajectory, integrates latent process uncertainty during fitting, builds a POMDP from the
+selected fit, and then plans in that same fitted model.
+
+The key invariants are:
+
+\begin{enumerate}
+  \item retain the order of the historical sequence rather than treating rows as exchangeable;
+  \item propagate latent biomass or abundance through the complete trajectory;
+  \item estimate a mechanistic population model under process uncertainty;
+  \item use normalized, bounded, multi-start optimization; and
+  \item use the selected model consistently for kernel construction, filtering, and planning.
+\end{enumerate}
+
+MOOR does not maintain an online posterior over competing families. In the current benchmark it is
+deliberately restricted to one Ricker model in every environment cell. The method is therefore
+correctly specified at the family level in Ricker cells and deliberately misspecified elsewhere.
+
+\section{Why the previous baselines are called ``inspired''}
+
+The earlier implementations were useful, computationally convenient exploratory baselines. Their
+results remain valid for the algorithms actually executed. The issue is naming: their internal
+objects were easier approximations of the papers' ideas rather than the papers' defining inference
+structures.
+
+\subsection{Previous PLUS-inspired baseline}
+
+The earlier PLUS-inspired method fitted action-conditional polynomial transition templates labelled
+Ricker, Allee, theta, and regime. Those labels did not instantiate the corresponding ecological
+equations or complete candidate POMDPs. The method approximately reweighted templates and used a
+tabular/QMDP-like planning mechanism.
+
+It retained the broad motif ``maintain several explanations and reweight them,'' but not the full
+PLUS mechanism of candidate-specific mechanistic likelihoods, beliefs, and separately solved
+belief-state policies. The accurate description is therefore:
+
+\begin{quote}
+PLUS-inspired posterior model averaging over action-conditional polynomial transition templates.
+\end{quote}
+
+\subsection{Previous MOOR-inspired baseline}
+
+The earlier MOOR-inspired method used independent per-action log-linear ridge regressions, for
+example
+
+\begin{equation}
+\log(1+o_{t+1}/S)=\beta_{a0}+\beta_{a1}\log(1+o_t/S).
+\end{equation}
+
+It treated transitions as exchangeable one-step pairs and then converted the regressions into a
+tabular transition model. It did not fit one mechanistic growth/capacity model through complete
+ordered latent trajectories. The accurate description is therefore:
+
+\begin{quote}
+MOOR-inspired per-action regression baseline with tabular model-based control.
+\end{quote}
+
+\begin{longtable}{L{0.20\textwidth}L{0.35\textwidth}L{0.35\textwidth}}
+\toprule
+\textbf{Dimension} & \textbf{Previous inspired implementations} & \textbf{Current paper-aligned adaptations} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Dimension} & \textbf{Previous inspired implementations} & \textbf{Current paper-aligned adaptations} \\
+\midrule
+\endhead
+Ecological model & Generic fitted regressions/templates & Registered mechanistic Ricker equations and parameters \\
+Historical data & Exchangeable or mostly one-step rows & Ordered complete episodes with explicit resets \\
+PLUS uncertainty & Approximate template weights & One belief and solved value representation per fixed candidate, plus a Bayesian model posterior \\
+MOOR commitment & Per-action regressions & One jointly fitted Ricker trajectory model used throughout \\
+Planning & Tabular/QMDP-like approximation & Belief-state finite-horizon PBVI \\
+Defensible label & PLUS-inspired or MOOR-inspired & Paper-aligned PLUS or MOOR adaptation \\
+\bottomrule
+\end{longtable}
+
+\section{The conservation benchmark}
+
+\subsection{State normalization and observations}
+
+Let $S$ be a public survey-derived scale. Private abundance $N_t$, capacity $K_t$, and observed
+survey $o_t$ are normalized as
+
+\begin{equation}
+x_t=N_t/S,\qquad k_t=K_t/S,\qquad y_t=o_t/S.
+\end{equation}
+
+For action $a$, let $u_a$ denote translocation/stocking, $d_a$ denote a capacity increment, and
+$r_a$ denote a signed action-rate effect. The registered transform separates positive growth and
+negative removal effects:
+
+\begin{equation}
+g_a=\max(r_a,0),\qquad h_a=\max(-r_a,0).
+\end{equation}
+
+Capacity and post-intervention abundance evolve as
+
+\begin{equation}
+k_{t+1}=\operatorname{clip}(k_t+d_a,k_0,k_{\max}),
+\qquad m_t=\max(x_t+u_a,0).
+\end{equation}
+
+The survey model is lognormal:
+
+\begin{equation}
+y_t\mid x_t\sim\operatorname{LogNormal}(\log x_t,\sigma_o^2).
+\end{equation}
+
+The manager observes the noisy survey, not the true abundance or hidden family.
+
+\subsection{Four hidden environment families}
+
+The assumed Ricker map is
+
+\begin{equation}
+x_{t+1}=m_t\exp\left\{g_a\left(1-\frac{m_t}{k_{t+1}}\right)-h_a\right\}.
+\end{equation}
+
+The Allee environment introduces a low-abundance threshold $C$:
+
+\begin{equation}
+x_{t+1}=m_t\exp\left\{g_a\left(1-\frac{m_t}{k_{t+1}}\right)
+\left(\frac{m_t}{C}-1\right)-h_a\right\}.
+\end{equation}
+
+The theta-logistic environment changes the density-dependence shape:
+
+\begin{equation}
+x_{t+1}=\left[m_t+g_am_t\left(1-
+\left(\frac{m_t}{k_{t+1}}\right)^\theta\right)\right]_+\exp(-h_a).
+\end{equation}
+
+The regime-switching environment includes an unobserved discrete regime $z_t$ with transition
+matrix $\Pi$; the active regime changes the growth mechanism or parameters. The current Ricker-only
+PLUS and MOOR models contain neither $z_t$ nor $\Pi$. This is deliberate misspecification rather
+than an implementation omission.
+
+\section{How the papers are adapted to this benchmark}
+
+\begin{longtable}{L{0.23\textwidth}L{0.29\textwidth}L{0.38\textwidth}}
+\toprule
+\textbf{Paper setting} & \textbf{Conservation adaptation} & \textbf{Reason} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Paper setting} & \textbf{Conservation adaptation} & \textbf{Reason} \\
+\midrule
+\endhead
+Fishing effort & Eleven conservation interventions & Actual decisions alter growth, mortality, habitat capacity, or abundance. \\
+Catch observation & Noisy abundance survey & Catch is not observed in this benchmark. \\
+Harvest/catch reward & Common conservation reward & All methods must optimize the same persistence, abundance, cost, and safety objective. \\
+One historical series & Multiple ordered 25-step episodes & The offline data contain genuine reset boundaries. \\
+Fishery biomass scale & Public survey-derived scale $S$ & Private demographic scale cannot be leaked. \\
+Stationary context & Capacity, previous survey, and timestep & Habitat effects accumulate and the decision horizon is finite. \\
+SARSOP/DESPOT & Context-conditioned finite-horizon PBVI & This is the available disclosed planner substitution. \\
+\bottomrule
+\end{longtable}
+
+These adaptations change the application interface, but they do not replace the algorithms'
+identities. The honest claim is ``paper-aligned conservation adaptation,'' not ``exact
+reproduction.''
+
+\section{Current paper-aligned implementations}
+
+\subsection{Ricker-only PLUS}
+
+The current method identifier is \code{plus_adapted_ricker_only_pbvi}. For each environment cell it
+constructs eight complete fixed Ricker candidate POMDPs:
+
+\begin{itemize}
+  \item candidate 0: deterministic MAP fit using the full ordered fitting history;
+  \item candidates 1--7: deterministic episode-bootstrap MAP fits;
+  \item initial model prior: $w_0^j=1/8$; and
+  \item online parameters: fixed; only beliefs and candidate probabilities update.
+\end{itemize}
+
+Every candidate receives its own transition and observation kernels, PBVI solution, and state
+belief. Allee thresholds, theta exponents, regime multipliers, regime states, and $\Pi$ are
+inapplicable. They must not affect any Ricker-only fit, kernel, filter, PBVI value, or action.
+
+This bank represents \emph{parameter uncertainty within Ricker}, not uncertainty over the true
+family. It therefore creates the intended family-misspecification stress test.
+
+\subsection{Ricker MOOR}
+
+The method identifier is \code{moor_adapted_ricker_misspec_pbvi}. It fits one Ricker model jointly
+to complete training episodes. Each episode resets initial abundance and cumulative capacity, while
+order within the episode is preserved.
+
+Fitting uses process-only Monte Carlo. Because the observation is lognormal, its conditional mean is
+
+\begin{equation}
+\widehat y_{e,t}=E[y_{e,t}\mid x_{e,t}]
+=x_{e,t}\exp(\sigma_o^2/2).
+\end{equation}
+
+The fitted objective is schematically
+
+\begin{equation}
+L(\vartheta)=\frac{1}{|\mathcal E|}
+\sum_{e\in\mathcal E}\frac{1}{T_e}
+\sum_{t=1}^{T_e}
+E_{\text{process paths}}
+\left[(\widehat y_{e,t}(\vartheta)-y_{e,t})^2\right].
+\end{equation}
+
+No independent observation-noise draw is inserted into this squared error. The minimum finite
+training-objective fit across deterministic starts is used unchanged for kernel construction,
+filtering, and PBVI.
+
+\subsection{Same family assumption, different inference}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{0.24\textwidth}YY}
+\toprule
+ & \textbf{Ricker-only PLUS} & \textbf{Ricker MOOR} \\
+\midrule
+Offline commitment & Several fixed Ricker candidates & One selected Ricker fit \\
+Online model learning & Bayesian posterior over candidates & None \\
+State uncertainty & One belief per candidate & One belief in the fitted model \\
+Decision & Posterior-weighted candidate PBVI values & PBVI values from the single fitted model \\
+Misspecification & All candidates wrong outside Ricker & Single model wrong outside Ricker \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Why the current implementation is truthful to the papers}
+
+``Truthful'' here means that the defining algorithmic objects are present and consistently used;
+it does not mean that the implementation copies every variable, solver, or hyperparameter from the
+fishery studies.
+
+\begin{longtable}{L{0.29\textwidth}L{0.28\textwidth}L{0.33\textwidth}}
+\toprule
+\textbf{Paper invariant} & \textbf{Current evidence} & \textbf{Disclosed adaptation} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Paper invariant} & \textbf{Current evidence} & \textbf{Disclosed adaptation} \\
+\midrule
+\endhead
+Complete PLUS candidate POMDPs & Eight serialized Ricker candidates with candidate-specific kernels & Ricker-only bank rather than the earlier cross-family extension \\
+Separate PLUS solutions & Every candidate is independently solved and filtered & PBVI replaces SARSOP \\
+Sequential PLUS evidence & Normalized candidate posterior updated from action--survey likelihoods & Surveys replace catches \\
+Fixed PLUS parameters online & Candidate parameters frozen before deployment & Bootstrap MAP constructs candidate diversity \\
+Ordered MOOR fitting & Complete episodes retain order and reset state/context & Multiple episodes replace one fishery series \\
+One MOOR model throughout & Selected Ricker fit reused consistently in kernel, filter, and planner & PBVI replaces DESPOT \\
+Process uncertainty & Monte Carlo latent propagation in fitting & Finite registered path budget \\
+Privacy & Method context excludes hidden family and private demographics & Public action-category structure is retained \\
+\bottomrule
+\end{longtable}
+
+The implementation also passed a small exact-POMDP probe in which PBVI chose the exact optimal
+information-gathering action and matched that action's exact value within $10^{-5}$. This supports
+the planner's ability to represent information value on that probe. It does not prove universal
+PBVI exactness.
+
+\section{Current 72-cell Ricker-assumption stress test}
+
+\subsection{Registered design}
+
+Only PLUS requires new execution for this deadline experiment. The balanced design is
+
+\begin{equation}
+9\ \text{populations}\times4\ \text{hidden families}\times
+2\ \text{noise levels}=72\ \text{cells}.
+\end{equation}
+
+The selected survey-noise levels are $\sigma_o\in\{0.1,0.2\}$. Population coverage has priority
+over adding the extreme noise levels. Each cell uses the safe reward configuration, the inherited
+4,000-transition data budget, and an episode-level 80/20 fit/holdout split.
+
+The registered computational settings include:
+
+\begin{itemize}
+  \item eight deterministic Ricker candidates and uniform prior $1/8$;
+  \item eight L-BFGS starts and at most 100 iterations for production fitting;
+  \item 16 process paths;
+  \item 41 abundance bins, nine capacity bins, and 41 observation bins;
+  \item 256 transition and 256 observation samples;
+  \item PBVI horizon five, 32 belief points, seven observation branches, and discount 0.95; and
+  \item one CPU per cell worker, with no candidate-level CPU sharding.
+\end{itemize}
+
+The 72 workers may run concurrently, but each worker processes its candidates sequentially and then
+plans only if its fit succeeds. This caps PLUS at 72 CPUs, leaving cluster capacity for the separate
+general-RL reruns.
+
+\subsection{What this experiment can and cannot show}
+
+If structurally accepted, the experiment can compare in-family versus out-of-family behavior across
+nine populations at two moderate survey-noise levels. It can test whether online discrimination
+among Ricker parameterizations gives PLUS robustness that differs from MOOR's one-model commitment.
+
+It cannot by itself establish:
+
+\begin{itemize}
+  \item robustness at zero noise or the highest registered noise level;
+  \item adequacy of eight candidates relative to larger banks;
+  \item adequacy of 4,000 transitions;
+  \item equivalence to the full 288-cell benchmark; or
+  \item superiority of ecological methods over general RL before matched reruns and analysis.
+\end{itemize}
+
+Existing MOOR artifacts should not be rerun merely to create a new directory identity. They may be
+paired later only where method, data, split, reward, PBVI, evaluation, and artifact hashes match and
+method-specific return-blind acceptance passes.
+
+\section{Implementation verification versus empirical evidence}
+
+The distinction is essential for presentation:
+
+\begin{itemize}
+  \item \textbf{Implementation verification} asks whether the intended equations, privacy rules,
+  beliefs, posterior updates, planners, hashes, and routing are correct.
+  \item \textbf{Structural run acceptance} asks whether every registered cell completed under the
+  frozen code/manifests and emitted valid return-blind diagnostics.
+  \item \textbf{Performance analysis} asks how the accepted policies actually performed. It begins
+  only after acceptance and explicit authorization to open returns.
+\end{itemize}
+
+The Ricker-only route added tests for candidate cardinality, bootstrap construction, privacy,
+non-Ricker-constant invariance, cache identity, route separation, dispatch, and acceptance. However,
+the first structural smoke test exposed a manifest parsing defect before any fit began:
+\code{regime_path_count=not_applicable} was incorrectly passed to a generic integer conversion.
+This is an operational/configuration routing defect rather than evidence against the PLUS
+algorithm. A type-aware correction and passing smoke rerun are required before production.
+
+No performance claim should be inferred from a test count, a successful smoke test, or a completed
+fit alone.
+
+\section{How to interpret eventual results}
+
+\begin{itemize}
+  \item Strong Ricker-cell performance but weaker non-Ricker performance would be evidence of
+  sensitivity to family misspecification under the registered adaptation.
+  \item Weakness in all families could arise from poor action-effect identification, observation
+  noise, limited data, an inadequate candidate bank, or PBVI/discretization limits; it would not
+  isolate one cause.
+  \item PLUS outperforming MOOR outside Ricker could reflect useful parameter-model averaging and
+  online evidence, even though every PLUS candidate is family-misspecified.
+  \item MOOR outperforming PLUS could reflect the stability of committing to one well-fitted model
+  rather than posterior dilution across weak candidates.
+  \item Safe-mode weakness can be information-limited because the private safety objective is not
+  supplied to the learner. It must not automatically be called intrinsic algorithm failure.
+\end{itemize}
+
+Results from the earlier cross-family PLUS bank answer a different question: that bank already
+contains the correct family, so it tests structural-family discrimination rather than robustness to
+a shared Ricker assumption. The two configurations require explicit version labels and must not be
+silently pooled.
+
+\section{What should be improved next}
+
+\subsection{Data adequacy}
+
+The 4,000-transition budget was inherited for comparison with general learners, not because it was
+shown sufficient. It corresponds to 160 complete 25-step episodes, with approximately 128 episodes
+used for fitting. Some action effects, especially capacity actions in sink populations, have much
+weaker coverage. A future 4,000-versus-8,000 complete-episode sensitivity is necessary.
+
+\subsection{Candidate-bank adequacy}
+
+Eight Ricker candidates are a registered practical choice, not a demonstrated optimum. Future
+work should examine nested bank sizes, bootstrap diversity, effective parameter-space coverage,
+boundary concentration, and whether several candidates collapse to near-identical dynamics.
+
+\subsection{Fitting diagnostics}
+
+Future runtime instrumentation should emit per-start optimizer termination, projected gradients,
+boundary-active coordinates, train/holdout trajectory errors, parameter uncertainty summaries, and
+clear identifiability diagnostics. These cannot be reconstructed honestly from performance returns.
+
+\subsection{Planner adequacy}
+
+PBVI should be tested over belief-point count, observation branching, horizon, abundance/capacity
+grids, and Monte Carlo kernel sample sizes. The exact toy probe is reassuring but does not establish
+adequacy in every ecological cell.
+
+\subsection{Model-class extensions}
+
+After the primary Ricker-assumption stress test, useful named sensitivities include:
+
+\begin{itemize}
+  \item comparing Ricker-only PLUS with the separate cross-family PLUS extension;
+  \item richer within-Ricker parameter grids or hierarchical priors;
+  \item learned regime transition matrices using particle or stochastic EM in a separately named
+  cross-family method;
+  \item posterior predictive checks and calibrated candidate expansion; and
+  \item a model-robust or nonparametric ecological extension that does not assume the true family is
+  present.
+\end{itemize}
+
+\subsection{Experimental coverage and comparators}
+
+Later work should restore $\sigma_o=0$ and $0.4$, complete the full registered cell matrix, rerun
+general learners at exactly matched data/evaluation budgets, and report uncertainty across data and
+evaluation seeds. Known-demographics work should distinguish known capacity from a stronger
+known-action-effects oracle; action-specific $r_a$ values must not be described as one intrinsic
+population growth parameter.
+
+\section{Suggested supervisor-presentation sequence}
+
+The following sequence can be converted directly into slides:
+
+\begin{enumerate}
+  \item \textbf{Question:} Can ecological structure help offline conservation control when
+  demographics and the true model family are hidden?
+  \item \textbf{POMDP reminder:} latent abundance, noisy surveys, belief updates, and actions that
+  affect both ecology and information.
+  \item \textbf{PLUS idea:} several fixed mechanistic POMDPs, one belief per candidate, online
+  posterior, posterior-weighted decisions.
+  \item \textbf{MOOR idea:} one mechanistic model fitted to ordered trajectories, then used
+  consistently for belief planning.
+  \item \textbf{Why the old versions are ``inspired'':} simpler polynomial/ridge models retained
+  broad motifs but not the defining paper objects.
+  \item \textbf{Conservation adaptation:} interventions, abundance surveys, episode resets,
+  normalized states, common reward, and PBVI.
+  \item \textbf{Fair stress test:} both methods assume Ricker; show the one-control/three-stress
+  family table.
+  \item \textbf{Current experiment:} eight Ricker candidates, nine populations, four families, two
+  noise levels, 72 PLUS cells, matched existing MOOR rows where provenance permits.
+  \item \textbf{Why it is truthful:} invariant-to-implementation table and verification/acceptance
+  separation.
+  \item \textbf{Limits and next work:} data adequacy, candidate diversity, optimizer diagnostics,
+  PBVI sensitivity, extra noise levels, and matched general-RL reruns.
+\end{enumerate}
+
+\section{Recommended language}
+
+A concise methods statement is:
+
+\begin{quote}
+We implemented paper-aligned conservation adaptations of PLUS and MOOR under hidden demographics.
+PLUS maintained a Bayesian posterior over eight fixed, independently solved Ricker candidate
+POMDPs, while MOOR fitted one Ricker model offline to complete ordered episodes and planned in that
+same model. Ricker environments provided an in-family control; Allee, theta-logistic, and
+regime-switching environments provided preregistered out-of-family misspecification stress tests.
+No method received the hidden family or private demographic parameters, and finite-horizon PBVI was
+used as a disclosed planner substitution.
+\end{quote}
+
+Avoid the phrases ``exact reproduction,'' ``true PLUS,'' or ``true MOOR.'' Use ``paper-aligned
+adaptation.'' Retain ``PLUS-inspired'' and ``MOOR-inspired'' for the earlier, easier implementations.
+
+\section{Source and local record}
+
+\begin{itemize}
+  \item Memarzadeh and Boettiger (2018), PLUS conservation/fisheries work and archived
+  \texttt{pomdpplus} source: \url{https://zenodo.org/records/1161521}.
+  \item Ju et al. (2023), ``Model-based offline reinforcement learning for sustainable fishery
+  management,'' \emph{Expert Systems}, DOI: \url{https://doi.org/10.1111/exsy.13324}.
+  \item Local consolidated record:
+  \path{PLUS_MOOR_PAPER_ALIGNMENT_COMPLETE_REFERENCE.md}.
+  \item Current reader-facing Markdown:
+  \path{PLUS_MOOR_PAPER_ALIGNED_IMPLEMENTATION_EXPLANATION.md}.
+  \item Current 72-cell launch design: \path{LAUNCH_PLAN.md}.
+  \item Return-blind frozen-runtime acceptance record:
+  \path{ACCEPTANCE_V2_FROZEN_RUNTIME_OBSERVABLE_20260719.md}.
+\end{itemize}
+
+\section{Conclusion}
+
+The core methodological correction is not merely that the new code uses more complicated equations.
+It restores the objects that give PLUS and MOOR their scientific identities. PLUS now reasons with
+several fixed, separately solved mechanistic POMDPs and updates a Bayesian posterior over them.
+MOOR now fits one mechanistic model through ordered latent trajectories and uses that same model for
+prediction, filtering, and planning.
+
+The present design makes the family-level comparison clearer than the earlier cross-family PLUS
+extension: both ecological methods assume Ricker, so the three non-Ricker families genuinely test
+misspecification. Conservation-specific actions, surveys, rewards, resets, and PBVI are necessary or
+disclosed adaptations. They justify the label ``paper-aligned adaptation,'' not exact reproduction.
+
+Implementation verification is now much stronger, but strong empirical conclusions still require a
+successful refrozen smoke test, structurally accepted production artifacts, authorized return
+analysis, matched general-RL comparisons, and later data/candidate/planner sensitivity studies.
+
+\end{document}

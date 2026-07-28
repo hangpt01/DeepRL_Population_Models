@@ -1,0 +1,794 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,longtable,array}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\title{Real-Ecology Benchmark Algorithms:\\Method Equations, Training Flow, and Implementation Adaptations}
+\author{For readers who know the algorithm papers but do not inspect the code}
+\date{July 2026}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\1}{\mathbf{1}}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\section{Purpose}
+
+This document explains how the benchmark algorithms are instantiated in the
+real-ecology continuous-observation setting.  It is written for a reader who
+knows the relevant algorithm papers or method families, but does not inspect the
+source code.  The goal is to describe:
+\begin{itemize}[leftmargin=*]
+  \item the mathematical form of the benchmark POMDP;
+  \item the detailed training and decision flow for each algorithm;
+  \item the update equations used by each adaptation;
+  \item how each method is evaluated;
+  \item what was changed from the original paper-style method and why that
+  adaptation was needed for this benchmark.
+\end{itemize}
+
+The remainder of the note presents the implementation design and the intended
+interpretation of each method.
+
+\section{Benchmark POMDP Shared by All Methods}
+
+\subsection{State, Observation, and Public Belief}
+
+The latent ecological state is continuous abundance $s_t\ge 0$.  The agent does
+not observe $s_t$ directly.  It observes a noisy survey:
+\[
+  o_t = s_t\epsilon_t,\qquad
+  \epsilon_t\sim\mathrm{LogNormal}(0,\sigma_{\mathrm{obs}}).
+\]
+The decision input to ordinary methods is therefore a public belief over
+abundance and latent structural variables, constructed from the public history:
+\[
+  h_t=(o_0,a_0,R_0,o_1,\ldots,a_{t-1},R_{t-1},o_t)
+\]
+plus public control accumulators.  The internal belief representation is a
+particle approximation:
+\[
+  b_t \approx \{(s_t^{(i)}, z_t^{(i)}, g_t^{(i)}, w_t^{(i)})\}_{i=1}^N,
+\]
+where $z_t$ denotes continuous latent context particles, $g_t$ denotes regime
+particles, and $w_t$ are normalized particle weights.
+
+\subsection{Real-Ecology Actions}
+
+The benchmark uses 11 real-data actions.  Each action $a$ has:
+\[
+  \Delta r(a),\qquad \Delta K(a),\qquad \Delta N(a),\qquad c(a).
+\]
+The public cumulative controls evolve as:
+\begin{align}
+  \rho_{t+1} &= (1-d_r)\rho_t+\Delta r(a_t),\\
+  \kappa_{t+1} &= (1-d_K)\kappa_t+\Delta K(a_t),\\
+  K^{\mathrm{eff}}_{t+1}
+    &= \mathrm{clip}\{K_{\mathrm{base}}+\kappa_{t+1},K_{\min},K_{\max}\}.
+\end{align}
+For the real setting, $d_r=1$ and $d_K=0$, so $\rho_{t+1}$ is the current action's
+set-point growth/mortality value while $\kappa_t$ accumulates habitat capacity
+improvements.
+
+The real ecological growth rate is:
+\[
+  r^{\mathrm{eff}}_{t+1}
+  = \mathrm{clip}\{\rho_{t+1},r_{\min}(p),r_{\max}(p)\}.
+\]
+Direct translocation enters as:
+\[
+  m_t = \max\{s_t+\Delta N(a_t),0\}.
+\]
+Only the translocation action has nonzero $\Delta N$.
+
+\subsection{Ecological Transition}
+
+Negative effective growth is treated as unconditional mortality rather than as a
+negative coefficient inside the density term:
+\[
+  r_+ = \max(r^{\mathrm{eff}},0),\qquad
+  r_- = \min(r^{\mathrm{eff}},0).
+\]
+For the Ricker family:
+\[
+  s_{t+1}
+  =
+  m_t\exp\left(r_+\left(1-\frac{m_t}{K^{\mathrm{eff}}_{t+1}}\right)\right)
+  \exp(r_-).
+\]
+For the Allee family:
+\[
+  s_{t+1}
+  =
+  m_t\exp\left(
+    r_+\left(1-\frac{m_t}{K^{\mathrm{eff}}_{t+1}}\right)
+       \left(\frac{m_t}{C}-1\right)
+  \right)\exp(r_-).
+\]
+For the theta-logistic family:
+\[
+  s_{t+1}
+  =
+  \left[m_t+r_+m_t
+  \left(1-\left(\frac{m_t}{K^{\mathrm{eff}}_{t+1}}\right)^\theta\right)\right]
+  \exp(r_-).
+\]
+The regime family switches between weak and strong Allee-like maps with a
+private regime variable.
+
+\subsection{Reward}
+
+The reward is state-dependent and uses the true next abundance:
+\[
+  R_t =
+  \alpha\frac{s_{t+1}}{s_{t+1}+K_{\mathrm{base}}(p)}
+  - c(a_t)
+  - P_m\1\{s_t>s_{\mathrm{safe}}(p),\ s_{t+1}\le s_{\mathrm{safe}}(p)\}.
+\]
+The two reward modes share the same benefit and cost.  They differ only in the
+collapse penalty:
+\[
+  P_{\mathrm{yield}}=0,\qquad
+  P_{\mathrm{safe}}=\text{configured collapse penalty}.
+\]
+
+\subsection{Shared Evaluation Battery}
+
+Every trained policy is evaluated by rolling out from $s_0=N_0(p)$ under the
+same observation model and seed protocol.  The evaluation records operational
+return, true return, collapse entry, unsafe fraction, final abundance, minimum
+abundance, persistence, economic cost, filter errors, runtime, and fallback
+counts.  Reward-mode-specific policies are trained separately.
+
+\section{Shared Training Infrastructure}
+
+\subsection{Offline Dataset and Belief Cache}
+
+The offline dataset contains public transitions:
+\[
+  (o_t,a_t,R_t,o_{t+1},d_t,\rho_t,\kappa_t,K^{\mathrm{eff}}_t,
+   \rho_{t+1},\kappa_{t+1},K^{\mathrm{eff}}_{t+1}).
+\]
+Private states and hidden parameters are used only by the simulator/evaluator.
+Before fitting most methods, a particle filter is run over the public dataset to
+create a belief cache:
+\[
+  \phi_t=\phi(b_t),\qquad \phi_{t+1}=\phi(b_{t+1}),
+\]
+where $\phi$ contains posterior moments and quantiles of the public belief.
+
+\subsection{Train/Holdout Monitoring}
+
+When training monitoring is enabled, dataset episodes are split into a training
+set and a holdout set.  Methods fit on the training split.  The holdout split is
+used to compute validation diagnostics such as dynamics error, Bellman error, or
+rollout objective.  Iterative methods additionally write per-iteration curves.
+
+\section{Shared Particle MPC}
+
+Several methods use the same sequence-sampling planner.  Given belief $b_t$ and
+a transition proposal $\hat{P}$, the planner samples candidate sequences:
+\[
+  A^{(j)}=(a^{(j)}_0,\ldots,a^{(j)}_{H-1}),\qquad j=1,\ldots,M.
+\]
+For each sequence it samples particles from $b_t$, rolls them forward under
+$\hat{P}$, and computes discounted return:
+\[
+  G_i(A^{(j)})=\sum_{h=0}^{H-1}\gamma^h
+  \hat{R}(\hat{s}^{(i)}_{t+h},a^{(j)}_h,\hat{s}^{(i)}_{t+h+1}).
+\]
+The score is:
+\[
+  \mathrm{score}(A^{(j)})
+  =
+  \frac{1}{N}\sum_iG_i(A^{(j)})
+  -\lambda_{\mathrm{pess}}\sqrt{\frac{1}{N}\sum_i
+      \left(G_i(A^{(j)})-\bar{G}(A^{(j)})\right)^2}
+  -\text{optional risk penalties}.
+\]
+The executed action is the first action of the best sequence.
+
+This planner is a benchmark adaptation: it gives several algorithms a common
+continuous-action-evaluation engine while preserving their differences in model,
+posterior, uncertainty, and constraint construction.
+
+\section{MOPO}
+
+\subsection{Original Paper-Level Principle}
+
+MOPO-style offline model-based RL learns a dynamics model from offline data and
+penalizes policy optimization in regions where the model is uncertain.  The core
+ingredients are:
+\[
+  \hat{P}_\theta(s'|s,a),\qquad
+  U_\theta(s,a),\qquad
+  \hat{r}(s,a)-\lambda U_\theta(s,a).
+\]
+
+\subsection{Benchmark Training}
+
+The benchmark adaptation fits a bootstrap ensemble of $B$ dynamics models.  For
+each member $m$:
+\[
+  y_t=\log\left(1+\frac{\bar{s}_{t+1}}{K_{\mathrm{ref}}}\right),
+\]
+where $\bar{s}_{t+1}$ is the next-state posterior mean from the public belief
+cache.  The feature vector contains log abundance features, action one-hot
+features, action-state interactions, and public-control terms:
+\[
+  x_t =
+  \left[
+  1,\ \log(1+\bar{s}_t/K_{\mathrm{ref}}),\
+  \log^2(1+\bar{s}_t/K_{\mathrm{ref}}),\
+  e(a_t),\ e(a_t)x_t,\ e(a_t)x_t^2,\
+  \rho_{t+1},\kappa_{t+1}/K_{\mathrm{ref}},K^{\mathrm{eff}}_{t+1}/K_{\mathrm{ref}}
+  \right].
+\]
+Each member solves a ridge regression on a bootstrap sample:
+\[
+  \theta_m =
+  \arg\min_\theta \sum_{t\in\mathcal{B}_m}(y_t-x_t^\top\theta)^2
+  +\lambda_{\mathrm{ridge}}\|\theta\|_2^2.
+\]
+The predicted next abundance is:
+\[
+  \hat{s}_{t+1}^{(m)}
+  =
+  K_{\mathrm{ref}}\left(\exp(x_t^\top\theta_m)-1\right).
+\]
+
+\subsection{Decision Rule}
+
+At evaluation time, MOPO uses particle MPC with the learned ensemble as the
+transition proposal.  The uncertainty signal is ensemble disagreement:
+\[
+  U(s,a)=\Var_m[\hat{s}^{(m)}_{t+1}(s,a)].
+\]
+The planner score subtracts a pessimism-scaled disagreement penalty.
+
+\subsection{Adaptation from the Paper}
+
+The original MOPO family is often implemented with neural dynamics and synthetic
+rollout policy optimization.  The benchmark uses a ridge-regression ensemble and
+particle MPC instead.  This was done because the ecological benchmark is small,
+continuous-state, carefully checked for leakage, and needs deterministic,
+inspectable model fits.  The adaptation preserves the core MOPO idea:
+model-based planning with uncertainty pessimism, but simplifies the model class
+and policy improvement machinery.
+
+\section{Reflect-then-Plan}
+
+\subsection{Original Paper-Level Principle}
+
+Reflect-then-Plan methods maintain uncertainty over models or hypotheses,
+update that uncertainty from observations, and plan under the posterior.  A
+generic form is:
+\[
+  p_t(m)\propto p(o_{\le t}|m,a_{<t})p_0(m),
+\]
+then choose actions using posterior predictive value:
+\[
+  Q(b_t,a)=\E_{m\sim p_t(m)}[Q_m(b_t,a)].
+\]
+
+\subsection{Benchmark Training}
+
+The benchmark fits the same bootstrap dynamics ensemble as MOPO, with at least
+five members:
+\[
+  \{\hat{P}_{\theta_1},\ldots,\hat{P}_{\theta_B}\}.
+\]
+The initial posterior is uniform:
+\[
+  p_0(m)=1/B.
+\]
+
+\subsection{Decision Rule}
+
+For a candidate sequence $A$, each selected ensemble member $m$ receives a
+particle-MPC sequence score $S_m(A)$.  The reflected score is:
+\[
+  S(A)
+  =
+  \sum_m p_t(m)S_m(A)
+  -
+  \lambda_{\mathrm{pess}}
+  \sqrt{\sum_m p_t(m)\left(S_m(A)-\sum_\ell p_t(\ell)S_\ell(A)\right)^2}.
+\]
+The action is the first action of the best sequence.
+
+\subsection{Posterior Update}
+
+After action $a_t$ and observation $o_{t+1}$, each model predicts a next-state
+mean $\hat{s}_{t+1}^{(m)}$.  The update uses a log-observation residual:
+\[
+  \ell_m
+  =
+  -\frac{1}{2}\left(
+    \frac{\log(o_{t+1})-\log(\hat{s}_{t+1}^{(m)})}{\sigma_m}
+  \right)^2-\log\sigma_m,
+\]
+then:
+\[
+  p_{t+1}(m)=
+  \frac{p_t(m)\exp(\ell_m)}
+       {\sum_\ell p_t(\ell)\exp(\ell_\ell)}.
+\]
+
+\subsection{Adaptation from the Paper}
+
+The benchmark uses the learned linear ensemble as the hypothesis set and uses a
+simple residual likelihood for posterior reflection.  Planning is done by the
+shared particle MPC rather than by a paper-specific planner.  This keeps the
+method comparable to MOPO while preserving the essential difference: RefPlan
+keeps and updates an explicit posterior over candidate learned models.
+
+\section{BA-MCTS}
+
+\subsection{Original Paper-Level Principle}
+
+Bayes-adaptive MCTS plans in a belief over states and models.  It expands a tree
+over actions and simulated outcomes, balancing exploration of tree actions with
+estimated value:
+\[
+  a=\arg\max_a
+  \left[
+    \hat{Q}(h,a)+c\sqrt{\frac{\log N(h)}{N(h,a)}}
+  \right].
+\]
+
+\subsection{Benchmark Training}
+
+The benchmark first fits the same learned dynamics ensemble as MOPO.  The
+posterior over ensemble members is initialized uniformly:
+\[
+  p_0(m)=1/B.
+\]
+
+\subsection{Tree Search}
+
+At decision time, the method samples particles from the current belief and model
+members from the current posterior.  Because abundance is continuous, tree nodes
+use progressive aggregation:
+\[
+  \text{node key} =
+  (d,\ \mathrm{bucket}(\log(1+s/K_{\mathrm{ref}})),\
+   \1\{s\le s_{\mathrm{safe}}\},\
+   \mathrm{bucket}(\rho),\mathrm{bucket}(\kappa)).
+\]
+For an unvisited action, the tree explores it.  Otherwise it uses UCB:
+\[
+  a=\arg\max_a
+  \left[
+    \hat{Q}(n,a)+c\sqrt{\frac{\log(N(n)+1)}{N(n,a)}}
+  \right].
+\]
+The simulated one-step value is:
+\[
+  r(s,a,s')-\lambda_{\mathrm{pess}}
+  \frac{\Var_m[\hat{s}'_m(s,a)]}{\max(s^2,1)}
+  +\gamma V(s').
+\]
+
+\subsection{Posterior Update}
+
+After observing a transition, the model posterior is updated with the same
+log-observation residual form as Reflect-then-Plan.
+
+\subsection{Adaptation from the Paper}
+
+The adaptation uses a learned ensemble as the model posterior and a continuous
+state aggregation rule instead of exact discrete histories.  This is necessary
+because the benchmark state and observations are continuous.  The method keeps
+the paper-level structure of Bayes-adaptive tree search, but the node
+representation and model posterior are benchmark-specific approximations.
+
+\section{MOOR-Ricker}
+
+\subsection{Original Paper-Level Principle}
+
+MOOR-Ricker is treated as a mechanistic expert baseline: fit a simple Ricker
+ecological model and plan under that model.  Its value comes from interpretably
+using a known ecological structure, not from flexible model learning.
+
+\subsection{Benchmark Training}
+
+The method fits one Ricker model to public belief means.  The prediction is:
+\[
+  \hat{s}_{t+1}(r,K)
+  =
+  f_{\mathrm{Ricker}}(\bar{s}_t,a_t;r,K,\rho_t,\kappa_t),
+\]
+where the same management-control convention as the simulator is used.  The fit
+objective is:
+\[
+  (r^\star,K^\star)
+  =
+  \arg\min_{r,K}
+  \frac{1}{n}\sum_t
+  \left[
+    \log\left(1+\frac{\hat{s}_{t+1}(r,K)}{K_{\mathrm{ref}}}\right)
+    -
+    \log\left(1+\frac{\bar{s}_{t+1}}{K_{\mathrm{ref}}}\right)
+  \right]^2.
+\]
+In the real set-point setting, the action-specific growth set-point is known
+from the data, so the practical fit mainly identifies the capacity scale $K$.
+
+\subsection{Decision Rule}
+
+For real cumulative controls, MOOR plans using particle MPC with the fitted
+Ricker proposal:
+\[
+  a_t=\pi_{\mathrm{MPC}}(b_t;\hat{P}_{\mathrm{Ricker}}(r^\star,K^\star)).
+\]
+
+\subsection{Adaptation from the Paper}
+
+The adaptation keeps MOOR intentionally Ricker-structured even when the true
+family is Allee, theta, or regime-switching.  This misspecification is part of
+the baseline.  The code also uses the simulator's positive-growth/negative-
+mortality split so that negative real-data set-points behave as mortality rather
+than causing Ricker sign pathologies.
+
+\section{PLUS}
+
+\subsection{Original Paper-Level Principle}
+
+PLUS-style methods maintain a discrete set of candidate mechanistic models,
+update a posterior over those candidates from evidence, and choose actions by
+planning under the posterior mixture.
+
+\subsection{Candidate Models}
+
+The benchmark uses $K_{\mathrm{cand}}=21$ candidates:
+\[
+  \mathcal{M}=\{M_1,\ldots,M_{21}\}.
+\]
+In the real set-point setting, the candidate axis is carrying capacity:
+\[
+  K_k \in [K_{\mathrm{base}},K_{\max}]
+\]
+with geometric spacing.  This differs from older settings where candidates may
+span intrinsic growth $r$.  The reason is that real action set-points already
+provide action-specific growth/mortality, while capacity uncertainty remains a
+meaningful Ricker-structured uncertainty axis.
+
+\subsection{Posterior and Belief Bank}
+
+PLUS keeps one belief-bank copy per candidate:
+\[
+  b_t^{(k)},\qquad p_t(k).
+\]
+The initial posterior is uniform:
+\[
+  p_0(k)=1/K_{\mathrm{cand}}.
+\]
+
+\subsection{Decision Rule}
+
+For a sequence $A$, each candidate produces a particle-MPC score $S_k(A)$.
+The mixture score is:
+\[
+  S(A)=\sum_k p_t(k)S_k(A).
+\]
+The method executes the first action of the best sequence.
+
+\subsection{Posterior Update}
+
+After action $a_t$ and observation $o_{t+1}$, each candidate belief is
+propagated:
+\[
+  b_{t+1}^{(k)}=\mathrm{BayesFilter}(b_t^{(k)},a_t,o_{t+1};M_k).
+\]
+The candidate evidence is:
+\[
+  Z_k = p(o_{t+1}|b_t^{(k)},a_t,M_k).
+\]
+The posterior update is:
+\[
+  p_{t+1}(k)=
+  \frac{p_t(k)Z_k}{\sum_jp_t(j)Z_j}.
+\]
+
+\subsection{Adaptation from the Paper}
+
+The 21-candidate count is preserved.  The adaptation changes the candidate
+dimension to capacity in the real set-point setting because the real data
+already specify per-action growth set-points.  PLUS remains deliberately
+Ricker-assumption-based, so it serves as a structured but potentially
+misspecified mechanistic baseline.
+
+\section{Delphic-CQL}
+
+\subsection{Original Paper-Level Principle}
+
+Delphic-style methods consider multiple compatible latent worlds that explain
+the same observations but imply different counterfactual consequences.  CQL
+then learns a conservative Q-function that avoids unsupported or ambiguous
+actions.
+
+\subsection{Compatible Worlds}
+
+The benchmark creates $W$ compatible worlds.  Given belief features $\phi_t$,
+world $w$ samples a random projection $P_w$ and latent dimension $d_w$.  The
+latent feature is:
+\[
+  z_w(\phi_t)
+  =
+  \tanh(\phi_tP_w)\,
+  A(\phi_t)\,
+  c_w,
+\]
+where $A(\phi_t)$ is a posterior-ambiguity scalar derived from belief spread,
+and $c_w$ is a world-specific scale.  The world feature vector is:
+\[
+  \psi_w(\phi_t)=
+  [1,\phi_t,z_w(\phi_t)].
+\]
+
+\subsection{World Fitting}
+
+Each world fits a behavior classifier:
+\[
+  \pi_{\beta_w}(a|\phi)
+  =
+  \mathrm{softmax}(\psi_w(\phi)^\top\beta_w)_a,
+\]
+by gradient descent on cross-entropy.  Each world also fits a linear Q-head by
+iterative Bellman regression:
+\[
+  y_t = R_t+\gamma(1-d_t)\max_{a'}Q_w(\phi_{t+1},a'),
+\]
+\[
+  Q_w(\phi_t,a_t)=\psi_w(\phi_t)^\top q_{w,a_t}.
+\]
+
+\subsection{Delphic Uncertainty}
+
+For a target action $a$, the worlds induce a set of counterfactual values.  The
+Delphic uncertainty is the across-world variance:
+\[
+  U(\phi,a)=\Var_w[Q_w^{\mathrm{cf}}(\phi,a)].
+\]
+
+\subsection{Final CQL Head}
+
+The final policy learns linear Q-weights $q_a$ on public belief features:
+\[
+  Q(\phi,a)=[1,\phi]^\top q_a.
+\]
+At CQL iteration $k$, the target action is
+\[
+  a^\star_t=\arg\max_a Q_k(\phi_t,a),
+\]
+and the target is:
+\[
+  y_t =
+  R_t+\gamma(1-d_t)\max_{a'}Q_k(\phi_{t+1},a')
+  -\lambda_{\mathrm{delphic}}U(\phi_t,a^\star_t).
+\]
+For observed actions, the head is fit by ridge regression.  Conservative
+pseudo-targets are added for unsupported actions:
+\[
+  \min_q
+  \sum_{t:a_t=a}(Q(\phi_t,a)-y_t)^2
+  +\alpha_{\mathrm{CQL}}\sum_t Q(\phi_t,a)^2
+  +\lambda_{\mathrm{ridge}}\|q_a\|_2^2.
+\]
+
+\subsection{Decision Rule}
+
+At evaluation time:
+\[
+  a_t =
+  \arg\max_a
+  \left[
+    Q(\phi_t,a)-\lambda_{\mathrm{delphic}}U(\phi_t,a)
+  \right].
+\]
+
+\subsection{Adaptation from the Paper}
+
+The original paper family may use richer latent world models and neural Q
+functions.  The benchmark uses random-feature compatible worlds and linear CQL
+heads for interpretability, speed, and leakage control.  The adaptation preserves
+the core Delphic idea: penalize actions whose values vary across compatible
+latent explanations of the same public evidence.
+
+\section{OGSRL}
+
+\subsection{Original Paper-Level Principle}
+
+OGSRL-style methods learn a policy from offline data while guarding against
+unsafe or out-of-distribution decisions.  They combine reward optimization with
+safety and support constraints.
+
+\subsection{Learned Components}
+
+The benchmark fits:
+\begin{itemize}[leftmargin=*]
+  \item a learned dynamics ensemble $\hat{P}_{\theta_m}$;
+  \item a KNN OOD guardian $G_{\mathrm{ood}}(s,a)$;
+  \item a linear softmax actor $\pi_\eta(a|\phi)$;
+  \item linear diagnostic critics for reward, safety, and OOD.
+\end{itemize}
+
+The actor is:
+\[
+  \pi_\eta(a|\phi)=
+  \frac{\exp(\eta_a^\top \phi)}
+       {\sum_b\exp(\eta_b^\top \phi)}.
+\]
+
+\subsection{OOD Guardian}
+
+The guardian embeds offline belief/action points:
+\[
+  u_t=\left[\log(1+\bar{s}_t/K_{\mathrm{ref}}),\
+  \frac{a_t}{A-1}\right].
+\]
+It stores a subset of standardized anchors and sets a distance threshold from a
+validation quantile.  A new action is OOD if its KNN distance exceeds the
+threshold:
+\[
+  G_{\mathrm{ood}}(s,a)=
+  \1\{d_k(u(s,a),\mathcal{A})>\tau\}.
+\]
+
+\subsection{Rollout Objective}
+
+Training starts are sampled from cached belief features.  The policy is rolled
+out through the learned dynamics ensemble.  At each simulated step:
+\[
+  r_h =
+  \alpha\frac{\hat{s}_{h+1}}{\hat{s}_{h+1}+K_{\mathrm{ref}}}
+  -c(a_h)
+  -P_m\1\{\text{collapse entry}\},
+\]
+and the safety/OOD costs are:
+\[
+  c^{\mathrm{safety}}_h=\1\{\text{collapse entry}\},\qquad
+  c^{\mathrm{ood}}_h=G_{\mathrm{ood}}(\hat{s}_h,a_h).
+\]
+Discounted returns are:
+\[
+  G_R=\sum_h\gamma^h r_h,\quad
+  G_S=\sum_h\gamma^h c^{\mathrm{safety}}_h,\quad
+  G_O=\sum_h\gamma^h c^{\mathrm{ood}}_h.
+\]
+The constrained actor objective is:
+\[
+  J(\eta)=
+  \E_{\pi_\eta}\left[
+    G_R-\lambda_SG_S-\lambda_OG_O
+  \right].
+\]
+
+\subsection{Actor Update}
+
+The implementation uses a REINFORCE-style score-function update.  For sampled
+action $a_i$ at feature $\phi_i$:
+\[
+  \nabla_\eta\log\pi_\eta(a_i|\phi_i)
+  =
+  (\mathbf{e}_{a_i}-\pi_\eta(\cdot|\phi_i))\phi_i^\top.
+\]
+The update is:
+\[
+  \eta \leftarrow
+  \eta+\alpha_\eta
+  \frac{1}{N}\sum_i
+  \tilde{J}_i
+  \nabla_\eta\log\pi_\eta(a_i|\phi_i),
+\]
+where $\tilde{J}_i$ is the centered rollout objective.
+
+Dual variables are updated by:
+\[
+  \lambda_S\leftarrow
+  \max\{0,\lambda_S+\alpha_\lambda(\bar{G}_S-B_S)\},
+\]
+\[
+  \lambda_O\leftarrow
+  \max\{0,\lambda_O+\alpha_\lambda(\bar{G}_O-B_O)\}.
+\]
+
+\subsection{Deployment Rule}
+
+For each action, OGSRL estimates posterior OOD probability and next-step unsafe
+probability under the current belief.  Actions satisfying both deployment limits
+are feasible.  If at least one action is feasible:
+\[
+  a_t=\arg\max_{a\in\mathcal{F}_t}\pi_\eta(a|b_t).
+\]
+If no action is feasible, the method selects the least-violating action:
+\[
+  a_t=\arg\min_a
+  \left[
+    \frac{(\hat{p}_{\mathrm{unsafe}}(a)-B_S)_+}{B_S}
+    +
+    \frac{(\hat{p}_{\mathrm{ood}}(a)-B_O)_+}{B_O}
+  \right].
+\]
+
+\subsection{Adaptation from the Paper}
+
+The original paper family may use neural policies and richer OOD/safety
+estimators.  The benchmark uses a linear actor, KNN support estimate, and learned
+linear dynamics ensemble.  This makes the method lightweight and transparent in a
+small ecological benchmark while retaining the core structure: offline policy
+learning with safety and support constraints.
+
+\section{Training and Evaluation Flow}
+
+For a single manifest row, the intended flow is:
+\begin{enumerate}[leftmargin=*]
+  \item instantiate one population/family/noise/reward-mode cell;
+  \item load or collect a public offline dataset;
+  \item run the selected public filter and cache belief features;
+  \item split episodes into training and holdout sets if monitoring is enabled;
+  \item fit the policy on the training split;
+  \item log train/holdout diagnostics;
+  \item evaluate the trained policy over fixed evaluation seeds;
+  \item save episode metrics, summary metrics, runtime, backend metadata, and
+  training artifacts.
+\end{enumerate}
+
+The following files are intended outputs for each row:
+\[
+\begin{array}{ll}
+\text{episodes.csv} & \text{per-episode reward, safety, abundance, filter, runtime metrics},\\
+\text{summary.json} & \text{aggregate metrics and method diagnostics},\\
+\text{training\_history.csv} & \text{long-form training/validation curve},\\
+\text{training\_history.json} & \text{training metadata and history},\\
+\text{training\_history.png} & \text{plot of loss-like curves, when enabled}.
+\end{array}
+\]
+
+\section{Cross-Method Adaptation Summary}
+
+\begin{center}
+\begin{longtable}{p{0.16\linewidth}p{0.34\linewidth}p{0.38\linewidth}}
+\toprule
+Method & Paper-level core retained & Benchmark-specific adaptation \\
+\midrule
+\endhead
+MOPO & learned dynamics plus uncertainty pessimism & ridge bootstrap ensemble plus particle MPC \\
+RefPlan & posterior over models plus planning & learned ensemble posterior with residual-likelihood update \\
+BA-MCTS & belief/model tree search & continuous state bucket aggregation and learned ensemble posterior \\
+MOOR & simple mechanistic Ricker baseline & fit Ricker to public belief means; intentionally misspecified outside Ricker \\
+PLUS & candidate mechanistic models with posterior update & 21 Ricker-style candidates over $K$ in real set-point setting \\
+Delphic-CQL & compatible worlds plus conservative Q learning & random-feature latent worlds and linear CQL head \\
+OGSRL & offline policy with safety/support constraints & linear actor, KNN OOD guardian, learned linear dynamics rollouts \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\section{Why These Adaptations Were Needed}
+
+The real-ecology benchmark differs from many original algorithm papers in four
+ways:
+\begin{enumerate}[leftmargin=*]
+  \item The state is continuous abundance, but only noisy log-normal surveys are
+  observed.
+  \item Actions are real management interventions with set-point mortality,
+  cumulative habitat capacity, and translocation.
+  \item The benchmark must preserve a strict public/private boundary.
+  \item The scientific goal is controlled comparison across ecological stress
+  families, not maximizing performance with large neural architectures.
+\end{enumerate}
+
+For these reasons, several methods are implemented with transparent linear models,
+particle beliefs, shared particle MPC, and explicit training/holdout diagnostics.
+These choices make the methods easier to inspect and compare, but they should be
+interpreted as benchmark adaptations rather than exact source-code
+reimplementations of every original paper.
+
+\end{document}

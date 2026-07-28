@@ -1,0 +1,146 @@
+{
+  "acceptance_version": "option_a_method_specific_return_blind_v1",
+  "completed_rows": 2,
+  "decision": "PASS_LIMITED_STRUCTURAL_ACCEPTANCE",
+  "expected_rows": 2,
+  "failures": [],
+  "fit_manifest_sha256": "b52d41a16032930929e57dee3cdaa3f90429d7ed4d5c67e9a10043f40233fc57",
+  "method": "plus_adapted_ricker_only_pbvi",
+  "plan_manifest_sha256": "937ac4a7089a7c0ff2d7c6bf0a088b2aa725b5e6c2cd67b369bd940a76ff028c",
+  "return_fields_opened": false,
+  "rows": [
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "b198aa7a5d3989a66be4a1fc8b4b299a0552fe287b6d2e192eb237e10f34bbc7",
+            "family": "theta",
+            "sigma_obs": "0.1"
+          },
+          "name": "paired row identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/plus_alignment/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/plus_alignment/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/public.npz"
+          },
+          "name": "authoritative public/private file hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "hit",
+              "hit",
+              "hit",
+              "hit",
+              "hit",
+              "hit",
+              "hit",
+              "hit"
+            ]
+          },
+          "name": "return-blind fit receipt",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and planner structure",
+          "passed": true
+        }
+      ],
+      "position": 0
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "684748d9f018313651ee689c7bc41cabcd6d8cf1cbc2b253646bef84b3937c20",
+            "family": "theta",
+            "sigma_obs": "0.2"
+          },
+          "name": "paired row identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/plus_alignment/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/plus_alignment/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/public.npz"
+          },
+          "name": "authoritative public/private file hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "hit",
+              "hit",
+              "hit",
+              "hit",
+              "hit",
+              "hit",
+              "hit",
+              "hit"
+            ]
+          },
+          "name": "return-blind fit receipt",
+          "passed": true
+        },
+        {
+          "evidence": "ricker_only_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 8,
+            "planners": 8,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and planner structure",
+          "passed": true
+        }
+      ],
+      "position": 1
+    }
+  ],
+  "slurm": {
+    "allocated_core_hours": 12.005833333333333,
+    "records": [
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 21530,
+        "exit_code": "0:0",
+        "job_id": "58483049_0",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 21691,
+        "exit_code": "0:0",
+        "job_id": "58483049_1",
+        "state": "COMPLETED"
+      }
+    ]
+  }
+}

@@ -1,0 +1,540 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\rhoctl}{\rho}
+\newcommand{\kappactl}{\kappa}
+\newcommand{\Kbase}{K_{\mathrm{base}}}
+\newcommand{\Keff}{K_{\mathrm{eff}}}
+\newcommand{\Kref}{K_{\mathrm{ref}}}
+\newcommand{\Kmax}{K_{\max}}
+\newcommand{\reff}{r_{\mathrm{eff}}}
+\newcommand{\ssafe}{s_{\mathrm{safe}}}
+\newcommand{\truefamily}{\mathrm{true\_family}}
+
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{0pt}
+\setlist[itemize]{leftmargin=1.5em,itemsep=2pt,topsep=3pt}
+\setlist[enumerate]{leftmargin=1.7em,itemsep=2pt,topsep=3pt}
+\sloppy
+
+\title{\textbf{Problem and Fix Brief}\\
+\large Hidden ecological parameters $(r,K)$ are leaked to the agents}
+\author{Readable TeX version of \code{SERVER_FIX_BRIEF_hide_rK.md}}
+\date{2026-07-15}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Purpose}
+
+This brief is for the code-aware server agent. The current real-ecology
+experiment exposes ecological parameters that the intended uncertainty setting
+should hide. The server agent should verify the exposure against the current
+code, then implement the hidden-\(r,K\) fix while preserving the simulator's
+private use of the real ecological tables.
+
+This TeX file is a readable companion to \code{SERVER_FIX_BRIEF_hide_rK.md}; the
+Markdown brief remains the implementation source of record.
+
+\section{First Deliverable: Root-Cause Note}
+
+Before implementing anything, the server agent should trace where exposure of
+\(r\), \(K\), and true-family metadata was decided. The goal is to identify the
+source of the error, not merely patch symptoms.
+
+\begin{enumerate}
+  \item \textbf{Which document decided it.} Check the design/spec docs,
+  especially implementation-plan E1 and E8:
+  \begin{itemize}
+    \item E1 exposes population identity and \((\reff,\Keff)\) as observed
+    inputs.
+    \item E1 also treats the \(\lambda\) profile, \(\Kbase\), and caps as
+    observed inputs.
+    \item E8 says the methods only need to read already-known
+    \((\reff,\Keff)\).
+    \item The algorithm/feature spec includes public-control terms in the
+    feature vector.
+  \end{itemize}
+  Quote the exact lines in the root-cause note.
+
+  \item \textbf{Which code enforces it.} Check the environment's observed-input
+  construction, the public offline tuple, the feature builders for
+  \code{refplan}/\code{bamcts}/\code{ogsrl}, and the native-solver table reads.
+  Give file, function, line references, and git blame.
+
+  \item \textbf{Spec error or code deviation.} State whether this was a flawed
+  instruction faithfully implemented or a deviation from the docs. Working
+  hypothesis: this is a design/spec error propagated to code, not a stray coding
+  bug.
+
+  \item \textbf{Why it was missed.} There was a reward-leakage guard, but no
+  parameter-leakage guard and no explicit public/private schema derived from the
+  motivation.
+
+  \item \textbf{Prevention rule.} Every observed input should pass this test:
+  does exposing it collapse the uncertainty the experiment is meant to test?
+  Also: identity is not demographics.
+\end{enumerate}
+
+\section{The Problem}
+
+The ecological parameters that were meant to be hidden--the per-action growth
+rate \(r(a)\) / \(\reff\) and the per-population carrying capacity
+\(\Kbase/\Keff\)--are exposed to the agents as observed inputs. They are
+published in the action/species tables and fed to method-facing data, features,
+belief caches, planners, or native solver construction.
+
+This turns the current experiment into a structure-known or public-demographics
+setting, not the intended hidden-parameter uncertainty setting. The completed
+motivation-native run is still a valid result: it shows that native mechanistic
+solvers are strong when demographics/action effects are public. But it should be
+reported as a public-demographics / parameter-known data-rich regime, not as the
+hidden-\(r,K\) experiment. Here, ``data-rich'' means the demographics/action
+effects are well-characterized and public, not that the transition buffer is
+large.
+
+\section{Where the Leak Is}
+
+The server usage audit has already confirmed the broad exposure pattern; the
+server agent should re-verify these paths at fix time so implementation follows
+the current code.
+
+\begin{itemize}
+  \item \textbf{Spec exposure.} Implementation-plan E1/E8 exposes
+  \((\reff,\Keff)\), \(\Kbase\), caps, and the \(\lambda\) profile as known
+  observed context.
+
+  \item \textbf{Public offline tuple.} The public dataset includes
+  \(\rho_{t+1}\), which is the set-point \(\reff\) when \(d_r=1\), and
+  \(\Keff_{t+1}\).
+
+  \item \textbf{General learner features.} Public-control terms such as
+  \(\rho_{t+1}\), \(\kappa_{t+1}/\Kref\), and \(\Keff/\Kref\) enter learned
+  dynamics or policy features.
+
+  \item \textbf{Native solvers.} \code{moor_native} reads action-specific growth
+  set-points and species-capacity structure to build a table-driven mechanistic
+  model. It is near-exact on Ricker and misspecified but still strong off-Ricker.
+  \code{plus_native} reads the same public structure and updates mainly a
+  posterior over functional form.
+\end{itemize}
+
+Useful grep handles for the server code:
+\[
+\code{r_eff},\quad \code{delta_r},\quad \code{r_setpoint},\quad
+\code{K_base},\quad \code{K_eff},\quad \code{action_effects},\quad
+\code{species.csv}.
+\]
+Also inspect the dynamics-model feature construction for
+\code{refplan}/\code{bamcts}/\code{ogsrl} and model construction for
+\code{moor_native}/\code{plus_native}.
+
+\section{Not a Duplicate of Prior Runs}
+
+The earlier \code{psafe_overnight_*} run and the later
+\code{motivation_native_*} run both used the same public-table environment. They
+differed in ecological-solver strength: adapted particle-MPC baselines versus
+native tabular solvers. Neither run hid \(r\) or \(K\).
+
+Therefore the hidden-\(r,K\) redesign is new work. It is not a duplicate of
+last week's setting.
+
+\section{Why It Matters}
+
+\begin{itemize}
+  \item It removes the parameter-uncertainty layer the paper claims to test.
+  \item It gives native solvers table-derived mechanistic models, so the
+  ``native beats general'' result is valid for a public-demographics /
+  data-rich comparison but not evidence about the intended hidden-parameter
+  regime.
+  \item The general learners appear model-limited partly because they compete
+  against native solvers that were handed exact demographic/action structure.
+  \item The current run should be kept as a labelled data-rich comparison arm,
+  not discarded.
+\end{itemize}
+
+\section{Current vs Corrected Method-Facing Information Flow}
+
+The left column describes what the current public-demographics / parameter-known
+run allows. The right column describes what the corrected hidden-demographics /
+structure-unknown run must enforce. The simulator/evaluator may still use real
+tables privately; methods may not.
+
+Here, structure-unknown means both hidden \(r/K\) and action-effect parameters on
+the parameter axis, plus private \(\truefamily\) on the model-form axis. The
+schema fix applies to every method in the codebase, including \code{mopo},
+\code{delphic}, and adapted \code{moor}/\code{plus}. The headline hidden-\(r,K\)
+run uses five methods: \code{refplan}, \code{bamcts}, \code{ogsrl},
+\code{moor_native}, and \code{plus_native}.
+
+\begin{longtable}{p{0.18\linewidth}p{0.38\linewidth}p{0.38\linewidth}}
+\toprule
+Scope / method & Current run: public-demographics / parameter-known & Corrected hidden-\(r,K\) run \\
+\midrule
+\endfirsthead
+\toprule
+Scope / method & Current run: public-demographics / parameter-known & Corrected hidden-\(r,K\) run \\
+\midrule
+\endhead
+General public schema &
+Public dataset, belief cache, and configs may expose \(\rho\), \(\kappa\),
+\(\Keff\), \(\Kbase\), \(\Kref\), \(\Kmax\), action set-points, \(\Delta K\),
+\(\Delta N\), K-derived \(\ssafe\), population table lookups, and family/config
+identity. &
+Methods may consume only sanitized public data: categorical \code{pop_id} if
+chosen, \(o_t\), \(a_t\), \(\mathrm{cost}(a_t)\), \(R_t\) as label only,
+\(o_{t+1}\), and \code{done}. All \(r/K\) aliases, table effects, K-derived
+safety/normalization terms, and true-family metadata stay private. \\
+
+\code{refplan} &
+Learns dynamics with \(\rho\), \(\kappa/\Kref\), and \(\Keff/\Kref\); MPC
+carries public controls and uses \(\Kref\)/safety reward terms. &
+Fit dynamics and plan from sanitized belief/observation/action features only.
+If action effects matter, infer them from data. Do not pass exact \(\rho\),
+\(\kappa\), \(\Keff\), \(\Kref\), or K-derived safety features. \\
+
+\code{bamcts} &
+Uses the same control-aware learned dynamics as \code{refplan}; tree keys and
+rollouts condition on \(\rho\) and \(\kappa\). &
+Tree state and rollouts must be indistinguishable for histories with the same
+\((o,a)\) but different private \(r/K\). Learned dynamics cannot receive
+public-control aliases or exact table-derived action effects. \\
+
+\code{ogsrl} &
+Uses \(\rho\), \(\kappa/\Kref\), \(\Keff/\Kref\), \(\ssafe\), and unsafe/safety
+features in dynamics, actor features, guardian features, rollouts, and
+feasibility checks. &
+Remove \(r/K\)-derived features from dynamics, actor, guardian, rollout, and
+safety inputs. Safety-aware behavior must learn risk from public trajectories or
+use a public threshold not derived from hidden \(\Kbase\). \\
+
+\code{mopo} &
+Uses the same learned-dynamics public-control channel as the other general
+planners; planning reward uses \(\Kref\) and safety configuration. &
+Use sanitized features only. Model uncertainty should include uncertainty about
+hidden action effects and capacity rather than conditioning on exact public
+controls. \\
+
+\code{delphic} &
+Does not build an ecological transition model, but receives shared belief
+features containing \(\rho\), \(\kappa/\Kref\), \(\Keff/\Kref\), and safety
+terms. &
+Build compatible-world and Q features from sanitized public beliefs only.
+Remove hidden-parameter aliases from the shared feature vector so
+\code{delphic} cannot inherit the leak indirectly. \\
+
+adapted \code{moor} &
+Uses exact action set-points, \(\Delta K\), \(\Delta N\), and species-capacity
+structure in a mechanistic Ricker proposal; mainly fits a K-like scale in
+set-point mode. &
+Mechanistic proposal cannot call table-derived exact action effects or species
+capacity. It must fit required Ricker parameters/effects from public data, or be
+reported only in the public-demographics comparison arm. \\
+
+adapted \code{plus} &
+Uses exact table-derived action effects and species-capacity ranges inside a
+candidate mechanistic bank; candidate axis is mostly \(K\) because growth
+set-points are public. &
+Candidate parameters and priors must be derived from sanitized public data, not
+from species/action tables. If retained, report separately from the naive
+headline if it performs closed-world model selection. \\
+
+\code{moor_native} &
+Fits \(\hat K\), but reads exact action growth set-points, \(\Delta K\),
+\(\Delta N\), costs, \(\Kref\), and \(\ssafe\) to build its native Ricker
+solver. &
+Headline naive baseline. Fit/estimate Ricker parameters and action effects from
+sanitized public data, then solve a single-Ricker model. Do not read
+species/action tables or K-derived safety/normalization values. \\
+
+\code{plus_native} &
+Builds one native solver per candidate family using exact table-derived \(r/K\),
+action effects, reward, and safety structure; updates mainly the family
+posterior. &
+Separate closed-world model-selection baseline. It may keep a family posterior,
+but all parameter candidates/priors must be fit from sanitized public data. Do
+not redesign open-world PLUS in this first hidden-\(r,K\) repair. \\
+\bottomrule
+\end{longtable}
+
+\section{Recommended First-Fix Decisions}
+
+Unless the PI overrides them:
+
+\begin{enumerate}
+  \item Use known population label, unknown demographics. \code{pop_id} is a
+  categorical token only, never a table lookup path.
+  \item Use \code{expose_rk=hidden} as the intended default, and keep
+  \code{expose_rk=full} to reproduce the current public-demographics /
+  data-rich comparison arm. Keep both regimes runnable behind one interface; do
+  not delete or overwrite \code{full}.
+  \item Do not add a noisy-\(r/K\) setting until the hidden setting is stable.
+  \item Keep \(\Kref\) private/evaluator-only.
+  \item Keep any \(\ssafe\) derived from \(\Kbase\) private/evaluator-only.
+  \item If a public safety threshold is needed later, define it independently of
+  hidden \(\Kbase\).
+  \item Use \code{moor_native} as the headline naive ecological baseline.
+  \item Report \code{plus_native} separately as closed-world form selection.
+  \item Postpone open-world PLUS.
+\end{enumerate}
+
+\section{The Fix: Hide \(r\) and \(K\) from All Agents}
+
+Goal: move from the structure-known regime to the structure-unknown regime,
+where per-action growth and per-population carrying capacity are latent and must
+be inferred from offline data by every method.
+
+\subsection{Stop Feeding \(\reff\) / \(K\) to Agent Inputs}
+
+\begin{itemize}
+  \item Remove \(\rho_{t+1}\), \(\Keff\), and \(\Kbase\)-derived quantities from
+  general learner feature vectors and observed inputs passed to policy, belief,
+  model, or planner code.
+  \item The agent may know which action it took, \(a_t\), but not the growth
+  rate that action induces and not the population's \(K\).
+  \item Keep action cost observed, because cost does not reveal \(r\) or \(K\)
+  by itself. Hide the action-to-\((r,K)\)-effect mapping.
+\end{itemize}
+
+\subsection{Make Native Solvers Estimate \(r\) and \(K\)}
+
+This is the crux. If only general methods lose \(r/K\) while
+\code{moor_native}/\code{plus_native} keep table access, the asymmetry gets
+worse.
+
+\begin{itemize}
+  \item \code{moor_native} must fit its Ricker \(r\), \(K\), and action effects
+  from sanitized public data, not from tables.
+  \item \code{plus_native} must estimate \(r\) and \(K\) from data while keeping
+  its existing form-candidate set for this first fix.
+  \item For \code{plus_native}, per-candidate parameters/priors must be fit from
+  sanitized data. Do not add explicit \(r/K\) candidate axes, distractor forms,
+  or open-world candidates in this first repair.
+  \item Add an explicit \code{fit_from_public_data()} entry point for native
+  solvers. It may take only sanitized public data and belief/observation
+  features derived from that data. It may not take or derive values from
+  \code{species.csv}, \code{action_effects_long.csv}, \code{species_lambda.csv},
+  or any true \(r/K\) table.
+\end{itemize}
+
+\subsection{Keep Tables Private}
+
+The simulator/evaluator may continue to use real \(r/K\) tables and sidecars.
+Methods must not receive them directly or through aliases, configs, filenames,
+features, belief caches, reward decomposition, or table lookup.
+
+\subsection{Population Identity}
+
+Recommended setting: known species label, unknown demographics. The agent may
+receive \code{pop_id} as a categorical label, but no method may use
+\code{pop_id -> species.csv} to recover \(r\), \(K\), caps, \(\Kref\), or
+\(\ssafe\).
+
+Fully hidden population identity is a harder later variant, not the default
+first repair.
+
+\subsection{Explicit Regime Split: Keep Both Full and Hidden}
+
+Implement the repair as an explicit regime split, not as a global overwrite of
+the current \(r,K\)-known behaviour. Route both regimes through one shared
+interface, for example \code{expose_rk \(\in\) \{full, hidden\}} or
+\code{info_regime \(\in\) \{public_demographics, hidden_demographics\}}.
+
+\begin{itemize}
+  \item \code{full}: keep the current public-demographics / parameter-known run
+  as a labelled ablation or upper-bound arm. Modify this path only enough to
+  label it and route it through the shared interface.
+  \item \code{hidden}: the corrected hidden-demographics / structure-unknown
+  setting. This is the intended default and headline uncertainty test.
+  \item Record the regime in output directories, configs, manifests, and result
+  summaries so the two arms cannot be confused.
+  \item A noisy-\(r/K\) prior variant is optional later work only; it is not part
+  of the required first repair.
+\end{itemize}
+
+\section{Public / Private Schema}
+
+A side channel anywhere in this schema reopens the problem. Audit every method
+input path against it.
+
+\subsection{Hidden: Private Evaluator Sidecar Only}
+
+Never expose the following to any method:
+
+\begin{itemize}
+  \item true abundance \(s_t\);
+  \item structural latents \(C\), \(\theta\), and regime \(z\);
+  \item all growth quantities and aliases: \(r(a)\), \(\reff\), set-point
+  Ricker/LGM values, \(\rho_t\), \(\rho_{t+1}\), \(r_{\min}\), \(r_{\max}\),
+  \(r_{\mathrm{base}}\), and per-population \(\lambda\) profiles;
+  \item all capacity quantities and aliases: \(\Kbase\), \(\Keff_t\),
+  \(\Keff_{t+1}\), \(\Kmax\), \(\Kref\), \(\kappa_t\), \(\kappa_{t+1}\),
+  and \(\Delta K\);
+  \item direct-state action magnitude: \(\Delta N\) / translocation magnitude;
+  \item any table encoding those quantities: \code{species.csv},
+  \code{action_effects_long.csv}, \code{species_lambda.csv}, and cap columns;
+  \item the shared belief cache / feature builder if it contains or derives any
+  hidden quantity. Sanitize at the source so no method, especially
+  \code{delphic}, inherits the leak indirectly.
+\end{itemize}
+
+\subsection{Observed: Sanitized Public Dataset}
+
+Methods may load only:
+\[
+(\code{pop_id},\; o_t,\; a_t,\; \mathrm{cost}(a_t),\; R_t,\; o_{t+1},\; \code{done})
+\]
+plus belief or observation features derived only from those fields. Here,
+\code{pop_id} is a categorical label only, if the known-label design is used.
+\(R_t\) is an offline learning label only.
+
+\subsection{Indirect Capacity Leaks}
+
+\(\Kref=\Kbase\) and \(\ssafe=c_{\mathrm{safe}}\Kbase\) leak the capacity scale.
+Therefore:
+
+\begin{itemize}
+  \item \(\Kref\) should be private/evaluator-only.
+  \item Any \(\ssafe\) derived from \(\Kbase\) should be private/evaluator-only.
+  \item If a public safety threshold is needed later, define it independently of
+  hidden \(\Kbase\).
+\end{itemize}
+
+\subsection{Reward Guard}
+
+\(R_t\) may remain an offline learning label. None of the following may enter
+policy, belief, model, or planner features:
+
+\begin{itemize}
+  \item reward decomposition;
+  \item benefit term \(\alpha s'/(s'+\Kref)\);
+  \item unsafe/collapse flag;
+  \item true state \(s\);
+  \item any \(s\)- or \(K\)-based diagnostic.
+\end{itemize}
+
+\section{Structural Uncertainty: Do Not Leak True Family}
+
+This fix hides \(r\) and \(K\), but structural-form uncertainty must also be
+preserved.
+
+\begin{itemize}
+  \item The true family and aliases--\code{true_family}, \code{family},
+  \code{dynamics_family}, \code{model_family}, \code{map_family},
+  \code{env.family}, and \code{cfg.kind}--are private evaluator/simulator
+  metadata only.
+  \item No method may receive true family as input, feature, config-conditioned
+  model choice, table lookup, manifest shortcut, or filename/path-derived
+  switch.
+  \item \code{moor_native} is the headline naive baseline and remains a
+  single-Ricker solver even when truth is Allee, theta-logistic, or
+  regime-switching.
+  \item \code{plus_native} is not the naive headline. If it keeps the candidate
+  set \(\{\mathrm{Ricker}, \mathrm{Allee}, \theta\text{-logistic},
+  \mathrm{regime}\}\), report it separately as closed-world model selection.
+  \item Do not redesign \code{plus_native}'s candidate set in this first repair.
+  Open-world PLUS, distractor forms, or truth-absent candidate sets are later
+  experiments.
+\end{itemize}
+
+\section{Acceptance Tests}
+
+\begin{enumerate}
+  \item \textbf{No-r/K-access test.} Prove no method receives \(\reff\),
+  \(\Kbase\), \(\Keff\), or any hidden alias as input or feature. Two rollouts
+  with identical \((o,a)\) histories but different private \(r/K\) must be
+  indistinguishable to the policy input.
+
+  \item \textbf{Table-independence test.} Corrupt or shuffle
+  \code{species.csv}, \code{action_effects_long.csv}, and
+  \code{species_lambda.csv}. Every method's training, fit, belief features, and
+  planning artifacts should be byte-identical if the public dataset is fixed.
+
+  \item \textbf{Family-relabel test.} With the same public dataset but relabelled
+  private \(\truefamily\), method training/fitting/planning artifacts must be
+  unchanged. Only evaluator grouping/reporting may change.
+
+  \item \textbf{Native solvers now estimate.} Confirm
+  \code{moor_native}/\code{plus_native} fit \(r\) and \(K\) from data, not table
+  reads. Their estimates should degrade under scarce/noisy data.
+
+  \item \textbf{Identifiability sanity.} Check whether \(r\) and \(K\) are
+  recoverable from the 4000-transition noisy-observation budget. If not, report
+  it as the actual uncertainty, not a code bug.
+
+  \item \textbf{Expected outcome, not a gate.} Native performance should drop
+  relative to the leaked run because the native solvers are no longer near
+  oracle. If it does not drop, report that as a result: \(r/K\) were identifiable
+  from public data.
+
+  \item \textbf{Regime split intact: both runs live.} \code{full} mode should
+  reproduce the current method-facing fields and behaviour where reproducible;
+  \code{hidden} mode must remove every hidden/private field listed above from
+  all methods. The simulator/evaluator should use the private true tables in
+  both regimes, and table-corruption or family-relabel tests should affect
+  hidden-mode agents only through the public data, never through direct table
+  lookup. Confirm the regime is recorded in every output/config/manifest.
+
+  \item \textbf{Re-run headline comparison.} Run the hidden setting across all
+  cells and report per-\(\sigma\), per-family, recoverable/sink split.
+
+  \item Verify that all controlled-comparison settings remain unchanged: nine
+  populations, four families, observation-noise sweep, reward modes, 4000
+  transitions per cell, evaluation protocol, planner budget, true-state reward
+  in evaluator, and private/public boundary.
+\end{enumerate}
+
+\section{Do Not Confuse This with Planning-Model-Source Ablation}
+
+This fix changes the environment/observation information boundary: it stops
+publishing \(r/K\) so demographics become latent for everyone.
+
+The planning-model-source ablation is a separate experiment. It changes what
+dynamics the general planners roll through on the current leaked environment.
+That ablation is not a substitute for the hidden-\(r,K\) repair.
+
+\section{Open PI Decisions}
+
+\begin{enumerate}
+  \item Population identity: known species label with unknown demographics
+  (recommended) versus fully hidden population.
+  \item Whether and when to add the noisy-\(r/K\) prior variant. Keep it off by
+  default until \code{hidden} is stable. Keeping both \code{full} and
+  \code{hidden} regimes behind one interface is already decided; it is a
+  requirement, not an open decision.
+  \item Whether and when to build open-world PLUS. Recommendation: later, not
+  part of this first repair.
+\end{enumerate}
+
+\section{Deliverables}
+
+The server agent should report back with:
+
+\begin{enumerate}
+  \item root-cause note: doc line, code path, git blame, whether spec error or
+  code deviation, why it was missed, and one-line prevention rule;
+  \item answers to all verify items and PI decisions with exact file/function
+  paths;
+  \item sanitized public dataset loader and private evaluator sidecar as a diff;
+  \item \code{moor_native} and \code{plus_native} \code{fit_from_public_data()}
+  implementations;
+  \item all acceptance tests passing, especially table-independence,
+  family-relabel, and the regime-split-intact test;
+  \item corrected hidden-\(r,K\) run: best general versus \code{moor_native},
+  Ricker versus non-Ricker, per-\(\sigma\), recoverable/sink, with the current
+  public-demographics run kept as a labelled data-rich comparison arm;
+  \item a short note of anything in the brief that conflicts with actual code.
+\end{enumerate}
+
+\end{document}

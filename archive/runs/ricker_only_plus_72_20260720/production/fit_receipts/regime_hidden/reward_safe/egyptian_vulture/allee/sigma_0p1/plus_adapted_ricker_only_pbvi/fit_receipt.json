@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/egyptian_vulture/allee/sigma_0p1",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "04e8e342d55807c02b3ef5146501567eb7e56995e918d108a6b0cf296db0417a",
+    "b41ccfba221a081e269bfd6dd31a330dc66091ff7f5e5951ae7ec47a7e232b55",
+    "c6d7b09174f66dd8f062e2258b5abb417b3b5fc2cec086decb1a2d05191298a1",
+    "fa34bcb1c029fb22c1f026071bb55ddfd2222546ee8fa46efb384fe08a43e4d4",
+    "185e74a3d4e5427fb51a6276734bf3857136a52a05edec1398c9640a5fffefb2",
+    "695a5bc5e7cb5e03f850b86beffb4a735f067d86df8757a3c66269a9559edfc4",
+    "833db4c40394ea5f8a4b7678342bc40c7b0df336f95b630f0434634dc8564dc7",
+    "310549e4c37911d0ce484918dfd5a89f1cb592feb36e703aa1956598e24ad554"
+  ],
+  "fit_seconds": 0.04768932331353426,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "776e008b4f9a880552768cb129065723903b99f61c2aa19763516fcccbaa3a44",
+    "6282a53f34f97a572c8ca829d0b435b23b633ab0b0bdd089d5496827a6db8fc6",
+    "6590f56b1d8c39609104e07a287dee65a8f60a5e3274b4be8e6693885fff4ad9",
+    "08f08e2659118461b42c23e21eed6c654ed55d230b662ec7144fbbbad3f0fc77",
+    "fe36962182353b0db19b8fbbf880176403d66a654278bad3ad6304b69be1eb8e",
+    "99cdef17343eb62a7241a5c565bb87a15ebf4094e7100a4ef5c7e3b37f81e27a",
+    "3bbb16f0281babe8eb326665cd9f2fe8019e7c870c6615e80db72e62cfc0af75",
+    "e7edcbf9a0ac8c526d1073dbb99fa59e8ac5ce1fd7bea4fc8a82d9d0f564154f"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "c5c3de2f6b8b75e3e58e09ba5e02fe4efb01c903b00f07431b2f452da5f84a2c"
+}

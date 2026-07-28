@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "e453ea48ae692376a85eea2001d015093f8134a472721246bcea53936e203fd9",
+    "fd0cd70a28dc8a355e29d5b8b814a2b0001d7360f9037692ef7fd7ba888b6c1d",
+    "10a4e0291ecf08ebed168ee5aee9db5300f61962769000219875412d4bf3e024",
+    "26b76e7e45b99741f7d57623e8b7ca6f0a3adb3872bb961debb01aaeb058dc2d",
+    "a326a1e7f089936eda2c59edc341a9e58f9bb49c6d3a02d8c3f2584248e55aed",
+    "537b959e7f8af7bfb865415d088e66d965ed27afa62fcce4244c915136748d7a",
+    "fe12145637345447c6868a966cb484e3df71f2cbde6f62c2d4fecf0e4ddfffc3",
+    "0dfd04fd6218b446461dd119dfbccf6aa9ce73dd616243ee39f8265f7d39446f"
+  ],
+  "fit_seconds": 0.05651395907625556,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "4fa3d531109b646e8a7564f713608de91cbeab5b7d99940170a18b6d4d4ce3c5",
+    "4a59ca31d0fe7209e1f7da13c54e52dcab07b55ae7681053fdb7587bc4db2c88",
+    "83a23278f98dbd06de0fffd6871572102fb383583daf3e3a0a3cfc051d2e725e",
+    "d895367651c90d6378d23442d1729755d15e9a289e2e8292a82a366faace7ac0",
+    "fefac98e5facb1eb7306a15fc148670cedac5a2eba8ef3b3bb2238e59cec5b26",
+    "7e2a8c1a769d14d11b71a8bf22d544f0344b8998880b4bfb685e8f892db7f9b1",
+    "bb669a621cbcefcedad0dddb3665bff651b7b1688193304310597beb442cd084",
+    "9209ecf098f0661c0761649faba8beaccf711b370e41b2980e05e4bc1c493d58"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "1e94c54698a42a527766d5bb383b08cc0f5c311e759ca8939956de1671b47d7e"
+}

@@ -1,0 +1,11 @@
+profile: local
+scheduler: none
+cpus_per_task: 1
+threads:
+  OMP_NUM_THREADS: 1
+  MKL_NUM_THREADS: 1
+  OPENBLAS_NUM_THREADS: 1
+  NUMEXPR_NUM_THREADS: 1
+  VECLIB_MAXIMUM_THREADS: 1
+strict_accepted_parity_guaranteed: false
+

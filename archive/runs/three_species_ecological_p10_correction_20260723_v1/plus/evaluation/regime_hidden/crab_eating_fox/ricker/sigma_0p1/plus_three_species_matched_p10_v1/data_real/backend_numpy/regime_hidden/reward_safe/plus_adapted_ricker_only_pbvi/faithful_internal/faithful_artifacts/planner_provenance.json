@@ -1,0 +1,77 @@
+{
+  "artifact_schema": "adapted_mechanistic_artifacts_v2",
+  "planners": [
+    {
+      "elapsed_seconds": 1902.439428826794,
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 1000,
+      "model_hash": "f1b964a4c2f8d555aba624c7b7ae39d4ec689805281e5746852709d8ec38e652",
+      "name": "pbvi",
+      "seed": 53116
+    },
+    {
+      "elapsed_seconds": 1903.330204504542,
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 1000,
+      "model_hash": "530fec372c84bd1aee10651272d7b5e73481bd993cc0c0e567d5fae17bb07622",
+      "name": "pbvi",
+      "seed": 53117
+    },
+    {
+      "elapsed_seconds": 1904.9081462696195,
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 1000,
+      "model_hash": "da9f5e282db6c79036bbd3da7516a49cad7f3afbca631542896d773e47d65b33",
+      "name": "pbvi",
+      "seed": 53118
+    },
+    {
+      "elapsed_seconds": 1904.5146272005513,
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 1000,
+      "model_hash": "9e5bcc28156a3b2281da2d3c2d438e7074333fb98b6537e313b182240aa8148b",
+      "name": "pbvi",
+      "seed": 53119
+    },
+    {
+      "elapsed_seconds": 1903.0655641630292,
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 1000,
+      "model_hash": "f94e385dd0ddf55fb5f00ade956658f333f62ab13bd043a340fee6aa26f844d6",
+      "name": "pbvi",
+      "seed": 53120
+    },
+    {
+      "elapsed_seconds": 1903.939784714952,
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 1000,
+      "model_hash": "e6a150c4bc0fe00e20bec2be462ef7e7e35c5e446856e3c4db87abbe989a6090",
+      "name": "pbvi",
+      "seed": 53121
+    },
+    {
+      "elapsed_seconds": 1903.8050231290981,
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 1000,
+      "model_hash": "4709ced44775785f3552a7f748009a16240031f89af42c4e507bcd70c3aced90",
+      "name": "pbvi",
+      "seed": 53122
+    },
+    {
+      "elapsed_seconds": 1903.425123094581,
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 1000,
+      "model_hash": "e6b6683de4a240334eb5942201964cabb2dd751ae215ea0b6fe2430bb486dffe",
+      "name": "pbvi",
+      "seed": 53123
+    }
+  ]
+}

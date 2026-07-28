@@ -1,0 +1,137 @@
+\documentclass[11pt]{article}
+\input{docs/benchmark/preamble.tex}
+
+\title{Real Ecology Data, Actions, and Costs}
+\author{Ecology Benchmark Documentation}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+The real-ecology setting is defined by six CSV files in
+\code{real_ecology_data}. The loader in \code{realdata.py} validates 9
+populations, 11 actions, 45 measured growth-rate rows, and 99
+population/action effect rows. The environment reads the precomputed long table,
+while the relational core remains the provenance layer.
+
+\section{CSV Inventory}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lll}
+\toprule
+File & Rows & Role \\
+\midrule
+\code{species.csv} & 9 & population scale, capacity, and rate caps \\
+\code{species_lambda.csv} & 45 & five measured $\lambda$ values per population \\
+\code{actions.csv} & 11 & population-independent action menu and cost index \\
+\code{action_effects_long.csv} & 99 & precomputed population/action effects \\
+\code{cost_sources.csv} & 12 & source keys behind cost scaling \\
+\code{cost_anchors_portal.csv} & 12 & portal studies with numeric cost anchors \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Population Table}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{llrrrr}
+\toprule
+Common name & Scientific name & $N_0$ & $K_{\mathrm{base}}$ & $K_{\max}$ & Class \\
+\midrule
+Egyptian vulture & \emph{Neophron percnopterus} & 41 & 325 & 650 & sink \\
+Bottlenose dolphin & \emph{Tursiops truncatus} & 25 & 35 & 70 & sink \\
+Amur tiger & \emph{Panthera tigris altaica} & 200 & 250 & 500 & recoverable \\
+Spotted turtle & \emph{Clemmys guttata} & 31 & 31 & 62 & recoverable \\
+Asian elephant & \emph{Elephas maximus} & 60 & 120 & 240 & recoverable \\
+Puerto Rican parrot & \emph{Amazona vittata} & 78 & 250 & 500 & recoverable \\
+Iberian lynx & \emph{Lynx pardinus} & 89 & 165 & 330 & recoverable \\
+Jaguar & \emph{Panthera onca} & 325 & 325 & 650 & recoverable \\
+Crab-eating fox & \emph{Cerdocyon thous} & 41 & 41 & 82 & recoverable \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+A sink is defined by \code{r_max_ricker <= 0}. The two sink populations are
+reported separately from recoverable populations in the recent result summary.
+
+\section{Action Table}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lllr}
+\toprule
+Action & Name & Channel & Cost \\
+\midrule
+a0 & Do Nothing & none & 0.0000 \\
+a1 & Sustainable Harvest & rate & -0.0500 \\
+a2 & Aggressive Harvest & rate & -0.1000 \\
+a3 & Predator / Disease Control & rate & 0.2500 \\
+a4 & Breeding / Recruitment Support & rate & 0.5000 \\
+a5 & Moderate Restoration & capacity & 0.1875 \\
+a6 & Intensive Restoration & capacity & 0.5000 \\
+a7 & Integrated Conservation (light) & rate+capacity & 0.4375 \\
+a8 & Adaptive Conservation Trial & rate+capacity & 0.7500 \\
+a9 & Flagship Conservation Programme & rate+capacity & 1.0000 \\
+a10 & Translocation & state & 0.3125 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Actions a1 and a2 are harvest/revenue actions and therefore have negative cost
+indices. Action a10 is the only direct-state action: it adds 10 percent of the
+population's $N_0$ before growth. Capacity actions use
+$\Delta K=(K_{\mathrm{multiplier}}-1)K_{\mathrm{base}}$ and accumulate through
+$\kappa$.
+
+\section{Growth-Rate Conversion}
+
+The relational join is:
+\[
+  \lambda =
+  \mathrm{species\_lambda}[\mathrm{population},\lambda\_\mathrm{id}
+    =\mathrm{actions.lambda\_source}].
+\]
+For Ricker, Allee, and regime families,
+\[
+  r = \log(\lambda).
+\]
+For theta-logistic cells,
+\[
+  r = \lambda - 1.
+\]
+The action effect table stores both converted columns. The real action table
+sets $\rho$ to this action-specific value and clips it to the population/family
+caps in \code{species.csv}. The heaviest exploitation action supplies the lower
+rate cap; the strongest recovery action supplies the upper cap.
+
+\section{Cost Provenance}
+
+The population data and action mechanics come from the Dominik table described
+in \code{real_ecology_data/README.md}. Costs come from a separate cost-function
+source grounded in the Conservation Costing Portal and two supplementary
+per-unit studies. The resulting \code{cost_step} is a relative index, not a
+dollar amount. It preserves ordering and spacing while avoiding a reward scale
+dominated by orders-of-magnitude cost differences.
+
+The source keys include White et al. (2022) for cost-reporting framing; Adams et
+al. (2012), Green et al. (2012), James et al. (1999), Frazee et al. (2003), and
+McCarthy et al. (2012) for portal-grounded land/species-management anchors;
+Laycock et al. (2009) for species recovery programmes; Yong et al. (2023) for
+threat-abatement costs; Weise et al. (2014) for translocation per-animal costs;
+and the California condor programme note for high-cost captive-breeding context.
+
+\section{Data Caveats}
+
+The cost index is relative and coarse. Portal categories are broader than the
+11-action menu, so some within-category ordering is a modelling choice. The
+growth-rate values are action set-points, not direct estimates of a full
+transition model under every structural family. The real-data claim is therefore
+about a transparent ecology-informed benchmark table, not a complete empirical
+population model for each species.
+
+\section*{Verification}
+
+Verified against: \path{real_ecology_data/README.md}, \path{real_ecology_data/species.csv}, \path{real_ecology_data/species_lambda.csv}, \path{real_ecology_data/actions.csv}, \path{real_ecology_data/action_effects_long.csv}, \path{real_ecology_data/cost_sources.csv}, \path{real_ecology_data/cost_anchors_portal.csv}, \path{src/real_ecology_benchmark/realdata.py}, \path{src/real_ecology_benchmark/actions.py} @ be96c36
+
+\end{document}

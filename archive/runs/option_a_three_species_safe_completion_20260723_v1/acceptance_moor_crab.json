@@ -1,0 +1,474 @@
+{
+  "acceptance_version": "option_a_method_specific_return_blind_v1",
+  "completed_rows": 8,
+  "decision": "PASS_LIMITED_STRUCTURAL_ACCEPTANCE",
+  "expected_rows": 8,
+  "failures": [],
+  "fit_manifest_sha256": "517fdbd4cf38ad2b2cd2cdee217118941e9e90b683fc8ffba1cc119fdc172db8",
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "plan_manifest_sha256": "08092f7ae576ed96b02354c9b97a8993730e74d89e592785e3fa1f9de9544c7f",
+  "return_fields_opened": false,
+  "rows": [
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "8c302e49638bc20b97331a7085452482bf5d76eddd38a78f1afc476501f9fe25",
+            "family": "ricker",
+            "sigma_obs": "0.1"
+          },
+          "name": "paired row identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p1/public.npz"
+          },
+          "name": "authoritative public/private file hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "miss_fitted"
+            ]
+          },
+          "name": "return-blind fit receipt",
+          "passed": true
+        },
+        {
+          "evidence": "option_a_moor_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 1,
+            "planners": 1,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and planner structure",
+          "passed": true
+        }
+      ],
+      "position": 0
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "17c930ccd749ed236030de1a4eeff58925679c2d53fe6a96e697c839f849d481",
+            "family": "ricker",
+            "sigma_obs": "0.2"
+          },
+          "name": "paired row identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/ricker/sigma_0p2/public.npz"
+          },
+          "name": "authoritative public/private file hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "miss_fitted"
+            ]
+          },
+          "name": "return-blind fit receipt",
+          "passed": true
+        },
+        {
+          "evidence": "option_a_moor_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 1,
+            "planners": 1,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and planner structure",
+          "passed": true
+        }
+      ],
+      "position": 1
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "03c94a3591060c072c613cf5ce36e8c966cc310f8afd397dc38b16f19e7122e9",
+            "family": "allee",
+            "sigma_obs": "0.1"
+          },
+          "name": "paired row identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p1/public.npz"
+          },
+          "name": "authoritative public/private file hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "miss_fitted"
+            ]
+          },
+          "name": "return-blind fit receipt",
+          "passed": true
+        },
+        {
+          "evidence": "option_a_moor_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 1,
+            "planners": 1,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and planner structure",
+          "passed": true
+        }
+      ],
+      "position": 2
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "688d580f1e47a61dcad9b8a6cb96f1d62835bfbd0b835554cf31c8ab8bdd0c13",
+            "family": "allee",
+            "sigma_obs": "0.2"
+          },
+          "name": "paired row identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.npz"
+          },
+          "name": "authoritative public/private file hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "miss_fitted"
+            ]
+          },
+          "name": "return-blind fit receipt",
+          "passed": true
+        },
+        {
+          "evidence": "option_a_moor_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 1,
+            "planners": 1,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and planner structure",
+          "passed": true
+        }
+      ],
+      "position": 3
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "b198aa7a5d3989a66be4a1fc8b4b299a0552fe287b6d2e192eb237e10f34bbc7",
+            "family": "theta",
+            "sigma_obs": "0.1"
+          },
+          "name": "paired row identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p1/public.npz"
+          },
+          "name": "authoritative public/private file hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "miss_fitted"
+            ]
+          },
+          "name": "return-blind fit receipt",
+          "passed": true
+        },
+        {
+          "evidence": "option_a_moor_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 1,
+            "planners": 1,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and planner structure",
+          "passed": true
+        }
+      ],
+      "position": 4
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "684748d9f018313651ee689c7bc41cabcd6d8cf1cbc2b253646bef84b3937c20",
+            "family": "theta",
+            "sigma_obs": "0.2"
+          },
+          "name": "paired row identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/theta/sigma_0p2/public.npz"
+          },
+          "name": "authoritative public/private file hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "miss_fitted"
+            ]
+          },
+          "name": "return-blind fit receipt",
+          "passed": true
+        },
+        {
+          "evidence": "option_a_moor_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 1,
+            "planners": 1,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and planner structure",
+          "passed": true
+        }
+      ],
+      "position": 5
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "b94dc4d7556acdfa3abc8c2b4ee21d7dfdedff30a95fcf8e587cb73e7deb26b3",
+            "family": "regime",
+            "sigma_obs": "0.1"
+          },
+          "name": "paired row identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p1/public.npz"
+          },
+          "name": "authoritative public/private file hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "miss_fitted"
+            ]
+          },
+          "name": "return-blind fit receipt",
+          "passed": true
+        },
+        {
+          "evidence": "option_a_moor_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 1,
+            "planners": 1,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and planner structure",
+          "passed": true
+        }
+      ],
+      "position": 6
+    },
+    {
+      "checks": [
+        {
+          "evidence": {
+            "dataset_sha256": "f1ed95af136617037e389f96fffb99328be177e1a8c39bb1347f0a2c3eb8391a",
+            "family": "regime",
+            "sigma_obs": "0.2"
+          },
+          "name": "paired row identity",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "private": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/private/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2/truth.npz",
+            "public": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/option_a_three_species_safe_completion_20260723_v1/moor_crab/datasets/regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2/public.npz"
+          },
+          "name": "authoritative public/private file hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "cache_statuses": [
+              "miss_fitted"
+            ]
+          },
+          "name": "return-blind fit receipt",
+          "passed": true
+        },
+        {
+          "evidence": "option_a_moor_plan_completion_v1",
+          "name": "atomic return-blind plan completion",
+          "passed": true
+        },
+        {
+          "evidence": [],
+          "name": "completed artifact hashes",
+          "passed": true
+        },
+        {
+          "evidence": {
+            "fits": 1,
+            "planners": 1,
+            "privacy": "passed"
+          },
+          "name": "privacy, fit, and planner structure",
+          "passed": true
+        }
+      ],
+      "position": 7
+    }
+  ],
+  "slurm": {
+    "allocated_core_hours": 6.305555555555555,
+    "records": [
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 2809,
+        "exit_code": "0:0",
+        "job_id": "58483050_0",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 2801,
+        "exit_code": "0:0",
+        "job_id": "58483050_1",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 2907,
+        "exit_code": "0:0",
+        "job_id": "58483050_2",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 2816,
+        "exit_code": "0:0",
+        "job_id": "58483050_3",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 2854,
+        "exit_code": "0:0",
+        "job_id": "58483050_4",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 2822,
+        "exit_code": "0:0",
+        "job_id": "58483050_5",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 2892,
+        "exit_code": "0:0",
+        "job_id": "58483050_6",
+        "state": "COMPLETED"
+      },
+      {
+        "alloc_cpus": 1,
+        "elapsed_raw": 2799,
+        "exit_code": "0:0",
+        "job_id": "58483050_7",
+        "state": "COMPLETED"
+      }
+    ]
+  }
+}

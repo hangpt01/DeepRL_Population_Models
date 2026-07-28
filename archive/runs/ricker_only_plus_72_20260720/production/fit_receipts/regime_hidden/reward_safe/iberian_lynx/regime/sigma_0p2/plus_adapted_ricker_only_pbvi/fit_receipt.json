@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/iberian_lynx/regime/sigma_0p2",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "8f4be2a0ee533037bf1cb0e4e828d7b195470a5210a3abfb39441f74a557fb3b",
+    "2e6bc3688a5b3a66fd1aa2bf02dd907dec215dda8d095ce1b38239ebb7473601",
+    "f78a4e9eac9424f4392d7e52933c6a8e59ec45e6cf2fe0af5515ce3c608d6708",
+    "7afe418ebcf58c98acdc2786fb7b0b9aa700c4e07f0179806fab53d03b398945",
+    "65798bb56fbc7d3b03e6920d771a33144adfae5e44d60d3e5e18bdff94a7203d",
+    "3e9843a7000a8fe91bfd45f9f5901527a297e509ebd30d83d211b049785e18af",
+    "97f23bab0e1ee4812597105d7032feec69df1948632cd7351ef2b6aaad533f48",
+    "81ecb48f226794e68bb768b7ab6f942feca581759df55e18f9dc1c3144d5b40d"
+  ],
+  "fit_seconds": 0.05162772606126964,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "ec99db6da54d05af48d36dfa8addeb10c6524aa76af822d47fffbe2ceb4bafac",
+    "60cae224f31cb620066d0eac8909c2b8a5b50d0a42d408554a6da02470e1824f",
+    "9dc9b1036e389a43e81427c66892f6d2814afac02a20cecdae8b249a4116fdd6",
+    "3dad4fab3a166c1632bc37310e50d5be4ef4d893874ea7a706acd338d2be702e",
+    "d95472ca811c65d1e0b17108890dc62b8f65eca729f22ed47d66ac2f1d7a4ce5",
+    "fb94c49e91260dabba11764796a7091003e871e0a3c8d953c6f66b320e55a520",
+    "aad668fecd83727eaf271632c77684b830988eea0555eeb7d1f50f38f81ceefa",
+    "e838a8509ae43576ff479c7f26e65d8b87da633084f604f6b1144ffc3bc9079a"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "dfb34c40cad5df1926902534b48b13aa6efb27b7c6b4ebe74997ced2402589ce"
+}

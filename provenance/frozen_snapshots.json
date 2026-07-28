@@ -1,0 +1,15 @@
+{
+  "ecological": {
+    "source": "/home/hphung/ce25_scratch2/Claude_DeepRL_Population_Models/real_ecology_runs/ricker_only_plus_72_20260720/runtime_snapshot_routing_fix",
+    "git_head": "a69f3b0cbf61a9c8802f506979bd0e454125ec02",
+    "destination": "src/tracks/ecological",
+    "destination_tree_digest": "8e13164a3cbc82bcec00672e2fd8a816aa5cbddbd3c6237807ee73c12a03c5ae"
+  },
+  "general": {
+    "source": "/home/hphung/ce25_scratch2/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/code",
+    "enclosing_git_head": "5f9cf32a69d47e2d31b2ed6ee30ebbcfe84b8536",
+    "destination": "src/tracks/general",
+    "destination_tree_digest": "0dda51d6f6291961e9e94a493c98b6bee4dbd47bc3ec8b1cd064010706e6058b"
+  },
+  "merge_performed": false
+}

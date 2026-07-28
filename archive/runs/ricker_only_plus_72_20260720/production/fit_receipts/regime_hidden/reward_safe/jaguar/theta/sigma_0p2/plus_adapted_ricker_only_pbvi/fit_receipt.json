@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/jaguar/theta/sigma_0p2",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "de74a5d59fda9237f43168d3c8046896208e6612b1566818378ca9654b0bd704",
+    "260522a634f0f9895026b8527e9f8b064a09c5b32f016882de3c6288a24544e5",
+    "e025c02216cf9ec079a24a4b7ff6d905ca6d3baf1c19b62ff908414b8c6b0ed8",
+    "5c5812ca99d77c7197ca05af3e73141505dc50729b49dc54e8fc49faaa8c038a",
+    "ded37b5cb2319cce4d169c4f262080787ebe49937c533d750084cf561e63878d",
+    "b708f2157a1a4c9e6889629f402545321597e907f58aadac16d06a1c9dba352a",
+    "67bf94d93c019a1c633f05501be5250e3d12a8e3401c5278f0f4ebf18d6b4b18",
+    "b8d88947b062cc6ea731e1915c2cf5627fb732a9d3aab273e9b2734955020ee2"
+  ],
+  "fit_seconds": 0.05416642897762358,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "8c5ced14bb9172ae68a82af9c53627d4111328d1bc9c29523c071c3f9a767ec0",
+    "5394ae1f361de4779ab9184c05aaf81e5c8b9b43aaf7b2ac1ccb2f4b10b645e1",
+    "43d90ab8d7b1d8fc3181b4635f1b77e1a69e5809ed1f90bcfcd2d34405d5f085",
+    "94a8998720f4e6640606b177b4e4c4b75d8b5576ae2a2fb1b8eb550edbff4798",
+    "20df1d5c48b1d223dcb3b7c817ba71556d9bfcb414a18bd8bf9db5b12f805b0a",
+    "8e0d1b5ab9751277e00ef5d5ccda6e2efa9a6b9ada373e24b15a59842adee7c8",
+    "18a1edf71a71ca5970524acd1a08d966239d546a624c50c69570084282dba065",
+    "7322b9d1a46eca81a21c1e22f42b2f3e1e4a3880ed5183b1dca400e286b26f29"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "ee0fbd5c65b8354551bdc3347b7f002b0f31bc68e829078ac0062c1b747970a9"
+}

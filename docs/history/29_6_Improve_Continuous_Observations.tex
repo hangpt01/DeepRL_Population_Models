@@ -1,0 +1,606 @@
+% ============================================================================
+%  Tier-3 report: Cumulative Ecological Controls + Prioritized Improvement Plan
+%  Self-contained: compile directly with  pdflatex  (no external figures).
+%  Style follows 22_6_Continuous_Observation_New_Baselines.tex.
+%  Purpose:
+%   (i)   recap the Tier-2 continuous-state, noisy-observation POMDP and what the
+%         executed run showed (so this file stands alone);
+%   (ii)  diagnose why the Tier-2 action/reward design is a bottleneck;
+%   (iii) specify the redesigned setting: model-only, *cumulative*, ecologically
+%         *capped* controls on (r,K), with revised 5- and 10-action tables;
+%   (iv)  give the prioritized list of improvements worth doing to recover a
+%         learned advantage over PLUS and MOOR (especially at high noise);
+%   (v)   give an implementation checklist for the coding agent that built the
+%         Tier-2 repo, mapping each change to the code it must touch.
+% ============================================================================
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\reff}{r_{\mathrm{eff}}}
+\newcommand{\Keff}{K_{\mathrm{eff}}}
+\newcommand{\rbase}{r_{\mathrm{base}}}
+\newcommand{\Kbase}{K_{\mathrm{base}}}
+\newcommand{\Kref}{K_{\mathrm{ref}}}
+\newcommand{\rmax}{r_{\max}}
+\newcommand{\rmin}{r_{\min}}
+\newcommand{\Kmax}{K_{\max}}
+\newcommand{\Kmin}{K_{\min}}
+\newcommand{\sobs}{\sigma_{\mathrm{obs}}}
+\newcommand{\sthr}{s_{\mathrm{safe}}}
+\newcommand{\Rtrue}{R^{\mathrm{true}}}
+
+\title{Adaptive Management under Observation Error (Tier-3):\\
+Cumulative, Ecologically-Capped Controls and a Prioritized Improvement Plan\\
+\large (from one-step parameter nudges to persistent management effort;
+restoring a learned advantage over PLUS/MOOR)}
+\author{Deep RL for Ecological Population Management}
+\date{2026-06-27}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report builds directly on the Tier-2 continuous-state, noisy-observation
+benchmark (spec: \texttt{22\_6\_Continuous\_Observation\_New\_Baselines.tex};
+executed results: \texttt{22\_6\_Experiment\_Results}) and is written to stand on
+its own. We first recap, briefly, the Tier-2 setting and the headline empirical
+finding: general dynamics-learning learners beat the stronger ecology baseline
+$\max(\text{PLUS},\text{MOOR})$ in $33$--$83\%$ of cells at low-to-moderate survey
+noise ($\sobs\!\le\!0.2$), but that advantage \emph{collapses to $\approx 0$} at
+high noise ($\sobs{=}0.4$), where the single-model mechanistic baseline (MOOR) and
+the guarded learner (OGSRL) become best. We then diagnose a design flaw that is
+partly responsible: in the executed Tier-2 code, actions perturbed the growth
+parameters $(r,K)$ for a \emph{single step} and then reset, the abundance-reward
+saturated at a \emph{fixed} reference, and there was no direct authority over
+abundance, with the combined effect that the ``conservation'' actions were
+economically dominated and the decision-relevant signal was squeezed into a thin
+near-threshold band where observation noise is most destructive. We redesign the
+control interface accordingly: actions act \emph{only} through the population model
+and their effect on $(r,K)$ is \emph{cumulative} (persistent management effort)
+and \emph{capped} for ecological and dynamical realism (a species cannot be made
+to grow faster than its biology, and the discrete maps must stay in their stable
+regime). We give the augmented transition, the caps, the corrected reward, and
+revised $5$- and $10$-action tables. Finally we give a prioritized list of
+improvements (Tiers A--D) targeted at recovering a learned advantage under noise,
+and a concrete implementation checklist for the coding agent that maps each change
+onto the Tier-2 repository.
+\end{abstract}
+
+\section{Relationship to the Tier-2 report and what changed}
+The Tier-2 spec posed the central question: \emph{under decision-relevant
+misspecification and observation error, can general offline model-based learners
+that infer the dynamics and filter the state beat the ecology-specific mechanistic
+baselines (PLUS, MOOR) and avoid collapse?} The executed Tier-2 run answered
+``yes at $\sobs\!\le\!0.2$, no at $\sobs{=}0.4$.'' This report keeps the question
+and the baselines unchanged but makes two kinds of change:
+\begin{itemize}[nosep,leftmargin=1.4em]
+\item \textbf{A setting change (Section~\ref{sec:tier3}).} The control interface is
+redesigned so management effort is \emph{cumulative} and acts only through the
+model parameters $(r,K)$ with ecological caps. This fixes a concrete flaw
+(Section~\ref{sec:diagnosis}) that made the Tier-2 conservation actions inert and
+made the high-noise regime degenerate to a static-regulator problem.
+\item \textbf{An improvement plan (Sections~\ref{sec:plan}--\ref{sec:checklist}).}
+A prioritized set of method/diagnostic changes aimed squarely at the
+$\sobs{=}0.4$ failure, plus a code-level checklist for the agent that implemented
+Tier-2.
+\end{itemize}
+Everything needed to read this file is restated below; the Tier-2 documents are
+referenced only for full numerical provenance.
+
+\section{Recap: the continuous-state, noisy-observation setting}
+\label{sec:recap}
+The physical abundance is a continuous, unbounded, non-negative latent variable
+$s_t\in\mathbb{R}_{\ge 0}$ with $s{=}0$ absorbing. A hidden per-episode parameter
+vector $m=(\rbase,C,\theta,z_t,\dots)$ is drawn once per episode and never logged;
+the complete latent state is $\zeta_t=(s_t,m)$, of which the agent observes neither
+component directly. The manager observes only a noisy real-valued survey through a
+multiplicative (log-normal) channel,
+\begin{equation}
+o_t = s_t\,\eta_t,\qquad \eta_t\sim\mathrm{LogNormal}(0,\sobs^2),
+\label{eq:obs}
+\end{equation}
+so $\log o_t=\log s_t+\varepsilon_t$, $\varepsilon_t\sim\mathcal{N}(0,\sobs^2)$:
+relative error is constant across abundance, $\sobs{=}0$ recovers a fully observed
+MDP (still with hidden $m$), and increasing $\sobs$ smoothly increases partial
+observability. The agent acts on the observation history
+$h_t=(o_0,a_0,R_0,\dots,o_t)$ through $\pi(a_t\mid h_t)$ or $\pi(a_t\mid b_t)$ with
+a belief $b_t\approx p(s_t,m\mid h_t)$.
+
+The latent abundance evolves under a base Ricker map plus three single-structure
+stress models, each adding one hidden per-episode structure:
+\begin{align}
+\textbf{Ricker (base):}\quad
+& s_{t+1}=s_t\exp\!\big(\reff(1-s_t/\Keff)\big),\\
+\textbf{Allee--Ricker } (C):\quad
+& s_{t+1}=s_t\exp\!\big(\reff(1-s_t/\Keff)(s_t/C-1)\big),\\
+\textbf{Theta-logistic } (\theta):\quad
+& s_{t+1}=s_t+\reff\,s_t\big(1-(s_t/\Keff)^{\theta}\big),\\
+\textbf{Regime-switch } (z_t):\quad
+& s_{t+1}=s_t\exp\!\big(m_{z_t}\reff(1-s_t/\Keff)(s_t/C_{z_t}-1)\big),
+\end{align}
+where below $C$ the Allee factor $(s_t/C-1)$ flips sign (critical depensation).
+The simulator uses these only to generate data; the learner must infer the law.
+
+The action space is a finite set $\mathcal{A}=\{0,\dots,A-1\}$, $A\in\{5,10\}$.
+\textbf{The action--dynamics interface is what this report changes}
+(Sections~\ref{sec:diagnosis}--\ref{sec:tier3}). The reward, in Tier-2, was
+computed from the observation to avoid leaking the true state into the dataset,
+with a saturating abundance utility and a one-time collapse penalty,
+\begin{equation}
+R_t=\underbrace{\alpha\,\frac{o_t}{o_t+\Kref}}_{\text{abundance (from }o_t\text{)}}
+-\mathrm{cost}(a_t)-P\cdot\mathbb{1}\big[s_t>\sthr\wedge s_{t+1}\le\sthr\big],
+\qquad \alpha{=}1,\ \Kref{=}\Kbase{=}500,\ P{=}20,
+\label{eq:reward}
+\end{equation}
+with $\sthr{=}50$ the safety floor and $P{=}20$ chosen so one collapse outweighs a
+whole good episode (achievable return $\sim 7$--$9$). A true-state metric $\Rtrue$
+is logged for evaluation only.
+
+\section{What Tier-2 showed, and the one-line diagnosis}
+\label{sec:results}
+The executed matrix was
+$\{\text{allee},\text{theta},\text{regime}\}\times\{5\mathrm{a},10\mathrm{a}\}
+\times\sobs\!\in\!\{0,0.1,0.2,0.4\}\times 7$ methods, with a shared $1024$-particle
+belief filter, $5$ held-out seed blocks ($250$ episodes/cell), horizon $50$,
+$\gamma{=}0.95$. The two headline tables (means over the six family cells per
+$\sobs$, learned filter) were:
+
+\begin{longtable}{@{}lccccc@{}}
+\caption{Operational return by method and noise level (Tier-2).}\\
+\toprule
+Method & $\sobs{=}0$ & $0.1$ & $0.2$ & $0.4$ & all-$\sobs$ \\
+\midrule
+\endfirsthead
+\toprule
+Method & $\sobs{=}0$ & $0.1$ & $0.2$ & $0.4$ & all-$\sobs$ \\
+\midrule
+\endhead
+RefPlan & $7.33$ & $7.23$ & $7.14$ & $5.14$ & $6.71$ \\
+MOPO    & $7.20$ & $7.21$ & $6.94$ & $5.77$ & $6.78$ \\
+MOOR \emph{(baseline)} & $6.97$ & $6.94$ & $7.22$ & $\mathbf{7.80}$ & $\mathbf{7.23}$ \\
+BA-MCTS & $6.01$ & $5.87$ & $5.66$ & $4.18$ & $5.43$ \\
+PLUS \emph{(baseline)} & $5.64$ & $5.74$ & $5.93$ & $6.56$ & $5.97$ \\
+OGSRL   & $4.37$ & $5.95$ & $7.39$ & $7.48$ & $6.30$ \\
+Delphic & $5.58$ & $3.74$ & $5.98$ & $5.77$ & $5.27$ \\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{@{}lcccc@{}}
+\caption{Beats-both rate: fraction of $6$ cells beating $\max(\text{PLUS},\text{MOOR})$.}\\
+\toprule
+General learner & $\sobs{=}0$ & $0.1$ & $0.2$ & $0.4$ \\
+\midrule
+\endfirsthead
+\toprule
+General learner & $\sobs{=}0$ & $0.1$ & $0.2$ & $0.4$ \\
+\midrule
+\endhead
+BA-MCTS & $0.67$ & $\mathbf{0.83}$ & $0.50$ & $0.00$ \\
+RefPlan & $0.67$ & $0.50$ & $0.33$ & $0.00$ \\
+MOPO    & $0.50$ & $0.33$ & $0.33$ & $0.00$ \\
+OGSRL   & $0.00$ & $0.17$ & $0.50$ & $0.17$ \\
+Delphic & $0.00$ & $0.17$ & $0.17$ & $0.00$ \\
+\bottomrule
+\end{longtable}
+
+\noindent\textbf{The decisive axis is observation noise, and it reverses the
+ranking.} At $\sobs{=}0$ the general learners lead; as $\sobs$ rises the learned
+advantage erodes in lockstep with belief-filter RMSE (averaged over methods
+$\approx 0,43,80,160$ at $\sobs{=}0,0.1,0.2,0.4$; at the high end comparable to the
+state scale), and at $\sobs{=}0.4$ the beats-both rate is $\approx 0$. The
+single-model MOOR is best overall ($7.23$) and \emph{improves} with noise. The
+mechanism is: at high $\sobs$ the belief is too degraded to recover the per-episode
+parameters, so a static conservative regulator (one Ricker fit, regulate to a safe
+mid-band) is robust, while the belief-based planners propagate a degraded belief
+through a model and a multi-step plan and compound the error. \textbf{Two things
+follow:} (1) the learners' advantage is real but observability-limited; (2) part of
+the high-noise outcome is an artifact of the \emph{control interface}, which is the
+subject of Section~\ref{sec:diagnosis}.
+
+\section{Why the Tier-2 action/reward design is a bottleneck}
+\label{sec:diagnosis}
+The executed Tier-2 action tables perturbed the growth parameters additively,
+$\reff(a)=\rbase+\Delta r(a)$ and $\Keff(a)=\Kbase+\Delta K(a)$, with $\Delta r\in
+\{-0.02,\dots,+0.02\}$ and $\Delta K\in\{0,+100,+200\}$, and (crucially) these
+perturbations applied to a \emph{single} transition and then reset. This produced
+four coupled problems:
+\begin{enumerate}[leftmargin=1.6em,nosep]
+\item \textbf{Restoration is economically dominated.} With a one-step $\Delta K$
+and a reward that saturates at the fixed $\Kref{=}500$, paying e.g.\ $0.30$ for a
+one-step $\Keff:500\!\to\!700$ buys $\le\!0.08$ of abundance reward that step, with
+negligible carryover, and the bump evaporates next step. The actions that are
+supposed to be the heart of adaptive management are the ones a rational agent
+almost never takes.
+\item \textbf{Harvest as $-\Delta r$ is biologically backwards (and, at one step,
+weak).} Culling removes individuals; it does not lower the intrinsic per-capita
+growth rate for one step and then restore it.
+\item \textbf{No rescue lever.} With actions acting only on $(r,K)$ for one step,
+and no direct authority over $s$, a stock that is already below the Allee threshold
+$C$ cannot be pulled back: below $C$ the factor $(s/C-1)$ is negative regardless of
+$r$ or $K$, and raising $r$ makes the decline \emph{faster}. So a low start below
+$C$ is unrecoverable.
+\item \textbf{The decision-relevant signal is squeezed where noise is worst.}
+Because conservation is dominated and rescue is impossible, the only consequential
+decisions live in a thin band just above $C$ (prevent crossing). That band is
+exactly where the log-normal survey is least informative about position relative to
+$C$, so at $\sobs{=}0.4$ the controllable signal is buried in noise --- which is a
+coherent, design-level reason the learned advantage vanishes.
+\end{enumerate}
+The fix is not to make the learners fancier but to make the \emph{controls
+consequential}: persistent (so investment compounds), acting through the model (so
+inferring the hidden structure is necessary to act well), and capped (so the
+problem stays ecologically and numerically sane).
+
+\section{The redesigned setting (Tier-3): model-only, cumulative, capped controls}
+\label{sec:tier3}
+
+\paragraph{Design principle.} Actions act \emph{only} through the population
+model's parameters $(r,K)$; there is no direct authority over $s$. Direct stocking
+would be \emph{structure-agnostic} --- adding individuals works regardless of the
+hidden dynamics --- and would let a manager avoid ever understanding the model,
+weakening the very capability the study tests. Routing all effect through $(r,K)$
+makes the action's consequence depend on the hidden structure (e.g.\ raising $r$
+helps \emph{above} the Allee threshold but \emph{accelerates collapse below it}),
+so a learner must infer the structure to act well, while a Ricker-only baseline
+gets the sign wrong near the threshold. This sharpens, rather than dilutes, the
+PLUS/MOOR comparison.
+
+\subsection{Augmented, cumulative transition}
+Introduce two \emph{known} state variables, the accumulated management effort on
+growth rate $\rho_t$ and on capacity $\kappa_t$. Per step, in order:
+\begin{align}
+\rho_t &= \rho_{t-1}+\Delta r(a_t), \qquad \rho_0=0, \\
+\kappa_t &= \kappa_{t-1}+\Delta K(a_t), \qquad \kappa_0=0, \\
+r_{\mathrm{eff},t} &= \mathrm{clip}\big(\rbase+\rho_t,\ \rmin,\ \rmax\big), \\
+K_{\mathrm{eff},t} &= \mathrm{clip}\big(\Kbase+\kappa_t,\ \Kmin,\ \Kmax\big), \\
+s_{t+1} &= f_{\mathrm{model}}\big(s_t;\ r_{\mathrm{eff},t},\ K_{\mathrm{eff},t}\big),
+\label{eq:cumdyn}
+\end{align}
+where $f_{\mathrm{model}}$ is the per-cell Ricker/Allee/theta/regime map. The
+agent observes $o_{t+1}=s_{t+1}\eta_{t+1}$ as before. Because $\rho_t,\kappa_t$ are
+the agent's own cumulative actions, $(r_{\mathrm{eff},t},K_{\mathrm{eff},t})$ are \emph{known
+exactly}; only $s$ remains partially observed and only $m$ remains hidden, so the
+inference problem is unchanged in spirit but the controls now persist.
+
+\paragraph{Optional maintenance decay.} To avoid an ``invest-then-coast'' optimum
+and to model capacity that erodes when unmanaged, one may replace the accumulators
+with leaky versions $\rho_t=(1-d_r)\rho_{t-1}+\Delta r(a_t)$ (and likewise
+$\kappa_t$). The default is $d_r=d_K=0$ (pure cumulative); revisit after
+calibration.
+
+\subsection{Ecological and dynamical caps}
+The caps are what keep cumulative controls meaningful rather than letting a policy
+drive $r$ or $K$ to absurd values.
+\begin{longtable}{@{}p{2.6cm}p{4.0cm}p{7.4cm}@{}}
+\toprule
+Cap & Value & Rationale \\
+\midrule
+\endhead
+$\rmax$ (Ricker, Allee, regime) & $0.55$ & $r$ is the intrinsic rate of increase,
+set by life history; management can raise the \emph{realized} rate toward the
+biological ceiling (remove mortality) but not past it. $0.55$ reads as best-case
+intensive management above an $\rbase\!\le\!0.30$ prior, and is far below the
+Ricker instability onset (period-doubling at $r{=}2$, chaos near $2.5$). \\
+$\rmax(\theta)$ (theta cells) & $1.6/\theta$ & The theta-logistic map is stable at
+$K$ only for the \emph{product} $r\theta<2$; linearizing $s_{t+1}=s+rs(1-(s/K)^
+\theta)$ about $K$ gives multiplier $(1-r\theta)$. The cap must therefore scale
+with $\theta$: $\approx 0.53$ at $\theta{=}3$, $\approx 0.27$ at $\theta{=}6$
+($1.6$ leaves a margin below $2$). \\
+$\rmin$ & $-0.15$ (tune) & Sustained over-exploitation can push \emph{net} growth
+negative (harvest mortality exceeds recruitment), so aggressive harvest genuinely
+declines and can collapse the stock instead of merely freezing it. This is what
+gives harvest real teeth now that it acts through $r$ rather than removing
+individuals. \\
+$\Kmin,\Kmax$ & $500,\ 1500$ & $\Kmin=\Kbase$ (no degradation below baseline in the
+default, no-decay design); $\Kmax$ is a finite landscape ceiling --- restoration
+cannot expand habitat without bound. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Reward: keep a \emph{fixed} reference (do not track $\Keff$)}
+\label{sec:rewardfix}
+A natural instinct is to let the saturation reference track capacity so that
+restoration ``pays.'' It does the opposite. With $R\propto o/(o+\Keff)$, at
+ecological steady state the population fills its capacity ($s\approx\Keff$), so
+$o/(o+\Keff)\approx 0.5$ \emph{regardless of} $\Keff$, and immediately after a
+restoration step ($\Keff$ jumps, $s$ has not caught up) the reward \emph{drops}.
+Tracking $\Keff$ thus normalizes the gain away and restoration becomes safety-only
+again. The combination that makes restoration worth its cost is a \emph{fixed}
+reference \emph{plus} the cumulative dynamics of Section~\ref{sec:tier3}: a
+persistently higher $\Keff$ sustains a higher absolute abundance, which a fixed
+reference rewards (with diminishing returns). We therefore keep
+\begin{equation}
+R_t=\alpha\,\frac{o_t}{o_t+\Kref}-\mathrm{cost}(a_t)
+-P\cdot\mathbb{1}\big[s_t>\sthr\wedge s_{t+1}\le\sthr\big],
+\qquad \alpha{=}1,\ \Kref{=}500\ \text{(fixed)},\ P{=}20.
+\label{eq:reward3}
+\end{equation}
+(Quantitatively: building $\Keff$ toward $\sim\!1000$ sustains $o\sim\!1000$ and
+raises the abundance term from $0.50$ to $\approx 0.67$, a persistent
+$+0.17$/step that can clear an early restoration investment; pushing further to
+$1500$ adds only $\approx +0.08$/step, so the optimum is interior, not
+``max-out-$K$.'') See Section~\ref{sec:plan}, Tier~A, for the orthogonal and
+recommended upgrade to a belief-expected reward.
+
+\subsection{Harvest as cumulative exploitation pressure}
+Each harvest action applies a negative $\Delta r$ that accumulates in $\rho_t$ and
+is floored at $\rmin$. Sustained aggressive harvest therefore drives $\reff$ down,
+slows or reverses growth, and --- near the Allee threshold or under regime stress
+--- precipitates collapse; the per-step revenue (a negative cost) must be weighed
+against the delayed loss of abundance and the one-time $-P$. This recreates the
+classic over-exploitation tragedy as an emergent property of the cumulative
+dynamics, which is the richer decision problem chosen for this study.
+
+\subsection{Revised action tables}
+The only structural numeric change versus Tier-2 is that $\Delta K$ shrinks
+$\sim\!5\times$ (it now accumulates, so $+200$/step would blow past any sane $K$
+within a few steps), and harvest revenue is trimmed slightly; the $\Delta r$
+increments are unchanged because $\pm0.01/\pm0.02$ per step ramps $r$ toward its
+cap over $\sim\!15$--$25$ steps, so the \emph{timing} of investment matters. All
+magnitudes are starting values to be calibrated against the $[0.15,0.24]$ collapse
+band and the decision-relevance gate (Section~\ref{sec:checklist}).
+
+\begin{longtable}{@{}c p{3.0cm} r r r p{4.6cm}@{}}
+\caption{Revised 5-action set (cumulative $\Delta r,\Delta K$; fixed $\Kref$).}\\
+\toprule
+$a$ & Action & $\Delta r$/step & $\Delta K$/step & Cost/step & Interpretation \\
+\midrule
+\endfirsthead
+\toprule
+$a$ & Action & $\Delta r$/step & $\Delta K$/step & Cost/step & Interpretation \\
+\midrule
+\endhead
+0 & Do Nothing & $0$ & $0$ & $0.00$ & passive monitoring \\
+1 & Aggressive Harvest & $-0.02$ & $0$ & $-0.30$ & exploitation mortality (revenue); $\reff$ floored at $\rmin$ \\
+2 & Predator / Disease Control & $+0.01$ & $0$ & $+0.20$ & reduces mortality, raises realized $r$ \\
+3 & Intensive Restoration & $0$ & $+40$ & $+0.30$ & reserve expansion / revegetation; raises $K$ \\
+4 & Flagship Conservation & $+0.02$ & $+40$ & $+0.60$ & breeding $+$ intensive restoration (both channels) \\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{@{}c p{3.2cm} r r r p{4.4cm}@{}}
+\caption{Revised 10-action set (cumulative $\Delta r,\Delta K$; fixed $\Kref$).}\\
+\toprule
+$a$ & Action & $\Delta r$/step & $\Delta K$/step & Cost/step & Interpretation \\
+\midrule
+\endfirsthead
+\toprule
+$a$ & Action & $\Delta r$/step & $\Delta K$/step & Cost/step & Interpretation \\
+\midrule
+\endhead
+0 & Do Nothing & $0$ & $0$ & $0.00$ & passive monitoring \\
+1 & Sustainable Harvest & $-0.01$ & $0$ & $-0.15$ & light exploitation pressure (revenue) \\
+2 & Aggressive Harvest & $-0.02$ & $0$ & $-0.30$ & heavy exploitation pressure (revenue) \\
+3 & Predator / Disease Control & $+0.01$ & $0$ & $+0.20$ & mortality reduction \\
+4 & Breeding / Recruitment Support & $+0.02$ & $0$ & $+0.40$ & captive breeding, supplementary feeding \\
+5 & Moderate Restoration & $0$ & $+20$ & $+0.15$ & fencing, fire management, planting \\
+6 & Intensive Restoration & $0$ & $+40$ & $+0.30$ & reserve expansion, revegetation \\
+7 & Integrated Conservation (light) & $+0.01$ & $+20$ & $+0.35$ & predator control $+$ moderate restoration \\
+8 & Adaptive Conservation Trial & $+0.01$ & $+40$ & $+0.50$ & predator control $+$ intensive restoration \\
+9 & Flagship Conservation Programme & $+0.02$ & $+40$ & $+0.60$ & breeding $+$ intensive restoration \\
+\bottomrule
+\end{longtable}
+
+\subsection{Two companion fixes this design forces}
+\begin{enumerate}[leftmargin=1.6em,nosep]
+\item \textbf{The theta base prior is already unstable in its high corner.} With
+$\rbase\sim\mathcal{U}(0.18,0.40)$ and $\theta\sim\mathcal{U}(3,6)$, the product
+$r\theta$ reaches $2.4$ --- past the $r\theta{=}2$ stability boundary --- before
+any action; this is almost certainly the ``high-$r/\theta$ overshoots and crashes''
+behavior noted for theta in Tier-2. Draw with headroom under the cap, e.g.\ draw
+$\theta$ first, then $\rbase\sim\mathcal{U}\big(0.12,\min(0.40,\,1.2/\theta)\big)$,
+so base $r\theta\le 1.2$ and the action cap holds $r\theta<1.6$.
+\item \textbf{Collapse accounting is prevention-only.} With no direct stocking, a
+start (or fall) below $C$ is unrecoverable. So either initialise low-start episodes
+just \emph{above} $C$ (rescuable-by-prevention), or report the collapse rate
+\emph{split by start condition}, so the metric reflects policy skill rather than
+start luck.
+\end{enumerate}
+
+\section{Prioritized improvement plan --- what's worth doing}
+\label{sec:plan}
+Ordered by expected impact on the central question (recovering a learned advantage
+over $\max(\text{PLUS},\text{MOOR})$, especially at $\sobs{=}0.4$) and on
+faithfulness. Tags refer to the user's six points and the Tier-2 report's eight AI
+proposals.
+
+\paragraph{Tier A --- directly attacks why learners lose at $\sobs{=}0.4$ (do these).}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item \textbf{Joint state $+$ parameter belief filter} (Rao--Blackwellized particle
+filter, or a recurrent / state-space encoder, over $(s,m)$). The Tier-2 filter
+estimated only $s$; the per-episode parameters were a \emph{generic, unidentified}
+latent, so the Bayes-adaptive edge that is the whole thesis was effectively
+disabled. Particle \emph{count} ($1024$) is not the bottleneck for a low-dimensional
+state; identifying $(r,C,\theta,z)$ is. \emph{Highest expected impact.} [user~\#1,
+AI~\#1/\#2]
+\item \textbf{Belief-expected reward} $r(b_t,a)=\mathbb{E}_{s\sim b_t}\!\big[\alpha
+s/(s+\Kref)-\mathrm{cost}(a)-P\cdot\Pr(\text{collapse})\big]$ instead of the
+single-observation reward; evaluate on $\Rtrue$. This is the POMDP-correct
+belief-MDP reward, does not leak $s$ (it uses only the observation-derived belief),
+and removes the single-sample noise that the multi-step planners \emph{compound}
+through their rollouts --- a variance source MOOR's static fit ignores, so the fix
+differentially helps the learners. [user~\#2, AI~\#7]
+\item \textbf{Well-posed reward/action economics} --- realized by the Tier-3
+control redesign (Section~\ref{sec:tier3}): cumulative, capped $(r,K)$ with a fixed
+reference, harvest as exploitation pressure, and a real interior optimum for
+restoration. Makes adaptive timing pay and removes the dominated-action regime.
+[user~\#3]
+\end{enumerate}
+
+\paragraph{Tier B --- diagnostics that reinterpret the headline (cheap, do alongside A).}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\setcounter{enumi}{3}
+\item \textbf{Oracle-filter ablation $+$ decision-relevance gate at $\sobs{=}0.4$.}
+Feed the true $s$ to all methods at $\sobs{=}0.4$: if the learners then beat MOOR,
+the bottleneck is the belief, not the algorithm. Run the oracle-MPC-vs-Ricker-MPC
+gate \emph{at} $\sobs{=}0.4$ (Tier-2 enforced it only at $\sobs\!\le\!0.2$): if the
+gap falls below the $1.0$ reward / $0.05$ collapse thresholds, the regime is no
+longer decision-relevant and ``MOOR wins'' is the expected, honest outcome rather
+than a learner failure. [user~\#6, AI implicitly]
+\item \textbf{Report the pure-mechanistic MOOR ($6.83$, its own Ricker filter) and
+$\Rtrue$ throughout.} The headline $7.23$ for MOOR benefits $+0.40$ from the shared
+learned front-end; the honest baseline is lower. $\Rtrue$ is required for any
+cross-$\sobs$ claim. [user~\#6, AI~\#7]
+\end{enumerate}
+
+\paragraph{Tier C --- per-method fixes (each can flip a weak method to competitive).}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\setcounter{enumi}{5}
+\item \textbf{Delphic $\rightarrow$ model-based}, with a world-model-variance
+penalty on the \emph{shared} MPC backbone: an ensemble of compatible world models
+over the hidden-confounder ambiguity (ideally samples from the $m$-posterior of the
+Tier-A filter), planned with the same MPC as MOPO/RefPlan/BA-MCTS, penalized by the
+cross-world variance of value/return ($\approx$ a $Q$-penalty). Replaces the
+underperforming linear-CQL head and makes the comparison clean (same backbone,
+different uncertainty source). Validate that $u_\Delta$ increases monotonically
+with $\sobs$. [user~\#4, AI~\#3]
+\item \textbf{OGSRL cumulative-budget recalibration $+$ per-noise tuning.} The
+Tier-2 deployment limit reused the discounted-cumulative budget ($0.02$) as a
+\emph{one-step} probability threshold --- a scale mismatch ($\sum_t\gamma^t\approx
+18.5$ over the horizon, so $0.02$ cumulative implies a per-step probability of
+$\sim\!0.001$). State the semantics explicitly, set the cumulative budget from the
+calibration target, decouple the deployment one-step threshold, and recalibrate per
+$\sobs$. Likely recovers the poor $\sobs{=}0$ return ($4.37$) and could make OGSRL
+the best \emph{safe} learner across all $\sobs$. [user~\#5, AI~\#4]
+\item \textbf{Richer dynamics member $+$ BA-MCTS safety-aware leaves.} Add a small
+MLP ensemble member (still composed with the exact emission) to help all
+dynamics-learning methods where the belief is noisy; replace BA-MCTS's zero
+terminal values with a fitted belief-value plus a near-threshold penalty to curb
+its high collapse rate. Incremental. [AI~\#2, \#5]
+\end{enumerate}
+
+\paragraph{Tier D --- credibility.}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\setcounter{enumi}{8}
+\item \textbf{More seeds / independent datasets per cell $+$ paired-bootstrap CIs.}
+Beats-both over $6$ cells/level gives very wide intervals; add independently
+trained datasets per cell (a robustness study) and report paired bootstrap
+intervals as the headline, not point rates. [AI~\#6]
+\end{enumerate}
+
+\paragraph{If only three.} Tier~A items \#1 (filter with parameter identification),
+\#2 (belief-expected reward), and Tier~B \#4 (oracle-filter $+$ gate at
+$\sobs{=}0.4$): the first two are the most likely levers to push beats-both above
+$0$ at high noise, and the third tells you whether that is even attainable or
+whether $\sobs{=}0.4$ is genuinely un-adaptive.
+
+\section{Implementation checklist for the coding agent}
+\label{sec:checklist}
+This section is written for the agent that implemented the Tier-2 repository
+(\texttt{discrete\_action\_cont\_obser/}: environment, trajectory-preserving
+collector with calibration profiles, shared $1024$-particle filter with a learned
+log-space proposal, a $15$-member per-action $[1,x,x^2]$ ridge dynamics ensemble
+with a receding-horizon MPC, the seven methods, and a unified evaluator). Each item
+notes the Tier it serves. Preserve the unified evaluator, seed protocol, and the
+public/private schema guard throughout.
+
+\paragraph{(C0) Environment --- the Tier-3 control interface (setting change).}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item Add two persistent, \emph{known} state variables $\rho,\kappa$ to the env
+state; initialise to $0$ each episode. Replace the per-step $\reff=\rbase+\Delta
+r(a)$, $\Keff=\Kbase+\Delta K(a)$ with the cumulative update of
+Eq.~\eqref{eq:cumdyn}: accumulate $\Delta r,\Delta K$, then clip to
+$[\rmin,\rmax]$, $[\Kmin,\Kmax]$.
+\item Implement the caps of Section~\ref{sec:tier3}: $\rmax{=}0.55$ for
+Ricker/Allee/regime; $\rmax(\theta){=}1.6/\theta$ for theta (the simulator knows
+$\theta$); $\rmin{=}-0.15$; $\Kmin{=}500$, $\Kmax{=}1500$. Expose them in the
+per-cell config. Add an optional decay $(d_r,d_K)$ defaulting to $0$.
+\item Replace both action tables with the revised $5$- and $10$-action tables
+(Section~\ref{sec:tier3}). Harvest is a negative $\Delta r$ with negative cost
+(revenue). Remove any direct-$s$ authority ($h(a),\delta(a)$) if present in the
+code --- Tier-3 is model-only.
+\item Fix the theta prior to guarantee base-stability headroom: draw $\theta$ then
+$\rbase\sim\mathcal{U}(0.12,\min(0.40,1.2/\theta))$ for theta cells.
+\item Expose $(r_{\mathrm{eff},t},K_{\mathrm{eff},t})$ (equivalently $\rho_t,\kappa_t$) to every
+method as observed inputs; only $s$ stays partially observed.
+\item Keep the reward with a \emph{fixed} $\Kref{=}500$ (Eq.~\eqref{eq:reward3});
+do \emph{not} switch the saturation reference to $\Keff$ (Section~\ref{sec:rewardfix}).
+\end{enumerate}
+
+\paragraph{(C1) Belief filter with parameter identification (Tier~A \#1).}
+Extend the particle filter to joint $(s,m)$ inference: particles carry
+$(s,\rbase,C,\theta,z)$ with the per-cell priors; use the learned dynamics as the
+proposal and the exact log-normal emission as the weight. Prefer Rao--Blackwellization
+(grid/analytic over the low-dimensional structural parameters, particles over $s$)
+to avoid particle depletion in the higher-dimensional latent; raise the particle
+budget only if a depletion diagnostic (ESS) demands it. Output a posterior over
+$m$, not just $\hat s$. Add an \texttt{oracle\_state} and an \texttt{oracle\_params}
+switch (feed true $s$ and/or true $m$) for the Tier~B ablation.
+
+\paragraph{(C2) Belief-expected reward (Tier~A \#2).}
+Add a reward mode that returns $r(b_t,a)=\mathbb{E}_{s\sim b_t}[\,\cdot\,]$ computed
+from the current belief (expectation of the abundance term and of the collapse
+indicator), used by every planner during rollout and by the learners' training
+target. Keep the environment's realized $\Rtrue$ as the \emph{evaluation} channel
+only; log both and report $\Rtrue$ for all cross-$\sobs$ comparisons.
+
+\paragraph{(C3) Richer dynamics member (Tier~C \#8).}
+Add a small-MLP ensemble member as an option alongside the ridge member, composed
+with the exact emission (never trained on $o_{t+1}$ directly). Keep ensemble size,
+MPC horizon, and pessimism $\lambda$ swappable.
+
+\paragraph{(C4) Delphic as model-based (Tier~C \#6).}
+Replace the random-feature-linear CQL head with: an ensemble of compatible world
+models drawn from the filter's $m$-posterior; plan on the shared MPC backbone;
+penalize the planned value by the cross-world variance $u_\Delta=\mathrm{Var}_w
+Q^\pi_w$. Add a check that $u_\Delta$ is monotone in $\sobs$ and $\to 0$ at
+$\sobs{=}0$; sweep $\beta_\Delta$.
+
+\paragraph{(C5) OGSRL budget recalibration (Tier~C \#7).}
+Separate two quantities that Tier-2 conflated: the training-time discounted
+\emph{cumulative} safety/OOD budgets, and the deployment-time \emph{per-step}
+feasibility threshold. Derive the cumulative budget from the target episode
+collapse probability (use $\sum_t\gamma^t\approx 18.5$ to convert), and tune the
+guardian quantile per $\sobs$ (it was too tight at $\sobs{=}0$). Keep the dual
+ascent and least-violating fallback; log the fallback rate.
+
+\paragraph{(C6) BA-MCTS safety-aware leaves (Tier~C \#8).}
+Replace zero leaf values with a fitted belief-value (shared with RefPlan) and add a
+near-threshold penalty to the leaf/expansion value.
+
+\paragraph{(C7) Diagnostics and evaluation (Tier~B, Tier~D).}
+\begin{enumerate}[leftmargin=1.8em,nosep]
+\item Run the decision-relevance gate \emph{at every} $\sobs$ including $0.4$, and
+record the reward/collapse gaps; treat $\sobs{=}0.4$ as a reported diagnostic.
+\item Run the oracle-filter (and oracle-params) ablation at $\sobs{=}0.4$ across all
+methods.
+\item In the results extractor, report both MOOR numbers (shared learned filter and
+own Ricker filter) and $\Rtrue$ alongside operational return; add collapse split by
+start condition (above vs.\ below $C$).
+\item Add independently seeded datasets per cell and report paired-bootstrap CIs on
+the beats-both rate as the headline statistic.
+\end{enumerate}
+
+\paragraph{(C8) Recalibration (gate everything).}
+After C0--C2, recalibrate the behavior-policy mixture so the healthy-start incident
+collapse rate returns to $[0.15,0.24]$ under the new cumulative dynamics, and
+re-pass the decision gate at $\sobs\!\le\!0.2$ before reading the high-noise cells.
+The cumulative controls and $\rmin{<}0$ harvest change the achievable collapse
+distribution, so the Tier-2 profiles will not transfer unchanged.
+
+\paragraph{Suggested order.} C0 $\to$ C8 (env $+$ recalibrate, so the new setting is
+sound) $\to$ C1, C2 (the Tier-A levers) $\to$ C7 oracle/gate diagnostics (decide
+whether $\sobs{=}0.4$ is recoverable) $\to$ C3--C6 (per-method) $\to$ C7 statistics.
+
+\begin{thebibliography}{9}
+\bibitem{delphic2024} Pace, A., Y\`eche, H., Sch\"olkopf, B., R\"atsch, G.\ \& Tennenholtz, G.\ (2024).
+Delphic Offline Reinforcement Learning under Nonidentifiable Hidden Confounding. \emph{ICLR}. arXiv:2306.01157.
+\bibitem{ogsrl2025} Yan, R., Shen, X., Wachi, A., Gros, S., Zhao, A.\ \& Hu, X.\ (2025).
+Offline Guarded Safe Reinforcement Learning for Medical Treatment Optimization Strategies. \emph{NeurIPS}. arXiv:2505.16242.
+\bibitem{confpomdp2024} Hong, M., Qi, Z.\ \& Xu, Y.\ (2024).
+Model-based Reinforcement Learning for Confounded POMDPs. \emph{ICML}, PMLR v235.
+\bibitem{mopo2020} Yu, T.\ et al.\ (2020). MOPO: Model-based Offline Policy Optimization. \emph{NeurIPS}.
+\bibitem{refplan2025} Reflect-then-Plan: Offline Model-Based Planning through a Doubly Bayesian Lens. \emph{ICML} (2025).
+\bibitem{bamcts2026} Bayes-Adaptive Monte Carlo Tree Search for Offline Model-based RL. \emph{ICLR} (2026).
+\bibitem{plus2018} Memarzadeh, M.\ \& Boettiger, C.\ (2018). Adaptive management of ecological systems under partial observability. \emph{Biological Conservation}, 224, 9--15.
+\bibitem{moor2025} Ju, H.\ et al.\ (2025). Mechanistic model-based offline RL for fishery management. \emph{Expert Systems}.
+\end{thebibliography}
+
+\end{document}

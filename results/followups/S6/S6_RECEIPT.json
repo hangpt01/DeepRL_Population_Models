@@ -1,0 +1,44 @@
+{
+  "schema": "S6_fit_timing_probe_v1",
+  "cell": "A1 fox/ricker/sigma0.2",
+  "new_collection_seed": 20260728,
+  "new_fit_seeds": {
+    "PLUS_candidate_root": 20311728,
+    "MOOR_ricker": 20307728
+  },
+  "dataset_sha256": "a0aac6ac2b17cccc09ca48806ed19ad4f52dd1c6b6ec6b563a1354f2a5dadb67",
+  "accepted_seed_distinct": true,
+  "fits_from_scratch": true,
+  "recomputed_fits": 9,
+  "plus": {
+    "FIT_seconds": 5339.8314515976235,
+    "PLAN_seconds": 0.002993447706103325,
+    "EVAL_seconds": 14981.642580408603,
+    "COLLECT_seconds": 0.607331583276391,
+    "SURROGATE_seconds": 0.0037223780527710915,
+    "peak_rss_mb": 391.5234375,
+    "return_mean": 10.341251230838576,
+    "return_sd": 0.032535256050996865,
+    "fit_cache_hits": 0,
+    "fit_cache_misses": 8,
+    "salvaged_from_job": "58579501",
+    "summary_path": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_diagnostic_followups_20260727_v1/S6_out/plus/evaluation/regime_hidden/crab_eating_fox/ricker/sigma_0p2/plus_three_species_matched_p10_v1/data_real/backend_numpy/regime_hidden/reward_safe/plus_adapted_ricker_only_pbvi/faithful_internal/summary.json"
+  },
+  "moor": {
+    "FIT_seconds": 825.6152189029381,
+    "PLAN_seconds": 0.0001832740381360054,
+    "EVAL_seconds": 1863.6008530855179,
+    "COLLECT_seconds": 0.02935199998319149,
+    "SURROGATE_seconds": 0.009383882395923138,
+    "peak_rss_mb": 393.734375,
+    "return_mean": 10.39241865464013,
+    "return_sd": 0.01892330882973921,
+    "fit_cache_hits": 0,
+    "fit_cache_misses": 1,
+    "total_resume_wall_seconds": 2691.034257216379
+  },
+  "plus_fit_repeated_during_resume": false,
+  "plausible_fox_return_sanity": true,
+  "accepted_artifacts_modified": false,
+  "reranked": false
+}

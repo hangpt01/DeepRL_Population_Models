@@ -1,0 +1,43 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+sarsop/
+
+# Generated experiment outputs
+outputs/
+logs/
+wandb/
+data/
+checkpoints/
+*.npz
+build/
+dist/
+*.egg-info/
+
+# Local secrets / machine-specific experiment env
+.env
+.env.*
+
+# Local assistant/tool state
+.claude/
+.codex/
+.agents/
+
+# Virtual environments
+.venv/
+.venv-*/
+venv/
+env/
+
+# Python compiled / cache files and test caches
+__pycache__/
+*.pyc
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.err
+*.out

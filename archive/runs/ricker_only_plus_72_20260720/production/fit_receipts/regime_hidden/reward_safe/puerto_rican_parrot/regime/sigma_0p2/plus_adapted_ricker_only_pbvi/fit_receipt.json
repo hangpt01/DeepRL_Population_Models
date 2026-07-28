@@ -1,0 +1,45 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit",
+    "hit"
+  ],
+  "candidate_count": 8,
+  "cell": "regime_hidden/reward_safe/puerto_rican_parrot/regime/sigma_0p2",
+  "completion_status": "complete",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "099e8542856a7e1c15d7f1567d3f4a3281795bfe38f4f24f083b0dd088b3e2ac",
+    "c4e58e78ef7d7b98bd71c3d8d344300d0816f504395f6261288f019a5f500b6b",
+    "36166a4ceec13d50f72566b937d14e367f7b78048b422e5b54c50260ca4b40f5",
+    "e0e63e03401819650a114836f7dc617773a49929cb203cc821706c30b239a1ef",
+    "be08f8cb3b549c7685109f312f8bbc8942390f2f36588c1188982ece649ed818",
+    "ec6af223bcf0c0464ef8a02b80e4cc09106f1801168b7ac536300666e520c37b",
+    "a4378753dbb814dd28d75edf934923c4dd6bc6b8eb1c2caea5cf8fa489a2e2cb",
+    "399d0f0586239b6f9404948f8ca1f0645a8652522588a699dbd5b9b3db2e0c61"
+  ],
+  "fit_seconds": 0.04991326900199056,
+  "method": "plus_adapted_ricker_only_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "33ad5a3d38612379b81a9dff2ae61445ade49c13f8d00ce7e4c0240cd466d041",
+    "33f5d772e95439f50baec517e3fd25f3351937de78ac17d747a78f2d4a80546b",
+    "8a3f7055529996ef19f9f7be72493dfe084fe9a1622acac5048725213faddea5",
+    "f78b647396874d1d9859669ddfd52b9612ade2fe9765cded72cf1f1b5fd632e3",
+    "1336b315985a30fde69c7536841fd7de20dbcab8145e8aa177aa323cf26f005b",
+    "e5b9714e35e73bacb422fb4c3067bcace5c8a7891fc19187b94c92c6425dc612",
+    "42669b28461fa5172bbb06f01fa5d703f8991017d5f14941e8bb8fb6e7e61950",
+    "034f085eaca9eaf456f6732d6209879ed836b98ae25206dcf418e7fa5f23f6bf"
+  ],
+  "receipt_write": "atomic_replace",
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "92defd3614b4300733ee96a9b995b4018576540869ae249a114f8fe5bbc1482d"
+}

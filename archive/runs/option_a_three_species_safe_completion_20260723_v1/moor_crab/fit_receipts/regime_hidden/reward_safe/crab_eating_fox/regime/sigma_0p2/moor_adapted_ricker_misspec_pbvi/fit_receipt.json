@@ -1,0 +1,22 @@
+{
+  "actual_rows": 4000,
+  "cache_statuses": [
+    "miss_fitted"
+  ],
+  "candidate_count": 1,
+  "cell": "regime_hidden/reward_safe/crab_eating_fox/regime/sigma_0p2",
+  "episode_count": 160,
+  "fit_cache_keys": [
+    "47a0ed02fc88761632fa868c5c7581000a07f1ab99ce82230dfa007cbf58a6b2"
+  ],
+  "fit_seconds": 891.054486464709,
+  "method": "moor_adapted_ricker_misspec_pbvi",
+  "overshoot_rows": 0,
+  "parameter_hashes": [
+    "e8e942d8561dcfe1dcd62667f48f70979b1c1f27d61468a1046f4990eea448ab"
+  ],
+  "return_fields_opened": false,
+  "run_stage": "dynamics_fit",
+  "target_rows": 4000,
+  "transition_data_hash": "2f6c132fcbb4f2e50c7d359abd89d58e66600682ebac1c47f26c5b68c0cbb15f"
+}

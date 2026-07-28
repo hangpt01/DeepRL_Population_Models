@@ -1,0 +1,37 @@
+{
+  "artifact_schema": "faithful_artifacts_v1",
+  "planners": [
+    {
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 6,
+      "model_hash": "8fe0fd12baf4a91bf849579d612c515f11f9af036316cbeae3fd93ac8be6baea",
+      "name": "pbvi",
+      "seed": 53116
+    },
+    {
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 6,
+      "model_hash": "0055a105d1f6fb85a2472f66d4a69e180477fe214d111f3945d4261ec3cfa795",
+      "name": "pbvi",
+      "seed": 53117
+    },
+    {
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 6,
+      "model_hash": "fb1cd6fbca1be1ce33538af376dffa5411d4c842fe0baf33085cf699875aad5a",
+      "name": "pbvi",
+      "seed": 53118
+    },
+    {
+      "external_invocation": false,
+      "implementation_version": "context_pbvi_v1",
+      "invocation_count": 6,
+      "model_hash": "4f7677816c3783b5bf51562af44bdfcb823f9e366dff33975c7ba9d1f925a34e",
+      "name": "pbvi",
+      "seed": 53119
+    }
+  ]
+}

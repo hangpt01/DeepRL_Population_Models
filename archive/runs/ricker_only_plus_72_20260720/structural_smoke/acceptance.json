@@ -1,0 +1,26 @@
+{
+  "acceptance_version": "acceptance_ricker_only_plus_structural_v1",
+  "completed_fit_rows": 0,
+  "completed_plan_rows": 0,
+  "decision": "INCOMPLETE",
+  "failures": [],
+  "fit_manifest_sha256": "d36bf402ae66e0b200168b932db1920bfac4e9a35982293a8488377695b91f65",
+  "not_evaluable": [
+    "performance returns (sealed)",
+    "run-specific posterior history",
+    "run-specific PBVI deterministic repeatability",
+    "per-start optimizer termination and bound-aware gradients"
+  ],
+  "plan_manifest_sha256": "bb063b9941ebd25a0e7e2b8952ca932d12bb8c948ec83abb8563603a91c0e643",
+  "return_fields_opened": false,
+  "slurm": {
+    "allocated_core_hours": 0.0016666666666666668,
+    "states": {
+      "FAILED": 1
+    }
+  },
+  "temporary_or_partial_files": [],
+  "warnings": [
+    "non-completed Slurm states: {'FAILED': 1}"
+  ]
+}
