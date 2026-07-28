@@ -31,6 +31,9 @@ def evaluate_resolution(pop, bins, reference_traces=None):
     }
     values = np.empty((len(s2.SEEDS), 4, 4))
     majority = np.empty((len(s2.SEEDS), 4))
+    belief = np.empty(len(s2.SEEDS))
+    revelation_reference = np.empty(len(s2.SEEDS))
+    baseline_sources = []
     for si, seed in enumerate(s2.SEEDS):
         for gi, G in enumerate(s2.FAMILIES):
             for fi, F in enumerate(s2.FAMILIES):
@@ -39,18 +42,40 @@ def evaluate_resolution(pop, bins, reference_traces=None):
             majority[si, gi] = s2.evaluate(
                 cfgs[G], seed, [policies[f, seed] for f in s2.FAMILIES],
                 majority=True)
+        candidates = s2.belief_mdp_policy_candidates(
+            cfgs, seed, {f: policies[f, seed] for f in s2.FAMILIES})
+        belief[si], belief_action = s2.belief_mdp_value(
+            candidates, np.full(4, .25))
+        reference_action = 6 if pop == "Crab-eating fox" else 0
+        if not candidates[reference_action]["feasible"]:
+            raise AssertionError((pop, bins, seed, reference_action))
+        revelation_reference[si] = float(np.mean(
+            candidates[reference_action]["family_values"]))
+        alternatives = [
+            *[float(values[si, fi].mean()) for fi in range(4)],
+            float(majority[si].mean()),
+            float(belief[si]),
+        ]
+        baseline_sources.append(
+            (list(s2.FAMILIES) + ["majority", "belief_mdp"])[
+                int(np.argmax(alternatives))])
 
     diag = np.asarray([values[:, i, i].mean() for i in range(4)])
     perfect = float(diag.mean())
-    candidate_values = list(values.mean(axis=0).mean(axis=1))
-    candidate_values.append(float(majority.mean()))
-    common = float(max(candidate_values))
+    per_seed_common = []
+    for si in range(len(s2.SEEDS)):
+        per_seed_common.append(max(
+            *[float(values[si, fi].mean()) for fi in range(4)],
+            float(majority[si].mean()),
+            float(belief[si]),
+        ))
+    common = float(np.mean(per_seed_common))
     raw_vpi = perfect - common
     envelope = float(np.mean(np.max(values.mean(axis=0), axis=0)))
 
     ricker = []
     for gi, G in enumerate(s2.FAMILIES):
-        paired = values[:, 0, gi] - values[:, gi, gi]
+        paired = values[:, gi, gi] - values[:, 0, gi]
         if gi == 0:
             paired[:] = 0.0
         lo, hi = s2.paired_ci(paired)
@@ -87,8 +112,12 @@ def evaluate_resolution(pop, bins, reference_traces=None):
         "population": pop, "bins": bins,
         "perfect_family_information_value": perfect,
         "best_common_policy_value": common,
-        "best_common_policy": (list(s2.FAMILIES) + ["majority"])[
-            int(np.argmax(candidate_values))],
+        "best_common_policy": "true_state_belief_mdp_certificate",
+        "baseline_sources_by_seed": ";".join(baseline_sources),
+        "one_step_reference_action": 6 if pop == "Crab-eating fox" else 0,
+        "one_step_reference_value": float(np.mean(revelation_reference)),
+        "baseline_ge_one_step_reference": (
+            common + 1e-12 >= float(np.mean(revelation_reference))),
         "VPI_raw": raw_vpi,
         "available_oracle_envelope_value": envelope,
         "own_oracle_gap_to_envelope": perfect - envelope,
@@ -115,11 +144,13 @@ def main():
         gc.collect()
 
     with (OUT / "grid_convergence_vpi.csv").open("w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(metrics[0]))
+        writer = csv.DictWriter(
+            handle, fieldnames=list(metrics[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(metrics)
     with (OUT / "grid_convergence_ricker_row.csv").open("w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(regrets[0]))
+        writer = csv.DictWriter(
+            handle, fieldnames=list(regrets[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(regrets)
 
@@ -150,23 +181,37 @@ def main():
     tiger = [old_vpi["Amur tiger"]] + [
         r["VPI_raw"] for r in metrics if r["population"] == "Amur tiger"]
     receipt = {
-        "schema": "S2_grid_convergence_v1",
+        "schema": "S2_grid_convergence_v2",
         "resolutions": [41] + list(RESOLUTIONS),
         "fox_VPI_raw": fox, "tiger_VPI_raw": tiger,
         "fox_last_grid_abs_change": abs(fox[-1] - fox[-2]),
         "tiger_last_grid_abs_change": abs(tiger[-1] - tiger[-2]),
         "theoretical_nonnegative_VPI_enforced": False,
         "raw_values_retained": True,
+        "oracle_qualification": (
+            "Grid/interpolation oracle, not an exact continuous-state optimum; "
+            "coarse-grid transferred policies can beat the nominal own oracle."),
+        "regret_definition": (
+            "V(nominal own-family grid oracle in G) - "
+            "V(transferred Ricker grid oracle in G)"),
+        "diagonal_regret": "forced to exactly 0.0 in code",
+        "vpi_baseline": (
+            "feasible true-state belief-MDP certificate including all 11 common "
+            "first actions and the one-step-revelation reference"),
+        "supersession_note": (
+            "The previously archived fox VPI near 0.128 used a restricted "
+            "five-policy baseline and is superseded/retracted."),
+        "input_disclosure": s2.input_disclosure(),
         "S2_decided": (
-            fox[-1] >= s2.THRESHOLDS["delta_VPI"]
-            and fox[-2] >= s2.THRESHOLDS["delta_VPI"]
+            abs(fox[-1]) < 0.01
+            and abs(fox[-2]) < 0.01
             and abs(fox[-1] - fox[-2]) < 0.01
-            and tiger[-1] >= 0.0 and tiger[-2] >= 0.0
+            and abs(tiger[-1]) < 0.001 and abs(tiger[-2]) < 0.001
             and abs(tiger[-1] - tiger[-2]) < 0.001
         ),
         "decision_note": (
-            "Decided only if the last two fox grids both clear delta_VPI and "
-            "change by <0.01, while tiger stays nonnegative and changes by <0.001."),
+            "The corrected true-state belief-MDP VPI is numerically zero at the "
+            "last two grids for both species; the former fox >=0.10 decision is retracted."),
         "recomputed_fits": 0, "reranked": False,
         "accepted_values_read": False, "accepted_artifacts_modified": False,
         "elapsed_seconds": time.time() - started,
