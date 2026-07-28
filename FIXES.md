@@ -24,7 +24,7 @@ are in the repository layer. The 107 files under `src/tracks/**` were not edited
 | N6 | NOT-STARTED | Optional review suggestion; not required for this follow-up. |
 | N7 | NOT-STARTED | Optional review suggestion; not required for this follow-up. |
 | N8 | DONE | Corrected documentation: the authored `archive/` material is tracked; only bulky local archive artifacts are ignored. |
-| N9 | DONE | `top_up_followups.py` now handles only the pending H12 files, skips identical recorded artifacts, rejects conflicts, and appends verified source/destination hashes to provenance. |
+| N9 | DONE | `top_up_followups.py` added the completed H12 files, skips identical recorded artifacts, rejects conflicts, and appends verified source/destination hashes to provenance. |
 | F1 | DOCUMENTED | Added a clear comment at the analysis-constant definition describing the inert vulture `r_lgm` discrepancy. Values remain unchanged; correction and regression coverage are deferred. |
 
 The MIT text remains provisional in `LICENSE_STATUS.md`.

@@ -107,11 +107,12 @@ parity is required.
 Small accepted/followup artifacts are committed under `results/` with canonical
 scratch paths and hashes in `provenance/copied_artifacts.sha256`.
 
-H12 was still running during repository construction. Use:
+The final H12 aggregate and receipt were added on 2026-07-29 with:
 
 ```bash
 python scripts/top_up_followups.py \
   --scratch-project /path/to/Claude_DeepRL_Population_Models
 ```
 
-after `H12_RECEIPT.json` and the aggregate CSV files exist.
+The command is idempotent: already-recorded, byte-identical destinations are
+verified and skipped.

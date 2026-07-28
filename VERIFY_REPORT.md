@@ -36,7 +36,8 @@ Result: **PASS**.
 - Diagnostic self-tests: all 36 passed (exceeding the requested 32).
 - Constants self-check: passed.
 - Integrity: 107 frozen-track files, 116 repository scientific inputs,
-  18 copied result artifacts, and the accepted CSV passed.
+  21 copied result artifacts, and the accepted CSV passed after the final H12
+  top-up.
 - Accepted A6-MOOR replay: passed at `max_abs_diff=0.0`.
 
 The separate publication targets also passed:

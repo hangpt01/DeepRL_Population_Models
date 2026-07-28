@@ -32,7 +32,8 @@ code, configuration, tests, and documentation are tracked.
 - `results/followups/reward_screen/`: small CSV output and receipt.
 - `results/followups/S6/`: S6 receipt, which existed by the Phase-2 copy.
 - `results/diagnostic_replay/`: M1–M15 comparison and schema report.
-- `results/followups/H12/`: placeholder pending the still-running job.
+- `results/followups/H12/`: completed aggregate tables and receipt, added by the
+  hash-recorded top-up after the Phase-2 build.
 
 Every copied result has its canonical source path and SHA-256 in
 `provenance/copied_artifacts.sha256`.

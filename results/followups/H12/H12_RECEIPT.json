@@ -1,0 +1,42 @@
+{
+  "schema": "H12_dose_response_receipt_v1",
+  "m1_anchors": 12,
+  "m1_parity_max_abs_diff": 0.0,
+  "non_anchor_arms": 96,
+  "total_arms": 108,
+  "cells": 6,
+  "methods": [
+    "plus",
+    "moor"
+  ],
+  "multipliers": [
+    0.5,
+    0.7,
+    0.85,
+    1.0,
+    1.2,
+    1.5,
+    2.0,
+    3.0,
+    "K_ref/original_observation_scale"
+  ],
+  "recomputed_fits": 0,
+  "public_surrogate_refit_each_nonanchor": true,
+  "belief_and_surrogate_channels_perturbed_consistently": true,
+  "belief_only_variant_run": false,
+  "belief_only_variant_reason": "The implementation exposes and rewires the two channels separately; the coupled requested arm is not an accidental unseparable conflation.",
+  "constraint": "xenon-8452Y",
+  "threads": 1,
+  "accepted_artifacts_modified": false,
+  "reranked": false,
+  "jobs": {
+    "m1_gate": "58579502",
+    "initial_sweep_moor_outputs": "58579771",
+    "plus_repair_array": "58588371"
+  },
+  "outputs": [
+    "H12_dose_response.csv",
+    "H12_degradation_slopes.csv",
+    "H12_return_vs_multiplier.png"
+  ]
+}
