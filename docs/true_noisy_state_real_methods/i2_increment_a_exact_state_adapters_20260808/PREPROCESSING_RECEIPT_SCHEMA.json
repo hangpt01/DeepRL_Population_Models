@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "i2a_preprocessing_receipt_schema_v1",
+  "title": "I2A zero-SD preprocessing receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "method", "species", "cell", "arm", "regime",
+    "feature_names", "feature_order_hash", "dtype", "construction_mode",
+    "per_column", "constant_mask", "alias_rank_collapse_map", "collinear_groups",
+    "design_rank", "design_condition_number", "constant_threshold",
+    "threshold_comparison", "runtime_constant_tolerance", "finite_check_passed",
+    "preprocessing_artifact_sha256", "fit_view_sha256", "runtime_transform_sha256",
+    "arm_o_artifact_sha256", "arm_t_artifact_sha256", "fit_runtime_parity_result",
+    "serialization_parity",
+    "parity_failures", "maximum_absolute_assigned_sd", "exact_alias_checks",
+    "refplan_standardized_sd_offsets", "refplan_mismatch_disclosure",
+    "rng_call_count_parity", "rng_state_advancement_parity", "fitted_artifact_hashes",
+    "available_residual_sigma_values", "frozen_fit_eligible", "eligibility_reason",
+    "model_fit_axis_label", "zero_variance_events", "parity_result"
+  ],
+  "properties": {
+    "schema_version": {"const": "i1_zero_sd_preprocessing_receipt_v1"},
+    "method": {"type": "string"},
+    "species": {"type": "string"},
+    "cell": {"type": "string"},
+    "arm": {"enum": ["O", "T"]},
+    "regime": {"enum": ["frozen_fit_secondary", "end_to_end"]},
+    "feature_names": {"type": "array", "minItems": 10, "maxItems": 10, "items": {"type": "string"}},
+    "feature_order_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "dtype": {"const": "float64"},
+    "construction_mode": {"enum": ["primary_direct_assignment", "arm_o_unchanged"]},
+    "per_column": {"type": "array", "minItems": 10, "maxItems": 10},
+    "constant_mask": {"type": "array", "minItems": 10, "maxItems": 10, "items": {"type": "boolean"}},
+    "alias_rank_collapse_map": {"type": "object"},
+    "collinear_groups": {"type": "array"},
+    "design_rank": {"type": "integer"},
+    "design_condition_number": {"type": ["number", "null"]},
+    "constant_threshold": {"const": 1e-8},
+    "threshold_comparison": {"const": "<="},
+    "runtime_constant_tolerance": {"const": 1e-6},
+    "finite_check_passed": {"const": true},
+    "preprocessing_artifact_sha256": {"type": "string"},
+    "fit_view_sha256": {"type": "string"},
+    "runtime_transform_sha256": {"type": "string"},
+    "arm_o_artifact_sha256": {"type": "string"},
+    "arm_t_artifact_sha256": {"type": "string"},
+    "fit_runtime_parity_result": {"const": "PASS"},
+    "serialization_parity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serialized_artifact_sha256", "runtime_reloaded_artifact_sha256", "checks", "result"
+      ],
+      "properties": {
+        "serialized_artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "runtime_reloaded_artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "checks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "distinct_reloaded_object", "serialized_bytes_canonical", "artifact_sha256",
+            "output_bits", "feature_schema", "dtype", "constant_mask", "offset_bits",
+            "scale_bits", "alias_map", "rank_receipt"
+          ],
+          "properties": {
+            "distinct_reloaded_object": {"const": true},
+            "serialized_bytes_canonical": {"const": true},
+            "artifact_sha256": {"const": true},
+            "output_bits": {"const": true},
+            "feature_schema": {"const": true},
+            "dtype": {"const": true},
+            "constant_mask": {"const": true},
+            "offset_bits": {"const": true},
+            "scale_bits": {"const": true},
+            "alias_map": {"const": true},
+            "rank_receipt": {"const": true}
+          }
+        },
+        "result": {"const": "PASS"}
+      }
+    },
+    "parity_failures": {"type": "array", "maxItems": 0},
+    "maximum_absolute_assigned_sd": {"const": 0.0},
+    "exact_alias_checks": {"type": "object"},
+    "refplan_standardized_sd_offsets": {"type": "object"},
+    "refplan_mismatch_disclosure": {"type": "object"},
+    "rng_call_count_parity": {"type": "boolean"},
+    "rng_state_advancement_parity": {"type": "boolean"},
+    "fitted_artifact_hashes": {"type": "object"},
+    "available_residual_sigma_values": {"type": "array"},
+    "frozen_fit_eligible": {"type": "boolean"},
+    "eligibility_reason": {"type": "string"},
+    "model_fit_axis_label": {"type": "string"},
+    "zero_variance_events": {"type": "array"},
+    "parity_result": {"const": "PASS"}
+  }
+}

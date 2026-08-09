@@ -1,0 +1,354 @@
+{
+  "schema": "method_level_state_information_i0_readonly_manifest_v1",
+  "created_at": "2026-08-08T00:56:58+10:00",
+  "authorization": {
+    "stage": "I0",
+    "mode": "read_only_reconnaissance",
+    "later_stages_authorized": false,
+    "scientific_execution_performed": false,
+    "slurm_jobs_submitted": false,
+    "existing_files_modified": false,
+    "new_directory": "docs/true_noisy_state_real_methods/i0_method_level_state_information_reconnaissance_20260808"
+  },
+  "controlling_plan": {
+    "path": "docs/true_noisy_state_real_methods/DRAFT_METHOD_LEVEL_STATE_INFORMATION_PILOT_PLAN.md",
+    "revision": 2,
+    "line_count": 661,
+    "sha256": "238f238fca99b5dd043856ef90f5eb86b757e9a39249b25bf67eb235bc5cdf3f"
+  },
+  "repository": {
+    "requested_path": "/fs04/scratch2/ce25/DeepRL_Population_Models",
+    "resolved_path": "/fs04/scratch2/ce25/DeepRL_Population_Models",
+    "home_alias": "/home/hphung/ce25_scratch2/DeepRL_Population_Models",
+    "paths_resolve_to_same_location": true,
+    "git_head": "77cd38adb11970d56ce4c96bf84de15fac3108ac",
+    "branch": "e1-phase1-parity",
+    "upstream": "origin/e1-phase1-parity",
+    "initial_worktree_clean": true,
+    "preexisting_change_count": 0,
+    "local_branches": [
+      "e1-phase1-parity",
+      "main"
+    ]
+  },
+  "frozen_tracks": {
+    "aggregate_hash_recipe": "find TRACK -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum",
+    "ecological": {
+      "path": "src/tracks/ecological",
+      "file_count": 149,
+      "sha256": "951365d7874a417d7e66b14538dc275a9f325ac4643df8ea1af4d1d24877fb01"
+    },
+    "general": {
+      "path": "src/tracks/general",
+      "file_count": 162,
+      "sha256": "614524d7b058418a3ff3f370e7e5b57582213c2c518766d8d88f1ec093e7a35e"
+    },
+    "declaration": {
+      "path": "provenance/frozen_tracks.sha256",
+      "sha256": "319cd42884da74cbdd54b228ecf4fbb11688e40293d376a333bf1b3be6ffcaaf"
+    }
+  },
+  "environment": {
+    "requirements_path": "requirements-paper-faithful.txt",
+    "requirements_sha256": "e3da565735841215d6d987a67278e26ac7b3aba2f5afee0876879ec512f6a2a2",
+    "pyproject_path": "pyproject.toml",
+    "pyproject_sha256": "032bb9db59b03e73058e5cdeae898fd14c78ecea8802c61b7d38bbf7b8c49fca",
+    "accepted_venv": {
+      "path": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/.venv-paper-faithful",
+      "python": "3.10.14",
+      "numpy": "2.2.6",
+      "torch": "2.13.0+cpu",
+      "pytest": "9.1.1",
+      "pip_freeze_all_stream_sha256": "92f510968afa46085b24bd8b5d7c171257997963a7d99623fdcd0e41d760df69"
+    },
+    "review_venv": {
+      "path": ".review/venv",
+      "purpose": "read-only NPZ inspection only",
+      "python": "3.10.14",
+      "numpy": "2.2.6",
+      "pandas": "2.3.3",
+      "torch": "2.13.0+cpu",
+      "pytest": "9.1.1",
+      "pip_freeze_all_stream_sha256": "27f2c85b6c36937b80314bf44b38d26a88bff13bf1aa77ee2b9c7e8633d614f9"
+    },
+    "login_shell_python": {
+      "path": "/usr/bin/python",
+      "version": "3.9.25",
+      "registered_for_execution": false
+    }
+  },
+  "cpu": {
+    "isa": "x86_64",
+    "current_login_model": "Intel Xeon Gold 6548Y+",
+    "strict_accepted_model": "Intel Xeon Platinum 8452Y",
+    "strict_constraint": "xenon-8452Y",
+    "strict_nodes_visible_at_i0": [
+      "m3h100",
+      "m3h101"
+    ],
+    "other_relevant_visible_model": "AMD EPYC 9454",
+    "accepted_profile_path": "configs/cluster/accepted-8452Y.yaml",
+    "accepted_profile_sha256": "db6dc5a6d79b1c21c111bdd54ae68dfbdca2e9b19362f2e4039d3fa5bdf3d4b6",
+    "diagnostic_receipt_path": "provenance/diagnostic_replay/DIAGNOSTIC_REPLAY_RECEIPT.json",
+    "diagnostic_receipt_sha256": "204d2a176689385a6061775c938f80e6446005f5415a96b4f092c30e870369f8"
+  },
+  "accepted_tables": [
+    {
+      "path": "results/accepted/MATCHED_P10_144_METHOD_CELLS.csv",
+      "sha256": "7431318803e468c13ff3008acdc530c0d9f9a919cc29a6fe04951fc8a2cadc1c"
+    },
+    {
+      "path": "results/accepted/MATCHED_P10_144_METHOD_CELLS_RECEIPT.json",
+      "sha256": "a198c70f34ed0191a6580c49d52ab675ea7b6768f87076994775b223624d3163"
+    },
+    {
+      "path": "results/followups/reward_screen/constant_reward_screen.csv",
+      "sha256": "a09d21d26fcbd95a6279603bfffed10c2a75505a360f70cb38d9c8d96fdaed14"
+    },
+    {
+      "path": "results/diagnostic_replay/m1_m15_comparison.csv",
+      "sha256": "8ac75e8b15e155436a71d96f9db934f09bd4b8d8e940b4b76054f2408947b2b9"
+    }
+  ],
+  "shared_input_hashes_from_accepted_receipt": {
+    "actions": "b591e63937a3eefe5570de5adf2d479b83b3783e5e83dde864eecbbeaee9a673",
+    "environment": "c7079a34155c482ed449359c72b7089ac04dbc64f148776347f54a75066b4b06",
+    "evaluator": "125ec6073b203e34dc10d7182082e9439d577c9fa819953d280b3401128136bb",
+    "realdata": "f293ed77f79208446fb04df3498b68941f15fb7df0979e8b8d3362ef8ed546d1",
+    "reward": "356d126d23fedc69e3632b923b6e8a9a071896813f7ddf9f5ad509823a8b33d8"
+  },
+  "datasets": [
+    {
+      "cell": "amur_tiger/allee/sigma_0p2",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/public.npz",
+      "file_sha256": "9e9c3a6d4bcee3c27c785f46ce17b66e1c9099c446213f46ebcfa3c3851f771c",
+      "embedded_dataset_sha256": "7e71172af4bc95b2c31291414af53371c1ea94393e01675d269b2b7c360324c9",
+      "rows": 4000,
+      "episodes": 160,
+      "complete_full_length_episodes": 160,
+      "genuine_short_terminated_episodes": 0,
+      "truncated_short_episodes": 0,
+      "invalid_or_incomplete_episodes": 0,
+      "length_distribution": {
+        "25": 160
+      },
+      "final_terminated": 0,
+      "final_truncated": 160,
+      "documented_fix_touched_rows": 0,
+      "belief_cache": {
+        "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/public.regime_hidden.learned.beliefs.npz",
+        "sha256": "cf725f9647bea0d9346ef1578aa6c9311a2c0773abbd191945c4cd4da7b4142a"
+      },
+      "reward_surrogate": {
+        "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+        "sha256": "be0f835b7f0a9e8c3c63ca681998acc900678b08776bc6277b50bdfdd4d5da7c"
+      }
+    },
+    {
+      "cell": "crab_eating_fox/allee/sigma_0p2",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.npz",
+      "file_sha256": "7d1b2fc8a1949dda6f53f39eff1dbfe220719d0cbad9f8956ab7ca2d08e87e19",
+      "embedded_dataset_sha256": "688d580f1e47a61dcad9b8a6cb96f1d62835bfbd0b835554cf31c8ab8bdd0c13",
+      "rows": 4000,
+      "episodes": 160,
+      "complete_full_length_episodes": 160,
+      "genuine_short_terminated_episodes": 0,
+      "truncated_short_episodes": 0,
+      "invalid_or_incomplete_episodes": 0,
+      "length_distribution": {
+        "25": 160
+      },
+      "final_terminated": 0,
+      "final_truncated": 160,
+      "documented_fix_touched_rows": 0,
+      "belief_cache": {
+        "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.regime_hidden.learned.beliefs.npz",
+        "sha256": "3a2d621089e79d178ec92ad27dc106d9f48bb5d8a98bac9b5a7e38379b96af6a"
+      },
+      "reward_surrogate": {
+        "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.regime_hidden.public_surrogate.v2.seed20116.npz",
+        "sha256": "4d9305a94509e2bb4eacd4b25b8ac4ba138a29e269dd240eba81684b1ecc7a4b"
+      }
+    }
+  ],
+  "accepted_episode_artifacts": [
+    {
+      "cell": "amur_tiger/allee/sigma_0p2",
+      "method": "plus_adapted_ricker_only_pbvi",
+      "track": "ecological",
+      "path": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/plus_three_species_matched_p10_v1/data_real/backend_numpy/regime_hidden/reward_safe/plus_adapted_ricker_only_pbvi/faithful_internal/episodes.csv",
+      "sha256": "8b09ee8511af6e0ba90c6f3f5e78ccbbabc1f497beb34af84332380efb68f913"
+    },
+    {
+      "cell": "amur_tiger/allee/sigma_0p2",
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "track": "ecological",
+      "path": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/moor/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/moor_three_species_matched_p10_v1/data_real/backend_numpy/regime_hidden/reward_safe/moor_adapted_ricker_misspec_pbvi/faithful_internal/episodes.csv",
+      "sha256": "540837583fc07dd017db9f0e8766cb9a7c188bfd3ff2930e20a966e5daf5f823"
+    },
+    {
+      "cell": "crab_eating_fox/allee/sigma_0p2",
+      "method": "plus_adapted_ricker_only_pbvi",
+      "track": "ecological",
+      "path": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/plus_three_species_matched_p10_v1/data_real/backend_numpy/regime_hidden/reward_safe/plus_adapted_ricker_only_pbvi/faithful_internal/episodes.csv",
+      "sha256": "91eb0298baa5012d9fafeda38608fd0bf81eac98a64871c550800b6818ec735c"
+    },
+    {
+      "cell": "crab_eating_fox/allee/sigma_0p2",
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "track": "ecological",
+      "path": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/moor/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/moor_three_species_matched_p10_v1/data_real/backend_numpy/regime_hidden/reward_safe/moor_adapted_ricker_misspec_pbvi/faithful_internal/episodes.csv",
+      "sha256": "34bb35079496f6ec4b5fe8eda824bb64b542fb6eb2e4825d6b200bb916a9276d"
+    },
+    {
+      "cell": "amur_tiger/allee/sigma_0p2",
+      "method": "refplan",
+      "track": "general",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/refplan/learned/episodes.csv",
+      "sha256": "8d546adb928b13a9824f07f5b362bafa5133dc772ba34c823bd3946b2a8870a8"
+    },
+    {
+      "cell": "amur_tiger/allee/sigma_0p2",
+      "method": "ogsrl",
+      "track": "general",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/ogsrl/learned/episodes.csv",
+      "sha256": "c1db405698660f9cad3bb352aa575d2a2f4499141c5a6a1beae09a92cd9c6d02"
+    },
+    {
+      "cell": "amur_tiger/allee/sigma_0p2",
+      "method": "bamcts",
+      "track": "general",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/bamcts/learned/episodes.csv",
+      "sha256": "20608a3c90eb1d438a372284d5ebe6965eaed40108f9915e0b27159b7e6cde75"
+    },
+    {
+      "cell": "amur_tiger/allee/sigma_0p2",
+      "method": "ensemble_value_disagreement_pessimism",
+      "track": "general",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/ensemble_value_disagreement_pessimism/learned/episodes.csv",
+      "sha256": "8d35854f0d02fcc112a992caeae6a1693514c75893e4759fd0fb85de5a4add07"
+    },
+    {
+      "cell": "crab_eating_fox/allee/sigma_0p2",
+      "method": "refplan",
+      "track": "general",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/refplan/learned/episodes.csv",
+      "sha256": "7e8c6d5812bc6b238092728b54734b6cd92e9ec58011ae3fa934380d32f24536"
+    },
+    {
+      "cell": "crab_eating_fox/allee/sigma_0p2",
+      "method": "ogsrl",
+      "track": "general",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/ogsrl/learned/episodes.csv",
+      "sha256": "bb732bac5946e162c2179b3b13a461d5a7c6dbd5d80fcb78c829c639ab98c540"
+    },
+    {
+      "cell": "crab_eating_fox/allee/sigma_0p2",
+      "method": "bamcts",
+      "track": "general",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/bamcts/learned/episodes.csv",
+      "sha256": "1c75ec2e9b6cc299ec020dbe2fa17a8b0ab201c7e98b04ef07eef099a77e5997"
+    },
+    {
+      "cell": "crab_eating_fox/allee/sigma_0p2",
+      "method": "ensemble_value_disagreement_pessimism",
+      "track": "general",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/ensemble_value_disagreement_pessimism/learned/episodes.csv",
+      "sha256": "fb581f8d89f72be2f2ffed6765adca01202d88af70faed9b678ccfda3349eb10"
+    }
+  ],
+  "faithful_artifact_trees": [
+    {
+      "cell": "amur_tiger/allee/sigma_0p2",
+      "method": "plus_adapted_ricker_only_pbvi",
+      "file_count": 39,
+      "sha256": "5b3ef8ed9453646810fcf8629450c3a595271d7b3ab9d8fcf8cc4abe0e8b0dc5"
+    },
+    {
+      "cell": "amur_tiger/allee/sigma_0p2",
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "file_count": 9,
+      "sha256": "07cca42624514a4065417cd1355065ec87d0ff0dbcd494c611ba2a338a7e4eb3"
+    },
+    {
+      "cell": "crab_eating_fox/allee/sigma_0p2",
+      "method": "plus_adapted_ricker_only_pbvi",
+      "file_count": 39,
+      "sha256": "b42f3e68f87e8a5174b2e804b4eccd2ed3ec925867b37590ddf5b7dbeea79c46"
+    },
+    {
+      "cell": "crab_eating_fox/allee/sigma_0p2",
+      "method": "moor_adapted_ricker_misspec_pbvi",
+      "file_count": 9,
+      "sha256": "d2df0bd6771fb408437cab82786d4573c4cb0529e5885efdb4ffd343788e4110"
+    }
+  ],
+  "source_hashes": {
+    "ecological_plus_faithful": "5f186aca4c7c467afb0c4a62505b7736a26ec697005713e1c42419d54d34cb1e",
+    "ecological_moor_faithful": "4cf371a4677341dea8be8229df98567d96bea7ddf019bb44bb5ab2f1fa2e8b20",
+    "ecological_faithful_pomdp": "7357d30238d388b65dfe83b18b15081d9dca00144e16e3b2b6beccec548bb7bf",
+    "ecological_faithful_ecology": "9ec66daa5976fdbae9f24b4587e25d141197bf92b6fe077644cc6b6b13b3c22c",
+    "general_refplan": "c65865b2c9c270d499701827ad2c754e0f9cf02b31febd6916d5dd6494c0fbf1",
+    "general_ogsrl": "da965bc320f3cbfaf381a46aaa77a7eb0ef7c3b6b7b493bee02e338544e6993b",
+    "general_bamcts": "5ffd3d8962e723d0efb195e4b461262903c2b3e1e977a0781f70a9a17f8b4f05",
+    "general_evd": "ab2d953f5a46ef4892830095bc8d496cc587fc0426b6e705736b5c3b905f171e",
+    "general_beliefs": "e8277daad30e5052925f4139ac9fbfb4e6c539882940527e827274f46448e184",
+    "general_evaluator": "125ec6073b203e34dc10d7182082e9439d577c9fa819953d280b3401128136bb"
+  },
+  "accepted_anchors": {
+    "tiger_ogsrl_return": 4.71629840155769,
+    "tiger_best_fixed_action": 10,
+    "tiger_best_fixed_return": 4.224420899026084,
+    "fox_moor_return_replay_precision": 11.610936360689793,
+    "fox_moor_return_accepted_csv_serialization": 11.61093636068979,
+    "fox_best_fixed_action": 1,
+    "fox_best_fixed_return": 10.153605271956147,
+    "fox_plus_return": 10.966745450258198,
+    "fox_plus_headroom": 0.8131401783020511,
+    "fox_plus_switch_from_map_fraction": 0.709
+  },
+  "compute_seconds": {
+    "per_task_means": {
+      "plus_adapted_ricker_only_pbvi": 15314.56,
+      "moor_adapted_ricker_misspec_pbvi": 1940.64,
+      "refplan": 52.42,
+      "ogsrl": 430.15,
+      "bamcts": 847.26,
+      "ensemble_value_disagreement_pessimism": 2.5
+    },
+    "one_cell_one_arm": 18587.53,
+    "two_cells_two_arms_frozen": 74350.12,
+    "two_cells_two_arms_frozen_core_hours": 20.6528111111,
+    "cold_fit_evidence_16_candidates_receipt_count": 32,
+    "cold_fit_16_candidates_mean": 17365.306844641,
+    "cold_fit_16_candidates_min": 15452.718511675,
+    "cold_fit_16_candidates_max": 18244.06229105,
+    "scaled_cold_fit_8_candidates_per_cell_mean": 8682.653422321,
+    "scaled_cold_fit_8_candidates_per_cell_min": 7726.359255837,
+    "scaled_cold_fit_8_candidates_per_cell_max": 9122.031145525,
+    "two_cell_cold_fit_contingency_core_hours_mean": 4.8236963457,
+    "two_cell_total_with_cold_fit_core_hours_mean": 25.4765074568
+  },
+  "short_episode_fix": {
+    "branch_or_commit": null,
+    "branch_or_commit_status": "unavailable_locally",
+    "applied_to_current_tree": false,
+    "current_behavior": "raises ValueError when an episode has fewer rows than ogsrl_cost_horizon",
+    "three_regression_test_paths": [],
+    "prior_passing_evidence": null
+  },
+  "key_findings": {
+    "mobile_implemented": false,
+    "sigma_zero_is_valid_exact_state_route": false,
+    "oracle_primitive_exists": true,
+    "oracle_hidden_method_route_exists_without_implementation": false,
+    "plus_moor_direct_belief_adapter_exists": false,
+    "general_methods_indirectly_consume_observation_noise_sigma": [
+      "refplan",
+      "ogsrl",
+      "bamcts",
+      "ensemble_value_disagreement_pessimism"
+    ],
+    "verdict": "FAIL — PLAN OR PROVENANCE DISCREPANCY"
+  }
+}

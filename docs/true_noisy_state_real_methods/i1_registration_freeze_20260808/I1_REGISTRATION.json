@@ -1,0 +1,813 @@
+{
+  "schema_version": "method_level_state_information_i1_registration_v1",
+  "registration_id": "method_level_state_information_pilot_i1_20260808",
+  "frozen_at_local_date": "2026-08-08",
+  "status": "I1 documentation freeze only; no execution authorized",
+  "controlling_documents": {
+    "plan": {
+      "path": "docs/true_noisy_state_real_methods/DRAFT_METHOD_LEVEL_STATE_INFORMATION_PILOT_PLAN_REV3_1.md",
+      "sha256": "701b4509f1dc04b7885891be72e526420ac5558be56bdde2b9628789398fe959"
+    },
+    "confirmation_audit": {
+      "path": "docs/true_noisy_state_real_methods/CLAUDE_REV3_1_CONFIRMATION_AUDIT.md",
+      "sha256": "0f448db89109186aa4bbd64bc000da45ae662386dea79e658bcd802f4880cd17"
+    },
+    "source_schema": {
+      "path": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808/I1_SOURCE_SCHEMA.json",
+      "sha256": "4de0b45f347576d82465c9590c9caf98646cecb2d3c3d4afac07cfca414c20bc"
+    },
+    "sealed_predictions": {
+      "path": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808/SEALED_PREDICTIONS.json",
+      "sha256": "82a7fcb394c80e673ede04c5692db839821b06f23f752076e8cf34bb29da50c3"
+    }
+  },
+  "roots": {
+    "repository_requested": "/home/hphung/ce25_scratch2/DeepRL_Population_Models",
+    "repository_resolved": "/fs04/scratch2/ce25/DeepRL_Population_Models",
+    "registration_root": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808",
+    "future_execution_root": "outputs/method_level_state_information_pilot_20260808_v1",
+    "future_execution_root_created_by_i1": false,
+    "accepted_namespaces_immutable": true
+  },
+  "scientific_identity": {
+    "question": "For the accepted ecological and general-RL implementations, how much performance is lost when exact abundance is replaced by noisy surveys in out-of-family Allee environments, and is that loss consistent with each method's treatment of hidden abundance?",
+    "primary_estimand": "end-to-end method robustness to hidden abundance; a method-bundle stress test",
+    "architecture_bundle_limitation": "Methods differ in state representation, transition models, fitted artifacts, residual noise, posterior sharpness, reward objectives, planners, safety calibration, compute, and policy class. Cross-method absolute return is an architecture-bundle comparison, not a causal state-representation estimate.",
+    "narrower_diagnostic_rule": "A frozen-fit/state-input-only diagnostic is secondary and may be labelled only under the bit-identity requirements in residual_sigma_interpretation_rule.",
+    "cells": [
+      {
+        "id": "amur_tiger__allee__sigma_0p2",
+        "species": "Amur tiger",
+        "family": "allee",
+        "observation_noise_sigma": 0.2,
+        "role": "general-method activity/stress cell and OGSRL regression anchor"
+      },
+      {
+        "id": "crab_eating_fox__allee__sigma_0p2",
+        "species": "Crab-eating fox",
+        "family": "allee",
+        "observation_noise_sigma": 0.2,
+        "role": "ecological-method activity/decision-discriminating cell"
+      }
+    ],
+    "methods": [
+      {
+        "id": "plus_adapted_ricker_only_pbvi",
+        "label": "adapted PLUS",
+        "track": "ecological",
+        "objective": "shared learned linear surrogate",
+        "frozen_fit_diagnostic": "eligible and required if I2 proves all fitted/planning artifacts byte-identical; runtime state adapter only"
+      },
+      {
+        "id": "moor_adapted_ricker_misspec_pbvi",
+        "label": "adapted MOOR",
+        "track": "ecological",
+        "objective": "shared learned linear surrogate",
+        "frozen_fit_diagnostic": "eligible and required if I2 proves all fitted/planning artifacts byte-identical; runtime state adapter only"
+      },
+      {
+        "id": "refplan",
+        "label": "RefPlan-inspired",
+        "track": "general",
+        "objective": "shared learned linear surrogate",
+        "frozen_fit_diagnostic": "optional secondary only; eligibility unresolved until context-preservation and byte-identity tests pass"
+      },
+      {
+        "id": "ogsrl",
+        "label": "OGSRL-inspired",
+        "track": "general",
+        "objective": "shared learned linear surrogate",
+        "frozen_fit_diagnostic": "not eligible for primary Arm T; safety calibration and policy/model training change"
+      },
+      {
+        "id": "bamcts",
+        "label": "BA-MCTS-inspired",
+        "track": "general",
+        "objective": "shared learned linear surrogate",
+        "frozen_fit_diagnostic": "not eligible for primary Arm T; dynamics/residual/posterior change"
+      },
+      {
+        "id": "ensemble_value_disagreement_pessimism",
+        "label": "EVD pessimism",
+        "track": "general",
+        "objective": "raw logged rewards",
+        "frozen_fit_diagnostic": "not eligible for primary Arm T; behavior reference and 20 Q members retrain"
+      }
+    ],
+    "arms": {
+      "T": {
+        "name": "exact-state Arm T",
+        "contract": "current true abundance with method-specific context-preserving adapter; end-to-end refitting where registered; no private information or future access",
+        "zero_noise_likelihood": false
+      },
+      "O": {
+        "name": "noisy-survey Arm O",
+        "contract": "accepted public survey information and accepted method logic; current pilot reruns rather than substituting accepted returns"
+      }
+    },
+    "scope": "sigma 0.2 screening only",
+    "stage_c": {
+      "included": false,
+      "authorized": false,
+      "statement": "Sigma 0.1 confirmation is absent from this registration and requires separate authorization after Stage B validity/activity review."
+    },
+    "pooling": "No pooling, averaging, or quantitative ranking across tiger and fox."
+  },
+  "common_controls": {
+    "environment_family": "Allee",
+    "reward_mode": "safe",
+    "collapse_penalty": 10,
+    "evaluation_horizon": 50,
+    "discount": 0.95,
+    "evaluation_episode_ids": [
+      7001,
+      7002,
+      7003,
+      7004,
+      7051,
+      7052,
+      7053,
+      7054,
+      7101,
+      7102,
+      7103,
+      7104,
+      7151,
+      7152,
+      7153,
+      7154,
+      7201,
+      7202,
+      7203,
+      7204
+    ],
+    "evaluation_pairing_order": [
+      7001,
+      7002,
+      7003,
+      7004,
+      7051,
+      7052,
+      7053,
+      7054,
+      7101,
+      7102,
+      7103,
+      7104,
+      7151,
+      7152,
+      7153,
+      7154,
+      7201,
+      7202,
+      7203,
+      7204
+    ],
+    "episodes_per_method_arm_cell": 20,
+    "action_count": 11,
+    "action_table": {
+      "path": "configs/ecology/action_effects_long.csv",
+      "file_sha256": "b0944a1e2f00460c9754c4697eb1c2407391e92572c4fca0f713b63985048f14",
+      "accepted_logical_actions_sha256": "b591e63937a3eefe5570de5adf2d479b83b3783e5e83dde864eecbbeaee9a673"
+    },
+    "accepted_shared_hashes": {
+      "environment": "c7079a34155c482ed449359c72b7089ac04dbc64f148776347f54a75066b4b06",
+      "evaluator": "125ec6073b203e34dc10d7182082e9439d577c9fa819953d280b3401128136bb",
+      "reward": "356d126d23fedc69e3632b923b6e8a9a071896813f7ddf9f5ad509823a8b33d8",
+      "realdata": "f293ed77f79208446fb04df3498b68941f15fb7df0979e8b8d3362ef8ed546d1"
+    },
+    "seed_contract": {
+      "accepted_master_seed": 116,
+      "exact_evaluation_identities": [
+        7001,
+        7002,
+        7003,
+        7004,
+        7051,
+        7052,
+        7053,
+        7054,
+        7101,
+        7102,
+        7103,
+        7104,
+        7151,
+        7152,
+        7153,
+        7154,
+        7201,
+        7202,
+        7203,
+        7204
+      ],
+      "accepted_surrogate_split_seed": 20116,
+      "rule": "No collection, fit, planning, split, or evaluation identity may be changed. I2 must inventory every method-specific embedded seed before execution; missing identity is a stop, not permission to choose a new seed."
+    },
+    "pairing": "same ordered evaluation identities; environment process draws paired where method interfaces permit",
+    "no_new_data": true
+  },
+  "accepted_artifacts": {
+    "accepted_table": {
+      "path": "results/accepted/MATCHED_P10_144_METHOD_CELLS.csv",
+      "sha256": "7431318803e468c13ff3008acdc530c0d9f9a919cc29a6fe04951fc8a2cadc1c"
+    },
+    "receipt": {
+      "path": "results/accepted/MATCHED_P10_144_RECEIPT.json",
+      "sha256": "a198c70f34ed0191a6580c49d52ab675ea7b6768f87076994775b223624d3163"
+    },
+    "tiger": {
+      "public_path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/public.npz",
+      "public_file_sha256": "9e9c3a6d4bcee3c27c785f46ce17b66e1c9099c446213f46ebcfa3c3851f771c",
+      "public_dataset_sha256": "7e71172af4bc95b2c31291414af53371c1ea94393e01675d269b2b7c360324c9",
+      "truth_path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/private/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/truth.npz",
+      "truth_sha256": "1658f587cc2b1144362bd90182efce1bd33b65d35c47c1e9dae4320d705b8668",
+      "rows": 4000,
+      "episodes": 160,
+      "episode_length": 25
+    },
+    "fox": {
+      "public_path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.npz",
+      "public_file_sha256": "7d1b2fc8a1949dda6f53f39eff1dbfe220719d0cbad9f8956ab7ca2d08e87e19",
+      "public_dataset_sha256": "688d580f1e47a61dcad9b8a6cb96f1d62835bfbd0b835554cf31c8ab8bdd0c13",
+      "truth_path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/truth.npz",
+      "truth_sha256": "4149e293d70a59b000a3b947ce663fb3de282fb404cea857f02be00718a467e5",
+      "rows": 4000,
+      "episodes": 160,
+      "episode_length": 25
+    },
+    "immutable_protection": "Never modify, overwrite, append, rescore, or place new files in accepted/frozen namespaces."
+  },
+  "state_units": {
+    "conclusion": "truth states and public observations use the same raw abundance units",
+    "tiger_mean_observation_div_state": 1.02142,
+    "fox_mean_observation_div_state": 1.01972,
+    "theoretical_lognormal_mean_multiplier_sigma_0p2": 1.0202,
+    "evidence": "CLAUDE_REV3_1_CONFIRMATION_AUDIT.md section 6; source artifacts registered in I1_SOURCE_SCHEMA.json",
+    "general_methods": "consume raw abundance units",
+    "plus_moor": "internal grids remain latent fitted-model units; convert raw truth through each fitted model's survey_scale before nearest-bin point-mass assignment",
+    "prohibited": "raw truth may never be snapped directly onto the latent grid",
+    "required_reverse_check": "selected latent bin times survey_scale must agree with registered raw-state discretisation"
+  },
+  "truth_information_boundary": {
+    "schema_file": "I1_SOURCE_SCHEMA.json",
+    "source_key_count": 13,
+    "allowlisted_scientific_fields": [
+      "states",
+      "next_states (conditional offline one-step target only)"
+    ],
+    "binding_only": "metadata_json.public_dataset_sha256",
+    "all_other_fields_forbidden": true,
+    "next_states_relation": "next_states[t] == states[t+1] within episodes",
+    "next_states_runtime_access": false,
+    "next_states_frozen_fit_access": false,
+    "method_direct_truth_access": false,
+    "arm_o_derived_access": false,
+    "context_preservation_required": true,
+    "oracle_state_filter_as_is_prohibited": true,
+    "plus_moor_direct_belief_assignment": true,
+    "refplan_adapter_status": "unresolved I2 design",
+    "ogsrl_safety_budget": "recalculate on exact abundance for primary Arm T and report safety-axis shift",
+    "sigma_or_observation_scale_zero_prohibited": true,
+    "all_zero_likelihood_path_prohibited": true,
+    "fail_closed_i2_leakage_tests_required": true,
+    "retention_policy": "Retain future derived overlays read-only and access-restricted through independent results audit/final acceptance; destroy only with separate user authorization; retain non-sensitive hashes/receipts."
+  },
+  "residual_sigma_interpretation_rule": {
+    "controlling_text": "residual_sigma is a transition/model-fitting quantity and a possible mediator of the end-to-end information intervention. If Arm T and Arm O do not use byte-identical fitted artifacts with identical residual_sigma, their return difference includes a model-fit/model-posterior change and must not be interpreted as a pure state-representation effect.",
+    "before_returns_opened": [
+      "record every fitted-artifact hash and every available residual_sigma for every method and arm",
+      "record these values before returns are opened"
+    ],
+    "frozen_fit_label_requirements": [
+      "fitted-artifact hashes byte-identical across Arm T and Arm O",
+      "residual_sigma values bit-identical",
+      "transition, value, and reward fits and policy parameters unchanged",
+      "only the registered state-information adapter differs"
+    ],
+    "automatic_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
+    "trigger": "any non-identical artifact hash or residual_sigma value",
+    "numeric_threshold": null,
+    "post_hoc_small_enough_exception": false,
+    "refit_reporting": [
+      "raw Arm T residual_sigma per model/member",
+      "raw Arm O residual_sigma per model/member",
+      "absolute difference",
+      "ratio when Arm O denominator is positive",
+      "model-posterior entropy or sharpness change where available"
+    ],
+    "refplan_bamcts_statement": "Explicitly state when exact-state refitting sharpens model posteriors through lower residual noise.",
+    "causal_boundary": "Primary end-to-end method robustness remains reportable but cannot identify state representation causally. A mechanism claim requires a separately registered matched-fit experiment outside this pilot.",
+    "immutable_after": "fixed before I2 and cannot change after returns are opened",
+    "decision_type": "report-and-labelling rule; no arbitrary numerical threshold"
+  },
+  "metrics": {
+    "primary": {
+      "name": "paired_raw_loss",
+      "formula": "mean_return_true_state - mean_return_noisy_survey",
+      "sampling_unit": "paired evaluation episode identity within method and cell",
+      "point_estimate": "arithmetic mean of 20 ordered paired episode return differences in raw return units",
+      "interval": {
+        "method": "paired nonparametric percentile bootstrap",
+        "resampling_unit": "20 paired evaluation identities, resampled as intact T/O pairs with replacement",
+        "resamples": 100000,
+        "confidence_level": 0.95,
+        "rng": "NumPy Generator PCG64",
+        "seed": 20260808,
+        "quantiles": [
+          0.025,
+          0.975
+        ],
+        "quantile_method": "linear",
+        "rule": "No unpaired resampling and no cross-cell resampling."
+      }
+    },
+    "required": [
+      "absolute discounted true-reward return",
+      "paired_raw_loss",
+      "collapse-entry rate",
+      "first-collapse time",
+      "exact unsafe-occupancy step count",
+      "discounted safety-penalty contribution",
+      "minimum abundance",
+      "time below safety threshold",
+      "action frequencies and distinct-action count",
+      "switching/fraction differing across paired states or histories",
+      "economic action cost",
+      "adaptive headroom over best fixed action",
+      "planning/training runtime",
+      "failures"
+    ],
+    "normalized_secondary": {
+      "formula": "(mean_return_true_state - mean_return_noisy_survey) / max(abs(mean_return_true_state), 1.0)",
+      "epsilon_raw_return_units": 1,
+      "guard": "If abs(mean_return_true_state) < 1.0, report NA_DENOMINATOR_GUARD and do not compute or rank the ratio.",
+      "ranking_permitted": false
+    },
+    "cross_cell_synthesis_only": [
+      "sign",
+      "within-cell ordering",
+      "activity classification",
+      "interpretation category"
+    ],
+    "cross_species_pooling": false,
+    "evd_separate_reporting": true
+  },
+  "activity_gate": {
+    "tiger_role": "general-method activity/stress cell",
+    "fox_role": "ecological-method activity cell",
+    "accepted_arm_o_preclassification": [
+      {
+        "cell": "tiger",
+        "method": "RefPlan-inspired",
+        "episodes_multi_action": "20/20",
+        "mean_action_entropy": 1.69514,
+        "headroom": -0.76995034,
+        "label": "decision-active; no positive headroom",
+        "sha256": "8d546adb928b13a9824f07f5b362bafa5133dc772ba34c823bd3946b2a8870a8"
+      },
+      {
+        "cell": "tiger",
+        "method": "OGSRL-inspired",
+        "episodes_multi_action": "20/20",
+        "mean_action_entropy": 1.13894,
+        "headroom": 0.4918775,
+        "label": "active + headroom",
+        "sha256": "c1db405698660f9cad3bb352aa575d2a2f4499141c5a6a1beae09a92cd9c6d02"
+      },
+      {
+        "cell": "tiger",
+        "method": "BA-MCTS-inspired",
+        "episodes_multi_action": "20/20",
+        "mean_action_entropy": 1.14487,
+        "headroom": -2.9463353,
+        "label": "decision-active; no positive headroom",
+        "sha256": "20608a3c90eb1d438a372284d5ebe6965eaed40108f9915e0b27159b7e6cde75"
+      },
+      {
+        "cell": "tiger",
+        "method": "EVD pessimism",
+        "episodes_multi_action": "20/20",
+        "mean_action_entropy": 1.19685,
+        "headroom": -15.8616898,
+        "label": "decision-active; no positive headroom",
+        "sha256": "8d35854f0d02fcc112a992caeae6a1693514c75893e4759fd0fb85de5a4add07"
+      },
+      {
+        "cell": "tiger",
+        "method": "adapted PLUS",
+        "episodes_multi_action": "0/20",
+        "mean_action_entropy": 0,
+        "headroom": 0,
+        "label": "inactive/non-discriminating",
+        "sha256": "8b09ee8511af6e0ba90c6f3f5e78ccbbabc1f497beb34af84332380efb68f913"
+      },
+      {
+        "cell": "tiger",
+        "method": "adapted MOOR",
+        "episodes_multi_action": "0/20",
+        "mean_action_entropy": 0,
+        "headroom": 0,
+        "label": "inactive/non-discriminating",
+        "sha256": "540837583fc07dd017db9f0e8766cb9a7c188bfd3ff2930e20a966e5daf5f823"
+      },
+      {
+        "cell": "fox",
+        "method": "RefPlan-inspired",
+        "episodes_multi_action": "20/20",
+        "mean_action_entropy": 1.97367,
+        "headroom": -2.205463,
+        "label": "decision-active; no positive headroom",
+        "sha256": "7e8c6d5812bc6b238092728b54734b6cd92e9ec58011ae3fa934380d32f24536"
+      },
+      {
+        "cell": "fox",
+        "method": "OGSRL-inspired",
+        "episodes_multi_action": "0/20",
+        "mean_action_entropy": 0,
+        "headroom": -0.0232227,
+        "label": "inactive/non-discriminating",
+        "sha256": "bb732bac5946e162c2179b3b13a461d5a7c6dbd5d80fcb78c829c639ab98c540"
+      },
+      {
+        "cell": "fox",
+        "method": "BA-MCTS-inspired",
+        "episodes_multi_action": "20/20",
+        "mean_action_entropy": 1.49684,
+        "headroom": 0.0477586,
+        "label": "active + small headroom",
+        "sha256": "1c75ec2e9b6cc299ec020dbe2fa17a8b0ab201c7e98b04ef07eef099a77e5997"
+      },
+      {
+        "cell": "fox",
+        "method": "EVD pessimism",
+        "episodes_multi_action": "20/20",
+        "mean_action_entropy": 0.3301,
+        "headroom": 0.243824,
+        "label": "active + headroom",
+        "sha256": "fb581f8d89f72be2f2ffed6765adca01202d88af70faed9b678ccfda3349eb10"
+      },
+      {
+        "cell": "fox",
+        "method": "adapted PLUS",
+        "episodes_multi_action": "20/20",
+        "mean_action_entropy": 0.4486,
+        "headroom": 0.81314018,
+        "label": "active + headroom",
+        "sha256": "91eb0298baa5012d9fafeda38608fd0bf81eac98a64871c550800b6818ec735c"
+      },
+      {
+        "cell": "fox",
+        "method": "adapted MOOR",
+        "episodes_multi_action": "20/20",
+        "mean_action_entropy": 0.25851,
+        "headroom": 1.45733109,
+        "label": "active + headroom",
+        "sha256": "34bb35079496f6ec4b5fe8eda824bb64b542fb6eb2e4825d6b200bb916a9276d"
+      }
+    ],
+    "evidence": {
+      "episode_sources": {
+        "tiger_refplan": {
+          "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/refplan/learned/episodes.csv",
+          "sha256": "8d546adb928b13a9824f07f5b362bafa5133dc772ba34c823bd3946b2a8870a8"
+        },
+        "tiger_ogsrl": {
+          "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/ogsrl/learned/episodes.csv",
+          "sha256": "c1db405698660f9cad3bb352aa575d2a2f4499141c5a6a1beae09a92cd9c6d02"
+        },
+        "tiger_bamcts": {
+          "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/bamcts/learned/episodes.csv",
+          "sha256": "20608a3c90eb1d438a372284d5ebe6965eaed40108f9915e0b27159b7e6cde75"
+        },
+        "tiger_evd": {
+          "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/ensemble_value_disagreement_pessimism/learned/episodes.csv",
+          "sha256": "8d35854f0d02fcc112a992caeae6a1693514c75893e4759fd0fb85de5a4add07"
+        },
+        "tiger_plus": {
+          "path": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/plus_three_species_matched_p10_v1/data_real/backend_numpy/regime_hidden/reward_safe/plus_adapted_ricker_only_pbvi/faithful_internal/episodes.csv",
+          "sha256": "8b09ee8511af6e0ba90c6f3f5e78ccbbabc1f497beb34af84332380efb68f913"
+        },
+        "tiger_moor": {
+          "path": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/moor/evaluation/regime_hidden/amur_tiger/allee/sigma_0p2/moor_three_species_matched_p10_v1/data_real/backend_numpy/regime_hidden/reward_safe/moor_adapted_ricker_misspec_pbvi/faithful_internal/episodes.csv",
+          "sha256": "540837583fc07dd017db9f0e8766cb9a7c188bfd3ff2930e20a966e5daf5f823"
+        },
+        "fox_refplan": {
+          "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/refplan/learned/episodes.csv",
+          "sha256": "7e8c6d5812bc6b238092728b54734b6cd92e9ec58011ae3fa934380d32f24536"
+        },
+        "fox_ogsrl": {
+          "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/ogsrl/learned/episodes.csv",
+          "sha256": "bb732bac5946e162c2179b3b13a461d5a7c6dbd5d80fcb78c829c639ab98c540"
+        },
+        "fox_bamcts": {
+          "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/bamcts/learned/episodes.csv",
+          "sha256": "1c75ec2e9b6cc299ec020dbe2fa17a8b0ab201c7e98b04ef07eef099a77e5997"
+        },
+        "fox_evd": {
+          "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/data_real/backend_numpy/regime_hidden/reward_safe/ensemble_value_disagreement_pessimism/learned/episodes.csv",
+          "sha256": "fb581f8d89f72be2f2ffed6765adca01202d88af70faed9b678ccfda3349eb10"
+        },
+        "fox_plus": {
+          "path": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/plus/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/plus_three_species_matched_p10_v1/data_real/backend_numpy/regime_hidden/reward_safe/plus_adapted_ricker_only_pbvi/faithful_internal/episodes.csv",
+          "sha256": "91eb0298baa5012d9fafeda38608fd0bf81eac98a64871c550800b6818ec735c"
+        },
+        "fox_moor": {
+          "path": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/real_ecology_runs/three_species_ecological_p10_correction_20260723_v1/moor/evaluation/regime_hidden/crab_eating_fox/allee/sigma_0p2/moor_three_species_matched_p10_v1/data_real/backend_numpy/regime_hidden/reward_safe/moor_adapted_ricker_misspec_pbvi/faithful_internal/episodes.csv",
+          "sha256": "34bb35079496f6ec4b5fe8eda824bb64b542fb6eb2e4825d6b200bb916a9276d"
+        }
+      },
+      "i0_report": "docs/true_noisy_state_real_methods/i0_method_level_state_information_reconnaissance_20260808/I0_RECONNAISSANCE_REPORT.md section 7",
+      "accepted_table_sha256": "7431318803e468c13ff3008acdc530c0d9f9a919cc29a6fe04951fc8a2cadc1c",
+      "fixed_action_screen": {
+        "path": "results/followups/reward_screen/constant_reward_screen.csv",
+        "sha256": "a09d21d26fcbd95a6279603bfffed10c2a75505a360f70cb38d9c8d96fdaed14"
+      },
+      "diagnostic_replay": {
+        "path": "results/diagnostic_replay/m1_m15_comparison.csv",
+        "sha256": "8ac75e8b15e155436a71d96f9db934f09bd4b8d8e940b4b76054f2408947b2b9"
+      }
+    },
+    "new_arm_rule": "Any single constant deployed action is non-discriminating. A state-representation interpretation additionally requires decision activity and meaningful positive adaptive headroom."
+  },
+  "gates": [
+    {
+      "id": "G0_PROVENANCE",
+      "requirements": [
+        "registered paths/hashes match",
+        "tracked Git diff clean",
+        "source-only hashes match",
+        "accepted artifacts immutable",
+        "CPU profile available"
+      ]
+    },
+    {
+      "id": "G1_DATASET_HORIZON",
+      "requirements": [
+        "each dataset exactly 4000 rows and 160×25",
+        "behavior horizon exactly 25",
+        "no episode shorter than 25",
+        "existing test suite passes only under later authorization"
+      ]
+    },
+    {
+      "id": "G2_ACCEPTED_ANCHOR",
+      "requirements": [
+        "tiger noisy OGSRL per-episode/action/event/aggregate parity on accepted architecture"
+      ],
+      "authorized_now": false
+    },
+    {
+      "id": "G3_PAIRED_INTEGRITY",
+      "requirements": [
+        "same ordered 20 identities",
+        "paired process draws where possible",
+        "return reconstruction absolute tolerance 1e-9",
+        "no method/arm fallback",
+        "accepted Arm O per-episode/action/event parity"
+      ]
+    },
+    {
+      "id": "G4_ACTIVITY",
+      "requirements": [
+        "distinct actions",
+        "paired-decision differences",
+        "adaptive headroom",
+        "constant action means non-discriminating"
+      ]
+    },
+    {
+      "id": "G5_LEAKAGE",
+      "requirements": [
+        "exact source and derived schemas",
+        "no forbidden truth field",
+        "no runtime next_states/future rows",
+        "Arm O cannot access derived artifact",
+        "history context preserved",
+        "no zero-noise/all-zero-likelihood path"
+      ]
+    }
+  ],
+  "architecture_gate": {
+    "required_model": "Intel Xeon Platinum 8452Y",
+    "slurm_constraint": "xenon-8452Y",
+    "profile_path": "configs/cluster/accepted-8452Y.yaml",
+    "profile_sha256": "db6dc5a6d79b1c21c111bdd54ae68dfbdca2e9b19362f2e4039d3fa5bdf3d4b6",
+    "unavailable_action": "stop; do not invent tolerance or rebaseline"
+  },
+  "provenance": {
+    "git_head": "77cd38adb11970d56ce4c96bf84de15fac3108ac",
+    "branch": "e1-phase1-parity",
+    "bytecode_environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "LC_ALL": "C"
+    },
+    "historical_tracks": {
+      "recipe": "LC_ALL=C find TRACK -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum",
+      "ecological": {
+        "path": "src/tracks/ecological",
+        "file_count": 149,
+        "sha256": "951365d7874a417d7e66b14538dc275a9f325ac4643df8ea1af4d1d24877fb01"
+      },
+      "general": {
+        "path": "src/tracks/general",
+        "file_count": 162,
+        "sha256": "614524d7b058418a3ff3f370e7e5b57582213c2c518766d8d88f1ec093e7a35e"
+      }
+    },
+    "source_only_tracks": {
+      "recipe": "LC_ALL=C find TRACK -type f ! -path '*/__pycache__/*' ! -path '*/.pytest_cache/*' ! -name '*.pyc' ! -name '*.pyo' -print0 | sort -z | xargs -0 sha256sum | sha256sum",
+      "ecological": {
+        "file_count": 52,
+        "sha256": "2b3b8ae6d2f8ff5ffb17c4885ded9e8f1f6b3c0cb662f393186fe4b4706a884e",
+        "files": [
+          "src/tracks/ecological/real_ecology_benchmark/__init__.py",
+          "src/tracks/ecological/real_ecology_benchmark/__main__.py",
+          "src/tracks/ecological/real_ecology_benchmark/actions.py",
+          "src/tracks/ecological/real_ecology_benchmark/backend.py",
+          "src/tracks/ecological/real_ecology_benchmark/beliefs.py",
+          "src/tracks/ecological/real_ecology_benchmark/cli.py",
+          "src/tracks/ecological/real_ecology_benchmark/collector.py",
+          "src/tracks/ecological/real_ecology_benchmark/config.py",
+          "src/tracks/ecological/real_ecology_benchmark/controls.py",
+          "src/tracks/ecological/real_ecology_benchmark/dataset.py",
+          "src/tracks/ecological/real_ecology_benchmark/discretize.py",
+          "src/tracks/ecological/real_ecology_benchmark/dummydata.py",
+          "src/tracks/ecological/real_ecology_benchmark/dynamics.py",
+          "src/tracks/ecological/real_ecology_benchmark/envs.py",
+          "src/tracks/ecological/real_ecology_benchmark/evaluator.py",
+          "src/tracks/ecological/real_ecology_benchmark/faithful_artifacts.py",
+          "src/tracks/ecological/real_ecology_benchmark/faithful_ecology.py",
+          "src/tracks/ecological/real_ecology_benchmark/faithful_fit.py",
+          "src/tracks/ecological/real_ecology_benchmark/faithful_pomdp.py",
+          "src/tracks/ecological/real_ecology_benchmark/gate.py",
+          "src/tracks/ecological/real_ecology_benchmark/manifest.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/__init__.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/bamcts.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/base.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/delphic.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/moor.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/moor_faithful.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/moor_native.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/mopo.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/ogsrl.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/plus.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/plus_faithful.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/plus_native.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/refplan.py",
+          "src/tracks/ecological/real_ecology_benchmark/methods/value.py",
+          "src/tracks/ecological/real_ecology_benchmark/native_fit.py",
+          "src/tracks/ecological/real_ecology_benchmark/native_solver.py",
+          "src/tracks/ecological/real_ecology_benchmark/observation.py",
+          "src/tracks/ecological/real_ecology_benchmark/pipeline.py",
+          "src/tracks/ecological/real_ecology_benchmark/planners/__init__.py",
+          "src/tracks/ecological/real_ecology_benchmark/planners/base.py",
+          "src/tracks/ecological/real_ecology_benchmark/planners/pbvi.py",
+          "src/tracks/ecological/real_ecology_benchmark/planning.py",
+          "src/tracks/ecological/real_ecology_benchmark/privacy.py",
+          "src/tracks/ecological/real_ecology_benchmark/public_models.py",
+          "src/tracks/ecological/real_ecology_benchmark/public_surrogate.py",
+          "src/tracks/ecological/real_ecology_benchmark/realdata.py",
+          "src/tracks/ecological/real_ecology_benchmark/reward.py",
+          "src/tracks/ecological/real_ecology_benchmark/rollout.py",
+          "src/tracks/ecological/real_ecology_benchmark/telemetry.py",
+          "src/tracks/ecological/real_ecology_benchmark/training_monitor.py",
+          "src/tracks/ecological/real_ecology_benchmark/types.py"
+        ]
+      },
+      "general": {
+        "file_count": 55,
+        "sha256": "f90cea6f28dcacb910b5e036bf9e09958715d00a2418fd0856a3d5a12856bdbd",
+        "files": [
+          "src/tracks/general/real_ecology_benchmark/__init__.py",
+          "src/tracks/general/real_ecology_benchmark/__main__.py",
+          "src/tracks/general/real_ecology_benchmark/actions.py",
+          "src/tracks/general/real_ecology_benchmark/backend.py",
+          "src/tracks/general/real_ecology_benchmark/behavior_model.py",
+          "src/tracks/general/real_ecology_benchmark/beliefs.py",
+          "src/tracks/general/real_ecology_benchmark/cli.py",
+          "src/tracks/general/real_ecology_benchmark/collector.py",
+          "src/tracks/general/real_ecology_benchmark/config.py",
+          "src/tracks/general/real_ecology_benchmark/controls.py",
+          "src/tracks/general/real_ecology_benchmark/dataset.py",
+          "src/tracks/general/real_ecology_benchmark/discretize.py",
+          "src/tracks/general/real_ecology_benchmark/dummydata.py",
+          "src/tracks/general/real_ecology_benchmark/dynamics.py",
+          "src/tracks/general/real_ecology_benchmark/envs.py",
+          "src/tracks/general/real_ecology_benchmark/evaluator.py",
+          "src/tracks/general/real_ecology_benchmark/faithful_artifacts.py",
+          "src/tracks/general/real_ecology_benchmark/faithful_ecology.py",
+          "src/tracks/general/real_ecology_benchmark/faithful_fit.py",
+          "src/tracks/general/real_ecology_benchmark/faithful_pomdp.py",
+          "src/tracks/general/real_ecology_benchmark/gate.py",
+          "src/tracks/general/real_ecology_benchmark/general_canary_acceptance.py",
+          "src/tracks/general/real_ecology_benchmark/manifest.py",
+          "src/tracks/general/real_ecology_benchmark/methods/__init__.py",
+          "src/tracks/general/real_ecology_benchmark/methods/bamcts.py",
+          "src/tracks/general/real_ecology_benchmark/methods/base.py",
+          "src/tracks/general/real_ecology_benchmark/methods/delphic.py",
+          "src/tracks/general/real_ecology_benchmark/methods/ensemble_value_disagreement.py",
+          "src/tracks/general/real_ecology_benchmark/methods/moor.py",
+          "src/tracks/general/real_ecology_benchmark/methods/moor_faithful.py",
+          "src/tracks/general/real_ecology_benchmark/methods/moor_native.py",
+          "src/tracks/general/real_ecology_benchmark/methods/mopo.py",
+          "src/tracks/general/real_ecology_benchmark/methods/ogsrl.py",
+          "src/tracks/general/real_ecology_benchmark/methods/plus.py",
+          "src/tracks/general/real_ecology_benchmark/methods/plus_faithful.py",
+          "src/tracks/general/real_ecology_benchmark/methods/plus_native.py",
+          "src/tracks/general/real_ecology_benchmark/methods/refplan.py",
+          "src/tracks/general/real_ecology_benchmark/methods/value.py",
+          "src/tracks/general/real_ecology_benchmark/native_fit.py",
+          "src/tracks/general/real_ecology_benchmark/native_solver.py",
+          "src/tracks/general/real_ecology_benchmark/observation.py",
+          "src/tracks/general/real_ecology_benchmark/pipeline.py",
+          "src/tracks/general/real_ecology_benchmark/planners/__init__.py",
+          "src/tracks/general/real_ecology_benchmark/planners/base.py",
+          "src/tracks/general/real_ecology_benchmark/planners/pbvi.py",
+          "src/tracks/general/real_ecology_benchmark/planning.py",
+          "src/tracks/general/real_ecology_benchmark/privacy.py",
+          "src/tracks/general/real_ecology_benchmark/public_models.py",
+          "src/tracks/general/real_ecology_benchmark/public_surrogate.py",
+          "src/tracks/general/real_ecology_benchmark/realdata.py",
+          "src/tracks/general/real_ecology_benchmark/reward.py",
+          "src/tracks/general/real_ecology_benchmark/rollout.py",
+          "src/tracks/general/real_ecology_benchmark/telemetry.py",
+          "src/tracks/general/real_ecology_benchmark/training_monitor.py",
+          "src/tracks/general/real_ecology_benchmark/types.py"
+        ]
+      }
+    },
+    "dependencies": {
+      "requirements": {
+        "path": "requirements.txt",
+        "sha256": "e3da565735841215d6d987a67278e26ac7b3aba2f5afee0876879ec512f6a2a2"
+      },
+      "pyproject": {
+        "path": "pyproject.toml",
+        "sha256": "032bb9db59b03e73058e5cdeae898fd14c78ecea8802c61b7d38bbf7b8c49fca"
+      },
+      "accepted_python": "3.10.14",
+      "accepted_numpy": "2.2.6",
+      "accepted_torch": "2.13.0+cpu",
+      "accepted_pip_freeze_sha256": "92f510968afa46085b24bd8b5d7c171257997963a7d99623fdcd0e41d760df69"
+    }
+  },
+  "compute": {
+    "per_cell_arm_seconds": {
+      "plus": 15314.56,
+      "moor": 1940.64,
+      "refplan": 52.42,
+      "ogsrl": 430.15,
+      "bamcts": 847.26,
+      "evd": 2.5
+    },
+    "one_cell_one_arm_seconds": 18587.53,
+    "one_cell_one_arm_core_hours": 5.163,
+    "two_cells_two_arms_seconds": 74350.12,
+    "two_cells_two_arms_core_hours": 20.65,
+    "excludes": [
+      "adapter design/development/audit",
+      "truth extraction",
+      "general-method Arm T refits/rebuilds",
+      "PLUS refitting/replanning",
+      "queue and I/O variance"
+    ],
+    "plus_wall_bottleneck_hours_existing_fit": 4.25,
+    "plus_cold_eight_candidate_estimate_hours_per_cell": 2.41,
+    "rule": "Reassess compute after separately authorized I2 component-change results. Any PLUS fit/planning change stops scheduling until measured, registered, audited, and authorized."
+  },
+  "stopping_rules": [
+    "any truth-field leakage or method access to original truth.npz",
+    "any source, public dataset, accepted artifact, fitted artifact, or track hash mismatch",
+    "any public/truth row-count or row-order alignment failure",
+    "any unexpected or missing truth/derived schema key",
+    "any unexpected episode shorter than 25",
+    "any unapproved model, fit, reward, policy, or seed change",
+    "any accepted Arm O parity failure",
+    "any zero/epsilon noise scale or all-zero observation-likelihood path",
+    "inability to preserve required observation/action/timestep history",
+    "inability to distinguish and receipt frozen-fit versus end-to-end arms",
+    "CPU architecture unavailable",
+    "return reconstruction exceeds absolute tolerance 1e-9",
+    "tracked source/config/test change"
+  ],
+  "sealed_predictions": {
+    "path": "SEALED_PREDICTIONS.json",
+    "sha256": "82a7fcb394c80e673ede04c5692db839821b06f23f752076e8cf34bb29da50c3",
+    "opened_after_acceptance_only": true
+  },
+  "authorization": {
+    "i0": "complete and independently verified",
+    "revision_3_1": "independently verified",
+    "i1": "authorized for documentation freeze only",
+    "i2": "not authorized",
+    "truth_extraction": "not authorized",
+    "derived_arm_t_data": "not authorized",
+    "adapters_and_tests": "not authorized",
+    "regression_and_rebaseline": "not authorized",
+    "stage_b": "not authorized",
+    "stage_c": "not authorized",
+    "slurm_jobs_submitted": 0,
+    "accepted_outputs": "untouched",
+    "source_code_tests_configs": "untouched"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "cells": [
+    {
+      "cell": "amur_tiger_allee_sigma_0p2",
+      "keys": [
+        "states",
+        "next_states",
+        "row_index",
+        "episode_id",
+        "timestep"
+      ],
+      "path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs/i2b_fasttrack_integration_canary_20260808/derived_offline_amur_tiger_allee_sigma_0p2.npz",
+      "public_dataset_sha256": "7e71172af4bc95b2c31291414af53371c1ea94393e01675d269b2b7c360324c9",
+      "rows": 4000,
+      "sha256": "37eace7473df7d78e3c0468d902fd971826d7b42c5a0732ca7f3df04f8ed90dc",
+      "truth_sha256": "1658f587cc2b1144362bd90182efce1bd33b65d35c47c1e9dae4320d705b8668",
+      "units": "raw_abundance"
+    },
+    {
+      "cell": "crab_eating_fox_allee_sigma_0p2",
+      "keys": [
+        "states",
+        "next_states",
+        "row_index",
+        "episode_id",
+        "timestep"
+      ],
+      "path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs/i2b_fasttrack_integration_canary_20260808/derived_offline_crab_eating_fox_allee_sigma_0p2.npz",
+      "public_dataset_sha256": "688d580f1e47a61dcad9b8a6cb96f1d62835bfbd0b835554cf31c8ab8bdd0c13",
+      "rows": 4000,
+      "sha256": "2d0d2d11e90bae1539576cbcbd4b20156281bc861bd0fdbb1695529ebd06c920",
+      "truth_sha256": "4149e293d70a59b000a3b947ce663fb3de282fb404cea857f02be00718a467e5",
+      "units": "raw_abundance"
+    }
+  ],
+  "models_fitted_from_derivatives": false,
+  "purpose": "sealed offline allowlisted exact-state derivatives; no runtime future-state file",
+  "runtime_state_interface": {
+    "available_field": "current states[t] only from evaluator at time t",
+    "capability_required": true,
+    "storage": "NONE",
+    "unavailable_fields": [
+      "next_states",
+      "later rows",
+      "private metadata",
+      "evaluator-only fields"
+    ]
+  },
+  "schema_version": "i2b_derived_data_manifest_v1",
+  "sealed": true
+}

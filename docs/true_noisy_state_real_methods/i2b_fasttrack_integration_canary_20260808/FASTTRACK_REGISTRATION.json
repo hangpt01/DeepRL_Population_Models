@@ -1,0 +1,19 @@
+{
+  "schema_version": "i2b_fasttrack_registration_v1",
+  "status": "FROZEN_BEFORE_ARM_O_RETURNS",
+  "primary_estimand": "end-to-end method-bundle robustness to exact-current-state versus noisy-survey information",
+  "cells": ["Amur tiger x Allee x sigma 0.2", "crab-eating fox x Allee x sigma 0.2"],
+  "methods": ["plus_adapted_ricker_only_pbvi", "moor_adapted_ricker_misspec_pbvi", "refplan", "ogsrl", "bamcts", "ensemble_value_disagreement_pessimism"],
+  "arm_o": "registered noisy-survey route",
+  "arm_t": "exact current raw abundance through capability-gated context-preserving external seam; real execution disabled",
+  "model_fit_change_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
+  "controlling_i2a_audit": {"path": "docs/true_noisy_state_real_methods/i2_increment_a_exact_state_adapters_20260808/CLAUDE_I2A_REV1_CORRECTIVE_CODE_AUDIT.md", "sha256": "e62682d3756a39215578c77317b995f88416c9cbea2b581b6f69d4f665541a87", "verdict": "PASS — I2A REVISION 1 VERIFIED; READY FOR BOUNDED I2B-DESIGN AUTHORIZATION"},
+  "revision_3_1_sha256": "701b4509f1dc04b7885891be72e526420ac5558be56bdde2b9628789398fe959",
+  "source_only_hashes": {"ecological_52_files": "2b3b8ae6d2f8ff5ffb17c4885ded9e8f1f6b3c0cb662f393186fe4b4706a884e", "general_55_files": "f90cea6f28dcacb910b5e036bf9e09958715d00a2418fd0856a3d5a12856bdbd"},
+  "synthetic_tests": {"i2a": {"count": 38, "result": "PASS", "external_tmp_root": "/tmp/i2a_fasttrack_tests.msNFre"}, "i2b": {"count": 15, "result": "PASS", "external_tmp_root": "/tmp/i2b_integration_tests.30ohPO"}},
+  "truth_boundary": {"payload_allowlist": ["metadata_json", "states", "next_states"], "metadata_binding_only": true, "forbidden_payload_reads": 0, "runtime_file": false, "method_original_truth_access": false},
+  "arm_t_real_policy_run_authorized": false,
+  "arm_t_returns_authorized": false,
+  "stage_b_interpretation_authorized": false,
+  "stage_c_authorized": false
+}

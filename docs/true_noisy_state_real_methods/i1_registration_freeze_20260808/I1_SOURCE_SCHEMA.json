@@ -1,0 +1,286 @@
+{
+  "schema_version": "i1_truth_source_schema_v1",
+  "registration_id": "method_level_state_information_pilot_i1_20260808",
+  "controlling_plan": {
+    "path": "docs/true_noisy_state_real_methods/DRAFT_METHOD_LEVEL_STATE_INFORMATION_PILOT_PLAN_REV3_1.md",
+    "sha256": "701b4509f1dc04b7885891be72e526420ac5558be56bdde2b9628789398fe959"
+  },
+  "controlling_audit": {
+    "path": "docs/true_noisy_state_real_methods/CLAUDE_REV3_1_CONFIRMATION_AUDIT.md",
+    "sha256": "0f448db89109186aa4bbd64bc000da45ae662386dea79e658bcd802f4880cd17"
+  },
+  "evidence_boundary": {
+    "arrays_opened_by_i1": false,
+    "arrays_extracted_or_copied_by_i1": false,
+    "schema_source": [
+      "CLAUDE_REV3_1_CONFIRMATION_AUDIT.md sections 3, 4, and 6",
+      "src/tracks/general/real_ecology_benchmark/dataset.py source declarations",
+      "src/tracks/general/real_ecology_benchmark/collector.py dtype construction"
+    ]
+  },
+  "source_artifacts": [
+    {
+      "cell_id": "amur_tiger__allee__sigma_0p2",
+      "accepted_cell": "Amur tiger × Allee × sigma 0.2",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/private/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/truth.npz",
+      "sha256": "1658f587cc2b1144362bd90182efce1bd33b65d35c47c1e9dae4320d705b8668",
+      "row_count": 4000,
+      "public_path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/public.npz",
+      "public_file_sha256": "9e9c3a6d4bcee3c27c785f46ce17b66e1c9099c446213f46ebcfa3c3851f771c",
+      "public_dataset_sha256": "7e71172af4bc95b2c31291414af53371c1ea94393e01675d269b2b7c360324c9",
+      "row_alignment": "verified by Claude; 4000/4000 exact row alignment",
+      "next_state_link": "next_states[t] == states[t+1] within episodes at zero tolerance",
+      "state_units": "raw abundance; same units as public observations",
+      "mean_observation_div_state": 1.02142,
+      "mean_next_observation_div_next_state": 1.02131,
+      "theoretical_lognormal_mean_multiplier_sigma_0p2": 1.0202
+    },
+    {
+      "cell_id": "crab_eating_fox__allee__sigma_0p2",
+      "accepted_cell": "Crab-eating fox × Allee × sigma 0.2",
+      "path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/truth.npz",
+      "sha256": "4149e293d70a59b000a3b947ce663fb3de282fb404cea857f02be00718a467e5",
+      "row_count": 4000,
+      "public_path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.npz",
+      "public_file_sha256": "7d1b2fc8a1949dda6f53f39eff1dbfe220719d0cbad9f8956ab7ca2d08e87e19",
+      "public_dataset_sha256": "688d580f1e47a61dcad9b8a6cb96f1d62835bfbd0b835554cf31c8ab8bdd0c13",
+      "row_alignment": "verified by Claude; 4000/4000 exact row alignment",
+      "next_state_link": "next_states[t] == states[t+1] within episodes at zero tolerance",
+      "state_units": "raw abundance; same units as public observations",
+      "mean_observation_div_state": 1.01972,
+      "mean_next_observation_div_next_state": 1.01921,
+      "theoretical_lognormal_mean_multiplier_sigma_0p2": 1.0202
+    }
+  ],
+  "exact_source_key_set": [
+    "C",
+    "entry",
+    "initially_unsafe",
+    "metadata_json",
+    "next_regime",
+    "next_states",
+    "r_base",
+    "r_eff_true",
+    "regime",
+    "reward_true",
+    "safety_penalty_applied",
+    "states",
+    "theta"
+  ],
+  "fields": [
+    {
+      "key": "C",
+      "dtype": "float64",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "hidden Allee depensation threshold",
+      "classification": "forbidden",
+      "permitted_stage": "none in this pilot",
+      "permitted_consumer": "none",
+      "may_exist_in_derived_arm_t": false
+    },
+    {
+      "key": "entry",
+      "dtype": "bool",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "private collapse/safety entry indicator",
+      "classification": "forbidden",
+      "permitted_stage": "none in this pilot",
+      "permitted_consumer": "none",
+      "may_exist_in_derived_arm_t": false
+    },
+    {
+      "key": "initially_unsafe",
+      "dtype": "bool",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "private initial unsafe-status indicator",
+      "classification": "forbidden",
+      "permitted_stage": "none in this pilot",
+      "permitted_consumer": "none",
+      "may_exist_in_derived_arm_t": false
+    },
+    {
+      "key": "metadata_json",
+      "dtype": "NumPy Unicode scalar; exact width is cell-specific",
+      "shape": [],
+      "semantic_role": "private metadata bundle containing environment fields and public_dataset_sha256 binding",
+      "classification": "binding metadata only",
+      "permitted_stage": "future separately authorized external binding verification only",
+      "permitted_consumer": "dedicated external extractor may read only public_dataset_sha256; methods and training pipelines prohibited",
+      "may_exist_in_derived_arm_t": false
+    },
+    {
+      "key": "next_regime",
+      "dtype": "int8",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "private realized next latent-regime identity",
+      "classification": "forbidden",
+      "permitted_stage": "none in this pilot",
+      "permitted_consumer": "none",
+      "may_exist_in_derived_arm_t": false
+    },
+    {
+      "key": "next_states",
+      "dtype": "float64",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "realized next raw abundance; literally future row state within episodes",
+      "classification": "allowlisted conditionally",
+      "permitted_stage": "future separately authorized external extraction for offline one-step model-fitting supervision only where primary end-to-end refitting requires it",
+      "permitted_consumer": "offline fitter through derived overlay only; never methods directly, deployment, action selection, planning root, or frozen-fit diagnostic",
+      "may_exist_in_derived_arm_t": "only in exact one_step_fit overlay"
+    },
+    {
+      "key": "r_base",
+      "dtype": "float64",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "hidden demographic growth parameter",
+      "classification": "forbidden",
+      "permitted_stage": "none in this pilot",
+      "permitted_consumer": "none",
+      "may_exist_in_derived_arm_t": false
+    },
+    {
+      "key": "r_eff_true",
+      "dtype": "float64",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "hidden realized effective growth parameter",
+      "classification": "forbidden",
+      "permitted_stage": "none in this pilot",
+      "permitted_consumer": "none",
+      "may_exist_in_derived_arm_t": false
+    },
+    {
+      "key": "regime",
+      "dtype": "int8",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "private current latent-regime identity",
+      "classification": "forbidden",
+      "permitted_stage": "none in this pilot",
+      "permitted_consumer": "none",
+      "may_exist_in_derived_arm_t": false
+    },
+    {
+      "key": "reward_true",
+      "dtype": "float64",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "private evaluator true reward",
+      "classification": "forbidden",
+      "permitted_stage": "none in this pilot",
+      "permitted_consumer": "none",
+      "may_exist_in_derived_arm_t": false
+    },
+    {
+      "key": "safety_penalty_applied",
+      "dtype": "bool",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "private evaluator safety-penalty indicator",
+      "classification": "forbidden",
+      "permitted_stage": "none in this pilot",
+      "permitted_consumer": "none",
+      "may_exist_in_derived_arm_t": false
+    },
+    {
+      "key": "states",
+      "dtype": "float64",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "current true abundance in raw survey units",
+      "classification": "allowlisted",
+      "permitted_stage": "future separately authorized external extraction",
+      "permitted_consumer": "methods only through derived overlay; original truth.npz direct access prohibited",
+      "may_exist_in_derived_arm_t": true
+    },
+    {
+      "key": "theta",
+      "dtype": "float64",
+      "shape": [
+        4000
+      ],
+      "semantic_role": "hidden demographic shape parameter",
+      "classification": "forbidden",
+      "permitted_stage": "none in this pilot",
+      "permitted_consumer": "none",
+      "may_exist_in_derived_arm_t": false
+    }
+  ],
+  "derived_artifact_schemas": {
+    "state_only_overlay": {
+      "exact_keys": [
+        "states"
+      ],
+      "purpose": "runtime exact-current-state delivery and every frozen-fit/state-input-only diagnostic",
+      "rows": 4000,
+      "joins_to_public": "implicit exact row order; receipt must bind source truth hash, public file hash, public_dataset_sha256, and row-level alignment",
+      "forbidden": "all other keys, including metadata_json and next_states"
+    },
+    "one_step_fit_overlay": {
+      "exact_keys": [
+        "next_states",
+        "states"
+      ],
+      "purpose": "offline one-step supervision only for a primary end-to-end Arm T method that requires refitting",
+      "rows": 4000,
+      "pairing": "same-row states, already-public action, and next_states target only",
+      "runtime_access": false,
+      "forbidden": "all other keys, including metadata_json; next_states forbidden from deployment/action selection/planning roots"
+    },
+    "public_context_join": "Already-public action/context/identity/reward fields remain in immutable public.npz and are joined by exact row order; they are not copied from truth.npz."
+  },
+  "fail_closed_requirements": [
+    "source artifact path and SHA-256 match the registered cell",
+    "archive keys equal exact_source_key_set with no missing or unexpected key",
+    "all row arrays have exactly 4000 rows in exact public order",
+    "all allowlisted numeric values are finite with no NaN",
+    "states and next_states are raw abundance units",
+    "embedded public_dataset_sha256 exactly matches the registered public dataset",
+    "derived overlay keys exactly match one registered derived schema",
+    "next_states is absent from every runtime and frozen-fit overlay",
+    "methods and training pipelines cannot open original truth.npz",
+    "Arm O cannot access either derived overlay"
+  ],
+  "plus_moor_unit_contract": {
+    "truth_units": "raw abundance",
+    "internal_grid_units": "latent fitted-model units",
+    "required_conversion": "latent_state = raw_true_abundance / fitted_model.survey_scale",
+    "prohibited": "snapping raw truth directly to latent grid",
+    "reverse_check": "selected_latent_bin * survey_scale must match the registered raw-state discretisation"
+  },
+  "private_cache_override": {
+    "source_invariant": "src/tracks/general/real_ecology_benchmark/pipeline.py:432",
+    "scope": "only this preregistered diagnostic, two registered pilot cells, Arm T",
+    "external_stage_only": true,
+    "frozen_tracks_modified": false,
+    "original_artifacts_modified": false,
+    "source_and_derived_hashes_required": true,
+    "arm_o_access": false,
+    "method_direct_truth_access": false,
+    "retention_policy": "Retain any future derived overlay read-only in its separately authorized private provenance namespace through independent results audit and final acceptance; access is limited to the external extractor and named auditors. Never publish or move it into a method-visible or Arm O namespace. Destroy only under a separately recorded user authorization, while retaining non-sensitive hashes and receipts."
+  },
+  "authorization": {
+    "i1_schema_transcription_only": true,
+    "truth_arrays_read_by_i1": false,
+    "truth_extraction_authorized": false,
+    "derived_artifact_creation_authorized": false,
+    "i2_authorized": false
+  }
+}

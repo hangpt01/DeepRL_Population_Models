@@ -1,0 +1,113 @@
+{
+  "schema_version": "i2b_arm_t_sigma02_tasks_v1",
+  "task_count": 12,
+  "output_namespace": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs/i2b_stageb_arm_t_sigma02_20260809",
+  "common": {
+    "arm": "T",
+    "sigma": 0.2,
+    "environment": "allee",
+    "offline_rows": 4000,
+    "episodes": 160,
+    "episode_length": 25,
+    "evaluation_seeds": [7001, 7002, 7003, 7004, 7051, 7052, 7053, 7054, 7101, 7102, 7103, 7104, 7151, 7152, 7153, 7154, 7201, 7202, 7203, 7204],
+    "horizon": 50,
+    "discount": 0.95,
+    "actions": 11,
+    "cpu": "Intel Xeon Platinum 8452Y",
+    "slurm_constraint": "xenon-8452Y",
+    "runtime_information": "current exact raw abundance only through capability-gated context-preserving filter/policy seam",
+    "runtime_forbidden": ["original truth.npz", "next_states", "later rows", "hidden family", "hidden parameters", "safety threshold", "evaluator reward fields", "realized future state", "regime", "other private fields"],
+    "real_original_truth_archive_access": false,
+    "interpretation_status": "PROVISIONAL — NOT YET INDEPENDENTLY AUDITED"
+  },
+  "cell_inputs": {
+    "tiger": {
+      "base_arm_o_indices": [0, 1, 2, 3, 4, 5],
+      "public_root": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs/i2b_fasttrack_integration_canary_20260808/arm_o_shared_inputs/amur_tiger",
+      "derived_offline_path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs/i2b_fasttrack_integration_canary_20260808/derived_offline_amur_tiger_allee_sigma_0p2.npz",
+      "derived_offline_sha256": "37eace7473df7d78e3c0468d902fd971826d7b42c5a0732ca7f3df04f8ed90dc"
+    },
+    "fox": {
+      "base_arm_o_indices": [6, 7, 8, 9, 10, 11],
+      "public_root": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs/i2b_fasttrack_integration_canary_20260808/arm_o_shared_inputs/crab_eating_fox",
+      "derived_offline_path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs/i2b_fasttrack_integration_canary_20260808/derived_offline_crab_eating_fox_allee_sigma_0p2.npz",
+      "derived_offline_sha256": "2d0d2d11e90bae1539576cbcbd4b20156281bc861bd0fdbb1695529ebd06c920"
+    }
+  },
+  "method_specs": {
+    "plus_adapted_ricker_only_pbvi": {
+      "training_route": "registered noisy public offline data and byte-identical copied Ricker fit cache",
+      "runtime_route": "direct point mass in each fitted latent grid after raw_abundance/survey_scale conversion; noisy likelihood observe suppressed",
+      "family_information": "Ricker only; true Allee family/parameters unavailable",
+      "learned_artifact_change": false,
+      "formal_frozen_fit_label": "UNRESOLVED because accepted PBVI policy was not serialized; no frozen-fit claim",
+      "interpreter": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/.venv-paper-faithful/bin/python",
+      "expected_accepted_runtime_seconds": 15222,
+      "time_limit": "12:00:00"
+    },
+    "moor_adapted_ricker_misspec_pbvi": {
+      "training_route": "registered noisy public offline data and byte-identical copied single Ricker fit cache",
+      "runtime_route": "direct point mass in fitted latent grid after raw_abundance/survey_scale conversion; noisy likelihood observe suppressed",
+      "family_information": "Ricker only; true Allee family/parameters unavailable",
+      "learned_artifact_change": false,
+      "formal_frozen_fit_label": "UNRESOLVED because accepted PBVI policy was not serialized; no frozen-fit claim",
+      "interpreter": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/.venv-paper-faithful/bin/python",
+      "expected_accepted_runtime_seconds": 1954,
+      "time_limit": "12:00:00"
+    },
+    "refplan": {
+      "training_route": "allowlisted exact states/next_states overlay plus context-preserving exact belief features; refit dynamics, posterior, surrogate and behavior prior",
+      "runtime_route": "exact current state particles with noisy public previous/current observation and timestep contexts preserved; posterior target is current exact successor state",
+      "learned_artifact_change": true,
+      "label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
+      "required_receipt": "per-member residual_sigma and posterior-sharpness disclosure including retained I2A SD mismatch",
+      "interpreter": "/usr/bin/python",
+      "expected_accepted_runtime_seconds": 220,
+      "time_limit": "12:00:00"
+    },
+    "ogsrl": {
+      "training_route": "allowlisted exact states/next_states overlay plus context-preserving exact belief features; refit dynamics, exact-state surrogate, guardian, safety calibration and actor",
+      "runtime_route": "exact current state particles with noisy public contexts preserved",
+      "learned_artifact_change": true,
+      "label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
+      "required_receipt": "safety budget, low-abundance scale and calibration rebuilt from exact-state offline overlay",
+      "interpreter": "/usr/bin/python",
+      "expected_accepted_runtime_seconds": 545,
+      "time_limit": "12:00:00"
+    },
+    "bamcts": {
+      "training_route": "allowlisted exact states/next_states overlay plus context-preserving exact belief features; refit dynamics, posterior and surrogate",
+      "runtime_route": "exact current search-root particles with noisy public previous/current observation and timestep contexts preserved; posterior target is current exact successor state",
+      "learned_artifact_change": true,
+      "label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
+      "required_receipt": "per-member residual_sigma and model-posterior sharpness",
+      "interpreter": "/usr/bin/python",
+      "expected_accepted_runtime_seconds": 956,
+      "time_limit": "12:00:00"
+    },
+    "ensemble_value_disagreement_pessimism": {
+      "training_route": "allowlisted exact feature overlay joined to immutable public actions and raw logged rewards; retrain behavior reference and 20 Q members",
+      "runtime_route": "exact current state features with noisy public contexts preserved",
+      "learned_artifact_change": true,
+      "label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
+      "objective": "raw logged rewards; separately labelled",
+      "interpreter": "/usr/bin/python",
+      "expected_accepted_runtime_seconds": 4,
+      "time_limit": "12:00:00"
+    }
+  },
+  "tasks": [
+    {"index": 0, "cell": "tiger", "method": "plus_adapted_ricker_only_pbvi"},
+    {"index": 1, "cell": "tiger", "method": "moor_adapted_ricker_misspec_pbvi"},
+    {"index": 2, "cell": "tiger", "method": "refplan"},
+    {"index": 3, "cell": "tiger", "method": "ogsrl"},
+    {"index": 4, "cell": "tiger", "method": "bamcts"},
+    {"index": 5, "cell": "tiger", "method": "ensemble_value_disagreement_pessimism"},
+    {"index": 6, "cell": "fox", "method": "plus_adapted_ricker_only_pbvi"},
+    {"index": 7, "cell": "fox", "method": "moor_adapted_ricker_misspec_pbvi"},
+    {"index": 8, "cell": "fox", "method": "refplan"},
+    {"index": 9, "cell": "fox", "method": "ogsrl"},
+    {"index": 10, "cell": "fox", "method": "bamcts"},
+    {"index": 11, "cell": "fox", "method": "ensemble_value_disagreement_pessimism"}
+  ]
+}

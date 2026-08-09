@@ -1,0 +1,99 @@
+{
+  "access_policy": {
+    "forbidden_truth_payloads": [
+      "C",
+      "entry",
+      "initially_unsafe",
+      "next_regime",
+      "r_base",
+      "r_eff_true",
+      "regime",
+      "reward_true",
+      "safety_penalty_applied",
+      "theta"
+    ],
+    "metadata_use": "public_dataset_sha256 binding only; never emitted",
+    "method_truth_archive_access": false,
+    "next_states_use": "same-row offline one-step fitting target only",
+    "runtime_next_state_storage": false,
+    "states_use": "offline current-state fitting input",
+    "truth_payload_allowlist": [
+      "metadata_json",
+      "states",
+      "next_states"
+    ]
+  },
+  "cells": [
+    {
+      "alignment": "PASS_ZERO_TOLERANCE",
+      "cell": "amur_tiger_allee_sigma_0p2",
+      "derived_keys": [
+        "states",
+        "next_states",
+        "row_index",
+        "episode_id",
+        "timestep"
+      ],
+      "derived_path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs/i2b_fasttrack_integration_canary_20260808/derived_offline_amur_tiger_allee_sigma_0p2.npz",
+      "derived_sha256": "37eace7473df7d78e3c0468d902fd971826d7b42c5a0732ca7f3df04f8ed90dc",
+      "episode_length": 25,
+      "episodes": 160,
+      "forbidden_truth_payload_bytes_read": 0,
+      "forbidden_truth_payload_fields_materialized": [],
+      "metadata_entered_derived_artifact": false,
+      "metadata_keys_returned": [
+        "public_dataset_sha256"
+      ],
+      "public_dataset_sha256": "7e71172af4bc95b2c31291414af53371c1ea94393e01675d269b2b7c360324c9",
+      "public_file_sha256": "9e9c3a6d4bcee3c27c785f46ce17b66e1c9099c446213f46ebcfa3c3851f771c",
+      "public_path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/public.npz",
+      "rows": 4000,
+      "runtime_artifact_created": false,
+      "truth_path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/private/regime_hidden/reward_safe/amur_tiger/allee/sigma_0p2/truth.npz",
+      "truth_payload_fields_materialized": [
+        "metadata_json",
+        "states",
+        "next_states"
+      ],
+      "truth_sha256": "1658f587cc2b1144362bd90182efce1bd33b65d35c47c1e9dae4320d705b8668",
+      "units": "raw_abundance"
+    },
+    {
+      "alignment": "PASS_ZERO_TOLERANCE",
+      "cell": "crab_eating_fox_allee_sigma_0p2",
+      "derived_keys": [
+        "states",
+        "next_states",
+        "row_index",
+        "episode_id",
+        "timestep"
+      ],
+      "derived_path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs/i2b_fasttrack_integration_canary_20260808/derived_offline_crab_eating_fox_allee_sigma_0p2.npz",
+      "derived_sha256": "2d0d2d11e90bae1539576cbcbd4b20156281bc861bd0fdbb1695529ebd06c920",
+      "episode_length": 25,
+      "episodes": 160,
+      "forbidden_truth_payload_bytes_read": 0,
+      "forbidden_truth_payload_fields_materialized": [],
+      "metadata_entered_derived_artifact": false,
+      "metadata_keys_returned": [
+        "public_dataset_sha256"
+      ],
+      "public_dataset_sha256": "688d580f1e47a61dcad9b8a6cb96f1d62835bfbd0b835554cf31c8ab8bdd0c13",
+      "public_file_sha256": "7d1b2fc8a1949dda6f53f39eff1dbfe220719d0cbad9f8956ab7ca2d08e87e19",
+      "public_path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/datasets/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/public.npz",
+      "rows": 4000,
+      "runtime_artifact_created": false,
+      "truth_path": "/fs04/scratch2/ce25/general_rl_phase2_iso/real_ecology_runs/general_phase2e_full_sigma01_02_20260720_v1/quarantine/private/regime_hidden/reward_safe/crab_eating_fox/allee/sigma_0p2/truth.npz",
+      "truth_payload_fields_materialized": [
+        "metadata_json",
+        "states",
+        "next_states"
+      ],
+      "truth_sha256": "4149e293d70a59b000a3b947ce663fb3de282fb404cea857f02be00718a467e5",
+      "units": "raw_abundance"
+    }
+  ],
+  "overall_result": "PASS",
+  "schema_version": "i2b_truth_extraction_receipt_v1",
+  "stage": "I2B_FASTTRACK"
+}

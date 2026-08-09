@@ -1,0 +1,78 @@
+{
+  "schema_version": "i1_sealed_qualitative_predictions_v1",
+  "registration_id": "method_level_state_information_pilot_i1_20260808",
+  "sealed_before_returns_opened": true,
+  "numerical_results_invented": false,
+  "scope": {
+    "cells": [
+      "Amur tiger × Allee × sigma 0.2",
+      "Crab-eating fox × Allee × sigma 0.2"
+    ],
+    "methods": [
+      "adapted PLUS",
+      "adapted MOOR",
+      "RefPlan-inspired",
+      "OGSRL-inspired",
+      "BA-MCTS-inspired",
+      "EVD pessimism"
+    ],
+    "stage_b_sigma_0p2_only": true,
+    "stage_c_included": false
+  },
+  "predictions": [
+    {
+      "id": "P1",
+      "statement": "Tiger adapted PLUS and adapted MOOR may remain non-discriminating because their accepted noisy-arm policies were constant action 10.",
+      "interpretation_rule": "A zero or small information loss from a constant policy is not evidence of robust state inference."
+    },
+    {
+      "id": "P2",
+      "statement": "Fox × Allee × sigma 0.2 is the intended ecological-method activity check; accepted adapted PLUS and MOOR are decision-active with positive fixed-action headroom.",
+      "interpretation_rule": "Ecological state-information comparisons require renewed activity and adaptive headroom in the registered arms."
+    },
+    {
+      "id": "P3",
+      "statement": "RefPlan-inspired is the decisive control for whether its partial observation-likelihood and history-conditioned public representation is sufficient.",
+      "interpretation_rule": "RefPlan must not be grouped mechanically with the other general methods."
+    },
+    {
+      "id": "P4",
+      "statement": "Stronger paired raw loss for OGSRL-inspired and BA-MCTS-inspired than for RefPlan-inspired would support the importance of observation-aware preprocessing, but would not by itself establish the need for a new architecture.",
+      "interpretation_rule": "Model fitting, posterior sharpness, safety calibration, reward approximation, and planner differences remain bundled."
+    },
+    {
+      "id": "P5",
+      "statement": "If RefPlan-inspired degrades similarly to the other general methods while decision-active ecological methods remain robust, a calibrated recursive latent-state representation becomes a stronger candidate mechanism.",
+      "interpretation_rule": "This motivates, but does not causally prove, a latent-state architecture."
+    },
+    {
+      "id": "P6",
+      "statement": "Poor performance under true-state Arm T redirects interpretation toward transition-model fit, reward surrogate, planning, safety formulation, or policy limitations rather than state information.",
+      "interpretation_rule": "Do not attribute poor true-state performance to hidden-state uncertainty."
+    },
+    {
+      "id": "P7",
+      "statement": "Any non-identical fitted-artifact hash or residual_sigma value between arms restricts the result to an end-to-end method-bundle interpretation.",
+      "interpretation_rule": "Apply label MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY; no small-change exception."
+    },
+    {
+      "id": "P8",
+      "statement": "No causal state-representation claim is available from this pilot.",
+      "interpretation_rule": "A causal mechanism claim requires a separately registered matched-fit experiment outside this pilot."
+    }
+  ],
+  "tiered_outcomes": {
+    "ecological_state_belief_advantage": "Cannot be established from sigma 0.2 screening alone; it additionally requires decision-active ecological methods and confirmation at sigma 0.1 under a separately authorized Stage C.",
+    "refplan_sufficient": "RefPlan robustness comparable to active ecological methods and better than OGSRL/BA-MCTS/EVD would suggest its model-identity likelihood plus public history captures much of the gap.",
+    "broader_belief_limitation": "Active ecological robustness with similar degradation across RefPlan and other general methods would motivate calibrated recursive latent-abundance belief.",
+    "non_state_limitation": "Poor Arm T performance points to transition, reward, planner, support, safety, or policy limitations.",
+    "non_discriminating": "Constant actions, absent headroom, saturation, parity failure, leakage, uncontrolled component changes, or a zero-noise likelihood route prevent a state-representation conclusion."
+  },
+  "reporting_constraints": [
+    "paired raw loss is primary within method and cell",
+    "do not pool, average, or quantitatively rank fox and tiger losses",
+    "cross-cell synthesis is limited to sign, within-cell ordering, activity classification, and interpretation category",
+    "EVD is reported separately because its raw logged-reward objective is unmatched to the other five",
+    "sigma 0.2 is screening only and Stage C is absent"
+  ]
+}

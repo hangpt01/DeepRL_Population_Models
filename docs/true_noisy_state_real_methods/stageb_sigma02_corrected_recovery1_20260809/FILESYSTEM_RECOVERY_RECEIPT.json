@@ -1,0 +1,139 @@
+{
+  "schema_version": "stageb_sigma02_filesystem_recovery_receipt_v1",
+  "recovery_id": "stageb_sigma02_corrected_recovery1_20260809",
+  "failed_attempt": {
+    "documentation_namespace": "docs/true_noisy_state_real_methods/stageb_sigma02_corrected_20260809",
+    "output_namespace": "outputs/stageb_sigma02_corrected_20260809",
+    "failure_text": "Cannot send after transport endpoint shutdown",
+    "failure_entry_mtime_local": "2026-08-09T12:22:56+10:00",
+    "registration_frozen": false,
+    "corrected_returns_generated": false,
+    "slurm_jobs_submitted": false,
+    "trusted_or_reused": false,
+    "inventory": [
+      {
+        "path": "docs/true_noisy_state_real_methods/stageb_sigma02_corrected_20260809/corrected_common.py",
+        "bytes": 33996,
+        "sha256": "7d821663669551af6961e589039cfbc694a62bdf2ba69c18d1d13f1af8603e24",
+        "status": "readable_quarantined"
+      },
+      {
+        "path": "docs/true_noisy_state_real_methods/stageb_sigma02_corrected_20260809/run_corrected_task.py",
+        "bytes": 29401,
+        "sha256": "be2dadbaf3032b10558f0dcb9febd391e4788351323b2197ace5e92196719dff",
+        "status": "readable_quarantined"
+      },
+      {
+        "path": "docs/true_noisy_state_real_methods/stageb_sigma02_corrected_20260809/corrected_arm_o_gate.py",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "formerly_unreadable_partial_entry_later_stat_succeeded_regular_empty_never_opened"
+      },
+      {
+        "path": "outputs/stageb_sigma02_corrected_20260809/matched_surrogates/tiger_public_arm_o_surrogate.npz",
+        "bytes": 2725,
+        "sha256": "be0f835b7f0a9e8c3c63ca681998acc900678b08776bc6277b50bdfdd4d5da7c",
+        "status": "readable_quarantined"
+      },
+      {
+        "path": "outputs/stageb_sigma02_corrected_20260809/matched_surrogates/fox_public_arm_o_surrogate.npz",
+        "bytes": 2736,
+        "sha256": "4d9305a94509e2bb4eacd4b25b8ac4ba138a29e269dd240eba81684b1ecc7a4b",
+        "status": "readable_quarantined"
+      }
+    ]
+  },
+  "scheduler_prewrite_gate": {
+    "squeue_empty": true,
+    "sacct_start_date": "2026-08-09",
+    "corrected_job_name_matches": [],
+    "corrected_dependency_receipts": [],
+    "earlier_exploratory_i2b_jobs_excluded": true,
+    "conclusion": "no job from the failed corrected attempt was submitted"
+  },
+  "probes": [
+    {
+      "check": 1,
+      "checked_unix": 1786243269.6742206,
+      "marker_bytes": 47,
+      "sha256": "ccf1ac00cda1d66cf48bf011526b1cd132f9c38650dbf6f5d5bf41f716a314d2",
+      "parents": [
+        {
+          "path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/docs/true_noisy_state_real_methods",
+          "device": 3098944154,
+          "inode": 180148140559600473,
+          "fsync_close": true,
+          "exact_readback": true,
+          "removed": true
+        },
+        {
+          "path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs",
+          "device": 3098944154,
+          "inode": 1062854922577383871,
+          "fsync_close": true,
+          "exact_readback": true,
+          "removed": true
+        }
+      ]
+    },
+    {
+      "check": 2,
+      "checked_unix": 1786243589.3452623,
+      "marker_bytes": 47,
+      "sha256": "d142c3ac6c9ddb412b54a4a791b52bd4637e4314b53c16e3f8cc856b7bdefefe",
+      "approximately_five_minutes_after_prior": true,
+      "parents": [
+        {
+          "path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/docs/true_noisy_state_real_methods",
+          "device": 3098944154,
+          "inode": 180148140559600473,
+          "fsync_close": true,
+          "exact_readback": true,
+          "removed": true
+        },
+        {
+          "path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs",
+          "device": 3098944154,
+          "inode": 1062854922577383871,
+          "fsync_close": true,
+          "exact_readback": true,
+          "removed": true
+        }
+      ]
+    },
+    {
+      "check": 3,
+      "checked_unix": 1786243911.6058536,
+      "marker_bytes": 47,
+      "sha256": "5a600392ef6fcca16ee8c0144109f5d7b5d0966f9b9241e8ec0e4dc63ed4d6e3",
+      "approximately_five_minutes_after_prior": true,
+      "parents": [
+        {
+          "path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/docs/true_noisy_state_real_methods",
+          "device": 3098944154,
+          "inode": 180148140559600473,
+          "fsync_close": true,
+          "exact_readback": true,
+          "removed": true
+        },
+        {
+          "path": "/home/hphung/ce25_scratch2/DeepRL_Population_Models/outputs",
+          "device": 3098944154,
+          "inode": 1062854922577383871,
+          "fsync_close": true,
+          "exact_readback": true,
+          "removed": true
+        }
+      ]
+    }
+  ],
+  "recovery_namespaces": {
+    "documentation": "docs/true_noisy_state_real_methods/stageb_sigma02_corrected_recovery1_20260809",
+    "output": "outputs/stageb_sigma02_corrected_recovery1_20260809",
+    "collision_before_creation": false
+  },
+  "partial_implementation_artifacts_trusted_or_reused": false,
+  "filesystem_repair_attempted": false,
+  "git_repair_attempted": false,
+  "overall_result": "PASS"
+}

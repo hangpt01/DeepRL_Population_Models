@@ -1,0 +1,73 @@
+{
+  "schema_version": "i2b_component_change_receipts_v1",
+  "primary_label_rule": "Any changed learned artifact or residual_sigma emits MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
+  "arm_o": {
+    "all_methods": {
+      "offline_inputs": "registered public.npz byte-identical copy",
+      "state_route": "registered noisy-survey route",
+      "derived_truth_access": false,
+      "scientific_components_changed": [],
+      "purpose": "technical regression/parity canary only"
+    }
+  },
+  "arm_t_future_not_executed": {
+    "plus_adapted_ricker_only_pbvi": {
+      "offline_inputs": "states/next_states allowlisted derivative for end-to-end fitting only",
+      "transition_model": "refit for primary; byte-identical reuse potentially eligible only for optional frozen-fit diagnostic",
+      "reward_surrogate": "refit for primary; identity required if frozen diagnostic claimed",
+      "policy": "refit/rebuild for primary; eight PBVI identities required if frozen diagnostic claimed",
+      "runtime_state": "direct one-hot assignment for each candidate after raw/survey_scale conversion",
+      "action_selection": "existing act seam after assignment",
+      "expected_compute": "dominant; eight candidate fit risk plus PBVI planning",
+      "primary_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY"
+    },
+    "moor_adapted_ricker_misspec_pbvi": {
+      "offline_inputs": "states/next_states derivative for end-to-end fitting",
+      "transition_model": "refit for primary; optional byte-identical reuse technically possible",
+      "reward_surrogate": "refit for primary",
+      "policy": "refit/rebuild PBVI for primary",
+      "runtime_state": "direct one-hot assignment after raw/survey_scale conversion",
+      "expected_compute": "one fitted Ricker candidate plus PBVI planning",
+      "primary_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY"
+    },
+    "refplan": {
+      "offline_inputs": "exact current/next raw state derivative for end-to-end refit",
+      "preprocessor_and_features": "rebuilt; existing SD train/runtime mismatch remains disclosed",
+      "dynamics_and_residual_sigma": "refit and report each Arm O/T value, difference, ratio and posterior sharpness",
+      "reward_surrogate": "refit",
+      "policy": "refit behavior prior/planning artifacts",
+      "runtime_state": "exact current particles with contexts/history intact",
+      "optional_diagnostic": "eligible only after complete byte/bit equality across every applicable axis",
+      "primary_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY"
+    },
+    "ogsrl": {
+      "offline_inputs": "exact current/next raw state derivative",
+      "preprocessor_and_features": "rebuilt",
+      "dynamics_and_residual_sigma": "refit",
+      "reward_surrogate": "refit",
+      "safety_calibration": "rebuild from exact-state training view; receipt safety budget/low-abundance scale and do not silently reuse",
+      "policy": "retrain actor/dual",
+      "runtime_state": "exact current particles with contexts/history intact",
+      "primary_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY"
+    },
+    "bamcts": {
+      "offline_inputs": "exact current/next raw state derivative",
+      "preprocessor_and_features": "rebuilt",
+      "dynamics_and_residual_sigma": "refit; report posterior entropy/sharpness",
+      "reward_surrogate": "refit",
+      "policy": "rebuild root posterior/planner artifacts",
+      "runtime_state": "exact current particles with prior observation/action context intact",
+      "primary_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY"
+    },
+    "ensemble_value_disagreement_pessimism": {
+      "offline_inputs": "exact current/next feature view joined to public raw logged rewards",
+      "preprocessor_and_features": "rebuilt",
+      "transition_model_and_residual_sigma": "DEFINITIONALLY_NOT_APPLICABLE",
+      "reward_surrogate": "DEFINITIONALLY_NOT_APPLICABLE; uses raw logged rewards",
+      "policy": "retrain 20 Q members and behavior reference",
+      "runtime_state": "exact current particles with context intact",
+      "reporting": "separate objective status retained",
+      "primary_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY"
+    }
+  }
+}

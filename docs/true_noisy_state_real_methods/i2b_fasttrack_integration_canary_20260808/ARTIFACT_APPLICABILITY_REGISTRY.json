@@ -1,0 +1,72 @@
+{
+  "schema_version": "i2b_artifact_applicability_v1",
+  "axis_order": ["preprocessor", "feature_fit", "dynamics_fit", "residual_sigma", "surrogate", "reward_model", "safety_calibration", "ensemble", "policy"],
+  "status_rules": {
+    "APPLICABLE": "A real 64-hex identity (or bit-exact residual value identity) is mandatory before frozen equality can be claimed.",
+    "DEFINITIONALLY_NOT_APPLICABLE": "Source-backed absence; no digest is permitted.",
+    "UNRESOLVED": "Frozen-fit eligibility is false. No digest is permitted."
+  },
+  "changed_axis_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
+  "frozen_equality_claimed": false,
+  "methods": {
+    "plus_adapted_ricker_only_pbvi": {
+      "optional_frozen_fit_technically_eligible": true,
+      "currently_frozen_fit_eligible": false,
+      "axes": {
+        "preprocessor": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "faithful policy consumes its fitted POMDP/internal belief, not a fitted public feature preprocessor"},
+        "feature_fit": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no separate learned feature fit in plus_faithful.py"},
+        "dynamics_fit": {"status": "APPLICABLE", "sha256": null, "evidence": "eight fitted Ricker CandidatePOMDP models"},
+        "residual_sigma": {"status": "APPLICABLE", "sha256": null, "identity_type": "bit-exact per-candidate value"},
+        "surrogate": {"status": "APPLICABLE", "sha256": null, "evidence": "shared public reward/risk surrogate in hidden method context"},
+        "reward_model": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no distinct reward model beyond shared surrogate"},
+        "safety_calibration": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no separate learned safety calibrator"},
+        "ensemble": {"status": "APPLICABLE", "sha256": null, "evidence": "eight-candidate bank identity"},
+        "policy": {"status": "APPLICABLE", "sha256": null, "evidence": "eight PBVI planners/value artifacts"}
+      }
+    },
+    "moor_adapted_ricker_misspec_pbvi": {
+      "optional_frozen_fit_technically_eligible": true,
+      "currently_frozen_fit_eligible": false,
+      "axes": {
+        "preprocessor": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "faithful internal POMDP route"},
+        "feature_fit": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no separate feature fit"},
+        "dynamics_fit": {"status": "APPLICABLE", "sha256": null},
+        "residual_sigma": {"status": "APPLICABLE", "sha256": null, "identity_type": "bit-exact value"},
+        "surrogate": {"status": "APPLICABLE", "sha256": null},
+        "reward_model": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no distinct reward model"},
+        "safety_calibration": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no learned safety calibrator"},
+        "ensemble": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "single fitted Ricker POMDP"},
+        "policy": {"status": "APPLICABLE", "sha256": null, "evidence": "PBVI value/policy artifact"}
+      }
+    },
+    "refplan": {
+      "optional_frozen_fit_technically_eligible": true,
+      "currently_frozen_fit_eligible": false,
+      "axes": {
+        "preprocessor": {"status": "APPLICABLE", "sha256": null}, "feature_fit": {"status": "APPLICABLE", "sha256": null}, "dynamics_fit": {"status": "APPLICABLE", "sha256": null}, "residual_sigma": {"status": "APPLICABLE", "sha256": null, "identity_type": "bit-exact per-member values"}, "surrogate": {"status": "APPLICABLE", "sha256": null}, "reward_model": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no distinct reward model beyond shared surrogate"}, "safety_calibration": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no separate safety calibration"}, "ensemble": {"status": "APPLICABLE", "sha256": null, "evidence": "public dynamics ensemble/posterior"}, "policy": {"status": "APPLICABLE", "sha256": null, "evidence": "behavior prior plus public particle planner parameters"}
+      }
+    },
+    "ogsrl": {
+      "optional_frozen_fit_technically_eligible": false,
+      "currently_frozen_fit_eligible": false,
+      "axes": {
+        "preprocessor": {"status": "APPLICABLE", "sha256": null}, "feature_fit": {"status": "APPLICABLE", "sha256": null}, "dynamics_fit": {"status": "APPLICABLE", "sha256": null}, "residual_sigma": {"status": "APPLICABLE", "sha256": null, "identity_type": "bit-exact per-member values"}, "surrogate": {"status": "APPLICABLE", "sha256": null}, "reward_model": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no distinct reward model beyond shared surrogate"}, "safety_calibration": {"status": "APPLICABLE", "sha256": null, "evidence": "KNN guardian, low-abundance scale and dataset-derived safety budget"}, "ensemble": {"status": "APPLICABLE", "sha256": null, "evidence": "public dynamics ensemble"}, "policy": {"status": "APPLICABLE", "sha256": null, "evidence": "trained actor and dual parameters"}
+      }
+    },
+    "bamcts": {
+      "optional_frozen_fit_technically_eligible": false,
+      "currently_frozen_fit_eligible": false,
+      "axes": {
+        "preprocessor": {"status": "APPLICABLE", "sha256": null}, "feature_fit": {"status": "APPLICABLE", "sha256": null}, "dynamics_fit": {"status": "APPLICABLE", "sha256": null}, "residual_sigma": {"status": "APPLICABLE", "sha256": null, "identity_type": "bit-exact per-member values"}, "surrogate": {"status": "APPLICABLE", "sha256": null}, "reward_model": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no distinct reward model beyond shared surrogate"}, "safety_calibration": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no separate learned safety calibrator"}, "ensemble": {"status": "APPLICABLE", "sha256": null, "evidence": "public dynamics ensemble and model posterior"}, "policy": {"status": "APPLICABLE", "sha256": null, "evidence": "MCTS planner settings and posterior state"}
+      }
+    },
+    "ensemble_value_disagreement_pessimism": {
+      "optional_frozen_fit_technically_eligible": false,
+      "currently_frozen_fit_eligible": false,
+      "separate_objective": "raw logged rewards",
+      "axes": {
+        "preprocessor": {"status": "APPLICABLE", "sha256": null}, "feature_fit": {"status": "APPLICABLE", "sha256": null}, "dynamics_fit": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "EVD does not fit a transition model"}, "residual_sigma": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no transition model"}, "surrogate": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "EVD trains on raw logged rewards"}, "reward_model": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no fitted reward model"}, "safety_calibration": {"status": "DEFINITIONALLY_NOT_APPLICABLE", "sha256": null, "evidence": "no separate safety calibrator"}, "ensemble": {"status": "APPLICABLE", "sha256": null, "evidence": "20 fitted Q members"}, "policy": {"status": "APPLICABLE", "sha256": null, "evidence": "behavior reference and pessimistic action selector"}
+      }
+    }
+  }
+}

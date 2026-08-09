@@ -1,0 +1,427 @@
+{
+  "schema_version": "i1_zero_sd_rule_addendum_v1",
+  "registration_id": "method_level_state_information_pilot_i1_20260808",
+  "date": "2026-08-08",
+  "timezone": "Australia/Melbourne",
+  "status": "addendum; supplements and does not overwrite the frozen I1 registration",
+  "purpose": "close only the constant/near-zero feature-transformation blocker",
+  "controlling_documents": {
+    "revision_3_1_plan": {
+      "path": "docs/true_noisy_state_real_methods/DRAFT_METHOD_LEVEL_STATE_INFORMATION_PILOT_PLAN_REV3_1.md",
+      "sha256": "701b4509f1dc04b7885891be72e526420ac5558be56bdde2b9628789398fe959"
+    },
+    "claude_i1_readonly_audit": {
+      "path": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808/CLAUDE_I1_READONLY_AUDIT.md",
+      "sha256": "bebf0d14b327b159fde9db30fc079d878765f25b10ab0f3529a7a7a01698471a"
+    },
+    "claude_zero_sd_rule_memo": {
+      "path": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808/CLAUDE_ZERO_SD_RULE_MEMO.md",
+      "sha256": "2cbd27fbe39bdd5bd415f74eca1e80f84a74cfb85778263831088f0ae18792c4",
+      "authority": "authoritative technical source"
+    },
+    "original_i1_artifacts": [
+      {
+        "path": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808/I1_REGISTRATION.md",
+        "sha256": "d877fbcf74db7b2a0005d74e19f168e52de9b60ee3df613646e3017d21acb4f3"
+      },
+      {
+        "path": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808/I1_REGISTRATION.json",
+        "sha256": "d4a9b99af333ffc26bc681a7283447680230ad010f0d23b7c496f4edb66e28ff"
+      },
+      {
+        "path": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808/SEALED_PREDICTIONS.json",
+        "sha256": "82a7fcb394c80e673ede04c5692db839821b06f23f752076e8cf34bb29da50c3"
+      },
+      {
+        "path": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808/I1_SOURCE_SCHEMA.json",
+        "sha256": "4de0b45f347576d82465c9590c9caf98646cecb2d3c3d4afac07cfca414c20bc"
+      },
+      {
+        "path": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808/I1_HASHES.sha256",
+        "sha256": "5c483370c35eebab21348a8b1a24e84e5f1cdc63b8a4f9f029251e37cff13b27"
+      },
+      {
+        "path": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808/I1_FREEZE_REPORT.md",
+        "sha256": "e335019a6db7e4bebb02923d1f44e0f554fa22ac831c8cba5f65c9e9ea2201a3"
+      }
+    ]
+  },
+  "feature_schema": {
+    "source": "src/tracks/general/real_ecology_benchmark/types.py:121-151",
+    "dtype": "numpy.float64",
+    "indexing": "zero-based",
+    "column_order": [
+      "mean",
+      "sd",
+      "q10",
+      "q50",
+      "q90",
+      "extinct",
+      "ctx_prev_obs",
+      "ctx_obs",
+      "ctx_t",
+      "ess_frac"
+    ],
+    "affected_column": {
+      "index": 1,
+      "name": "sd",
+      "role": "abundance-belief standard deviation in log1p feature space"
+    },
+    "preserve_order": true,
+    "drop_merge_jitter_reorder_or_silent_reconstruction_permitted": false
+  },
+  "measured_facts": {
+    "arm_t_sd_exactly_zero_for_every_input": false,
+    "arm_t_sd_possible_values": "literal 0.0 or floating-point reduction residue",
+    "arm_t_sd_max_observed_residue_approximately": 4.441e-16,
+    "exact_equality_detection_as_primary_rule_permitted": false,
+    "arm_o_already_constant_columns": [5, 9],
+    "arm_t_additional_constant_columns": [1],
+    "arm_t_exact_aliases": {
+      "source_column": 0,
+      "copied_columns": [2, 3, 4],
+      "required_equality": "bit-identical"
+    },
+    "state_derived_block": [0, 1, 2, 3, 4],
+    "arm_o_state_block_rank": 5,
+    "arm_t_state_block_rank": 1,
+    "existing_zero_or_near_zero_handling": {
+      "behavior_model_floor": 1e-8,
+      "public_surrogate_floor": 1e-8,
+      "knn_guardian_floor": 1e-6,
+      "residual_sigma_floor": 0.02,
+      "filter_sigma_floor": 0.03,
+      "existing_division_by_zero_or_nan_path": false
+    },
+    "refplan_preexisting_train_runtime_mismatch": {
+      "prior_fit_sd": "variable",
+      "planner_root_sd": "hard-assigned to zero",
+      "standardized_sd_offset_approximately": {
+        "tiger": -2.7018,
+        "fox": -2.7348
+      },
+      "interpretation": "Arm T may remove a pre-existing feature-distribution mismatch; the arm contrast cannot automatically be attributed solely to improved abundance information"
+    },
+    "rng_normal_zero_scale": {
+      "returned_value": "loc exactly",
+      "rng_state_advances": true
+    }
+  },
+  "method_scope": {
+    "affected": [
+      "refplan",
+      "ogsrl",
+      "bamcts",
+      "ensemble_value_disagreement_pessimism"
+    ],
+    "unaffected": [
+      "plus_adapted_ricker_only_pbvi",
+      "moor_adapted_ricker_misspec_pbvi"
+    ],
+    "plus_moor_rule": "vacuous because their direct point-mass belief implementation does not consume public_features"
+  },
+  "primary_direct_assignment": {
+    "scope": "future separately authorized external Arm T adapter only",
+    "dtype": "numpy.float64",
+    "mode": "assign, do not detect",
+    "precedent": "src/tracks/general/real_ecology_benchmark/public_models.py:191-193",
+    "assignments": {
+      "column_1_sd": 0.0,
+      "columns_2_through_4": "exact copies of column 0"
+    },
+    "weighted_moment_construction_then_residue_detection_permitted": false,
+    "artificial_noise_or_epsilon_variance_permitted": false,
+    "silent_repair_permitted": false
+  },
+  "validation_guard": {
+    "role": "fail-closed validation only; not feature construction",
+    "constant_threshold": 1e-8,
+    "threshold_comparison": "<=",
+    "threshold_space": "absolute log1p feature space",
+    "relative_scaling_term": null,
+    "runtime_constant_tolerance": 1e-6,
+    "finite_check": "numpy.isfinite(...).all()",
+    "fail_closed_on": [
+      "assigned SD invariant failure",
+      "alias invariant failure",
+      "feature-order mismatch",
+      "dtype mismatch or float32 downcast",
+      "mask, offset or scale mismatch",
+      "nonfinite value",
+      "masked runtime value outside absolute tolerance",
+      "unexpectedly degenerate unmasked column",
+      "preprocessing artifact hash mismatch",
+      "offline/runtime parity failure"
+    ]
+  },
+  "end_to_end_preprocessing": {
+    "fit_view": "Arm T training view",
+    "explicit_constant_mask_required": true,
+    "constant_mask_criterion": "fitted std <= 1e-8",
+    "masked_offset": "numpy.float64 fitted column mean",
+    "masked_scale": 1.0,
+    "existing_1e_8_floor_used_as_assigned_sd_scale": false,
+    "masked_transformed_value": 0.0,
+    "masked_transformed_value_is_literal_assignment": true,
+    "offline_runtime_transform": "identical single implementation",
+    "runtime_statistics_recomputed": false,
+    "serialization": "float64 round-trip exact; no fixed-decimal strings",
+    "alias_and_rank_collapse_receipted": true,
+    "collinear_columns_dropped_merged_or_reordered": false,
+    "required_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
+    "causal_or_frozen_fit_label_permitted_after_any_artifact_change": false,
+    "artifact_changes_triggering_bundle_only": [
+      "preprocessor",
+      "feature fit",
+      "dynamics fit",
+      "reward surrogate",
+      "residual_sigma",
+      "policy parameters",
+      "any other learned artifact"
+    ]
+  },
+  "frozen_fit_secondary": {
+    "scope": "RefPlan optional frozen-fit secondary diagnostic only",
+    "primary_estimand": false,
+    "reuse_arm_o_preprocessor_byte_for_byte": true,
+    "arm_o_artifact_hash_must_match": true,
+    "feature_order_offsets_scales_masks_must_match": true,
+    "refit_or_altered_preprocessing_permitted": false,
+    "arm_t_input": "feed Arm T feature vector through unchanged Arm O transformation",
+    "transformed_value_receipt_scope": "every column",
+    "refplan_ood_extrapolation_receipt_required": true,
+    "approximately_standardized_sd": {
+      "tiger": -2.7018,
+      "fox": -2.7348
+    },
+    "vacuous_for": [
+      "plus_adapted_ricker_only_pbvi",
+      "moor_adapted_ricker_misspec_pbvi"
+    ],
+    "unavailable_to": [
+      "ogsrl",
+      "bamcts",
+      "ensemble_value_disagreement_pessimism"
+    ],
+    "disqualification_rule": "any preprocessing refit or altered preprocessing artifact removes frozen-fit eligibility"
+  },
+  "parity_invariants": {
+    "feature_names_and_order": "byte-identical",
+    "offset_scale_constant_mask": "identical serialized arrays",
+    "alias_map": "identical and verified",
+    "dtype": "numpy.float64 fit and runtime",
+    "transformation_code": "one function, module and call path for fit and runtime",
+    "serialized_preprocessing_artifact": "one file written at fit and loaded at runtime",
+    "hash_identity": "SHA-256 recorded at fit and reverified at runtime",
+    "parity_result_required_before_scientific_execution": "PASS"
+  },
+  "refplan_mismatch_disclosure": {
+    "required": true,
+    "receipt_both_arms": true,
+    "report_both_arms": true,
+    "existing_prediction_covering_changed_artifacts": "P7",
+    "sealed_predictions_change_required": false
+  },
+  "rng_invariant": {
+    "verified_behavior": "rng.normal(loc, 0.0) returns loc exactly and advances RNG state",
+    "future_tests_required": [
+      "exact returned abundance",
+      "identical intended RNG advancement across paired interfaces",
+      "identical intended RNG call count across paired interfaces"
+    ]
+  },
+  "required_i2_receipt": {
+    "schema_version": "i1_zero_sd_preprocessing_receipt_v1",
+    "emission_timing": "one per method x species x cell x arm before returns open",
+    "fields": [
+      "schema_version",
+      "method",
+      "species",
+      "cell",
+      "arm",
+      "regime",
+      "feature_names",
+      "feature_order_hash",
+      "dtype",
+      "construction_mode",
+      "per_column raw_mean/raw_std/raw_min/raw_max",
+      "per_column constant_mask/offset/scale/transformed_constant_value/collinear_with",
+      "collinear_groups",
+      "alias_rank_collapse_map",
+      "design_rank",
+      "design_condition_number",
+      "constant_threshold",
+      "threshold_comparison",
+      "runtime_constant_tolerance",
+      "finite_check_passed",
+      "preprocessing_artifact_sha256",
+      "fit_view_sha256",
+      "runtime_transform_sha256",
+      "arm_o_artifact_sha256",
+      "arm_t_artifact_sha256",
+      "fit_runtime_parity_result",
+      "parity_failures",
+      "maximum_absolute_assigned_sd",
+      "exact_alias_checks_for_columns_2_3_4_against_column_0",
+      "refplan_standardized_sd_offsets_both_arms",
+      "refplan_mismatch_and_ood_disclosure",
+      "rng_call_count_parity",
+      "rng_state_advancement_parity",
+      "fitted_artifact_hashes",
+      "available_residual_sigma_values",
+      "frozen_fit_eligible",
+      "eligibility_reason",
+      "model_fit_axis_label",
+      "zero_variance_events",
+      "parity_result"
+    ],
+    "parity_pass_required": true,
+    "failure_action": "hard stop before scientific execution"
+  },
+  "required_i2_tests": {
+    "fixtures": "synthetic only during contemplated I2 Increment A",
+    "assertions": [
+      "exact ten-column numpy.float64 schema and fixed order",
+      "literal zero assignment for column 1 including reduction-residue fixtures",
+      "bit-exact columns 2-4 aliases to column 0",
+      "inclusive std <= 1e-8 validation boundary",
+      "masked offset float64, scale 1.0 and literal transformed 0.0",
+      "offline-fit/runtime transformation identity and artifact hash identity",
+      "rank-collapse and condition diagnostics without column removal or reorder",
+      "finite checks and absolute runtime tolerance 1e-6",
+      "Arm O isolation and RefPlan byte-identical frozen-fit preprocessor reuse",
+      "RefPlan standardized SD offsets and disclosure in both arms",
+      "exact rng.normal(loc,0.0) result and paired RNG call/state parity",
+      "complete synthetic receipt with maximum SD, exact aliases, eligibility and PASS parity"
+    ],
+    "negative_fail_closed_tests": [
+      "missing column",
+      "reordered column",
+      "wrong dtype",
+      "nonfinite value",
+      "mismatched constant mask",
+      "mismatched offset",
+      "mismatched scale",
+      "mismatched alias map",
+      "mismatched artifact hash",
+      "out-of-tolerance masked runtime value",
+      "unexpectedly degenerate unmasked column"
+    ]
+  },
+  "known_repository_condition": {
+    "status": "deterministic Git-history traversal failure in the audited attempts",
+    "audited_probe": {
+      "command": "git ls-tree -r HEAD",
+      "attempts": 3,
+      "failures": 3,
+      "exit_code": 135,
+      "signal": "SIGBUS",
+      "false_success_possible_after_signal_termination": false
+    },
+    "object_store_observation": {
+      "loose_objects_approximately": 4365,
+      "packed_objects_approximately": 4,
+      "traversal_association": "loose-object traversal rather than packed-content traversal",
+      "zero_byte_temporary_object_path": ".git/objects/1e/tmp_obj_j26OYJ",
+      "temporary_object_action": "do not delete, rename, move, repair, or inspect contents under this authorization"
+    },
+    "filesystem_evidence": {
+      "reported_errors": [
+        "Network is down",
+        "earlier EIO while writing CLAUDE_ZERO_SD_RULE_MEMO.md"
+      ],
+      "diagnostic_hypothesis": "an interrupted write on a flaky network mount may explain the loose-object SIGBUS condition",
+      "hypothesis_status": "supported diagnostic hypothesis; not a proven causal conclusion"
+    },
+    "failing_recursive_scopes": [
+      "src",
+      "src/tracks/general",
+      "provenance",
+      "archive"
+    ],
+    "clean_recursive_scopes": [
+      "src/tracks/ecological",
+      "configs",
+      "tests",
+      "docs",
+      "results"
+    ],
+    "protected_scope_effect": "the fault touches Git-history traversal for src/tracks/general, a protected frozen-track scope, and must not be characterized as unrelated",
+    "completed_check_rule": "SIGBUS terminates the process and cannot yield a false successful result; checks that completed successfully retain their stated result",
+    "targeted_cached_tree_comparison": {
+      "scope": "src/tracks/general",
+      "result": "PASS",
+      "method": "OID/tree equality without descending into faulting objects"
+    },
+    "working_tree_content_integrity": {
+      "primary_method": "registered source-only SHA-256 recipes independent of Git-history traversal",
+      "registered_hashes_reproduced": true,
+      "ecological_source_only_sha256": "2b3b8ae6d2f8ff5ffb17c4885ded9e8f1f6b3c0cb662f393186fe4b4706a884e",
+      "general_source_only_sha256": "f90cea6f28dcacb910b5e036bf9e09958715d00a2418fd0856a3d5a12856bdbd",
+      "provenance_frozen_tracks_declaration_sha256": "319cd42884da74cbdd54b228ecf4fbb11688e40293d376a333bf1b3be6ffcaaf",
+      "other_controlling_source_hashes_reproduced": true
+    },
+    "integrity_workflow": {
+      "full_git_history_traversal_available": false,
+      "full_git_history_traversal_safe_as_current_integrity_gate": false,
+      "unavailable_or_unsafe_operations": [
+        "full git ls-tree",
+        "git fsck",
+        "git gc",
+        "git repack",
+        "git clone",
+        "git archive",
+        "broad git diff over affected scopes"
+      ],
+      "future_stage_rule": "use registered source-only SHA-256 recipes and only narrowly scoped Git checks that complete successfully",
+      "repository_repair": "outside I2; requires separate authorization following a filesystem-health assessment"
+    },
+    "scientific_effect": {
+      "zero_sd_rule_invalidated": false,
+      "sealed_predictions_invalidated": false,
+      "i2_repair_authorized": false
+    }
+  },
+  "permitted_actions": [
+    "create and validate the four named documentation-only addendum artifacts",
+    "perform read-only hashes, JSON validation, frozen-track integrity checks and Git status inspection"
+  ],
+  "forbidden_actions": [
+    "modify any existing I1, audit, memo or Revision 3.1 artifact",
+    "modify accepted outputs or frozen tracks",
+    "edit source code, tests or configurations",
+    "open or extract real truth arrays or read private truth fields",
+    "construct derived Arm T data",
+    "implement adapters or preprocessors",
+    "fit models",
+    "run tests, regressions, rebaselines or evaluations",
+    "create scientific results or an experiment execution namespace",
+    "submit Slurm jobs",
+    "begin I2, Stage B or Stage C"
+  ],
+  "sealed_predictions": {
+    "path": "docs/true_noisy_state_real_methods/i1_registration_freeze_20260808/SEALED_PREDICTIONS.json",
+    "sha256": "82a7fcb394c80e673ede04c5692db839821b06f23f752076e8cf34bb29da50c3",
+    "unchanged": true,
+    "p7_already_covers_refitted_artifact_changes": true
+  },
+  "implementation_location_rule": {
+    "future_external_arm_t_module_only": true,
+    "behavior_model_py_change_permitted": false,
+    "public_surrogate_py_change_permitted": false,
+    "src_tracks_change_permitted": false,
+    "arm_o_preprocessing_change_permitted": false
+  },
+  "controlling_status": {
+    "supplements_i1_without_modification": true,
+    "closes_only_constant_near_zero_blocker": true,
+    "all_other_i1_and_revision_3_1_rules_remain_controlling": true,
+    "conflict_action": "stop; do not silently reinterpret",
+    "i2_authorized": false,
+    "truth_extraction_authorized": false,
+    "adapter_or_test_implementation_authorized": false,
+    "scientific_execution_authorized": false,
+    "slurm_jobs_submitted": 0,
+    "accepted_outputs_untouched": true
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": "i2a_information_access_receipt_v1",
+  "demonstration_fixture": {
+    "origin": "synthetic_generated",
+    "generator": "synthetic_fixtures.py:v1",
+    "derived_from_real_arrays": false,
+    "source_paths": []
+  },
+  "requests": [
+    {
+      "field": "metadata_json",
+      "purpose": "public_hash_binding",
+      "capability": "i2a_metadata_binding",
+      "allowed": true,
+      "reason": "public_dataset_sha256 binding only"
+    }
+  ],
+  "header_only_fields": [
+    "C",
+    "entry",
+    "initially_unsafe",
+    "metadata_json",
+    "next_regime",
+    "next_states",
+    "r_base",
+    "r_eff_true",
+    "regime",
+    "reward_true",
+    "safety_penalty_applied",
+    "states",
+    "theta"
+  ],
+  "payload_loaded_fields": [
+    "metadata_json"
+  ],
+  "metadata_keys_returned": [
+    "public_dataset_sha256"
+  ],
+  "scientific_payload_loaded_fields": [],
+  "scientific_payload_read_bytes": 0,
+  "real_scientific_arrays_materialized": 0,
+  "real_metadata_artifacts_opened": 0,
+  "real_public_artifacts_opened": 0,
+  "boundary_result": "PASS"
+}

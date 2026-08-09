@@ -1,0 +1,111 @@
+{
+  "schema_version": "i2a_method_overlay_contracts_v1",
+  "immutable": true,
+  "scientific_artifacts_constructed": false,
+  "artifact_identity_rule": {
+    "applies_to": [
+      "plus_adapted_ricker_only_pbvi",
+      "moor_adapted_ricker_misspec_pbvi",
+      "refplan"
+    ],
+    "required_sha256_fields": [
+      "preprocessor_sha256",
+      "feature_fit_sha256",
+      "dynamics_fit_sha256",
+      "surrogate_sha256",
+      "reward_model_sha256",
+      "safety_calibration_sha256",
+      "ensemble_sha256",
+      "policy_sha256"
+    ],
+    "required_residual_field": "residual_sigma_hex",
+    "sha256_format": "exactly 64 lowercase hexadecimal characters; no prefix and no normalization",
+    "residual_sigma_format": "nonempty tuple of canonical finite float64 hex strings",
+    "fail_closed": "missing, null, empty, unknown, TBD, inapplicable-but-unresolved, malformed, prefixed, uppercase, or sentinel identity values are ineligible",
+    "comparison_order": "validate every required Arm O and Arm T identity first, then compare for exact equality",
+    "equality_not_sufficient": "RefPlan also requires explicit optional-secondary enablement; PLUS/MOOR also require demonstrated direct point-mass-only replacement",
+    "changed_identity_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY"
+  },
+  "common_forbidden_shortcuts": [
+    "sigma or observation-scale collapse to zero or epsilon",
+    "OracleStateFilter wholesale reuse",
+    "history zeroing, deletion, reorder, or reconstruction",
+    "method access to original truth.npz",
+    "runtime or planning-root access to next_states",
+    "hidden family, safety threshold, reward, demographic parameter, regime, or future-information access",
+    "editing src/tracks/** or Arm O preprocessing"
+  ],
+  "contracts": {
+    "plus_adapted_ricker_only_pbvi": {
+      "state_interface": "candidate-specific latent-abundance grid beliefs",
+      "preserved_context": ["action history", "decision timing"],
+      "direct_point_mass_belief": true,
+      "survey_scale_conversion": "required: latent_state = raw_abundance / fitted_model.survey_scale, then registered nearest latent bin",
+      "public_zero_sd_preprocessing": "not consumed; branch is vacuous",
+      "preprocessing": "not applicable",
+      "possible_later_changes": {"model": false, "reward": false, "safety": false, "ensemble": false},
+      "frozen_fit_eligibility": "conditional on complete valid Arm O/T identities for all eight registered SHA fields and canonical residual_sigma values, exact equality after validation, byte-identical eight fitted Ricker kernels and policy artifacts, and demonstrated direct point-mass-only replacement; placeholders fail closed",
+      "end_to_end_only_conditions": "any fitted or learned artifact difference",
+      "forbidden_shortcuts": ["raw truth snapped directly to latent grid", "no survey_scale conversion", "Bayesian noisy-likelihood update after direct assignment"]
+    },
+    "moor_adapted_ricker_misspec_pbvi": {
+      "state_interface": "single latent-abundance grid belief",
+      "preserved_context": ["action history", "decision timing"],
+      "direct_point_mass_belief": true,
+      "survey_scale_conversion": "required: latent_state = raw_abundance / fitted_model.survey_scale, then registered nearest latent bin",
+      "public_zero_sd_preprocessing": "not consumed; branch is vacuous",
+      "preprocessing": "not applicable",
+      "possible_later_changes": {"model": false, "reward": false, "safety": false, "ensemble": false},
+      "frozen_fit_eligibility": "conditional on complete valid Arm O/T identities for all eight registered SHA fields and canonical residual_sigma values, exact equality after validation, byte-identical fitted Ricker kernel and policy artifacts, and demonstrated direct point-mass-only replacement; placeholders fail closed",
+      "end_to_end_only_conditions": "any fitted or learned artifact difference",
+      "forbidden_shortcuts": ["raw truth snapped directly to latent grid", "no survey_scale conversion", "Bayesian noisy-likelihood update after direct assignment"]
+    },
+    "refplan": {
+      "state_interface": "exact current-abundance public features/particles",
+      "preserved_context": ["previous observation", "current observation", "timestep", "action history", "observation history"],
+      "direct_point_mass_belief": false,
+      "survey_scale_conversion": "not used by public feature interface",
+      "preprocessing": "primary end-to-end Arm T would refit externally; optional secondary frozen-fit diagnostic reuses Arm O preprocessor byte-for-byte with identical hash",
+      "possible_later_changes": {"model": true, "reward": false, "safety": false, "ensemble": true, "residual_sigma": true, "model_posterior_sharpness": true},
+      "frozen_fit_eligibility": "optional secondary only and explicitly enabled; complete valid Arm O/T identities for all eight registered SHA fields and canonical residual_sigma values must pass before exact equality is considered; all learned artifacts and Arm O preprocessor bytes/hash must be identical; placeholders fail closed",
+      "end_to_end_only_conditions": "any preprocessor, dynamics, residual_sigma, posterior, surrogate, policy, or other learned-artifact change",
+      "required_disclosure": "variable fit-time SD versus hard-zero planner-root SD; tiger -2.7018 and fox -2.7348 reference offsets; whether Arm T removes mismatch",
+      "forbidden_shortcuts": ["omit mismatch disclosure", "call changed preprocessing frozen-fit", "discard public history"]
+    },
+    "ogsrl": {
+      "state_interface": "exact current-abundance public features with preserved public context",
+      "preserved_context": ["previous observation", "current observation", "timestep", "action history", "observation history"],
+      "direct_point_mass_belief": false,
+      "survey_scale_conversion": "not used by public feature interface",
+      "preprocessing": "primary end-to-end only; later exact-state actor/guardian preprocessing and training would change",
+      "possible_later_changes": {"model": true, "reward": false, "safety": true, "ensemble": true, "policy": true},
+      "safety_budget": "dataset-derived; exact-state recalibration is a safety-axis change and a belief-only replacement cannot isolate state representation",
+      "frozen_fit_eligibility": "unavailable",
+      "end_to_end_only_conditions": "all registered Arm T uses",
+      "forbidden_shortcuts": ["retain changed safety calibration while claiming state-only", "claim frozen-fit", "collapse rollout RNG call sequence"]
+    },
+    "bamcts": {
+      "state_interface": "exact current-abundance search-root public features/particles",
+      "preserved_context": ["previous observation", "current observation", "timestep", "action history", "observation history"],
+      "direct_point_mass_belief": false,
+      "survey_scale_conversion": "not used by public feature interface",
+      "preprocessing": "primary end-to-end only",
+      "possible_later_changes": {"model": true, "reward": false, "safety": false, "ensemble": true, "residual_sigma": true, "model_posterior_sharpness": true},
+      "frozen_fit_eligibility": "unavailable",
+      "end_to_end_only_conditions": "all registered Arm T uses",
+      "forbidden_shortcuts": ["claim posterior sharpening is pure state representation", "expose next_states to search root", "discard public history"]
+    },
+    "ensemble_value_disagreement_pessimism": {
+      "state_interface": "exact current-abundance public features",
+      "preserved_context": ["previous observation", "current observation", "timestep", "action history", "observation history"],
+      "direct_point_mass_belief": false,
+      "survey_scale_conversion": "not used by public feature interface",
+      "preprocessing": "primary end-to-end only; later behavior reference and 20 Q members would be retrained",
+      "possible_later_changes": {"model": false, "reward": true, "safety": false, "ensemble": true, "policy": true},
+      "objective_status": "uses unmatched raw logged rewards; must be reported separately from the five surrogate-reward methods",
+      "frozen_fit_eligibility": "unavailable",
+      "end_to_end_only_conditions": "all registered Arm T uses",
+      "forbidden_shortcuts": ["pool with surrogate-reward methods", "claim objective-matched comparison", "drop constant or collinear features"]
+    }
+  }
+}
