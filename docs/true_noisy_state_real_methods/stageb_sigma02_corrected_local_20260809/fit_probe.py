@@ -36,7 +36,7 @@ from .common import (
 from .publication import create_task_staging, publish_once, write_bytes_fsync
 from .real_artifacts import (
     scientific_component_for_method,
-    validate_frozen_fitted_object_roundtrip,
+    validate_frozen_fitted_object_roundtrip_with_diagnostic,
 )
 
 
@@ -521,16 +521,22 @@ def publish_fit_probe(
     )
     for name, payload in payloads.items():
         write_bytes_fsync(staging / f"artifact-{name}.json", payload)
-    fitted_payload, replay = validate_frozen_fitted_object_roundtrip(
-        scientific_component_for_method(task.method),
-        policy,
-        operation="act",
-        args=operation_args,
-        kwargs=operation_kwargs or {},
-        repository_root=repository_root,
+    fitted_payload, replay, replay_diagnostic = (
+        validate_frozen_fitted_object_roundtrip_with_diagnostic(
+            scientific_component_for_method(task.method),
+            policy,
+            operation="act",
+            args=operation_args,
+            kwargs=operation_kwargs or {},
+            repository_root=repository_root,
+        )
     )
     write_bytes_fsync(staging / "FROZEN_FITTED_OBJECT.json", fitted_payload)
     write_bytes_fsync(staging / "FRESH_RELOAD_REPLAY.json", canonical_json_bytes(replay))
+    write_bytes_fsync(
+        staging / "FROZEN_REPLAY_DIAGNOSTIC.json",
+        canonical_json_bytes(replay_diagnostic),
+    )
     receipt = {
         "schema_version": "corrected_stageb_fit_probe_receipt_v4",
         "task": task.__dict__,
@@ -554,6 +560,7 @@ def publish_fit_probe(
         "SOURCE_PROJECTION_DIAGNOSTIC.json",
         "FROZEN_FITTED_OBJECT.json",
         "FRESH_RELOAD_REPLAY.json",
+        "FROZEN_REPLAY_DIAGNOSTIC.json",
         "FIT_PROBE_RECEIPT.json",
         *(f"artifact-{name}.json" for name in payloads),
     ]

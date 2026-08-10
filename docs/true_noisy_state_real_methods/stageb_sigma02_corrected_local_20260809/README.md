@@ -57,3 +57,7 @@ The authoritative applicability map and V2-to-V3 receipt migration are documente
 `ARTIFACT_CONTRACT_V3.md`. Distinct fitted `preprocessing`, `feature_transformations`, and
 PBVI alpha-vector objects do not exist in the inspected method graphs; MOOR also has no
 candidate prior. The contract excludes these absent components instead of inventing stand-ins.
+
+The bounded producer/independent fitted-object replay evidence is specified in
+`REPLAY_DIAGNOSTIC_CONTRACT.md`. Its separate atomically published artifact localizes exact
+post-call graph differences while preserving the original strict parity requirement.

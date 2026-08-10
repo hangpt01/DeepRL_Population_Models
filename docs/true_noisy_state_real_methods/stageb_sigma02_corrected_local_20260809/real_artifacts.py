@@ -163,6 +163,8 @@ POST_CALL_VOLATILE_FIELDS = {
     "real_ecology_benchmark.faithful_pomdp.CandidatePOMDP": frozenset({"kernel_build_seconds"}),
     "real_ecology_benchmark.planners.pbvi.PointBasedPlanner": frozenset({"elapsed_seconds"}),
 }
+REPLAY_DIAGNOSTIC_SCHEMA_VERSION = "corrected_stageb_frozen_replay_diagnostic_v1"
+_DIAGNOSTIC_INLINE_VALUE_LIMIT = 512
 
 
 def _qualified_name(value: Any) -> str:
@@ -669,6 +671,379 @@ def _first_graph_difference(left: Any, right: Any, path: str = "root") -> str:
     return "" if left == right else path
 
 
+def _graph_path(parent: str, child: str | int) -> str:
+    token = str(child).replace("~", "~0").replace("/", "~1")
+    return f"{parent}/{token}"
+
+
+def _object_reference_definitions(value: Any) -> dict[str, dict[str, str]]:
+    definitions: dict[str, dict[str, str]] = {}
+
+    def visit(node: Any, path: str) -> None:
+        if isinstance(node, Mapping):
+            for tag, kind in (("$object", "object"), ("$ndarray", "ndarray")):
+                payload = node.get(tag)
+                if isinstance(payload, Mapping) and isinstance(payload.get("id"), str):
+                    object_id = payload["id"]
+                    if object_id in definitions:
+                        raise ContractError("diagnostic graph contains a duplicate object id")
+                    definition = {"definition_path": path, "kind": kind}
+                    if kind == "object" and isinstance(payload.get("class"), str):
+                        definition["class"] = payload["class"]
+                    definitions[object_id] = definition
+            for key in sorted(node):
+                visit(node[key], _graph_path(path, key))
+        elif isinstance(node, list):
+            for index, item in enumerate(node):
+                visit(item, _graph_path(path, index))
+
+    visit(value, "root")
+    return definitions
+
+
+def _canonicalize_object_references(value: Any) -> tuple[Any, dict[str, Any]]:
+    """Replace traversal ids with structural paths for diagnosis, never parity."""
+
+    definitions = _object_reference_definitions(value)
+    references: dict[str, dict[str, str]] = {}
+
+    def visit(node: Any, path: str) -> Any:
+        if isinstance(node, list):
+            return [visit(item, _graph_path(path, index)) for index, item in enumerate(node)]
+        if not isinstance(node, Mapping):
+            return node
+        if set(node) == {"$object_ref"}:
+            target = node["$object_ref"]
+            if not isinstance(target, str) or target not in definitions:
+                raise ContractError("diagnostic graph contains an unresolved object reference")
+            target_path = definitions[target]["definition_path"]
+            references[path] = {
+                "raw_target_id": target,
+                "target_definition_path": target_path,
+            }
+            return {"$object_ref": {"target_definition_path": target_path}}
+        result = {key: visit(node[key], _graph_path(path, key)) for key in sorted(node)}
+        for tag in ("$object", "$ndarray"):
+            payload = node.get(tag)
+            result_payload = result.get(tag)
+            if isinstance(payload, Mapping) and isinstance(result_payload, dict):
+                object_id = payload.get("id")
+                if isinstance(object_id, str) and object_id in definitions:
+                    result_payload["id"] = {
+                        "definition_path": definitions[object_id]["definition_path"]
+                    }
+        return result
+
+    canonical = visit(value, "root")
+    raw_topology = {
+        "definitions": {key: definitions[key] for key in sorted(definitions)},
+        "references": {key: references[key] for key in sorted(references)},
+    }
+    canonical_topology = {
+        "definitions": sorted(
+            (
+                {
+                    "definition_path": item["definition_path"],
+                    "kind": item["kind"],
+                    **({"class": item["class"]} if "class" in item else {}),
+                }
+                for item in definitions.values()
+            ),
+            key=lambda item: item["definition_path"],
+        ),
+        "references": [
+            {
+                "reference_path": path,
+                "target_definition_path": references[path]["target_definition_path"],
+            }
+            for path in sorted(references)
+        ],
+    }
+    return canonical, {
+        "raw": raw_topology,
+        "raw_sha256": sha256_bytes(canonical_json_bytes(raw_topology)),
+        "canonical": canonical_topology,
+        "canonical_sha256": sha256_bytes(canonical_json_bytes(canonical_topology)),
+    }
+
+
+def _canonical_path_digest_map(value: Any) -> dict[str, str]:
+    result: dict[str, str] = {}
+
+    def visit(node: Any, path: str) -> None:
+        result[path] = sha256_bytes(canonical_json_bytes(node))
+        if isinstance(node, Mapping):
+            for key in sorted(node):
+                visit(node[key], _graph_path(path, key))
+        elif isinstance(node, list):
+            for index, item in enumerate(node):
+                visit(item, _graph_path(path, index))
+
+    visit(value, "root")
+    return result
+
+
+def _rng_state_digests(value: Any) -> dict[str, str]:
+    result: dict[str, str] = {}
+
+    def visit(node: Any, path: str) -> None:
+        if isinstance(node, Mapping):
+            generator = node.get("$numpy_generator")
+            if isinstance(generator, Mapping) and "state" in generator:
+                result[path] = sha256_bytes(canonical_json_bytes(generator["state"]))
+            for key in sorted(node):
+                visit(node[key], _graph_path(path, key))
+        elif isinstance(node, list):
+            for index, item in enumerate(node):
+                visit(item, _graph_path(path, index))
+
+    visit(value, "root")
+    return result
+
+
+def _bounded_diagnostic_value(value: Any) -> dict[str, Any]:
+    encoded = canonical_json_bytes(value)
+    result: dict[str, Any] = {
+        "sha256": sha256_bytes(encoded),
+        "canonical_byte_count": len(encoded),
+    }
+    if len(encoded) <= _DIAGNOSTIC_INLINE_VALUE_LIMIT:
+        result["value"] = value
+    else:
+        result["value_omitted_from_receipt"] = True
+    return result
+
+
+def _value_at_difference_path(value: Any, path: str) -> Any:
+    current = value
+    suffix = path.removeprefix("root")
+    while suffix:
+        if suffix.startswith("."):
+            suffix = suffix[1:]
+            end = len(suffix)
+            for separator in (".", "["):
+                index = suffix.find(separator)
+                if index >= 0:
+                    end = min(end, index)
+            current = current[suffix[:end]]
+            suffix = suffix[end:]
+        elif suffix.startswith("["):
+            close = suffix.index("]")
+            current = current[int(suffix[1:close])]
+            suffix = suffix[close + 1 :]
+        else:
+            raise ContractError("diagnostic difference path is malformed")
+    return current
+
+
+def _graph_difference_evidence(left: Any, right: Any) -> dict[str, Any] | None:
+    difference = _first_graph_difference(left, right)
+    if not difference:
+        return None
+    if difference.endswith((":type", ":keys", ":length")):
+        path, reason = difference.rsplit(":", 1)
+    else:
+        path, reason = difference, "value"
+    return {
+        "path": path,
+        "reason": reason,
+        "left": _bounded_diagnostic_value(_value_at_difference_path(left, path)),
+        "right": _bounded_diagnostic_value(_value_at_difference_path(right, path)),
+    }
+
+
+def _graph_diagnostic(encoded_graph: Any) -> dict[str, Any]:
+    normalized = _normalize_post_call_graph(encoded_graph)
+    reference_normalized, topology = _canonicalize_object_references(normalized)
+    return {
+        "normalized_graph_sha256": sha256_bytes(canonical_json_bytes(normalized)),
+        "reference_normalized_graph_sha256": sha256_bytes(
+            canonical_json_bytes(reference_normalized)
+        ),
+        "canonical_per_path_sha256": _canonical_path_digest_map(reference_normalized),
+        "object_reference_topology": topology,
+        "rng_state_sha256_by_path": _rng_state_digests(reference_normalized),
+        "_normalized_graph": normalized,
+        "_reference_normalized_graph": reference_normalized,
+    }
+
+
+def _public_graph_diagnostic(
+    value: Mapping[str, Any], *, include_normalized_graph: bool = False
+) -> dict[str, Any]:
+    result = {key: item for key, item in value.items() if not key.startswith("_")}
+    if include_normalized_graph:
+        result["normalized_graph"] = value["_normalized_graph"]
+    return result
+
+
+def diagnose_frozen_fitted_object_roundtrip(
+    component: str,
+    fitted_object: Any,
+    *,
+    operation: str,
+    args: Sequence[Any],
+    kwargs: Mapping[str, Any] | None = None,
+    repository_root: Path,
+) -> tuple[bytes, dict[str, Any]]:
+    """Publish bounded producer-time graphs without relaxing the strict parity contract."""
+
+    if operation not in ALLOWED_OPERATIONS.get(component, frozenset()):
+        raise ContractError("unregistered fitted-object parity operation")
+    root = Path(repository_root).resolve()
+    payload = serialize_frozen_fitted_object(component, fitted_object, repository_root=root)
+    reloaded = load_frozen_fitted_object(payload, repository_root=root)
+    track = ROOT_SPECS[component][0]
+    encoded_args = _encode(tuple(args), track=track, repository_root=root, active=set())
+    encoded_kwargs = _encode(dict(kwargs or {}), track=track, repository_root=root, active=set())
+    operation_input = {"args": encoded_args, "kwargs": encoded_kwargs}
+    original_pre = _graph_diagnostic(
+        _encode(fitted_object, track=track, repository_root=root, active=set())
+    )
+    reloaded_pre = _graph_diagnostic(
+        _encode(reloaded, track=track, repository_root=root, active=set())
+    )
+    original_args = _decode(encoded_args, track=track, repository_root=root)
+    reloaded_args = _decode(encoded_args, track=track, repository_root=root)
+    original_kwargs = _decode(encoded_kwargs, track=track, repository_root=root)
+    reloaded_kwargs = _decode(encoded_kwargs, track=track, repository_root=root)
+    original_output = getattr(fitted_object, operation)(*original_args, **original_kwargs)
+    reloaded_output = getattr(reloaded, operation)(*reloaded_args, **reloaded_kwargs)
+    original_output_encoded = _encode(
+        original_output, track=track, repository_root=root, active=set()
+    )
+    reloaded_output_encoded = _encode(
+        reloaded_output, track=track, repository_root=root, active=set()
+    )
+    original_output_sha = sha256_bytes(canonical_json_bytes(original_output_encoded))
+    reloaded_output_sha = sha256_bytes(canonical_json_bytes(reloaded_output_encoded))
+    original_post = _graph_diagnostic(
+        _encode(fitted_object, track=track, repository_root=root, active=set())
+    )
+    reloaded_post = _graph_diagnostic(
+        _encode(reloaded, track=track, repository_root=root, active=set())
+    )
+    exact_equal = (
+        original_post["normalized_graph_sha256"] == reloaded_post["normalized_graph_sha256"]
+    )
+    reference_equal = (
+        original_post["reference_normalized_graph_sha256"]
+        == reloaded_post["reference_normalized_graph_sha256"]
+    )
+    diagnostic = {
+        "schema_version": REPLAY_DIAGNOSTIC_SCHEMA_VERSION,
+        "component": component,
+        "track": track,
+        "root_class": _qualified_name(fitted_object),
+        "serialized_sha256": sha256_bytes(payload),
+        "normalization_contract": {
+            "post_call_volatile_fields": {
+                key: sorted(value) for key, value in sorted(POST_CALL_VOLATILE_FIELDS.items())
+            },
+            "new_volatile_fields_added": False,
+            "object_reference_labels_canonicalized_for_diagnosis_only": True,
+            "strict_parity_uses_reference_labels": True,
+        },
+        "operation": {
+            "name": operation,
+            "arguments": encoded_args,
+            "keyword_arguments": encoded_kwargs,
+            "arguments_sha256": sha256_bytes(canonical_json_bytes(encoded_args)),
+            "keyword_arguments_sha256": sha256_bytes(canonical_json_bytes(encoded_kwargs)),
+            "combined_input_sha256": sha256_bytes(canonical_json_bytes(operation_input)),
+        },
+        "pre_call": {
+            "original_live_object": _public_graph_diagnostic(original_pre),
+            "fresh_reloaded_object": _public_graph_diagnostic(reloaded_pre),
+        },
+        "post_call": {
+            "original_live_object": _public_graph_diagnostic(
+                original_post, include_normalized_graph=True
+            ),
+            "fresh_reloaded_object": _public_graph_diagnostic(
+                reloaded_post, include_normalized_graph=True
+            ),
+        },
+        "output": {
+            "original_live_object_sha256": original_output_sha,
+            "fresh_reloaded_object_sha256": reloaded_output_sha,
+            "selected_action_or_output": _bounded_diagnostic_value(original_output_encoded),
+        },
+        "comparison": {
+            "output_exactly_equal": original_output_sha == reloaded_output_sha,
+            "strict_post_call_state_equal": exact_equal,
+            "reference_normalized_post_call_state_equal": reference_equal,
+            "object_reference_renumbering_only": not exact_equal and reference_equal,
+            "first_exact_difference": _graph_difference_evidence(
+                original_post["_normalized_graph"], reloaded_post["_normalized_graph"]
+            ),
+            "first_substantive_difference": _graph_difference_evidence(
+                original_post["_reference_normalized_graph"],
+                reloaded_post["_reference_normalized_graph"],
+            ),
+        },
+        "producer_time_original_vs_reloaded_equality_passed": (
+            original_output_sha == reloaded_output_sha and exact_equal
+        ),
+        "information_boundary": {
+            "evaluator_constructed": False,
+            "truth_accessed": False,
+            "runtime_next_states_accessed": False,
+            "returns_calculated": False,
+        },
+    }
+    return payload, diagnostic
+
+
+def validate_frozen_fitted_object_roundtrip_with_diagnostic(
+    component: str,
+    fitted_object: Any,
+    *,
+    operation: str,
+    args: Sequence[Any],
+    kwargs: Mapping[str, Any] | None = None,
+    repository_root: Path,
+) -> tuple[bytes, dict[str, Any], dict[str, Any]]:
+    payload, diagnostic = diagnose_frozen_fitted_object_roundtrip(
+        component,
+        fitted_object,
+        operation=operation,
+        args=args,
+        kwargs=kwargs,
+        repository_root=repository_root,
+    )
+    comparison = diagnostic["comparison"]
+    if not comparison["output_exactly_equal"]:
+        raise ContractError("real fitted-object prediction/action parity failed")
+    if not comparison["strict_post_call_state_equal"]:
+        difference = comparison["first_exact_difference"]
+        path = difference["path"] if isinstance(difference, Mapping) else "root"
+        raise ContractError(f"real fitted-object post-call state/RNG parity failed at {path}")
+    operation_evidence = diagnostic["operation"]
+    receipt = {
+        "schema_version": "corrected_stageb_frozen_object_parity_v1",
+        "component": component,
+        "track": diagnostic["track"],
+        "root_class": diagnostic["root_class"],
+        "serialized_sha256": diagnostic["serialized_sha256"],
+        "operation": operation,
+        "operation_input": {
+            "args": operation_evidence["arguments"],
+            "kwargs": operation_evidence["keyword_arguments"],
+        },
+        "operation_input_sha256": operation_evidence["combined_input_sha256"],
+        "output_sha256": diagnostic["output"]["original_live_object_sha256"],
+        "post_call_state_sha256": diagnostic["post_call"]["original_live_object"][
+            "normalized_graph_sha256"
+        ],
+        "fresh_object_reload": True,
+        "complete_instance_graph": True,
+        "training_history_alone_qualifies": False,
+        "result": "PASS",
+    }
+    return payload, receipt, diagnostic
+
+
 def validate_frozen_fitted_object_roundtrip(
     component: str,
     fitted_object: Any,
@@ -680,53 +1055,14 @@ def validate_frozen_fitted_object_roundtrip(
 ) -> tuple[bytes, dict[str, Any]]:
     """Reload a real frozen object and require real prediction/action plus state parity."""
 
-    if operation not in ALLOWED_OPERATIONS.get(component, frozenset()):
-        raise ContractError("unregistered fitted-object parity operation")
-    root = Path(repository_root).resolve()
-    payload = serialize_frozen_fitted_object(component, fitted_object, repository_root=root)
-    reloaded = load_frozen_fitted_object(payload, repository_root=root)
-    track = ROOT_SPECS[component][0]
-    encoded_args = _encode(tuple(args), track=track, repository_root=root, active=set())
-    encoded_kwargs = _encode(dict(kwargs or {}), track=track, repository_root=root, active=set())
-    original_args = _decode(encoded_args, track=track, repository_root=root)
-    reloaded_args = _decode(encoded_args, track=track, repository_root=root)
-    original_kwargs = _decode(encoded_kwargs, track=track, repository_root=root)
-    reloaded_kwargs = _decode(encoded_kwargs, track=track, repository_root=root)
-    original_output = getattr(fitted_object, operation)(*original_args, **original_kwargs)
-    reloaded_output = getattr(reloaded, operation)(*reloaded_args, **reloaded_kwargs)
-    original_output_sha = _parity_hash(original_output, track=track, repository_root=root)
-    reloaded_output_sha = _parity_hash(reloaded_output, track=track, repository_root=root)
-    if original_output_sha != reloaded_output_sha:
-        raise ContractError("real fitted-object prediction/action parity failed")
-    original_post_graph = _normalize_post_call_graph(
-        _encode(fitted_object, track=track, repository_root=root, active=set())
+    payload, receipt, _diagnostic = validate_frozen_fitted_object_roundtrip_with_diagnostic(
+        component,
+        fitted_object,
+        operation=operation,
+        args=args,
+        kwargs=kwargs,
+        repository_root=repository_root,
     )
-    reloaded_post_graph = _normalize_post_call_graph(
-        _encode(reloaded, track=track, repository_root=root, active=set())
-    )
-    original_post = sha256_bytes(canonical_json_bytes(original_post_graph))
-    reloaded_post = sha256_bytes(canonical_json_bytes(reloaded_post_graph))
-    if original_post != reloaded_post:
-        difference = _first_graph_difference(original_post_graph, reloaded_post_graph)
-        raise ContractError(f"real fitted-object post-call state/RNG parity failed at {difference}")
-    receipt = {
-        "schema_version": "corrected_stageb_frozen_object_parity_v1",
-        "component": component,
-        "track": track,
-        "root_class": _qualified_name(fitted_object),
-        "serialized_sha256": sha256_bytes(payload),
-        "operation": operation,
-        "operation_input": {"args": encoded_args, "kwargs": encoded_kwargs},
-        "operation_input_sha256": sha256_bytes(
-            canonical_json_bytes({"args": encoded_args, "kwargs": encoded_kwargs})
-        ),
-        "output_sha256": original_output_sha,
-        "post_call_state_sha256": original_post,
-        "fresh_object_reload": True,
-        "complete_instance_graph": True,
-        "training_history_alone_qualifies": False,
-        "result": "PASS",
-    }
     return payload, receipt
 
 
@@ -792,6 +1128,307 @@ def validate_frozen_object_parity_receipt(
     )
     if sha256_bytes(canonical_json_bytes(operation_input)) != receipt["operation_input_sha256"]:
         raise ContractError("frozen fitted-object operation input hash mismatch")
+
+
+def validate_frozen_replay_diagnostic(
+    diagnostic: Mapping[str, Any],
+    *,
+    expected_component: str,
+    expected_serialized_sha256: str,
+) -> None:
+    """Validate the bounded diagnostic envelope and all internally checkable hashes."""
+
+    require_exact_keys(
+        diagnostic,
+        {
+            "schema_version",
+            "component",
+            "track",
+            "root_class",
+            "serialized_sha256",
+            "normalization_contract",
+            "operation",
+            "pre_call",
+            "post_call",
+            "output",
+            "comparison",
+            "producer_time_original_vs_reloaded_equality_passed",
+            "information_boundary",
+        },
+        "frozen replay diagnostic",
+    )
+    if expected_component not in ROOT_SPECS:
+        raise ContractError("unregistered expected fitted-object component")
+    track, root_class, _required = ROOT_SPECS[expected_component]
+    expected = {
+        "schema_version": REPLAY_DIAGNOSTIC_SCHEMA_VERSION,
+        "component": expected_component,
+        "track": track,
+        "root_class": root_class,
+        "serialized_sha256": expected_serialized_sha256,
+    }
+    for field, value in expected.items():
+        if diagnostic[field] != value:
+            raise ContractError(f"frozen replay diagnostic binding mismatch: {field}")
+    operation = diagnostic["operation"]
+    require_exact_keys(
+        operation,
+        {
+            "name",
+            "arguments",
+            "keyword_arguments",
+            "arguments_sha256",
+            "keyword_arguments_sha256",
+            "combined_input_sha256",
+        },
+        "frozen replay diagnostic operation",
+    )
+    if operation["name"] not in ALLOWED_OPERATIONS[expected_component]:
+        raise ContractError("frozen replay diagnostic operation mismatch")
+    calculated_operation_hashes = {
+        "arguments_sha256": sha256_bytes(canonical_json_bytes(operation["arguments"])),
+        "keyword_arguments_sha256": sha256_bytes(
+            canonical_json_bytes(operation["keyword_arguments"])
+        ),
+        "combined_input_sha256": sha256_bytes(
+            canonical_json_bytes(
+                {"args": operation["arguments"], "kwargs": operation["keyword_arguments"]}
+            )
+        ),
+    }
+    for field, value in calculated_operation_hashes.items():
+        if operation[field] != value:
+            raise ContractError(f"frozen replay diagnostic operation hash mismatch: {field}")
+    normalization = diagnostic["normalization_contract"]
+    require_exact_keys(
+        normalization,
+        {
+            "post_call_volatile_fields",
+            "new_volatile_fields_added",
+            "object_reference_labels_canonicalized_for_diagnosis_only",
+            "strict_parity_uses_reference_labels",
+        },
+        "frozen replay diagnostic normalization contract",
+    )
+    expected_volatile = {
+        key: sorted(value) for key, value in sorted(POST_CALL_VOLATILE_FIELDS.items())
+    }
+    if normalization != {
+        "post_call_volatile_fields": expected_volatile,
+        "new_volatile_fields_added": False,
+        "object_reference_labels_canonicalized_for_diagnosis_only": True,
+        "strict_parity_uses_reference_labels": True,
+    }:
+        raise ContractError("frozen replay diagnostic normalization contract changed")
+    graph_required = {
+        "normalized_graph_sha256",
+        "reference_normalized_graph_sha256",
+        "canonical_per_path_sha256",
+        "object_reference_topology",
+        "rng_state_sha256_by_path",
+    }
+    for phase in ("pre_call", "post_call"):
+        phase_value = diagnostic[phase]
+        require_exact_keys(
+            phase_value,
+            {"original_live_object", "fresh_reloaded_object"},
+            f"frozen replay diagnostic {phase}",
+        )
+        for role in ("original_live_object", "fresh_reloaded_object"):
+            graph = phase_value[role]
+            expected_graph_keys = graph_required | (
+                {"normalized_graph"} if phase == "post_call" else set()
+            )
+            require_exact_keys(
+                graph, expected_graph_keys, f"frozen replay diagnostic {phase} graph"
+            )
+            for field in ("normalized_graph_sha256", "reference_normalized_graph_sha256"):
+                require_sha256(graph[field], f"frozen replay diagnostic {phase} {field}")
+            path_map = graph["canonical_per_path_sha256"]
+            rng_map = graph["rng_state_sha256_by_path"]
+            if not isinstance(path_map, Mapping) or "root" not in path_map:
+                raise ContractError("frozen replay diagnostic path map is incomplete")
+            if path_map["root"] != graph["reference_normalized_graph_sha256"]:
+                raise ContractError("frozen replay diagnostic root path hash mismatch")
+            if not isinstance(rng_map, Mapping):
+                raise ContractError("frozen replay diagnostic RNG map is malformed")
+            for path, digest in (*path_map.items(), *rng_map.items()):
+                require_nonempty_string(path, "frozen replay diagnostic graph path")
+                require_sha256(digest, "frozen replay diagnostic graph digest")
+            topology = graph["object_reference_topology"]
+            require_exact_keys(
+                topology,
+                {"raw", "raw_sha256", "canonical", "canonical_sha256"},
+                "frozen replay diagnostic topology",
+            )
+            if (
+                sha256_bytes(canonical_json_bytes(topology["raw"])) != topology["raw_sha256"]
+                or sha256_bytes(canonical_json_bytes(topology["canonical"]))
+                != topology["canonical_sha256"]
+            ):
+                raise ContractError("frozen replay diagnostic topology hash mismatch")
+            if phase == "post_call":
+                normalized_graph = graph["normalized_graph"]
+                reference_normalized, calculated_topology = _canonicalize_object_references(
+                    normalized_graph
+                )
+                calculated = {
+                    "normalized_graph_sha256": sha256_bytes(canonical_json_bytes(normalized_graph)),
+                    "reference_normalized_graph_sha256": sha256_bytes(
+                        canonical_json_bytes(reference_normalized)
+                    ),
+                    "canonical_per_path_sha256": _canonical_path_digest_map(reference_normalized),
+                    "object_reference_topology": calculated_topology,
+                    "rng_state_sha256_by_path": _rng_state_digests(reference_normalized),
+                }
+                for field, expected_value in calculated.items():
+                    if graph[field] != expected_value:
+                        raise ContractError(
+                            f"frozen replay diagnostic post-call graph mismatch: {field}"
+                        )
+    boundary = diagnostic["information_boundary"]
+    expected_boundary = {
+        "evaluator_constructed": False,
+        "truth_accessed": False,
+        "runtime_next_states_accessed": False,
+        "returns_calculated": False,
+    }
+    if boundary != expected_boundary:
+        raise ContractError("frozen replay diagnostic information boundary failed")
+    output = diagnostic["output"]
+    require_exact_keys(
+        output,
+        {
+            "original_live_object_sha256",
+            "fresh_reloaded_object_sha256",
+            "selected_action_or_output",
+        },
+        "frozen replay diagnostic output",
+    )
+    for field in ("original_live_object_sha256", "fresh_reloaded_object_sha256"):
+        require_sha256(output[field], f"frozen replay diagnostic output {field}")
+    selected = output["selected_action_or_output"]
+    allowed_selected_keys = {
+        "sha256",
+        "canonical_byte_count",
+        "value",
+        "value_omitted_from_receipt",
+    }
+    if not isinstance(selected, Mapping) or not set(selected).issubset(allowed_selected_keys):
+        raise ContractError("frozen replay diagnostic selected output is malformed")
+    if set(selected) not in (
+        {"sha256", "canonical_byte_count", "value"},
+        {"sha256", "canonical_byte_count", "value_omitted_from_receipt"},
+    ):
+        raise ContractError("frozen replay diagnostic selected output is incomplete")
+    require_sha256(selected["sha256"], "frozen replay diagnostic selected output")
+    byte_count = selected["canonical_byte_count"]
+    if isinstance(byte_count, bool) or not isinstance(byte_count, int) or byte_count < 1:
+        raise ContractError("frozen replay diagnostic selected output byte count is invalid")
+    if "value" in selected:
+        encoded_value = canonical_json_bytes(selected["value"])
+        if len(encoded_value) != byte_count or sha256_bytes(encoded_value) != selected["sha256"]:
+            raise ContractError("frozen replay diagnostic selected output hash mismatch")
+    elif selected["value_omitted_from_receipt"] is not True:
+        raise ContractError("frozen replay diagnostic output omission marker is invalid")
+    comparison = diagnostic["comparison"]
+    require_exact_keys(
+        comparison,
+        {
+            "output_exactly_equal",
+            "strict_post_call_state_equal",
+            "reference_normalized_post_call_state_equal",
+            "object_reference_renumbering_only",
+            "first_exact_difference",
+            "first_substantive_difference",
+        },
+        "frozen replay diagnostic comparison",
+    )
+    expected_pass = (
+        comparison["output_exactly_equal"] and comparison["strict_post_call_state_equal"]
+    )
+    if diagnostic["producer_time_original_vs_reloaded_equality_passed"] is not expected_pass:
+        raise ContractError("frozen replay diagnostic producer equality flag mismatch")
+    if comparison["object_reference_renumbering_only"] is not (
+        not comparison["strict_post_call_state_equal"]
+        and comparison["reference_normalized_post_call_state_equal"]
+    ):
+        raise ContractError("frozen replay diagnostic reference-renumbering flag mismatch")
+
+
+def compare_frozen_replay_diagnostics(
+    producer: Mapping[str, Any], independent: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Locate the first canonical cross-process replay difference without classifying it."""
+
+    if producer["serialized_sha256"] != independent["serialized_sha256"]:
+        raise ContractError("producer and independent diagnostics bind different objects")
+    if producer["operation"] != independent["operation"]:
+        raise ContractError("producer and independent diagnostics bind different operations")
+    first: dict[str, Any] | None = None
+    role_results: dict[str, Any] = {}
+    for role in ("original_live_object", "fresh_reloaded_object"):
+        producer_graph = producer["post_call"][role]
+        independent_graph = independent["post_call"][role]
+        producer_map = producer_graph["canonical_per_path_sha256"]
+        independent_map = independent_graph["canonical_per_path_sha256"]
+        all_paths = sorted(set(producer_map) | set(independent_map))
+        differing = [
+            path for path in all_paths if producer_map.get(path) != independent_map.get(path)
+        ]
+        leaf_differences = [
+            path
+            for path in differing
+            if not any(other.startswith(f"{path}/") for other in differing)
+        ]
+        role_results[role] = {
+            "reference_normalized_graph_equal": not differing,
+            "producer_reference_normalized_graph_sha256": producer_graph[
+                "reference_normalized_graph_sha256"
+            ],
+            "independent_reference_normalized_graph_sha256": independent_graph[
+                "reference_normalized_graph_sha256"
+            ],
+            "differing_path_count": len(differing),
+        }
+        if first is None and leaf_differences:
+            path = leaf_differences[0]
+            first = {
+                "role": role,
+                "path": path,
+                "producer_sha256": producer_map.get(path),
+                "independent_sha256": independent_map.get(path),
+                "producer_path_present": path in producer_map,
+                "independent_path_present": path in independent_map,
+            }
+    producer_rng = producer["post_call"]["original_live_object"]["rng_state_sha256_by_path"]
+    independent_rng = independent["post_call"]["original_live_object"]["rng_state_sha256_by_path"]
+    rng_paths = sorted(set(producer_rng) | set(independent_rng))
+    rng_differences = [
+        {
+            "path": path,
+            "producer_sha256": producer_rng.get(path),
+            "independent_sha256": independent_rng.get(path),
+        }
+        for path in rng_paths
+        if producer_rng.get(path) != independent_rng.get(path)
+    ]
+    topology_equal = all(
+        producer["post_call"][role]["object_reference_topology"]["canonical_sha256"]
+        == independent["post_call"][role]["object_reference_topology"]["canonical_sha256"]
+        for role in ("original_live_object", "fresh_reloaded_object")
+    )
+    return {
+        "schema_version": "corrected_stageb_cross_process_replay_comparison_v1",
+        "serialized_sha256": producer["serialized_sha256"],
+        "operation_input_sha256": producer["operation"]["combined_input_sha256"],
+        "role_results": role_results,
+        "first_substantive_difference": first,
+        "rng_differences": rng_differences,
+        "canonical_object_reference_topology_equal": topology_equal,
+        "exact_cross_process_parity": first is None,
+        "classification_deferred_until_source_inspection": True,
+    }
 
 
 @contextmanager
@@ -868,6 +1505,61 @@ def revalidate_frozen_object_parity(
         )
     if replay_payload != payload or replay_receipt != dict(receipt):
         raise ContractError("published frozen fitted-object parity cannot be reproduced")
+
+
+def independently_diagnose_frozen_object_parity(
+    payload: bytes,
+    receipt: Mapping[str, Any],
+    producer_diagnostic: Mapping[str, Any],
+    *,
+    expected_component: str,
+    repository_root: Path,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Replay once in the caller's process and compare it with producer graph evidence."""
+
+    root = Path(repository_root).resolve()
+    payload_sha256 = sha256_bytes(payload)
+    validate_frozen_object_parity_receipt(
+        receipt,
+        expected_component=expected_component,
+        expected_serialized_sha256=payload_sha256,
+    )
+    validate_frozen_replay_diagnostic(
+        producer_diagnostic,
+        expected_component=expected_component,
+        expected_serialized_sha256=payload_sha256,
+    )
+    operation_input = receipt["operation_input"]
+    if (
+        producer_diagnostic["operation"]["name"] != receipt["operation"]
+        or producer_diagnostic["operation"]["arguments"] != operation_input["args"]
+        or producer_diagnostic["operation"]["keyword_arguments"] != operation_input["kwargs"]
+    ):
+        raise ContractError("producer diagnostic and parity receipt operation mismatch")
+    track = ROOT_SPECS[expected_component][0]
+    with _registered_track_imports(track, root):
+        fitted = load_frozen_fitted_object(payload, repository_root=root)
+        args = _decode(operation_input["args"], track=track, repository_root=root)
+        kwargs = _decode(operation_input["kwargs"], track=track, repository_root=root)
+        if not isinstance(args, tuple) or not isinstance(kwargs, Mapping):
+            raise ContractError("frozen fitted-object operation input types are invalid")
+        replay_payload, independent = diagnose_frozen_fitted_object_roundtrip(
+            expected_component,
+            fitted,
+            operation=receipt["operation"],
+            args=args,
+            kwargs=kwargs,
+            repository_root=root,
+        )
+    if replay_payload != payload:
+        raise ContractError("independent diagnostic changed the serialized fitted object")
+    validate_frozen_replay_diagnostic(
+        independent,
+        expected_component=expected_component,
+        expected_serialized_sha256=payload_sha256,
+    )
+    comparison = compare_frozen_replay_diagnostics(producer_diagnostic, independent)
+    return independent, comparison
 
 
 def scientific_component_for_method(method: str) -> str:
