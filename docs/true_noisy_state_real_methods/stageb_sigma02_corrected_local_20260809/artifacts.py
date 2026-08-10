@@ -116,6 +116,11 @@ FIXTURE_GENERATOR_RECIPE = (
     "serialize arrays as C-order little-endian float64"
 )
 FIXTURE_MANIFEST_SCHEMA = "corrected_stageb_prediction_fixture_manifest_v1"
+RICKER_FIT_CACHE_SCHEMA = "corrected_stageb_ricker_fit_cache_v2"
+EQUATION_VERSION = "adapted_mechanistic_v2"
+REGIME_LAW_VERSION = "discrete_current_then_switch_v1"
+REGISTERED_MODEL_FORMS = frozenset({"ricker", "allee", "theta", "regime"})
+REGISTERED_ACTION_CHANNELS = frozenset({"none", "rate", "capacity", "rate+capacity", "state"})
 
 
 def _state_keys(state: Mapping[str, Any], expected: set[str], component: str) -> None:
@@ -144,11 +149,17 @@ def _array(
     return array
 
 
-def _strings(value: Any, field: str, *, expected_length: int | None = None) -> tuple[str, ...]:
+def _strings(
+    value: Any,
+    field: str,
+    *,
+    expected_length: int | None = None,
+    unique: bool = True,
+) -> tuple[str, ...]:
     if not isinstance(value, list) or not value:
         raise ContractError(f"{field} must be a nonempty list")
     parsed = tuple(require_nonempty_string(item, field) for item in value)
-    if len(set(parsed)) != len(parsed):
+    if unique and len(set(parsed)) != len(parsed):
         raise ContractError(f"{field} values must be unique")
     if expected_length is not None and len(parsed) != expected_length:
         raise ContractError(f"{field} length mismatch")
@@ -225,11 +236,19 @@ def _validate_artifact_state(artifact: "CanonicalArtifact") -> None:
             count = 8 if method.startswith("plus_") else 1
             _state_keys(
                 state,
-                {"candidate_ids", "residual_sigma", "ricker_fit_cache_sha256"},
+                {"candidate_ids", "process_scale", "ricker_fit_cache_sha256"},
                 component,
             )
             _member_ids(state["candidate_ids"], "residual candidate_ids", count)
             require_sha256(state["ricker_fit_cache_sha256"], "residual Ricker cache")
+            process_scale = _array(
+                state["process_scale"],
+                "residual_process_scales.process_scale",
+                ndim=1,
+                shape=(count,),
+            )
+            if np.any(process_scale < 0.0):
+                raise ContractError("ecological process_scale must be nonnegative")
         else:
             count = 5
             _state_keys(
@@ -239,14 +258,14 @@ def _validate_artifact_state(artifact: "CanonicalArtifact") -> None:
             )
             _member_ids(state["member_ids"], "residual member_ids", count)
             require_sha256(state["dynamics_ensemble_sha256"], "residual dynamics ensemble")
-        residuals = _array(
-            state["residual_sigma"],
-            "residual_process_scales.residual_sigma",
-            ndim=1,
-            shape=(count,),
-        )
-        if np.any(residuals < 0.02):
-            raise ContractError("residual process scale below frozen floor")
+            residuals = _array(
+                state["residual_sigma"],
+                "residual_process_scales.residual_sigma",
+                ndim=1,
+                shape=(count,),
+            )
+            if np.any(residuals < 0.02):
+                raise ContractError("general learned-dynamics residual_sigma below frozen floor")
     elif component in {"refplan_behavior_prior", "ogsrl_actor", "evd_behavior_reference"}:
         _validate_action_model(state, component)
     elif component == "planner_configuration":
@@ -316,21 +335,173 @@ def _validate_artifact_state(artifact: "CanonicalArtifact") -> None:
             raise ContractError("EVD policy objective/configuration mismatch")
     elif component == "ricker_fit_cache":
         count = 8 if method.startswith("plus_") else 1
+        expected = {
+            "schema_version",
+            "cell",
+            "candidate_ids",
+            "candidate_labels",
+            "form",
+            "action_channels",
+            "growth",
+            "mortality",
+            "capacity_increment",
+            "stocking",
+            "process_scale",
+            "observation_scale",
+            "survey_scale",
+            "initial_capacity",
+            "capacity_ceiling",
+            "reset_log_mean",
+            "reset_log_scale",
+            "depensation_thresholds",
+            "theta_exponent",
+            "regime_multipliers",
+            "regime_matrix",
+            "equation_version",
+            "regime_law_version",
+            "parameter_hashes",
+        }
         _state_keys(
             state,
-            {"cell", "candidate_ids", "r", "capacity", "residual_sigma", "survey_scale"},
+            expected,
             component,
         )
+        if state["schema_version"] != RICKER_FIT_CACHE_SCHEMA:
+            raise ContractError("ecological fitted-cache state schema mismatch")
+        if state["equation_version"] != EQUATION_VERSION:
+            raise ContractError("ecological equation version mismatch")
+        if state["regime_law_version"] != REGIME_LAW_VERSION:
+            raise ContractError("ecological regime-law version mismatch")
         require_nonempty_string(state["cell"], "ricker_fit_cache.cell")
         _member_ids(state["candidate_ids"], "ricker candidate_ids", count)
-        for field in ("r", "capacity", "residual_sigma"):
-            values = _array(
-                state[field], f"ricker_fit_cache.{field}", ndim=1, shape=(count,), positive=True
-            )
-            if field == "residual_sigma" and np.any(values < 0.02):
-                raise ContractError("Ricker residual sigma below frozen floor")
-        if require_finite(state["survey_scale"], "Ricker survey_scale", nonnegative=True) <= 0.0:
-            raise ContractError("Ricker survey_scale must be positive")
+        _strings(state["candidate_labels"], "ricker candidate_labels", expected_length=count)
+        forms = _strings(state["form"], "ricker forms", expected_length=count, unique=False)
+        if any(value not in REGISTERED_MODEL_FORMS for value in forms):
+            raise ContractError("ecological fitted cache contains an unregistered model form")
+        channels = state["action_channels"]
+        if not isinstance(channels, list) or len(channels) != count:
+            raise ContractError("action_channels candidate dimension mismatch")
+        parsed_channels: list[tuple[str, ...]] = []
+        action_count: int | None = None
+        for index, row in enumerate(channels):
+            parsed = _strings(row, f"action_channels[{index}]", unique=False)
+            if action_count is None:
+                action_count = len(parsed)
+            if len(parsed) != action_count or any(
+                value not in REGISTERED_ACTION_CHANNELS for value in parsed
+            ):
+                raise ContractError(
+                    "action_channels must use one registered public channel per action"
+                )
+            parsed_channels.append(parsed)
+        assert action_count is not None
+        growth = _array(
+            state["growth"], "ricker_fit_cache.growth", ndim=2, shape=(count, action_count)
+        )
+        mortality = _array(
+            state["mortality"], "ricker_fit_cache.mortality", ndim=2, shape=(count, action_count)
+        )
+        capacity_increment = _array(
+            state["capacity_increment"],
+            "ricker_fit_cache.capacity_increment",
+            ndim=2,
+            shape=(count, action_count),
+        )
+        stocking = _array(
+            state["stocking"], "ricker_fit_cache.stocking", ndim=2, shape=(count, action_count)
+        )
+        for field, values in (
+            ("growth", growth),
+            ("mortality", mortality),
+            ("capacity_increment", capacity_increment),
+            ("stocking", stocking),
+        ):
+            if np.any(values < 0.0):
+                raise ContractError(f"ricker_fit_cache.{field} must be nonnegative")
+        if np.any((growth > 0.0) & (mortality > 0.0)):
+            raise ContractError("growth and mortality cannot both be positive for one action")
+        for candidate_index, row in enumerate(parsed_channels):
+            for action_index, channel in enumerate(row):
+                if (
+                    channel not in {"capacity", "rate+capacity"}
+                    and capacity_increment[candidate_index, action_index] != 0.0
+                ):
+                    raise ContractError("capacity increment is incompatible with action channel")
+                if channel != "state" and stocking[candidate_index, action_index] != 0.0:
+                    raise ContractError("stocking is incompatible with action channel")
+        process_scale = _array(
+            state["process_scale"], "ricker_fit_cache.process_scale", ndim=1, shape=(count,)
+        )
+        observation_scale = _array(
+            state["observation_scale"], "ricker_fit_cache.observation_scale", ndim=1, shape=(count,)
+        )
+        if np.any(process_scale < 0.0) or np.any(observation_scale < 0.0):
+            raise ContractError("ecological process/observation scales must be nonnegative")
+        survey_scale = _array(
+            state["survey_scale"],
+            "ricker_fit_cache.survey_scale",
+            ndim=1,
+            shape=(count,),
+            positive=True,
+        )
+        initial_capacity = _array(
+            state["initial_capacity"],
+            "ricker_fit_cache.initial_capacity",
+            ndim=1,
+            shape=(count,),
+            positive=True,
+        )
+        capacity_ceiling = _array(
+            state["capacity_ceiling"],
+            "ricker_fit_cache.capacity_ceiling",
+            ndim=1,
+            shape=(count,),
+            positive=True,
+        )
+        if np.any(capacity_ceiling < initial_capacity):
+            raise ContractError("capacity ceiling must be at least initial capacity")
+        _array(state["reset_log_mean"], "ricker_fit_cache.reset_log_mean", ndim=1, shape=(count,))
+        _array(
+            state["reset_log_scale"],
+            "ricker_fit_cache.reset_log_scale",
+            ndim=1,
+            shape=(count,),
+            positive=True,
+        )
+        thresholds = _array(
+            state["depensation_thresholds"],
+            "ricker_fit_cache.depensation_thresholds",
+            ndim=2,
+            shape=(count, 2),
+            positive=True,
+        )
+        if np.any(thresholds >= initial_capacity[:, None]):
+            raise ContractError("depensation thresholds must be below initial capacity")
+        _array(
+            state["theta_exponent"],
+            "ricker_fit_cache.theta_exponent",
+            ndim=1,
+            shape=(count,),
+            positive=True,
+        )
+        _array(
+            state["regime_multipliers"],
+            "ricker_fit_cache.regime_multipliers",
+            ndim=2,
+            shape=(count, 2),
+            positive=True,
+        )
+        regime = _array(
+            state["regime_matrix"], "ricker_fit_cache.regime_matrix", ndim=3, shape=(count, 2, 2)
+        )
+        if np.any(regime < 0.0) or not np.allclose(regime.sum(axis=2), 1.0, rtol=0.0, atol=1e-10):
+            raise ContractError("regime matrix must be nonnegative and row stochastic")
+        hashes = _strings(
+            state["parameter_hashes"], "ricker parameter hashes", expected_length=count
+        )
+        for digest in hashes:
+            require_sha256(digest, "MechanisticModel parameter hash")
+        del survey_scale
     elif component == "pbvi_grids":
         _state_keys(state, {"abundance_grid", "capacity_grid", "observation_grid"}, component)
         for field in ("abundance_grid", "observation_grid"):
@@ -705,11 +876,18 @@ def _validate_bundle_cross_references(
         if residual["dynamics_ensemble_sha256"] != hashes["dynamics_ensemble"]:
             raise ContractError("residual scale does not bind the serialized dynamics ensemble")
     if method in ECOLOGICAL_METHODS:
-        if (
-            artifacts["residual_process_scales"].state["ricker_fit_cache_sha256"]
-            != hashes["ricker_fit_cache"]
-        ):
+        cache_state = artifacts["ricker_fit_cache"].state
+        process_state = artifacts["residual_process_scales"].state
+        if process_state["ricker_fit_cache_sha256"] != hashes["ricker_fit_cache"]:
             raise ContractError("ecological residual scale does not bind the Ricker cache")
+        if process_state["candidate_ids"] != cache_state["candidate_ids"]:
+            raise ContractError("ecological process-scale candidate identifiers mismatch")
+        cache_values = _array(cache_state["process_scale"], "ricker cache process_scale", ndim=1)
+        process_values = _array(process_state["process_scale"], "process-scale component", ndim=1)
+        if cache_values.dtype != process_values.dtype or cache_values.shape != process_values.shape:
+            raise ContractError("ecological process-scale shape/dtype mismatch")
+        if cache_values.tobytes(order="C") != process_values.tobytes(order="C"):
+            raise ContractError("ecological process-scale values are not bit-identical to cache")
         if (
             artifacts["pbvi_candidates"].state["ricker_fit_cache_sha256"]
             != hashes["ricker_fit_cache"]
@@ -939,9 +1117,11 @@ class SharedEcologicalPolicy:
         cache = CanonicalArtifact.from_bytes(self.ricker_cache_bytes)
         if cache.state["cell"] != self.cell or surrogate.state["cell"] != self.cell:
             raise ContractError("shared ecological policy cross-cell fitted-artifact binding")
-        if np.float64(cache.state["survey_scale"]).view(np.uint64) != np.float64(
-            self.survey_scale
-        ).view(np.uint64):
+        cached_survey_scales = _array(
+            cache.state["survey_scale"], "shared policy cache survey_scale", ndim=1
+        )
+        expected_scale_bits = np.float64(self.survey_scale).view(np.uint64)
+        if not np.all(cached_survey_scales.view(np.uint64) == expected_scale_bits):
             raise ContractError("shared ecological policy survey_scale/cache mismatch")
 
 

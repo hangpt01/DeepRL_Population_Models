@@ -20,8 +20,8 @@ from ..diagnostics import (
 )
 from ..evidence import REGISTERED_EPISODE_IDS, REGISTERED_HORIZON
 from ..orchestration import (
-    ARTIFACT_EVIDENCE_V2,
     ARTIFACT_EVIDENCE_V3,
+    ARTIFACT_EVIDENCE_V4,
     ArmTGateToken,
     CORRECTED_TEST_COUNT,
     authorize_arm_t_task,
@@ -50,14 +50,19 @@ def _bound_evidence(registration, task, kind, receipt_mutator=None):
             if task["method"].startswith("moor_")
             else 5
         )
+        scale_arguments = (
+            {"process_scale": [0.001 + index * 0.001 for index in range(member_count)]}
+            if task["method"].startswith(("plus_", "moor_"))
+            else {"residual_sigma": [0.02 + index * 0.001 for index in range(member_count)]}
+        )
         receipts = {
             "transition": build_arm_transition_diagnostics(
                 registration_sha256=registration.sha256,
                 method=task["method"],
                 cell=task["cell"],
                 arm="O",
-                residual_sigma=[0.02 + index * 0.001 for index in range(member_count)],
                 artifact_hashes=[HASHES[index % len(HASHES)] for index in range(member_count)],
+                **scale_arguments,
             ),
             "activity": [
                 classify_activity(
@@ -190,7 +195,7 @@ def arm_o_receipts(
         write_bytes_fsync(staging / "frozen-object.json", frozen_payload)
         write_bytes_fsync(staging / "frozen-object-parity.json", frozen_parity)
         artifact_evidence_value = {
-            "schema_version": "corrected_stageb_artifact_bundle_evidence_v3",
+            "schema_version": "corrected_stageb_artifact_bundle_evidence_v4",
             "registration_sha256": registration.sha256,
             "task_index": task["task_index"],
             "arm": "O",
@@ -398,13 +403,13 @@ def test_arm_t_requires_successful_m3_parity_artifact_gate(registration_bundle, 
     authorize_arm_t_task(token, registration)
 
 
-def test_v2_and_v3_artifact_evidence_are_mutually_rejected():
-    require_artifact_evidence_version({"schema_version": ARTIFACT_EVIDENCE_V3})
+def test_v3_and_v4_artifact_evidence_are_mutually_rejected():
+    require_artifact_evidence_version({"schema_version": ARTIFACT_EVIDENCE_V4})
     with pytest.raises(ContractError, match="schema mismatch"):
-        require_artifact_evidence_version({"schema_version": ARTIFACT_EVIDENCE_V2})
+        require_artifact_evidence_version({"schema_version": ARTIFACT_EVIDENCE_V3})
     with pytest.raises(ContractError, match="schema mismatch"):
         require_artifact_evidence_version(
-            {"schema_version": ARTIFACT_EVIDENCE_V3}, expected=ARTIFACT_EVIDENCE_V2
+            {"schema_version": ARTIFACT_EVIDENCE_V4}, expected=ARTIFACT_EVIDENCE_V3
         )
 
 

@@ -1,5 +1,5 @@
 {
-  "schema_version": "corrected_stageb_analysis_rules_v1",
+  "schema_version": "corrected_stageb_analysis_rules_v2",
   "primary_estimand": "mean_return_T_minus_mean_return_O",
   "bootstrap": {
     "resamples": 100000,
@@ -9,10 +9,12 @@
     "quantile_method": "linear",
     "resampling_unit": "intact paired evaluation episode"
   },
-  "residual_sigma_rule": {
+  "transition_scale_rule": {
     "numeric_threshold": null,
     "ratio_guard": "compute only when Arm O denominator is positive",
-    "residual_sigma_floor": 0.02,
+    "general_learned_dynamics_residual_sigma_floor": 0.02,
+    "ecological_process_scale_floor": null,
+    "floor_semantics": "general_learned_dynamics_only",
     "changed_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
     "bit_identity_required_for_frozen_fit": true
   },

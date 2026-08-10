@@ -14,6 +14,7 @@ from .registration import CELLS, METHODS
 
 
 RESIDUAL_SIGMA_FLOOR = 0.02
+FLOOR_SEMANTICS = "general_learned_dynamics_only"
 NEAR_CONSTANT_THRESHOLD = 0.98
 
 
@@ -33,26 +34,33 @@ def guarded_ratio(numerator: float, denominator: float) -> dict[str, Any]:
     return {"value": top / bottom, "status": "COMPUTED"}
 
 
-def _residual_arm_receipt(
-    values: Sequence[float], artifact_hashes: Sequence[str], arm: str
+def _transition_arm_receipt(
+    method: str, values: Sequence[float], artifact_hashes: Sequence[str], arm: str
 ) -> dict[str, Any]:
     if not values:
-        raise ContractError(f"Arm {arm} residual_sigma values are missing")
+        raise ContractError(f"Arm {arm} transition-scale values are missing")
     if len(values) != len(artifact_hashes):
         raise ContractError(f"Arm {arm} residual/artifact member count mismatch")
+    ecological = method.startswith(("plus_", "moor_"))
+    scale_name = "process_scale" if ecological else "residual_sigma"
     parsed = [
-        require_finite(value, f"Arm {arm} residual_sigma", nonnegative=True) for value in values
+        require_finite(value, f"Arm {arm} {scale_name}", nonnegative=True) for value in values
     ]
-    if any(value < RESIDUAL_SIGMA_FLOOR for value in parsed):
-        raise ContractError("residual_sigma below the frozen 0.02 floor")
+    if not ecological and any(value < RESIDUAL_SIGMA_FLOOR for value in parsed):
+        raise ContractError("general learned-dynamics residual_sigma below the frozen 0.02 floor")
     hashes = [require_sha256(value, f"Arm {arm} artifact hash") for value in artifact_hashes]
     return {
         "member_values": parsed,
         "aggregate_mean": float(np.mean(np.asarray(parsed, dtype=np.float64))),
         "aggregate_min": min(parsed),
         "aggregate_max": max(parsed),
-        "floor": RESIDUAL_SIGMA_FLOOR,
-        "floor_active": [
+        "scale_name": scale_name,
+        "applicable_floor": None if ecological else RESIDUAL_SIGMA_FLOOR,
+        "floor_semantics": FLOOR_SEMANTICS,
+        "below_general_floor": [value < RESIDUAL_SIGMA_FLOOR for value in parsed],
+        "floor_active": None
+        if ecological
+        else [
             bool(
                 np.float64(value).view(np.uint64)
                 == np.float64(RESIDUAL_SIGMA_FLOOR).view(np.uint64)
@@ -79,8 +87,8 @@ def build_transition_diagnostics(
     expected_count = _expected_member_count(method)
     if len(arm_o_values) != expected_count or len(arm_t_values) != expected_count:
         raise ContractError("transition diagnostic ensemble/member count mismatch")
-    arm_o = _residual_arm_receipt(arm_o_values, arm_o_artifact_hashes, "O")
-    arm_t = _residual_arm_receipt(arm_t_values, arm_t_artifact_hashes, "T")
+    arm_o = _transition_arm_receipt(method, arm_o_values, arm_o_artifact_hashes, "O")
+    arm_t = _transition_arm_receipt(method, arm_t_values, arm_t_artifact_hashes, "T")
     if len(arm_o_values) != len(arm_t_values):
         raise ContractError("Arm O/T residual ensemble sizes differ")
     differences = [float(t_value - o_value) for o_value, t_value in zip(arm_o_values, arm_t_values)]
@@ -88,7 +96,7 @@ def build_transition_diagnostics(
         guarded_ratio(t_value, o_value) for o_value, t_value in zip(arm_o_values, arm_t_values)
     ]
     return {
-        "schema_version": "corrected_stageb_transition_diagnostics_v1",
+        "schema_version": "corrected_stageb_transition_diagnostics_v2",
         "registration_sha256": registration_sha256,
         "method": method,
         "cell": cell,
@@ -115,7 +123,8 @@ def build_arm_transition_diagnostics(
     method: str,
     cell: str,
     arm: str,
-    residual_sigma: Sequence[float],
+    residual_sigma: Sequence[float] | None = None,
+    process_scale: Sequence[float] | None = None,
     artifact_hashes: Sequence[str],
 ) -> dict[str, Any]:
     """Build the complete single-arm receipt available before the Arm O gate."""
@@ -123,24 +132,37 @@ def build_arm_transition_diagnostics(
     require_sha256(registration_sha256, "single-arm transition registration")
     if method not in METHODS or cell not in CELLS or arm not in {"O", "T"}:
         raise ContractError("single-arm transition binding mismatch")
-    if len(residual_sigma) != _expected_member_count(method):
+    ecological = method.startswith(("plus_", "moor_"))
+    if ecological:
+        if residual_sigma is not None or process_scale is None:
+            raise ContractError("ecological diagnostics require process_scale only")
+        values = process_scale
+    else:
+        if process_scale is not None or residual_sigma is None:
+            raise ContractError("general diagnostics require residual_sigma only")
+        values = residual_sigma
+    if len(values) != _expected_member_count(method):
         raise ContractError("single-arm transition ensemble/member count mismatch")
-    arm_receipt = _residual_arm_receipt(residual_sigma, artifact_hashes, arm)
-    return {
-        "schema_version": "corrected_stageb_arm_transition_diagnostics_v1",
+    arm_receipt = _transition_arm_receipt(method, values, artifact_hashes, arm)
+    receipt = {
+        "schema_version": "corrected_stageb_arm_transition_diagnostics_v2",
         "registration_sha256": registration_sha256,
         "method": method,
         "cell": cell,
         "arm": arm,
         "member_ids": list(range(_expected_member_count(method))),
-        "residual_sigma": list(arm_receipt["member_values"]),
+        "transition_scale_name": arm_receipt["scale_name"],
+        arm_receipt["scale_name"]: list(arm_receipt["member_values"]),
         "aggregate_mean": arm_receipt["aggregate_mean"],
         "aggregate_min": arm_receipt["aggregate_min"],
         "aggregate_max": arm_receipt["aggregate_max"],
-        "floor": arm_receipt["floor"],
+        "applicable_floor": arm_receipt["applicable_floor"],
+        "floor_semantics": arm_receipt["floor_semantics"],
+        "below_general_floor": arm_receipt["below_general_floor"],
         "floor_active": arm_receipt["floor_active"],
         "artifact_hashes": arm_receipt["artifact_hashes"],
     }
+    return receipt
 
 
 def _entropy(probabilities: np.ndarray) -> float:
@@ -458,13 +480,17 @@ def validate_arm_task_diagnostics(
     transition = receipts["transition"]
     if not isinstance(transition, Mapping):
         raise ContractError("single-arm transition receipt must be an object")
+    transition_scale_name = transition.get("transition_scale_name")
+    scale_arguments: dict[str, Any] = {}
+    if transition_scale_name in {"residual_sigma", "process_scale"}:
+        scale_arguments[transition_scale_name] = transition.get(transition_scale_name, ())
     rebuilt_transition = build_arm_transition_diagnostics(
         registration_sha256=registration_sha256,
         method=method,
         cell=cell,
         arm=arm,
-        residual_sigma=transition.get("residual_sigma", ()),
         artifact_hashes=transition.get("artifact_hashes", ()),
+        **scale_arguments,
     )
     if dict(transition) != rebuilt_transition:
         raise ContractError("single-arm transition receipt is internally inconsistent")

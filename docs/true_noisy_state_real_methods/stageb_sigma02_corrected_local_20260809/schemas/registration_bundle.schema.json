@@ -49,12 +49,12 @@
     "analysisRules": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["schema_version", "primary_estimand", "bootstrap", "residual_sigma_rule", "near_constant_rule", "collapse_decomposition_rule", "evd_objective", "cross_species_pooling"],
+      "required": ["schema_version", "primary_estimand", "bootstrap", "transition_scale_rule", "near_constant_rule", "collapse_decomposition_rule", "evd_objective", "cross_species_pooling"],
       "properties": {
-        "schema_version": {"const": "corrected_stageb_analysis_rules_v1"},
+        "schema_version": {"const": "corrected_stageb_analysis_rules_v2"},
         "primary_estimand": {"const": "mean_return_T_minus_mean_return_O"},
         "bootstrap": {"type": "object"},
-        "residual_sigma_rule": {"type": "object"},
+        "transition_scale_rule": {"type": "object"},
         "near_constant_rule": {"type": "object"},
         "collapse_decomposition_rule": {"const": "collapse-entry step belongs to post-collapse"},
         "evd_objective": {"const": "raw logged rewards; separately labelled"},

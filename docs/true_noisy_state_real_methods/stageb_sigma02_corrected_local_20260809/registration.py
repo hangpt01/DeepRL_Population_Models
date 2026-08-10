@@ -254,14 +254,14 @@ def _validate_analysis_rules(value: Mapping[str, Any]) -> None:
         "schema_version",
         "primary_estimand",
         "bootstrap",
-        "residual_sigma_rule",
+        "transition_scale_rule",
         "near_constant_rule",
         "collapse_decomposition_rule",
         "evd_objective",
         "cross_species_pooling",
     }
     require_exact_keys(value, required, "analysis_rules")
-    if value["schema_version"] != "corrected_stageb_analysis_rules_v1":
+    if value["schema_version"] != "corrected_stageb_analysis_rules_v2":
         raise ContractError("analysis-rules schema mismatch")
     if value["primary_estimand"] != "mean_return_T_minus_mean_return_O":
         raise ContractError("primary estimand mismatch")
@@ -275,15 +275,17 @@ def _validate_analysis_rules(value: Mapping[str, Any]) -> None:
         "resampling_unit": "intact paired evaluation episode",
     }:
         raise ContractError("paired-bootstrap rule mismatch")
-    residual = value["residual_sigma_rule"]
-    if residual != {
+    transition_scale = value["transition_scale_rule"]
+    if transition_scale != {
         "numeric_threshold": None,
         "ratio_guard": "compute only when Arm O denominator is positive",
-        "residual_sigma_floor": 0.02,
+        "general_learned_dynamics_residual_sigma_floor": 0.02,
+        "ecological_process_scale_floor": None,
+        "floor_semantics": "general_learned_dynamics_only",
         "changed_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
         "bit_identity_required_for_frozen_fit": True,
     }:
-        raise ContractError("residual-sigma rule does not match frozen I1/addendum")
+        raise ContractError("transition-scale rule does not match scoped V4 contract")
     near = value["near_constant_rule"]
     if near != {
         "prospectively_declared": True,

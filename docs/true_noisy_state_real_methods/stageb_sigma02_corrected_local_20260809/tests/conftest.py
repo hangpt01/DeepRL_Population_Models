@@ -142,7 +142,7 @@ def complete_bundle() -> dict[str, Any]:
             "local_status_label": "LOCAL ARM64 DEVELOPMENT TEST — NOT SCIENTIFIC EVIDENCE",
         },
         "analysis_rules": {
-            "schema_version": "corrected_stageb_analysis_rules_v1",
+            "schema_version": "corrected_stageb_analysis_rules_v2",
             "primary_estimand": "mean_return_T_minus_mean_return_O",
             "bootstrap": {
                 "resamples": 100000,
@@ -152,10 +152,12 @@ def complete_bundle() -> dict[str, Any]:
                 "quantile_method": "linear",
                 "resampling_unit": "intact paired evaluation episode",
             },
-            "residual_sigma_rule": {
+            "transition_scale_rule": {
                 "numeric_threshold": None,
                 "ratio_guard": "compute only when Arm O denominator is positive",
-                "residual_sigma_floor": 0.02,
+                "general_learned_dynamics_residual_sigma_floor": 0.02,
+                "ecological_process_scale_floor": None,
+                "floor_semantics": "general_learned_dynamics_only",
                 "changed_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
                 "bit_identity_required_for_frozen_fit": True,
             },
@@ -273,22 +275,68 @@ def artifact_components(
     if method in {"plus_adapted_ricker_only_pbvi", "moor_adapted_ricker_misspec_pbvi"}:
         count = 8 if method.startswith("plus_") else 1
         candidate_ids = list(range(count))
+        action_channels = [
+            "none",
+            "rate",
+            "rate",
+            "capacity",
+            "rate+capacity",
+            "state",
+            "none",
+            "rate",
+            "capacity",
+            "state",
+            "rate+capacity",
+        ]
+        growth = np.zeros((count, 11), dtype=np.float64)
+        mortality = np.zeros((count, 11), dtype=np.float64)
+        growth[:, 0] = np.linspace(0.1, 0.2, count, dtype=np.float64)
+        mortality[:, 1] = np.linspace(0.01, 0.02, count, dtype=np.float64)
+        capacity_increment = np.zeros((count, 11), dtype=np.float64)
+        capacity_increment[:, 3] = 0.5
+        stocking = np.zeros((count, 11), dtype=np.float64)
+        stocking[:, 5] = 0.25
+        initial_capacity = np.linspace(10.0, 20.0, count, dtype=np.float64)
+        process_scale = np.linspace(0.001, 0.019, count, dtype=np.float64)
         cache_sha = add(
             "ricker_fit_cache",
             {
+                "schema_version": "corrected_stageb_ricker_fit_cache_v2",
                 "cell": cell,
                 "candidate_ids": candidate_ids,
-                "r": np.linspace(0.1, 0.2, count, dtype=np.float64),
-                "capacity": np.linspace(10.0, 20.0, count, dtype=np.float64),
-                "residual_sigma": np.full(count, 0.02, dtype=np.float64),
-                "survey_scale": 10.0,
+                "candidate_labels": [f"candidate_{index:03d}" for index in candidate_ids],
+                "form": ["ricker"] * count,
+                "action_channels": [list(action_channels) for _ in candidate_ids],
+                "growth": growth,
+                "mortality": mortality,
+                "capacity_increment": capacity_increment,
+                "stocking": stocking,
+                "process_scale": process_scale,
+                "observation_scale": np.full(count, 0.2, dtype=np.float64),
+                "survey_scale": np.full(count, 10.0, dtype=np.float64),
+                "initial_capacity": initial_capacity,
+                "capacity_ceiling": initial_capacity + 5.0,
+                "reset_log_mean": np.linspace(0.1, 0.2, count, dtype=np.float64),
+                "reset_log_scale": np.full(count, 0.3, dtype=np.float64),
+                "depensation_thresholds": np.column_stack(
+                    [initial_capacity * 0.1, initial_capacity * 0.2]
+                ),
+                "theta_exponent": np.full(count, 1.5, dtype=np.float64),
+                "regime_multipliers": np.tile(np.array([[0.9, 1.1]], dtype=np.float64), (count, 1)),
+                "regime_matrix": np.tile(
+                    np.array([[[0.9, 0.1], [0.1, 0.9]]], dtype=np.float64),
+                    (count, 1, 1),
+                ),
+                "equation_version": "adapted_mechanistic_v2",
+                "regime_law_version": "discrete_current_then_switch_v1",
+                "parameter_hashes": [HASHES[index % len(HASHES)] for index in candidate_ids],
             },
         )
         add(
             "residual_process_scales",
             {
                 "candidate_ids": candidate_ids,
-                "residual_sigma": np.full(count, 0.02, dtype=np.float64),
+                "process_scale": process_scale.copy(),
                 "ricker_fit_cache_sha256": cache_sha,
             },
         )

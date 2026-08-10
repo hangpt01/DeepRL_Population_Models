@@ -173,7 +173,7 @@
       "additionalProperties": false,
       "required": ["schema_version", "registration_sha256", "task_index", "arm", "cell", "method", "artifact_plan_sha256", "prediction_fixtures", "fixture_row_count", "fixture_manifest_sha256", "components", "component_hashes", "bundle_sha256", "fresh_reload_parity", "frozen_object_artifact", "frozen_object_parity", "frozen_object_binding"],
       "properties": {
-        "schema_version": {"const": "corrected_stageb_artifact_bundle_evidence_v3"},
+        "schema_version": {"const": "corrected_stageb_artifact_bundle_evidence_v4"},
         "registration_sha256": {"$ref": "#/$defs/sha256"},
         "task_index": {"type": "integer", "minimum": 0, "maximum": 11},
         "arm": {"const": "O"},

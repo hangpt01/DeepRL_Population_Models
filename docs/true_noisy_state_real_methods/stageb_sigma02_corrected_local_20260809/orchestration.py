@@ -38,9 +38,10 @@ from .real_artifacts import revalidate_frozen_object_parity, scientific_componen
 
 
 EXPECTED_ARM_TASKS = tuple((cell, method) for cell in CELLS for method in METHODS)
-CORRECTED_TEST_COUNT = 131
+CORRECTED_TEST_COUNT = 165
 ARTIFACT_EVIDENCE_V2 = "corrected_stageb_artifact_bundle_evidence_v2"
 ARTIFACT_EVIDENCE_V3 = "corrected_stageb_artifact_bundle_evidence_v3"
+ARTIFACT_EVIDENCE_V4 = "corrected_stageb_artifact_bundle_evidence_v4"
 _TOKEN_ISSUER = object()
 _TOKEN_SECRET = secrets.token_bytes(32)
 _ED_Q = 2**255 - 19
@@ -49,9 +50,9 @@ _ED_D = (-121665 * pow(121666, _ED_Q - 2, _ED_Q)) % _ED_Q
 
 
 def require_artifact_evidence_version(
-    value: Mapping[str, Any], *, expected: str = ARTIFACT_EVIDENCE_V3
+    value: Mapping[str, Any], *, expected: str = ARTIFACT_EVIDENCE_V4
 ) -> None:
-    if expected not in {ARTIFACT_EVIDENCE_V2, ARTIFACT_EVIDENCE_V3}:
+    if expected not in {ARTIFACT_EVIDENCE_V2, ARTIFACT_EVIDENCE_V3, ARTIFACT_EVIDENCE_V4}:
         raise ContractError("unsupported artifact evidence contract version")
     if value.get("schema_version") != expected:
         raise ContractError(f"artifact evidence schema mismatch; expected {expected}")
@@ -433,7 +434,7 @@ def _validate_artifact_bundle_evidence(
         "Arm O fitted-artifact bundle evidence",
     )
     expected = {
-        "schema_version": ARTIFACT_EVIDENCE_V3,
+        "schema_version": ARTIFACT_EVIDENCE_V4,
         "registration_sha256": registration_sha,
         "task_index": expected_task["task_index"],
         "arm": "O",

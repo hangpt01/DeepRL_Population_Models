@@ -88,11 +88,11 @@ def _general_fixture(method: str, cell: str, public_view_sha256: str, repository
         )
         model_cfg = ModelConfig(ensemble_size=5)
         planner_cfg = PlannerConfig(
-            horizon=1,
-            sequences=11,
-            particles=2,
-            bamcts_depth=1,
-            bamcts_simulations=2,
+            horizon=5,
+            sequences=96,
+            particles=32,
+            bamcts_depth=8,
+            bamcts_simulations=256,
             ogsrl_cost_horizon=1,
             ogsrl_deployment_rollouts=2,
         )
@@ -162,8 +162,8 @@ def _general_fixture(method: str, cell: str, public_view_sha256: str, repository
                 context,
                 model_cfg,
                 planner_cfg,
-                simulations=2,
-                depth=1,
+                simulations=256,
+                depth=8,
                 seed=37,
             )
             fitted.dynamics = PublicDynamicsEnsemble(members, seed=23)
@@ -225,11 +225,33 @@ def _ecological_fixture(method: str, cell: str, public_view_sha256: str, reposit
             PLUSRickerOnlyFaithfulPBVIPolicy,
         )
         from real_ecology_benchmark.planners.pbvi import PointBasedPlanner
+        from real_ecology_benchmark.public_surrogate import (
+            PublicFeatureSpec,
+            PublicRewardRiskSurrogate,
+        )
         from real_ecology_benchmark.types import BeliefState
 
         action_count = 11
         pop_id = "pop_tiger" if cell.startswith("amur_tiger") else "pop_fox"
         channels = ("none",) * action_count
+        feature_spec = PublicFeatureSpec(
+            observation_scale=100.0,
+            continuous_mean=np.zeros(7, dtype=np.float64),
+            continuous_std=np.ones(7, dtype=np.float64),
+            pop_vocabulary=(pop_id,),
+            num_actions=action_count,
+            public_horizon=50,
+        )
+        surrogate = PublicRewardRiskSurrogate(
+            feature_spec=feature_spec,
+            reward_coefficients=np.zeros(20, dtype=np.float64),
+            risk_coefficients=None,
+            constant_risk=0.1,
+            action_costs=np.zeros(action_count, dtype=np.float64),
+            diagnostics={"synthetic_fixture": 1.0},
+            public_data_hash=public_view_sha256,
+            split_seed=17,
+        )
         context = MethodContext(
             num_actions=action_count,
             action_costs=(0.0,) * action_count,
@@ -238,6 +260,7 @@ def _ecological_fixture(method: str, cell: str, public_view_sha256: str, reposit
             horizon=50,
             observation_scale=100.0,
             pop_id=pop_id,
+            surrogate=surrogate,
         )
         faithful = FaithfulConfig(
             model=FaithfulModelConfig(forms=("ricker",), candidates_per_form=8, prior="uniform"),
