@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "corrected_stageb_canonical_artifact.schema.json",
+  "title": "Canonical fitted artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "component", "method", "fit_source", "state"],
+  "properties": {
+    "schema_version": {"const": "corrected_stageb_canonical_artifact_v1"},
+    "component": {"type": "string", "minLength": 1},
+    "method": {"type": "string", "minLength": 1},
+    "fit_source": {"type": "string", "minLength": 1},
+    "state": {
+      "type": "object",
+      "oneOf": [
+        {"additionalProperties": false, "required": ["feature_order", "offset", "scale", "dtype"], "properties": {"feature_order": {}, "offset": {}, "scale": {}, "dtype": {}}},
+        {"additionalProperties": false, "required": ["feature_order", "matrix", "bias", "dtype"], "properties": {"feature_order": {}, "matrix": {}, "bias": {}, "dtype": {}}},
+        {"additionalProperties": false, "required": ["cell", "source_public_view_sha256", "feature_order", "weights", "bias"], "properties": {"cell": {}, "source_public_view_sha256": {}, "feature_order": {}, "weights": {}, "bias": {}}},
+        {"additionalProperties": false, "required": ["cell", "source_public_view_sha256", "consumer_methods", "label", "feature_order", "weights", "bias"], "properties": {"cell": {}, "source_public_view_sha256": {}, "consumer_methods": {}, "label": {}, "feature_order": {}, "weights": {}, "bias": {}}},
+        {"additionalProperties": false, "required": ["feature_order", "member_ids", "weights", "bias", "residual_sigma"], "properties": {"feature_order": {}, "member_ids": {}, "weights": {}, "bias": {}, "residual_sigma": {}}},
+        {"additionalProperties": false, "required": ["member_ids", "residual_sigma", "dynamics_ensemble_sha256"], "properties": {"member_ids": {}, "residual_sigma": {}, "dynamics_ensemble_sha256": {}}},
+        {"additionalProperties": false, "required": ["candidate_ids", "residual_sigma", "ricker_fit_cache_sha256"], "properties": {"candidate_ids": {}, "residual_sigma": {}, "ricker_fit_cache_sha256": {}}},
+        {"additionalProperties": false, "required": ["feature_order", "action_weights", "action_bias"], "properties": {"feature_order": {}, "action_weights": {}, "action_bias": {}}},
+        {"additionalProperties": false, "required": ["horizon", "num_sequences", "num_particles", "action_count"], "properties": {"horizon": {}, "num_sequences": {}, "num_particles": {}, "action_count": {}}},
+        {"additionalProperties": false, "required": ["feature_order", "reference_points", "support_radius"], "properties": {"feature_order": {}, "reference_points": {}, "support_radius": {}}},
+        {"additionalProperties": false, "required": ["low_abundance_scale", "safety_budget", "guardian_threshold"], "properties": {"low_abundance_scale": {}, "safety_budget": {}, "guardian_threshold": {}}},
+        {"additionalProperties": false, "required": ["feature_order", "member_ids", "weights", "bias"], "properties": {"feature_order": {}, "member_ids": {}, "weights": {}, "bias": {}}},
+        {"additionalProperties": false, "required": ["depth", "simulations", "posterior_likelihood_sigma", "action_count"], "properties": {"depth": {}, "simulations": {}, "posterior_likelihood_sigma": {}, "action_count": {}}},
+        {"additionalProperties": false, "required": ["feature_order", "member_ids", "q_weights", "q_bias"], "properties": {"feature_order": {}, "member_ids": {}, "q_weights": {}, "q_bias": {}}},
+        {"additionalProperties": false, "required": ["disagreement_penalty", "action_count", "objective"], "properties": {"disagreement_penalty": {}, "action_count": {}, "objective": {}}},
+        {"additionalProperties": false, "required": ["cell", "candidate_ids", "r", "capacity", "residual_sigma", "survey_scale"], "properties": {"cell": {}, "candidate_ids": {}, "r": {}, "capacity": {}, "residual_sigma": {}, "survey_scale": {}}},
+        {"additionalProperties": false, "required": ["alpha_vectors", "action_ids", "state_grid_sha256"], "properties": {"alpha_vectors": {}, "action_ids": {}, "state_grid_sha256": {}}},
+        {"additionalProperties": false, "required": ["abundance_grid", "capacity_grid", "observation_grid"], "properties": {"abundance_grid": {}, "capacity_grid": {}, "observation_grid": {}}},
+        {"additionalProperties": false, "required": ["candidate_ids", "ricker_fit_cache_sha256"], "properties": {"candidate_ids": {}, "ricker_fit_cache_sha256": {}}},
+        {"additionalProperties": false, "required": ["candidate_ids", "probabilities"], "properties": {"candidate_ids": {}, "probabilities": {}}},
+        {"additionalProperties": false, "required": ["alpha_vectors_sha256", "grids_sha256", "candidates_sha256", "prior_sha256"], "properties": {"alpha_vectors_sha256": {}, "grids_sha256": {}, "candidates_sha256": {}, "prior_sha256": {}}}
+      ]
+    }
+  },
+  "description": "State keys are component-specific and closed. The Python validator controls exact dtypes, shapes, member counts, cross-component hashes and semantic reload parity. Training history is rejected."
+}

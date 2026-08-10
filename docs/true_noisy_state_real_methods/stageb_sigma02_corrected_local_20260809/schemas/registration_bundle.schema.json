@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "corrected_stageb_registration_bundle.schema.json",
+  "title": "Corrected Stage B frozen registration bundle",
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "authorization_id", "authorized", "scope", "authorized_by", "authorized_at_utc", "no_return_exists_at_authorization"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_execution_authorization_v1"},
+        "authorization_id": {"type": "string", "minLength": 1},
+        "authorized": {"const": true},
+        "scope": {"const": "corrected Stage B sigma=0.2 only"},
+        "authorized_by": {"type": "string", "minLength": 1},
+        "authorized_at_utc": {"type": "string", "minLength": 1},
+        "no_return_exists_at_authorization": {"const": true}
+      }
+    },
+    "registration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "registration_id", "status", "prospective_corrected_replication", "blinded_preregistration", "returns_exist_at_freeze", "cells", "methods", "arms", "offline_rows", "episodes", "episode_length", "evaluation_identities", "horizon", "discount", "num_actions", "sigma", "evaluator_family", "cpu_profile", "local_status_label"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_registration_v1"},
+        "registration_id": {"type": "string", "minLength": 1},
+        "status": {"const": "FROZEN_BEFORE_CORRECTED_RETURNS"},
+        "prospective_corrected_replication": {"const": true},
+        "blinded_preregistration": {"const": false},
+        "returns_exist_at_freeze": {"const": false},
+        "cells": {"type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true},
+        "methods": {"type": "array", "minItems": 6, "maxItems": 6, "uniqueItems": true},
+        "arms": {"const": ["O", "T"]},
+        "offline_rows": {"const": 4000},
+        "episodes": {"const": 160},
+        "episode_length": {"const": 25},
+        "evaluation_identities": {"type": "array", "minItems": 20, "maxItems": 20, "uniqueItems": true, "items": {"type": "integer"}},
+        "horizon": {"const": 50},
+        "discount": {"const": 0.95},
+        "num_actions": {"const": 11},
+        "sigma": {"const": 0.2},
+        "evaluator_family": {"const": "allee"},
+        "cpu_profile": {"const": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU"},
+        "local_status_label": {"const": "LOCAL ARM64 DEVELOPMENT TEST — NOT SCIENTIFIC EVIDENCE"}
+      }
+    },
+    "analysisRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "primary_estimand", "bootstrap", "residual_sigma_rule", "near_constant_rule", "collapse_decomposition_rule", "evd_objective", "cross_species_pooling"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_analysis_rules_v1"},
+        "primary_estimand": {"const": "mean_return_T_minus_mean_return_O"},
+        "bootstrap": {"type": "object"},
+        "residual_sigma_rule": {"type": "object"},
+        "near_constant_rule": {"type": "object"},
+        "collapse_decomposition_rule": {"const": "collapse-entry step belongs to post-collapse"},
+        "evd_objective": {"const": "raw logged rewards; separately labelled"},
+        "cross_species_pooling": {"const": false}
+      }
+    },
+    "codeHashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "git_commit_sha", "source_manifest_sha256", "registration_templates_sha256", "general_config_sha256", "plus_config_sha256", "moor_config_sha256", "ecological_source_only_sha256", "general_source_only_sha256"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_code_configuration_hashes_v1"},
+        "git_commit_sha": {"$ref": "#/$defs/gitSha"},
+        "source_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "registration_templates_sha256": {"$ref": "#/$defs/sha256"},
+        "general_config_sha256": {"const": "4e878a9ec7d528af0bfb4948e78036dc864f0d2b158a2fdf5559b24798b1222b"},
+        "plus_config_sha256": {"const": "10a064344e07cac16a7b2d5bd717bdce109c8970148de4295d6ff3532297fa68"},
+        "moor_config_sha256": {"const": "a3655a846d951439177da350ddf40ddc6d4962b42b317582dd29e72ca05323bd"},
+        "ecological_source_only_sha256": {"const": "2b3b8ae6d2f8ff5ffb17c4885ded9e8f1f6b3c0cb662f393186fe4b4706a884e"},
+        "general_source_only_sha256": {"const": "f90cea6f28dcacb910b5e036bf9e09958715d00a2418fd0856a3d5a12856bdbd"}
+      }
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_index", "arm", "cell", "method", "config_sha256", "dataset_sha256", "artifact_plan_sha256", "evaluation_identity_sha256", "interpreter_role"],
+      "properties": {
+        "task_index": {"type": "integer", "minimum": 0, "maximum": 23},
+        "arm": {"enum": ["O", "T"]},
+        "cell": {"type": "string", "minLength": 1},
+        "method": {"type": "string", "minLength": 1},
+        "config_sha256": {"$ref": "#/$defs/sha256"},
+        "dataset_sha256": {"$ref": "#/$defs/sha256"},
+        "artifact_plan_sha256": {"$ref": "#/$defs/sha256"},
+        "evaluation_identity_sha256": {"$ref": "#/$defs/sha256"},
+        "interpreter_role": {"enum": ["ecological_paper_faithful", "general_registered"]}
+      }
+    },
+    "taskManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "task_count", "tasks"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_task_manifest_v1"},
+        "task_count": {"const": 24},
+        "tasks": {"type": "array", "minItems": 24, "maxItems": 24, "items": {"$ref": "#/$defs/task"}}
+      }
+    },
+    "disclosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "earlier_sigma_0p2_results_known", "prospective_corrected_replication", "blinded_preregistration", "exploratory_results_scientifically_accepted", "required_statement"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_previous_results_disclosure_v1"},
+        "earlier_sigma_0p2_results_known": {"const": true},
+        "prospective_corrected_replication": {"const": true},
+        "blinded_preregistration": {"const": false},
+        "exploratory_results_scientifically_accepted": {"const": false},
+        "required_statement": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["execution_authorization", "corrected_stageb_registration", "analysis_rules", "code_configuration_hashes", "task_manifest", "previous_results_disclosure"],
+  "properties": {
+    "execution_authorization": {"$ref": "#/$defs/authorization"},
+    "corrected_stageb_registration": {"$ref": "#/$defs/registration"},
+    "analysis_rules": {"$ref": "#/$defs/analysisRules"},
+    "code_configuration_hashes": {"$ref": "#/$defs/codeHashes"},
+    "task_manifest": {"$ref": "#/$defs/taskManifest"},
+    "previous_results_disclosure": {"$ref": "#/$defs/disclosure"}
+  },
+  "description": "The Python validator additionally enforces exact values, ordering, method/config roles and process-capability issuance."
+}

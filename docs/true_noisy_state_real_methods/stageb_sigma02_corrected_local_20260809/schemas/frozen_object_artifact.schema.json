@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "corrected_stageb_frozen_object_artifact.schema.json",
+  "title": "Complete frozen fitted-object graph envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "component",
+    "track",
+    "root_class",
+    "source_only_sha256",
+    "required_root_attributes",
+    "complete_root_attribute_names",
+    "object_graph"
+  ],
+  "properties": {
+    "schema_version": {"const": "corrected_stageb_frozen_object_graph_v2"},
+    "component": {
+      "enum": [
+        "general_dynamics_ensemble",
+        "refplan_fitted_policy",
+        "ogsrl_fitted_policy",
+        "bamcts_fitted_policy",
+        "evd_fitted_policy",
+        "plus_fitted_policy",
+        "moor_fitted_policy"
+      ]
+    },
+    "track": {"enum": ["general", "ecological"]},
+    "root_class": {"type": "string", "pattern": "^real_ecology_benchmark\\."},
+    "source_only_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "required_root_attributes": {
+      "type": "array",
+      "minItems": 4,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "complete_root_attribute_names": {
+      "type": "array",
+      "minItems": 4,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "object_graph": {
+      "type": "object",
+      "required": ["$object"],
+      "additionalProperties": false,
+      "properties": {"$object": {"type": "object"}}
+    }
+  }
+}

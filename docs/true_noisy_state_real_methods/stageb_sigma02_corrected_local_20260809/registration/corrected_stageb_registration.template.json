@@ -1,0 +1,38 @@
+{
+  "schema_version": "corrected_stageb_registration_v1",
+  "registration_id": "TO_BE_FROZEN_ON_M3",
+  "status": "TEMPLATE_NOT_FROZEN",
+  "prospective_corrected_replication": true,
+  "blinded_preregistration": false,
+  "returns_exist_at_freeze": false,
+  "cells": [
+    "amur_tiger__allee__sigma_0p2",
+    "crab_eating_fox__allee__sigma_0p2"
+  ],
+  "methods": [
+    "plus_adapted_ricker_only_pbvi",
+    "moor_adapted_ricker_misspec_pbvi",
+    "refplan",
+    "ogsrl",
+    "bamcts",
+    "ensemble_value_disagreement_pessimism"
+  ],
+  "arms": ["O", "T"],
+  "offline_rows": 4000,
+  "episodes": 160,
+  "episode_length": 25,
+  "evaluation_identities": [
+    7001, 7002, 7003, 7004,
+    7051, 7052, 7053, 7054,
+    7101, 7102, 7103, 7104,
+    7151, 7152, 7153, 7154,
+    7201, 7202, 7203, 7204
+  ],
+  "horizon": 50,
+  "discount": 0.95,
+  "num_actions": 11,
+  "sigma": 0.2,
+  "evaluator_family": "allee",
+  "cpu_profile": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU",
+  "local_status_label": "LOCAL ARM64 DEVELOPMENT TEST — NOT SCIENTIFIC EVIDENCE"
+}

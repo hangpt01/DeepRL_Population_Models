@@ -1,0 +1,28 @@
+{
+  "schema_version": "corrected_stageb_analysis_rules_v1",
+  "primary_estimand": "mean_return_T_minus_mean_return_O",
+  "bootstrap": {
+    "resamples": 100000,
+    "rng": "NumPy PCG64",
+    "seed": 20260808,
+    "quantiles": [0.025, 0.975],
+    "quantile_method": "linear",
+    "resampling_unit": "intact paired evaluation episode"
+  },
+  "residual_sigma_rule": {
+    "numeric_threshold": null,
+    "ratio_guard": "compute only when Arm O denominator is positive",
+    "residual_sigma_floor": 0.02,
+    "changed_label": "MODEL-FIT AXIS CHANGED — END-TO-END BUNDLE ONLY",
+    "bit_identity_required_for_frozen_fit": true
+  },
+  "near_constant_rule": {
+    "prospectively_declared": true,
+    "descriptive_only": true,
+    "maximum_action_fraction_gte": 0.98,
+    "literal_constant_is_separate": true
+  },
+  "collapse_decomposition_rule": "collapse-entry step belongs to post-collapse",
+  "evd_objective": "raw logged rewards; separately labelled",
+  "cross_species_pooling": false
+}

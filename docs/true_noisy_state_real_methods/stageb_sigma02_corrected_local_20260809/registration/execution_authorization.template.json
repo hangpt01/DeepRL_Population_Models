@@ -1,0 +1,9 @@
+{
+  "schema_version": "corrected_stageb_execution_authorization_v1",
+  "authorization_id": "TO_BE_FROZEN_ON_M3",
+  "authorized": false,
+  "scope": "corrected Stage B sigma=0.2 only",
+  "authorized_by": "TO_BE_FROZEN_ON_M3",
+  "authorized_at_utc": "TO_BE_FROZEN_ON_M3",
+  "no_return_exists_at_authorization": true
+}

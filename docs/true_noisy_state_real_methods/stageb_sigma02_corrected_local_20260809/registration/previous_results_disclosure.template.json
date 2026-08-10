@@ -1,0 +1,8 @@
+{
+  "schema_version": "corrected_stageb_previous_results_disclosure_v1",
+  "earlier_sigma_0p2_results_known": true,
+  "prospective_corrected_replication": true,
+  "blinded_preregistration": false,
+  "exploratory_results_scientifically_accepted": false,
+  "required_statement": "Earlier sigma=0.2 exploratory results are known; this is a prospective corrected replication, not a blinded preregistration."
+}

@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "corrected_stageb_receipts.schema.json",
+  "title": "Corrected Stage B receipt schemas",
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "finiteNumber": {"type": "number"},
+    "rngReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "process_calls_before", "process_calls_after",
+        "observation_calls_before", "observation_calls_after",
+        "process_state_before_sha256", "process_state_after_sha256",
+        "observation_state_before_sha256", "observation_state_after_sha256"
+      ],
+      "properties": {
+        "process_calls_before": {"type": "integer", "minimum": 0},
+        "process_calls_after": {"type": "integer", "minimum": 1},
+        "observation_calls_before": {"type": "integer", "minimum": 0},
+        "observation_calls_after": {"type": "integer", "minimum": 1},
+        "process_state_before_sha256": {"$ref": "#/$defs/sha256"},
+        "process_state_after_sha256": {"$ref": "#/$defs/sha256"},
+        "observation_state_before_sha256": {"$ref": "#/$defs/sha256"},
+        "observation_state_after_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "stepEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registration_sha256", "method", "cell", "arm", "episode_id", "timestep", "current_true_abundance", "noisy_observation",
+        "selected_action", "benefit_population_term", "action_cost_term",
+        "safety_penalty_term", "total_reward", "discount_factor",
+        "discounted_benefit_population", "discounted_action_cost",
+        "discounted_safety_penalty", "discounted_total_reward",
+        "collapse_indicator", "unsafe_indicator", "process_innovation_sha256",
+        "observation_innovation_sha256", "rng_receipt"
+      ],
+      "properties": {
+        "registration_sha256": {"$ref": "#/$defs/sha256"},
+        "method": {"type": "string", "minLength": 1},
+        "cell": {"type": "string", "minLength": 1},
+        "arm": {"enum": ["O", "T"]},
+        "episode_id": {"type": "integer"},
+        "timestep": {"type": "integer", "minimum": 0},
+        "current_true_abundance": {"$ref": "#/$defs/finiteNumber"},
+        "noisy_observation": {"$ref": "#/$defs/finiteNumber"},
+        "selected_action": {"type": "integer", "minimum": 0, "maximum": 10},
+        "benefit_population_term": {"$ref": "#/$defs/finiteNumber"},
+        "action_cost_term": {"$ref": "#/$defs/finiteNumber"},
+        "safety_penalty_term": {"$ref": "#/$defs/finiteNumber"},
+        "total_reward": {"$ref": "#/$defs/finiteNumber"},
+        "discount_factor": {"$ref": "#/$defs/finiteNumber"},
+        "discounted_benefit_population": {"$ref": "#/$defs/finiteNumber"},
+        "discounted_action_cost": {"$ref": "#/$defs/finiteNumber"},
+        "discounted_safety_penalty": {"$ref": "#/$defs/finiteNumber"},
+        "discounted_total_reward": {"$ref": "#/$defs/finiteNumber"},
+        "collapse_indicator": {"type": "boolean"},
+        "unsafe_indicator": {"type": "boolean"},
+        "process_innovation_sha256": {"$ref": "#/$defs/sha256"},
+        "observation_innovation_sha256": {"$ref": "#/$defs/sha256"},
+        "rng_receipt": {"$ref": "#/$defs/rngReceipt"}
+      }
+    },
+    "transitionDiagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "registration_sha256", "method", "cell", "arm_o", "arm_t", "raw_O", "raw_T",
+        "T_minus_O", "T_over_O_guarded", "aggregate_T_minus_O",
+        "aggregate_T_over_O_guarded", "bit_identical"
+      ],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_transition_diagnostics_v1"},
+        "registration_sha256": {"$ref": "#/$defs/sha256"},
+        "method": {"type": "string"}, "cell": {"type": "string"},
+        "arm_o": {"type": "object"}, "arm_t": {"type": "object"},
+        "raw_O": {"type": "array"}, "raw_T": {"type": "array"},
+        "T_minus_O": {"type": "array"}, "T_over_O_guarded": {"type": "array"},
+        "aggregate_T_minus_O": {"type": "number"},
+        "aggregate_T_over_O_guarded": {"type": "object"},
+        "bit_identical": {"type": "boolean"}
+      }
+    },
+    "realizedPosterior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "registration_sha256", "method", "cell", "arm", "episode_id", "member_ids", "timesteps", "model_bank_sha256", "posterior_probabilities", "member_count", "initial_entropy", "per_step_entropy",
+        "terminal_entropy", "effective_model_count", "registered_sharpness",
+        "realized_updates_recorded"
+      ],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_realized_posterior_v1"},
+        "registration_sha256": {"$ref": "#/$defs/sha256"},
+        "method": {"const": "bamcts"}, "cell": {"type": "string"}, "arm": {"enum": ["O", "T"]},
+        "episode_id": {"type": "integer"},
+        "member_ids": {"const": [0, 1, 2, 3, 4]},
+        "timesteps": {"type": "array", "minItems": 51, "maxItems": 51},
+        "model_bank_sha256": {"$ref": "#/$defs/sha256"},
+        "posterior_probabilities": {"type": "array", "minItems": 51, "maxItems": 51, "items": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"type": "number"}}},
+        "member_count": {"const": 5}, "initial_entropy": {"type": "number"},
+        "per_step_entropy": {"type": "array", "minItems": 50, "maxItems": 50, "items": {"type": "number"}},
+        "terminal_entropy": {"type": "number"},
+        "effective_model_count": {"type": "array", "minItems": 51, "maxItems": 51},
+        "registered_sharpness": {"type": "array", "minItems": 51, "maxItems": 51},
+        "realized_updates_recorded": {"const": true}
+      }
+    },
+    "activity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "registration_sha256", "method", "cell", "arm", "episode_id", "actions", "sequence_length", "distinct_action_count", "action_counts", "entropy_nats",
+        "literal_constant_policy", "near_constant_descriptive", "discrimination_status"
+      ],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_activity_v1"},
+        "registration_sha256": {"$ref": "#/$defs/sha256"},
+        "method": {"type": "string"}, "cell": {"type": "string"}, "arm": {"enum": ["O", "T"]},
+        "episode_id": {"type": "integer"}, "sequence_length": {"const": 50},
+        "actions": {"type": "array", "minItems": 50, "maxItems": 50, "items": {"type": "integer", "minimum": 0, "maximum": 10}},
+        "distinct_action_count": {"type": "integer", "minimum": 1, "maximum": 11},
+        "action_counts": {"type": "object"}, "entropy_nats": {"type": "number"},
+        "literal_constant_policy": {"type": "boolean"}, "near_constant_descriptive": {"type": "boolean"},
+        "near_constant_rule": {"type": "object"}, "maximum_action_fraction": {"type": "number"},
+        "discrimination_status": {"type": "string"}
+      }
+    },
+    "evidenceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relative_path", "sha256"],
+      "properties": {
+        "relative_path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "boundTaskEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "kind", "registration_sha256", "task_index", "arm", "cell", "method", "receipts"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_bound_task_evidence_v1"},
+        "kind": {"enum": ["diagnostics", "information_boundary"]},
+        "registration_sha256": {"$ref": "#/$defs/sha256"},
+        "task_index": {"type": "integer", "minimum": 0, "maximum": 11},
+        "arm": {"const": "O"},
+        "cell": {"type": "string", "minLength": 1},
+        "method": {"type": "string", "minLength": 1},
+        "receipts": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["transition", "activity"],
+              "additionalProperties": {
+                "type": ["object", "array"]
+              }
+            },
+            {
+              "type": "object",
+              "required": ["runtime_information_boundary"],
+              "additionalProperties": false,
+              "properties": {"runtime_information_boundary": {"type": "object"}}
+            }
+          ]
+        }
+      }
+    },
+    "artifactBundleEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "registration_sha256", "task_index", "arm", "cell", "method", "artifact_plan_sha256", "prediction_fixture", "components", "component_hashes", "bundle_sha256", "fresh_reload_parity", "frozen_object_artifact", "frozen_object_parity", "frozen_object_binding"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_artifact_bundle_evidence_v2"},
+        "registration_sha256": {"$ref": "#/$defs/sha256"},
+        "task_index": {"type": "integer", "minimum": 0, "maximum": 11},
+        "arm": {"const": "O"},
+        "cell": {"type": "string", "minLength": 1},
+        "method": {"type": "string", "minLength": 1},
+        "artifact_plan_sha256": {"$ref": "#/$defs/sha256"},
+        "prediction_fixture": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"type": "array", "minItems": 1, "items": {"type": "number"}}
+        },
+        "components": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {"$ref": "#/$defs/evidenceReference"}
+        },
+        "component_hashes": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {"$ref": "#/$defs/sha256"}
+        },
+        "bundle_sha256": {"$ref": "#/$defs/sha256"},
+        "fresh_reload_parity": {"const": true},
+        "frozen_object_artifact": {"$ref": "#/$defs/evidenceReference"},
+        "frozen_object_parity": {"$ref": "#/$defs/evidenceReference"},
+        "frozen_object_binding": {"type": "object"}
+      }
+    },
+    "crossProcessGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "algorithm", "key_id_sha256", "registration_sha256", "registration_payload_b64", "gate_payload_sha256", "gate_payload_b64", "architecture", "signature_b64"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_cross_process_arm_o_gate_v1"},
+        "algorithm": {"const": "Ed25519"},
+        "key_id_sha256": {"$ref": "#/$defs/sha256"},
+        "registration_sha256": {"$ref": "#/$defs/sha256"},
+        "registration_payload_b64": {"type": "string", "contentEncoding": "base64"},
+        "gate_payload_sha256": {"$ref": "#/$defs/sha256"},
+        "gate_payload_b64": {"type": "string", "contentEncoding": "base64"},
+        "architecture": {"const": "Intel Xeon Platinum 8452Y"},
+        "signature_b64": {"type": "string", "contentEncoding": "base64"}
+      }
+    },
+    "frozenObjectParity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "component", "track", "root_class", "serialized_sha256", "operation", "operation_input", "operation_input_sha256", "output_sha256", "post_call_state_sha256", "fresh_object_reload", "complete_instance_graph", "training_history_alone_qualifies", "result"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_frozen_object_parity_v1"},
+        "component": {"type": "string", "minLength": 1},
+        "track": {"enum": ["general", "ecological"]},
+        "root_class": {"type": "string", "pattern": "^real_ecology_benchmark\\."},
+        "serialized_sha256": {"$ref": "#/$defs/sha256"},
+        "operation": {"enum": ["predict", "act"]},
+        "operation_input": {"type": "object", "required": ["args", "kwargs"], "additionalProperties": false},
+        "operation_input_sha256": {"$ref": "#/$defs/sha256"},
+        "output_sha256": {"$ref": "#/$defs/sha256"},
+        "post_call_state_sha256": {"$ref": "#/$defs/sha256"},
+        "fresh_object_reload": {"const": true},
+        "complete_instance_graph": {"const": true},
+        "training_history_alone_qualifies": {"const": false},
+        "result": {"const": "PASS"}
+      }
+    }
+  }
+}
