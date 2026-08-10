@@ -2,13 +2,18 @@ from __future__ import annotations
 
 import copy
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
 
 from ..common import ContractError
 from ..registration import EvaluatorReturnSink, FrozenRegistration, freeze_registration_bundle
-from .conftest import step_records
+from . import conftest as fixture_module
+from .conftest import current_repository_head, step_records
+
+
+STALE_PRECOMMIT_SHA = "e44c5931f97f73f4805ac128bc18e904ca68469f"
 
 
 def test_complete_registration_freezes_before_return(registration_bundle):
@@ -16,6 +21,49 @@ def test_complete_registration_freezes_before_return(registration_bundle):
     sink = EvaluatorReturnSink(frozen)
     sink.append(step_records(registration_sha256=frozen.sha256))
     assert len(sink.records) == 1
+
+
+def test_synthetic_registration_binds_to_current_repository_head(registration_bundle):
+    repository = Path(__file__).resolve().parents[4]
+    assert registration_bundle["code_configuration_hashes"]["git_commit_sha"] == (
+        current_repository_head(repository)
+    )
+
+
+def test_stale_precommit_sha_is_rejected(registration_bundle):
+    assert STALE_PRECOMMIT_SHA != current_repository_head(Path(__file__).resolve().parents[4])
+    malformed = copy.deepcopy(registration_bundle)
+    malformed["code_configuration_hashes"]["git_commit_sha"] = STALE_PRECOMMIT_SHA
+    with pytest.raises(ContractError, match="checked-out controlling commit"):
+        freeze_registration_bundle(malformed)
+
+
+@pytest.mark.parametrize(
+    "failure_mode",
+    ["missing_git", "command_failure", "malformed", "additional_output", "non_commit"],
+)
+def test_runtime_head_derivation_fails_closed(monkeypatch, failure_mode):
+    valid_sha = "a" * 40
+
+    def fake_run(command, **_kwargs):
+        if failure_mode == "missing_git":
+            raise FileNotFoundError("git")
+        if command[1:3] == ["rev-parse", "HEAD"]:
+            if failure_mode == "command_failure":
+                return subprocess.CompletedProcess(command, 1, stdout="", stderr="failed\n")
+            if failure_mode == "malformed":
+                return subprocess.CompletedProcess(command, 0, stdout="NOT_A_SHA\n", stderr="")
+            if failure_mode == "additional_output":
+                return subprocess.CompletedProcess(
+                    command, 0, stdout=f"{valid_sha}\nextra\n", stderr=""
+                )
+            return subprocess.CompletedProcess(command, 0, stdout=f"{valid_sha}\n", stderr="")
+        assert command[1:3] == ["cat-file", "-e"]
+        return subprocess.CompletedProcess(command, 1, stdout="", stderr="not a commit\n")
+
+    monkeypatch.setattr(fixture_module.subprocess, "run", fake_run)
+    with pytest.raises(RuntimeError):
+        current_repository_head(Path(__file__).resolve().parents[4])
 
 
 def test_execution_before_freeze_rejected():

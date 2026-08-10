@@ -21,6 +21,11 @@ Status: **LOCAL ARM64 DEVELOPMENT TEST — NOT SCIENTIFIC EVIDENCE**
 - The independent external audit remained unchanged at `b93f9644…d9e67`.
 - No applicable `AGENTS.md` exists.
 
+Post-commit clean-clone validation found that the original synthetic registration fixture had
+captured the pre-commit `HEAD` (`e44c5931…`) as a literal. The bounded correction replaces that
+literal with a fail-closed runtime `git rev-parse HEAD` plus commit-object verification. It does
+not change the production registration validator or weaken its equality requirement.
+
 The quarantined directories
 `stageb_sigma02_corrected_20260809/` and
 `stageb_sigma02_corrected_recovery1_20260809/` were enumerated only to confirm their
@@ -68,7 +73,7 @@ All changes are confined to
 - `real_artifacts.py`: allowlisted lossless serialization of complete real frozen fitted
   instance graphs, fresh-object reconstruction and real prediction/action plus post-call parity;
 - registration templates, closed formal schemas, four Slurm role templates plus dependency-chain
-  template, normalized-self-covering source/test manifest, and 104 synthetic/adversarial tests.
+  template, normalized-self-covering source/test manifest, and 111 synthetic/adversarial tests.
 
 No file under `src/tracks/**`, accepted result/configuration namespace, existing audit,
 failed attempt, slide or remote was modified.
@@ -84,7 +89,7 @@ and cache-free external temporary roots.
 | audited I2A | unittest | 38/38 passed |
 | audited fast-track | pytest | 15/15 passed |
 | audited fast-track | unittest | 15/15 passed |
-| corrected local suite | pytest | 104/104 passed |
+| corrected local suite | pytest | 111/111 passed |
 | corrected package | Ruff 0.12.12 | clean |
 
 The corrected run emitted NumPy runtime warnings from the frozen general-track behavior-model
@@ -119,6 +124,12 @@ component binding. The gate reloads the real class and replays parity itself; mi
 CanonicalArtifact-only stand-ins and well-formed but fabricated parity claims all fail closed.
 The test fixture uses tiny instances of all six actual frozen policy classes rather than a
 canonical stand-in at the Arm O gate.
+
+The post-commit corrective pass adds direct regressions for current-`HEAD` binding, rejection
+of the stale pre-commit SHA, unavailable or failed Git, malformed or additional Git output,
+and a formatted 40-hex value that does not identify a commit. The tests derive identity from
+the repository being tested, so an ordinary future commit does not require another embedded
+SHA edit.
 
 `SOURCE_TEST_HASHES.sha256` covers every other candidate file with a standard entry and
 covers itself with `SELF-NORMALIZED-SHA256`, calculated after replacing the one recorded

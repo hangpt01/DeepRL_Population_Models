@@ -26,6 +26,11 @@ Registration JSON files are deliberately incomplete templates. They cannot autho
 scientific return. M3 deployment must fill and freeze real commit, configuration, dataset,
 artifact and task identities and then pass the Arm O parity/artifact gate.
 
+Synthetic registration fixtures derive and commit-verify the current repository `HEAD` at
+test runtime. They contain no static commit SHA and fail closed on unavailable, unsuccessful,
+malformed, multi-line or non-commit Git results. The production registration validator remains
+the independent equality gate between frozen registration bytes and checked-out `HEAD`.
+
 Run the local corrected tests with:
 
 ```sh

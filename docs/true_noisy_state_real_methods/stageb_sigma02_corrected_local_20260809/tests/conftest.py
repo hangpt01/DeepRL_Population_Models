@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,45 @@ from ..registration import (
 
 
 HASHES = tuple(character * 64 for character in "abcdef0123456789")
+GIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+
+
+def current_repository_head(repository: Path) -> str:
+    """Return the verified commit at HEAD or fail closed."""
+
+    try:
+        resolved = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=repository,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError as exc:
+        raise RuntimeError("git rev-parse HEAD is unavailable") from exc
+    if resolved.returncode != 0:
+        raise RuntimeError("git rev-parse HEAD failed")
+    if resolved.stderr:
+        raise RuntimeError("git rev-parse HEAD produced unexpected stderr")
+    stdout = resolved.stdout
+    if stdout.endswith("\n"):
+        stdout = stdout[:-1]
+    if GIT_SHA_RE.fullmatch(stdout) is None:
+        raise RuntimeError("git rev-parse HEAD did not return exactly one lowercase 40-hex SHA")
+
+    try:
+        commit_check = subprocess.run(
+            ["git", "cat-file", "-e", f"{stdout}^{{commit}}"],
+            cwd=repository,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError as exc:
+        raise RuntimeError("git commit verification is unavailable") from exc
+    if commit_check.returncode != 0 or commit_check.stdout or commit_check.stderr:
+        raise RuntimeError("git rev-parse HEAD did not resolve to a commit")
+    return stdout
 
 
 def complete_bundle() -> dict[str, Any]:
@@ -131,7 +171,7 @@ def complete_bundle() -> dict[str, Any]:
         },
         "code_configuration_hashes": {
             "schema_version": "corrected_stageb_code_configuration_hashes_v1",
-            "git_commit_sha": "e44c5931f97f73f4805ac128bc18e904ca68469f",
+            "git_commit_sha": current_repository_head(repository),
             "source_manifest_sha256": match.group(1),
             "registration_templates_sha256": _registration_templates_hash(repository),
             **EXPECTED_CONFIG_HASHES,

@@ -11,6 +11,10 @@ The local package is development infrastructure only. Every M3 result remains
    deploy from either failed corrected namespace or the damaged server worktree.
 3. Record and verify the exact 40-hex commit SHA. Confirm the target tree is clean using
    narrow operations compatible with the registered Git-object/SIGBUS restriction.
+   The synthetic test fixture must independently derive this identity with
+   `git rev-parse HEAD`, verify that it names a commit, and reject malformed or additional
+   output. It must never contain a static pre-commit SHA. Production registration validation
+   still independently requires the frozen SHA to equal checked-out `HEAD`.
 4. Recompute the registered source-only recipes. Required values are:
    ecological `2b3b8ae6d2f8ff5ffb17c4885ded9e8f1f6b3c0cb662f393186fe4b4706a884e`;
    general `f90cea6f28dcacb910b5e036bf9e09958715d00a2418fd0856a3d5a12856bdbd`.
