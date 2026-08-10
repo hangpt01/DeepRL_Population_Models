@@ -2,10 +2,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import numpy as np
 import pytest
 
-from ..artifacts import REQUIRED_COMPONENTS, validate_complete_artifact_bundle
+from ..artifacts import (
+    FIXTURE_ROW_COUNT,
+    REQUIRED_COMPONENTS,
+    deterministic_prediction_fixtures,
+    validate_complete_artifact_bundle,
+)
 from ..boundary import build_task_information_boundary_receipt
 from ..common import ContractError, canonical_json_bytes, sha256_bytes, strict_json_loads
 from ..diagnostics import (
@@ -16,6 +20,8 @@ from ..diagnostics import (
 )
 from ..evidence import REGISTERED_EPISODE_IDS, REGISTERED_HORIZON
 from ..orchestration import (
+    ARTIFACT_EVIDENCE_V2,
+    ARTIFACT_EVIDENCE_V3,
     ArmTGateToken,
     CORRECTED_TEST_COUNT,
     authorize_arm_t_task,
@@ -24,6 +30,7 @@ from ..orchestration import (
     inspect_only_finalizer,
     load_gate_signing_key,
     load_gate_verification_key,
+    require_artifact_evidence_version,
     validate_arm_o_gate,
     verify_arm_o_gate_receipt,
 )
@@ -131,6 +138,7 @@ def arm_o_receipts(
     *,
     first_diagnostics_mutator=None,
     first_frozen_parity_mutator=None,
+    first_artifact_evidence_mutator=None,
     canonical_only_first=False,
     missing_parity_first=False,
 ):
@@ -161,11 +169,11 @@ def arm_o_receipts(
                 "relative_path": f"task-{task['task_index']}/{filename}",
                 "sha256": component_hashes[component],
             }
-        prediction_fixture = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
+        prediction_fixtures = deterministic_prediction_fixtures(task["method"], components)
         artifact_validation = validate_complete_artifact_bundle(
             task["method"],
             components,
-            prediction_fixture=np.asarray(prediction_fixture, dtype=np.float64),
+            prediction_fixtures=prediction_fixtures,
             expected_component_hashes=component_hashes,
         )
         frozen_payload, frozen_parity = frozen_object_evidence(
@@ -182,14 +190,18 @@ def arm_o_receipts(
         write_bytes_fsync(staging / "frozen-object.json", frozen_payload)
         write_bytes_fsync(staging / "frozen-object-parity.json", frozen_parity)
         artifact_evidence_value = {
-            "schema_version": "corrected_stageb_artifact_bundle_evidence_v2",
+            "schema_version": "corrected_stageb_artifact_bundle_evidence_v3",
             "registration_sha256": registration.sha256,
             "task_index": task["task_index"],
             "arm": "O",
             "cell": task["cell"],
             "method": task["method"],
             "artifact_plan_sha256": task["artifact_plan_sha256"],
-            "prediction_fixture": prediction_fixture,
+            "prediction_fixtures": {
+                component: fixture.tolist() for component, fixture in prediction_fixtures.items()
+            },
+            "fixture_row_count": FIXTURE_ROW_COUNT,
+            "fixture_manifest_sha256": artifact_validation.fixture_manifest_sha256,
             "components": component_references,
             "component_hashes": component_hashes,
             "bundle_sha256": artifact_validation.bundle_sha256,
@@ -218,6 +230,8 @@ def arm_o_receipts(
                 "result": "PASS",
             },
         }
+        if first_artifact_evidence_mutator is not None and task["task_index"] == 0:
+            artifact_evidence_value = first_artifact_evidence_mutator(artifact_evidence_value)
         if canonical_only_first and task["task_index"] == 0:
             del artifact_evidence_value["frozen_object_artifact"]
             del artifact_evidence_value["frozen_object_parity"]
@@ -382,6 +396,66 @@ def test_arm_t_requires_successful_m3_parity_artifact_gate(registration_bundle, 
     registration = freeze_registration_bundle(registration_bundle)
     token = gate(registration, tmp_path / "evidence")
     authorize_arm_t_task(token, registration)
+
+
+def test_v2_and_v3_artifact_evidence_are_mutually_rejected():
+    require_artifact_evidence_version({"schema_version": ARTIFACT_EVIDENCE_V3})
+    with pytest.raises(ContractError, match="schema mismatch"):
+        require_artifact_evidence_version({"schema_version": ARTIFACT_EVIDENCE_V2})
+    with pytest.raises(ContractError, match="schema mismatch"):
+        require_artifact_evidence_version(
+            {"schema_version": ARTIFACT_EVIDENCE_V3}, expected=ARTIFACT_EVIDENCE_V2
+        )
+
+
+def test_fixture_manifest_tampering_stops_gate(registration_bundle, tmp_path):
+    registration = freeze_registration_bundle(registration_bundle)
+    evidence_root = tmp_path / "evidence"
+
+    def tamper(value):
+        result = dict(value)
+        result["fixture_manifest_sha256"] = HASHES[0]
+        return result
+
+    receipts = arm_o_receipts(
+        registration,
+        evidence_root,
+        first_artifact_evidence_mutator=tamper,
+    )
+    with pytest.raises(ContractError, match="content/parity"):
+        validate_arm_o_gate(
+            frozen_registration=registration,
+            task_receipts=receipts,
+            inherited_test_receipt=inherited_receipt(),
+            corrected_test_receipt=corrected_receipt(registration),
+            parity_receipt=parity_receipt(registration, receipts),
+            evidence_root=evidence_root,
+        )
+
+
+def test_incomplete_v3_artifact_receipt_stops_gate(registration_bundle, tmp_path):
+    registration = freeze_registration_bundle(registration_bundle)
+    evidence_root = tmp_path / "evidence"
+
+    def remove_fixture_mapping(value):
+        result = dict(value)
+        del result["prediction_fixtures"]
+        return result
+
+    receipts = arm_o_receipts(
+        registration,
+        evidence_root,
+        first_artifact_evidence_mutator=remove_fixture_mapping,
+    )
+    with pytest.raises(ContractError, match="key mismatch"):
+        validate_arm_o_gate(
+            frozen_registration=registration,
+            task_receipts=receipts,
+            inherited_test_receipt=inherited_receipt(),
+            corrected_test_receipt=corrected_receipt(registration),
+            parity_receipt=parity_receipt(registration, receipts),
+            evidence_root=evidence_root,
+        )
 
 
 def test_cross_process_gate_receipt_reissues_only_after_authentication(

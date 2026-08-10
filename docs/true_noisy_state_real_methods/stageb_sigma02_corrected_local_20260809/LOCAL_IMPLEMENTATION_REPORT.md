@@ -73,7 +73,7 @@ All changes are confined to
 - `real_artifacts.py`: allowlisted lossless serialization of complete real frozen fitted
   instance graphs, fresh-object reconstruction and real prediction/action plus post-call parity;
 - registration templates, closed formal schemas, four Slurm role templates plus dependency-chain
-  template, normalized-self-covering source/test manifest, and 111 synthetic/adversarial tests.
+  template, normalized-self-covering source/test manifest, and 131 synthetic/adversarial tests.
 
 No file under `src/tracks/**`, accepted result/configuration namespace, existing audit,
 failed attempt, slide or remote was modified.
@@ -89,7 +89,7 @@ and cache-free external temporary roots.
 | audited I2A | unittest | 38/38 passed |
 | audited fast-track | pytest | 15/15 passed |
 | audited fast-track | unittest | 15/15 passed |
-| corrected local suite | pytest | 111/111 passed |
+| corrected local suite | pytest | 131/131 passed |
 | corrected package | Ruff 0.12.12 | clean |
 
 The corrected run emitted NumPy runtime warnings from the frozen general-track behavior-model
@@ -130,6 +130,16 @@ of the stale pre-commit SHA, unavailable or failed Git, malformed or additional 
 and a formatted 40-hex value that does not identify a commit. The tests derive identity from
 the repository being tested, so an ordinary future commit does not require another embedded
 SHA edit.
+
+The artifact-contract V3 pass is source-backed by fit-only probes of all six methods in both
+cells. It removes the fabricated requirements for distinct general-method preprocessing and
+feature-transformation objects, PBVI alpha vectors, and a MOOR candidate prior. It replaces
+the single generic fixture with an exact component-keyed mapping derived from each serialized
+native feature order, fixes the registered row count at three, requires exact float64 bytes,
+and separately binds the fixture manifest. Component hashes remain the bundle identity and
+the complete real-object graph reload/replay gate is unchanged. The schema now rejects V2
+artifact evidence. `ARTIFACT_CONTRACT_V3.md` contains the full applicability and migration
+contract; fit-only receipts are sealed outside the repository development clone.
 
 `SOURCE_TEST_HASHES.sha256` covers every other candidate file with a standard entry and
 covers itself with `SELF-NORMALIZED-SHA256`, calculated after replacing the one recorded

@@ -13,6 +13,8 @@ The package implements:
   cross-process gate receipt that reissues the process capability only after full validation;
 - strict component-specific canonical schemas and lossless external serializers for complete
   real frozen fitted-object graphs, with gate-side reload and prediction/action replay;
+- source-backed component applicability and V3 component-keyed deterministic prediction
+  fixtures, with exact native feature widths and a separate fixture-manifest hash;
 - exactly one cell/source-bound Arm-O surrogate shared by RefPlan, OGSRL and BA-MCTS;
 - complete Ricker/PBVI byte identity and demonstrated ecological O/T interfaces;
 - registration-bound, filesystem-dereferenced task evidence, including strict fitted-component
@@ -42,3 +44,8 @@ LC_ALL=C PYTHONDONTWRITEBYTECODE=1 TMPDIR=/private/tmp \
 
 No real dataset, truth archive, accepted output, scientific return, MPS/GPU path or Slurm
 endpoint is used by this package or its tests.
+
+The authoritative applicability map and V2-to-V3 receipt migration are documented in
+`ARTIFACT_CONTRACT_V3.md`. Distinct fitted `preprocessing`, `feature_transformations`, and
+PBVI alpha-vector objects do not exist in the inspected method graphs; MOOR also has no
+candidate prior. The contract excludes these absent components instead of inventing stand-ins.

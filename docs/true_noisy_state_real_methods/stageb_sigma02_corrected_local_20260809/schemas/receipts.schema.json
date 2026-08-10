@@ -171,20 +171,27 @@
     "artifactBundleEvidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["schema_version", "registration_sha256", "task_index", "arm", "cell", "method", "artifact_plan_sha256", "prediction_fixture", "components", "component_hashes", "bundle_sha256", "fresh_reload_parity", "frozen_object_artifact", "frozen_object_parity", "frozen_object_binding"],
+      "required": ["schema_version", "registration_sha256", "task_index", "arm", "cell", "method", "artifact_plan_sha256", "prediction_fixtures", "fixture_row_count", "fixture_manifest_sha256", "components", "component_hashes", "bundle_sha256", "fresh_reload_parity", "frozen_object_artifact", "frozen_object_parity", "frozen_object_binding"],
       "properties": {
-        "schema_version": {"const": "corrected_stageb_artifact_bundle_evidence_v2"},
+        "schema_version": {"const": "corrected_stageb_artifact_bundle_evidence_v3"},
         "registration_sha256": {"$ref": "#/$defs/sha256"},
         "task_index": {"type": "integer", "minimum": 0, "maximum": 11},
         "arm": {"const": "O"},
         "cell": {"type": "string", "minLength": 1},
         "method": {"type": "string", "minLength": 1},
         "artifact_plan_sha256": {"$ref": "#/$defs/sha256"},
-        "prediction_fixture": {
-          "type": "array",
-          "minItems": 2,
-          "items": {"type": "array", "minItems": 1, "items": {"type": "number"}}
+        "prediction_fixtures": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {"type": "array", "minItems": 1, "items": {"type": "number"}}
+          }
         },
+        "fixture_row_count": {"const": 3},
+        "fixture_manifest_sha256": {"$ref": "#/$defs/sha256"},
         "components": {
           "type": "object",
           "minProperties": 1,

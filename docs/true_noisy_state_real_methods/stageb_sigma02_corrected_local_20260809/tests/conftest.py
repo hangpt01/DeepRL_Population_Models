@@ -204,12 +204,54 @@ def registration_bundle() -> dict[str, Any]:
 def artifact_components(
     method: str, cell: str = "amur_tiger__allee__sigma_0p2"
 ) -> dict[str, bytes]:
-    features = ["state", "context", "time"]
-    action_model = {
-        "feature_order": features,
-        "action_weights": np.arange(33, dtype=np.float64).reshape(3, 11) / 100.0,
-        "action_bias": np.arange(11, dtype=np.float64) / 10.0,
-    }
+    population_token = "pop_tiger" if cell.startswith("amur_tiger") else "pop_fox"
+    reward_features = [
+        "standardized_previous_log_observation",
+        "standardized_current_log_observation",
+        "standardized_current_minus_previous_log_observation",
+        "standardized_following_log_observation",
+        "standardized_following_minus_current_log_observation",
+        "standardized_timestep_fraction",
+        *(f"action_{index}" for index in range(11)),
+        "standardized_action_cost",
+        f"population_token::{population_token}",
+    ]
+    dynamics_features = [
+        "log_abundance",
+        "log_abundance_squared",
+        *(f"action_{index}" for index in range(11)),
+        *(f"action_{index}_times_log_abundance" for index in range(11)),
+        *(f"action_{index}_times_log_abundance_squared" for index in range(11)),
+    ]
+    belief_features = [
+        "weighted_mean_log_abundance",
+        "weighted_sd_log_abundance",
+        "weighted_q10_log_abundance",
+        "weighted_q50_log_abundance",
+        "weighted_q90_log_abundance",
+        "extinction_probability",
+        "previous_public_observation",
+        "current_public_observation",
+        "public_timestep",
+        "normalized_effective_sample_size",
+    ]
+    actor_features = ["log_current_observation", "log_current_observation_squared"]
+    guardian_features = [
+        "log_current_observation",
+        "log_current_observation_squared",
+        *(f"action_{index}" for index in range(11)),
+    ]
+
+    def action_model(features: list[str]) -> dict[str, Any]:
+        return {
+            "feature_order": features,
+            "action_weights": np.arange(len(features) * 11, dtype=np.float64).reshape(
+                len(features), 11
+            )
+            / 100.0,
+            "action_bias": np.arange(11, dtype=np.float64) / 10.0,
+        }
+
     result: dict[str, bytes] = {}
 
     def add(
@@ -255,67 +297,42 @@ def artifact_components(
             {
                 "cell": cell,
                 "source_public_view_sha256": EXPECTED_DATASET_HASHES[cell],
-                "feature_order": features,
-                "weights": np.array([0.5, -0.25, 0.75], dtype=np.float64),
+                "feature_order": reward_features,
+                "weights": np.arange(len(reward_features), dtype=np.float64) / 100.0,
                 "bias": 0.1,
             },
         )
         grids_sha = add(
             "pbvi_grids",
             {
-                "abundance_grid": np.array([0.1, 0.5, 1.0], dtype=np.float64),
+                "abundance_grid": np.array([0.0, 0.5, 1.0], dtype=np.float64),
                 "capacity_grid": np.array([0.5, 1.0, 1.5], dtype=np.float64),
-                "observation_grid": np.array([0.1, 0.6, 1.2], dtype=np.float64),
-            },
-        )
-        alpha_sha = add(
-            "pbvi_alpha_vectors",
-            {
-                "alpha_vectors": np.arange(9, dtype=np.float64).reshape(3, 3),
-                "action_ids": [0, 5, 10],
-                "state_grid_sha256": grids_sha,
+                "observation_grid": np.array([0.0, 0.6, 1.2], dtype=np.float64),
             },
         )
         candidates_sha = add(
             "pbvi_candidates",
             {"candidate_ids": candidate_ids, "ricker_fit_cache_sha256": cache_sha},
         )
-        prior_sha = add(
-            "pbvi_prior",
-            {
-                "candidate_ids": candidate_ids,
-                "probabilities": np.full(count, 1.0 / count, dtype=np.float64),
-            },
-        )
+        policy_state = {
+            "grids_sha256": grids_sha,
+            "candidates_sha256": candidates_sha,
+        }
+        if method.startswith("plus_"):
+            prior_sha = add(
+                "pbvi_prior",
+                {
+                    "candidate_ids": candidate_ids,
+                    "probabilities": np.full(count, 1.0 / count, dtype=np.float64),
+                },
+            )
+            policy_state["prior_sha256"] = prior_sha
         add(
             "pbvi_policy",
-            {
-                "alpha_vectors_sha256": alpha_sha,
-                "grids_sha256": grids_sha,
-                "candidates_sha256": candidates_sha,
-                "prior_sha256": prior_sha,
-            },
+            policy_state,
         )
         return result
 
-    add(
-        "preprocessing",
-        {
-            "feature_order": features,
-            "offset": np.array([1.0, 2.0, 3.0], dtype=np.float64),
-            "scale": np.array([1.0, 2.0, 4.0], dtype=np.float64),
-            "dtype": "float64",
-        },
-    )
-    add(
-        "feature_transformations",
-        {
-            "feature_order": features,
-            "matrix": np.eye(3, dtype=np.float64),
-            "bias": np.array([0.1, 0.2, 0.3], dtype=np.float64),
-            "dtype": "float64",
-        },
-    )
     if method != "ensemble_value_disagreement_pessimism":
         add(
             "reward_surrogate",
@@ -324,8 +341,8 @@ def artifact_components(
                 "source_public_view_sha256": EXPECTED_DATASET_HASHES[cell],
                 "consumer_methods": ["bamcts", "ogsrl", "refplan"],
                 "label": "PROSPECTIVELY RECONSTRUCTED MATCHED ARM-O SURROGATE",
-                "feature_order": features,
-                "weights": np.array([0.5, -0.25, 0.75], dtype=np.float64),
+                "feature_order": reward_features,
+                "weights": np.arange(len(reward_features), dtype=np.float64) / 100.0,
                 "bias": 0.1,
             },
             artifact_method="shared_general_methods",
@@ -334,9 +351,12 @@ def artifact_components(
         dynamics_sha = add(
             "dynamics_ensemble",
             {
-                "feature_order": features,
+                "feature_order": dynamics_features,
                 "member_ids": list(range(5)),
-                "weights": np.arange(15, dtype=np.float64).reshape(5, 3) / 100.0,
+                "weights": np.arange(5 * len(dynamics_features), dtype=np.float64).reshape(
+                    5, len(dynamics_features)
+                )
+                / 100.0,
                 "bias": np.arange(5, dtype=np.float64) / 10.0,
                 "residual_sigma": np.full(5, 0.02, dtype=np.float64),
             },
@@ -350,18 +370,20 @@ def artifact_components(
             },
         )
     if method == "refplan":
-        add("refplan_behavior_prior", action_model)
+        add("refplan_behavior_prior", action_model(belief_features))
         add(
             "planner_configuration",
             {"horizon": 5, "num_sequences": 96, "num_particles": 32, "action_count": 11},
         )
     elif method == "ogsrl":
-        add("ogsrl_actor", action_model)
+        add("ogsrl_actor", action_model(actor_features))
         add(
             "ogsrl_guardian",
             {
-                "feature_order": features,
-                "reference_points": np.arange(9, dtype=np.float64).reshape(3, 3),
+                "feature_order": guardian_features,
+                "reference_points": np.arange(3 * len(guardian_features), dtype=np.float64).reshape(
+                    3, len(guardian_features)
+                ),
                 "support_radius": 0.5,
             },
         )
@@ -373,9 +395,12 @@ def artifact_components(
         add(
             "bamcts_model_bank",
             {
-                "feature_order": features,
+                "feature_order": dynamics_features,
                 "member_ids": list(range(5)),
-                "weights": np.arange(15, dtype=np.float64).reshape(5, 3) / 100.0,
+                "weights": np.arange(5 * len(dynamics_features), dtype=np.float64).reshape(
+                    5, len(dynamics_features)
+                )
+                / 100.0,
                 "bias": np.arange(5, dtype=np.float64) / 10.0,
             },
         )
@@ -389,13 +414,16 @@ def artifact_components(
             },
         )
     elif method == "ensemble_value_disagreement_pessimism":
-        add("evd_behavior_reference", action_model)
+        add("evd_behavior_reference", action_model(belief_features))
         add(
             "evd_q_members",
             {
-                "feature_order": features,
+                "feature_order": belief_features,
                 "member_ids": list(range(20)),
-                "q_weights": np.arange(660, dtype=np.float64).reshape(20, 3, 11) / 1000.0,
+                "q_weights": np.arange(20 * len(belief_features) * 11, dtype=np.float64).reshape(
+                    20, len(belief_features), 11
+                )
+                / 1000.0,
                 "q_bias": np.arange(220, dtype=np.float64).reshape(20, 11) / 1000.0,
             },
         )

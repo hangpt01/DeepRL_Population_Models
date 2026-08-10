@@ -14,6 +14,7 @@ import numpy as np
 
 from .artifacts import (
     CanonicalArtifact,
+    FIXTURE_ROW_COUNT,
     REQUIRED_COMPONENTS,
     SURROGATE_METHODS,
     require_m3_arm_o_parity,
@@ -37,12 +38,25 @@ from .real_artifacts import revalidate_frozen_object_parity, scientific_componen
 
 
 EXPECTED_ARM_TASKS = tuple((cell, method) for cell in CELLS for method in METHODS)
-CORRECTED_TEST_COUNT = 104
+CORRECTED_TEST_COUNT = 131
+ARTIFACT_EVIDENCE_V2 = "corrected_stageb_artifact_bundle_evidence_v2"
+ARTIFACT_EVIDENCE_V3 = "corrected_stageb_artifact_bundle_evidence_v3"
 _TOKEN_ISSUER = object()
 _TOKEN_SECRET = secrets.token_bytes(32)
 _ED_Q = 2**255 - 19
 _ED_L = 2**252 + 27742317777372353535851937790883648493
 _ED_D = (-121665 * pow(121666, _ED_Q - 2, _ED_Q)) % _ED_Q
+
+
+def require_artifact_evidence_version(
+    value: Mapping[str, Any], *, expected: str = ARTIFACT_EVIDENCE_V3
+) -> None:
+    if expected not in {ARTIFACT_EVIDENCE_V2, ARTIFACT_EVIDENCE_V3}:
+        raise ContractError("unsupported artifact evidence contract version")
+    if value.get("schema_version") != expected:
+        raise ContractError(f"artifact evidence schema mismatch; expected {expected}")
+
+
 _ED_I = pow(2, (_ED_Q - 1) // 4, _ED_Q)
 
 
@@ -394,6 +408,7 @@ def _validate_artifact_bundle_evidence(
     publication: Mapping[str, Any],
 ) -> Mapping[str, str]:
     value = _canonical_receipt(payload, "Arm O fitted-artifact bundle evidence")
+    require_artifact_evidence_version(value)
     require_exact_keys(
         value,
         {
@@ -404,7 +419,9 @@ def _validate_artifact_bundle_evidence(
             "cell",
             "method",
             "artifact_plan_sha256",
-            "prediction_fixture",
+            "prediction_fixtures",
+            "fixture_row_count",
+            "fixture_manifest_sha256",
             "components",
             "component_hashes",
             "bundle_sha256",
@@ -416,7 +433,7 @@ def _validate_artifact_bundle_evidence(
         "Arm O fitted-artifact bundle evidence",
     )
     expected = {
-        "schema_version": "corrected_stageb_artifact_bundle_evidence_v2",
+        "schema_version": ARTIFACT_EVIDENCE_V3,
         "registration_sha256": registration_sha,
         "task_index": expected_task["task_index"],
         "arm": "O",
@@ -428,9 +445,20 @@ def _validate_artifact_bundle_evidence(
     for field, expected_value in expected.items():
         if value[field] != expected_value:
             raise ContractError(f"fitted-artifact evidence binding mismatch: {field}")
-    fixture = np.asarray(value["prediction_fixture"])
-    if fixture.dtype != np.dtype("float64") or fixture.ndim != 2 or fixture.shape[0] < 2:
-        raise ContractError("fitted-artifact evidence prediction fixture is invalid")
+    if value["fixture_row_count"] != FIXTURE_ROW_COUNT:
+        raise ContractError("fitted-artifact evidence fixture row count mismatch")
+    require_sha256(value["fixture_manifest_sha256"], "prediction fixture manifest")
+    raw_fixtures = value["prediction_fixtures"]
+    if not isinstance(raw_fixtures, Mapping):
+        raise ContractError("fitted-artifact evidence prediction fixtures are invalid")
+    fixtures: dict[str, np.ndarray] = {}
+    for component, raw_fixture in raw_fixtures.items():
+        if not isinstance(component, str) or not component:
+            raise ContractError("fitted-artifact evidence fixture component is invalid")
+        fixture = np.asarray(raw_fixture)
+        if fixture.dtype != np.dtype("float64") or fixture.ndim != 2:
+            raise ContractError("fitted-artifact evidence prediction fixture is invalid")
+        fixtures[component] = fixture
     components = value["components"]
     component_hashes = value["component_hashes"]
     if not isinstance(components, Mapping) or not isinstance(component_hashes, Mapping):
@@ -455,10 +483,14 @@ def _validate_artifact_bundle_evidence(
     validated = validate_complete_artifact_bundle(
         expected_task["method"],
         payloads,
-        prediction_fixture=fixture,
+        prediction_fixtures=fixtures,
         expected_component_hashes=observed_hashes,
     )
-    if validated.bundle_sha256 != value["bundle_sha256"] or validated.reload_parity is not True:
+    if (
+        validated.bundle_sha256 != value["bundle_sha256"]
+        or validated.fixture_manifest_sha256 != value["fixture_manifest_sha256"]
+        or validated.reload_parity is not True
+    ):
         raise ContractError("fitted-artifact bundle content/parity validation failed")
     for component in {"reward_surrogate", "ricker_fit_cache"} & set(payloads):
         artifact = CanonicalArtifact.from_bytes(payloads[component])

@@ -83,6 +83,11 @@ Before creating any corrected return path:
    complete actual frozen policy/dynamics instance graph through `real_artifacts.py`; reload
    fresh objects and run the registered real prediction/action operation. Training histories
    never qualify and generic canonical probes cannot substitute for real-object parity.
+   Emit only `corrected_stageb_artifact_bundle_evidence_v3`: its `prediction_fixtures` keys
+   must exactly equal the source-backed feature-component domain in
+   `ARTIFACT_CONTRACT_V3.md`, and its independently reproduced fixture-manifest hash must
+   match. Never restore the removed placeholder preprocessing, transformation, alpha-vector,
+   or MOOR-prior components.
 6. PLUS/MOOR must bind one Ricker cache, ecological surrogate and complete PBVI policy per
    method/cell across both arms. Only the registered abundance/belief interface may differ.
 7. If any fitted state is inaccessible without changing `src/tracks/**`, stop. Do not patch
@@ -95,6 +100,8 @@ The twelve Arm O tasks must pass before Arm T is structurally available. The gat
 - all task/input/configuration/registration/source/surrogate/policy hashes;
 - complete serialized/reloaded artifacts, dereferenced from each immutable published task tree,
   with an exact registration/cell/public-view/logical-component binding;
+- exact V3 component fixture keys, native feature orders/widths, deterministic float64 bytes,
+  fixed row count, and fixture-manifest SHA-256; V2 evidence is invalid;
 - independent gate-side replay of each published real frozen-object operation input and parity
   receipt—CanonicalArtifact-only evidence and caller-authored parity claims are insufficient;
 - strict, recognized Arm O transition/activity/posterior/dispersion and information-boundary

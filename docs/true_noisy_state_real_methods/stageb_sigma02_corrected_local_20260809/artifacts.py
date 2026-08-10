@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -41,7 +42,6 @@ REQUIRED_COMPONENTS: dict[str, frozenset[str]] = {
             "residual_process_scales",
             "reward_surrogate",
             "pbvi_policy",
-            "pbvi_alpha_vectors",
             "pbvi_grids",
             "pbvi_candidates",
             "pbvi_prior",
@@ -53,16 +53,12 @@ REQUIRED_COMPONENTS: dict[str, frozenset[str]] = {
             "residual_process_scales",
             "reward_surrogate",
             "pbvi_policy",
-            "pbvi_alpha_vectors",
             "pbvi_grids",
             "pbvi_candidates",
-            "pbvi_prior",
         }
     ),
     "refplan": frozenset(
         {
-            "preprocessing",
-            "feature_transformations",
             "reward_surrogate",
             "dynamics_ensemble",
             "residual_process_scales",
@@ -72,8 +68,6 @@ REQUIRED_COMPONENTS: dict[str, frozenset[str]] = {
     ),
     "ogsrl": frozenset(
         {
-            "preprocessing",
-            "feature_transformations",
             "reward_surrogate",
             "dynamics_ensemble",
             "residual_process_scales",
@@ -84,8 +78,6 @@ REQUIRED_COMPONENTS: dict[str, frozenset[str]] = {
     ),
     "bamcts": frozenset(
         {
-            "preprocessing",
-            "feature_transformations",
             "reward_surrogate",
             "dynamics_ensemble",
             "residual_process_scales",
@@ -95,8 +87,6 @@ REQUIRED_COMPONENTS: dict[str, frozenset[str]] = {
     ),
     EVD_METHOD: frozenset(
         {
-            "preprocessing",
-            "feature_transformations",
             "evd_behavior_reference",
             "evd_q_members",
             "evd_policy_configuration",
@@ -107,8 +97,6 @@ REQUIRED_COMPONENTS: dict[str, frozenset[str]] = {
 GENERAL_METHODS = frozenset({"refplan", "ogsrl", "bamcts", EVD_METHOD})
 FEATURE_COMPONENTS = frozenset(
     {
-        "preprocessing",
-        "feature_transformations",
         "reward_surrogate",
         "dynamics_ensemble",
         "refplan_behavior_prior",
@@ -119,6 +107,15 @@ FEATURE_COMPONENTS = frozenset(
         "evd_q_members",
     }
 )
+FIXTURE_ROW_COUNT = 3
+FIXTURE_GENERATOR_RECIPE = (
+    "sha256 of UTF-8 corrected-stageb-component-fixture-v1\\0component-name\\0"
+    "row-decimal\\0column-decimal\\0feature-name; take the first "
+    "eight digest bytes as an unsigned big-endian integer, reduce modulo 2000001, "
+    "subtract 1000000, and divide by 65536 (an exactly representable power of two); "
+    "serialize arrays as C-order little-endian float64"
+)
+FIXTURE_MANIFEST_SCHEMA = "corrected_stageb_prediction_fixture_manifest_v1"
 
 
 def _state_keys(state: Mapping[str, Any], expected: set[str], component: str) -> None:
@@ -191,32 +188,7 @@ def _validate_artifact_state(artifact: "CanonicalArtifact") -> None:
     state = artifact.state
     if not isinstance(state, Mapping) or not state:
         raise ContractError("fitted artifact state cannot be empty")
-    if component == "preprocessing":
-        _state_keys(state, {"feature_order", "offset", "scale", "dtype"}, component)
-        features = _feature_order(state, component)
-        _array(state["offset"], "preprocessing.offset", ndim=1, shape=(len(features),))
-        _array(
-            state["scale"],
-            "preprocessing.scale",
-            ndim=1,
-            shape=(len(features),),
-            positive=True,
-        )
-        if state["dtype"] != "float64":
-            raise ContractError("preprocessing dtype must be float64")
-    elif component == "feature_transformations":
-        _state_keys(state, {"feature_order", "matrix", "bias", "dtype"}, component)
-        features = _feature_order(state, component)
-        _array(
-            state["matrix"],
-            "feature_transformations.matrix",
-            ndim=2,
-            shape=(len(features), len(features)),
-        )
-        _array(state["bias"], "feature_transformations.bias", ndim=1, shape=(len(features),))
-        if state["dtype"] != "float64":
-            raise ContractError("feature transformation dtype must be float64")
-    elif component == "reward_surrogate":
+    if component == "reward_surrogate":
         common = {"cell", "source_public_view_sha256", "feature_order", "weights", "bias"}
         if method == "shared_general_methods":
             _state_keys(state, common | {"consumer_methods", "label"}, component)
@@ -359,28 +331,17 @@ def _validate_artifact_state(artifact: "CanonicalArtifact") -> None:
                 raise ContractError("Ricker residual sigma below frozen floor")
         if require_finite(state["survey_scale"], "Ricker survey_scale", nonnegative=True) <= 0.0:
             raise ContractError("Ricker survey_scale must be positive")
-    elif component == "pbvi_alpha_vectors":
-        _state_keys(state, {"alpha_vectors", "action_ids", "state_grid_sha256"}, component)
-        alpha = _array(state["alpha_vectors"], "PBVI alpha_vectors", ndim=2)
-        if alpha.shape[0] < 2 or alpha.shape[1] < 2:
-            raise ContractError("PBVI alpha-vector bank is incomplete")
-        action_ids = state["action_ids"]
-        if (
-            not isinstance(action_ids, list)
-            or len(action_ids) != alpha.shape[0]
-            or any(
-                isinstance(item, bool) or not isinstance(item, int) or not 0 <= item < 11
-                for item in action_ids
-            )
-        ):
-            raise ContractError("PBVI alpha-vector action identifiers are invalid")
-        require_sha256(state["state_grid_sha256"], "PBVI alpha-vector state grid")
     elif component == "pbvi_grids":
         _state_keys(state, {"abundance_grid", "capacity_grid", "observation_grid"}, component)
-        for field in state:
-            values = _array(state[field], f"pbvi_grids.{field}", ndim=1, positive=True)
-            if values.size < 2 or np.any(np.diff(values) <= 0.0):
-                raise ContractError("PBVI grids must be strictly increasing and complete")
+        for field in ("abundance_grid", "observation_grid"):
+            values = _array(state[field], f"pbvi_grids.{field}", ndim=1)
+            if values.size < 2 or np.any(values < 0.0) or np.any(np.diff(values) <= 0.0):
+                raise ContractError(
+                    "PBVI abundance/observation grids must be nonnegative, increasing and complete"
+                )
+        values = _array(state["capacity_grid"], "pbvi_grids.capacity_grid", ndim=1, positive=True)
+        if values.size < 2 or np.any(np.diff(values) <= 0.0):
+            raise ContractError("PBVI capacity grid must be positive, increasing and complete")
     elif component == "pbvi_candidates":
         count = 8 if method.startswith("plus_") else 1
         _state_keys(state, {"candidate_ids", "ricker_fit_cache_sha256"}, component)
@@ -398,11 +359,10 @@ def _validate_artifact_state(artifact: "CanonicalArtifact") -> None:
         ):
             raise ContractError("PBVI prior probabilities must sum to one")
     elif component == "pbvi_policy":
-        _state_keys(
-            state,
-            {"alpha_vectors_sha256", "grids_sha256", "candidates_sha256", "prior_sha256"},
-            component,
-        )
+        expected = {"grids_sha256", "candidates_sha256"}
+        if method.startswith("plus_"):
+            expected.add("prior_sha256")
+        _state_keys(state, expected, component)
         for field, value in state.items():
             require_sha256(value, f"PBVI policy {field}")
     else:
@@ -512,14 +472,102 @@ class ArtifactBundleReceipt:
     method: str
     component_hashes: Mapping[str, str]
     bundle_sha256: str
+    fixture_manifest_sha256: str
     reload_parity: bool
+
+
+def applicable_fixture_components(method: str) -> frozenset[str]:
+    if method not in REQUIRED_COMPONENTS:
+        raise ContractError("unknown registered method")
+    return frozenset(REQUIRED_COMPONENTS[method] & FEATURE_COMPONENTS)
+
+
+def deterministic_component_fixture(
+    component: str,
+    feature_order: Sequence[str],
+    *,
+    row_count: int = FIXTURE_ROW_COUNT,
+) -> np.ndarray:
+    """Derive the registered platform-stable fixture for one logical component."""
+
+    if component not in FEATURE_COMPONENTS:
+        raise ContractError("non-feature component cannot have a prediction fixture")
+    if row_count != FIXTURE_ROW_COUNT:
+        raise ContractError("prediction fixture row count is not the registered fixed value")
+    parsed_features = tuple(
+        require_nonempty_string(value, f"{component} fixture feature") for value in feature_order
+    )
+    if not parsed_features or len(set(parsed_features)) != len(parsed_features):
+        raise ContractError("prediction fixture feature order must be nonempty and unique")
+    fixture = np.empty((row_count, len(parsed_features)), dtype=np.float64)
+    recipe_id = b"corrected-stageb-component-fixture-v1"
+    for row in range(row_count):
+        for column, feature in enumerate(parsed_features):
+            seed = b"\0".join(
+                (
+                    recipe_id,
+                    component.encode("utf-8"),
+                    str(row).encode("ascii"),
+                    str(column).encode("ascii"),
+                    feature.encode("utf-8"),
+                )
+            )
+            unsigned = int.from_bytes(hashlib.sha256(seed).digest()[:8], "big")
+            fixture[row, column] = np.float64((unsigned % 2_000_001) - 1_000_000) / np.float64(
+                65_536.0
+            )
+    return fixture
+
+
+def _fixture_little_endian_bytes(fixture: np.ndarray) -> bytes:
+    return np.ascontiguousarray(fixture, dtype=np.dtype("<f8")).tobytes(order="C")
+
+
+def fixture_manifest(
+    artifacts: Mapping[str, CanonicalArtifact],
+    fixtures: Mapping[str, np.ndarray],
+) -> dict[str, Any]:
+    entries: dict[str, Any] = {}
+    for component in sorted(fixtures):
+        feature_order = list(_feature_order(artifacts[component].state, component))
+        fixture = fixtures[component]
+        entries[component] = {
+            "feature_order": feature_order,
+            "dtype": "float64",
+            "shape": [FIXTURE_ROW_COUNT, len(feature_order)],
+            "little_endian_c_bytes_sha256": sha256_bytes(_fixture_little_endian_bytes(fixture)),
+        }
+    return {
+        "schema_version": FIXTURE_MANIFEST_SCHEMA,
+        "generator_recipe": FIXTURE_GENERATOR_RECIPE,
+        "row_count": FIXTURE_ROW_COUNT,
+        "components": entries,
+    }
+
+
+def deterministic_prediction_fixtures(
+    method: str,
+    serialized_components: Mapping[str, bytes],
+) -> dict[str, np.ndarray]:
+    """Build fixtures from each component's exact canonical feature order."""
+
+    expected = applicable_fixture_components(method)
+    if set(serialized_components) != set(REQUIRED_COMPONENTS[method]):
+        raise ContractError("cannot derive fixtures from an incomplete fitted-artifact bundle")
+    result: dict[str, np.ndarray] = {}
+    for component in sorted(expected):
+        artifact = CanonicalArtifact.from_bytes(serialized_components[component])
+        result[component] = deterministic_component_fixture(
+            component, _feature_order(artifact.state, component)
+        )
+    return result
 
 
 def validate_complete_artifact_bundle(
     method: str,
     serialized_components: Mapping[str, bytes],
     *,
-    prediction_fixture: np.ndarray,
+    prediction_fixtures: Mapping[str, np.ndarray],
     expected_component_hashes: Mapping[str, str],
 ) -> ArtifactBundleReceipt:
     if method not in REQUIRED_COMPONENTS:
@@ -533,9 +581,17 @@ def validate_complete_artifact_bundle(
         raise ContractError("registered fitted-artifact hash map is incomplete")
     for component, digest in expected_component_hashes.items():
         require_sha256(digest, f"expected artifact hash {component}")
-    fixture = np.asarray(prediction_fixture)
-    if fixture.dtype != np.dtype("float64") or fixture.ndim != 2 or fixture.shape[0] < 2:
-        raise ContractError("prediction fixture must be a multirow float64 matrix")
+    if not isinstance(prediction_fixtures, Mapping):
+        raise ContractError("prediction fixtures must be a component-keyed mapping")
+    fixture_domain = applicable_fixture_components(method)
+    missing_fixtures = sorted(fixture_domain - set(prediction_fixtures))
+    if missing_fixtures:
+        raise ContractError(f"prediction fixtures missing components: {missing_fixtures}")
+    extra_fixtures = sorted(set(prediction_fixtures) - fixture_domain)
+    if extra_fixtures:
+        raise ContractError(
+            f"prediction fixtures include extra/non-feature components: {extra_fixtures}"
+        )
     hashes: dict[str, str] = {}
     artifacts: dict[str, CanonicalArtifact] = {}
     for component in sorted(required):
@@ -566,13 +622,44 @@ def validate_complete_artifact_bundle(
         reloaded = CanonicalArtifact.from_bytes(bytes(payload))
         if reloaded is artifact:
             raise ContractError("artifact reload did not create a fresh object")
+        fixture = None
+        if component in fixture_domain:
+            provided = prediction_fixtures[component]
+            if not isinstance(provided, np.ndarray):
+                raise ContractError(f"prediction fixture must be a NumPy array: {component}")
+            fixture = provided
+            feature_order = _feature_order(artifact.state, component)
+            if (
+                fixture.dtype != np.dtype("float64")
+                or fixture.ndim != 2
+                or fixture.shape != (FIXTURE_ROW_COUNT, len(feature_order))
+            ):
+                raise ContractError(f"prediction fixture dtype/shape mismatch for {component}")
+            if not np.isfinite(fixture).all():
+                raise ContractError(f"prediction fixture must be finite for {component}")
+            expected_fixture = deterministic_component_fixture(component, feature_order)
+            if _fixture_little_endian_bytes(fixture) != _fixture_little_endian_bytes(
+                expected_fixture
+            ):
+                raise ContractError(
+                    f"prediction fixture deterministic byte mismatch for {component}"
+                )
         before = _semantic_probe(artifact, fixture)
-        after = _semantic_probe(reloaded, fixture.copy())
+        after = _semantic_probe(reloaded, None if fixture is None else fixture.copy())
         if not _semantic_equal(before, after):
             raise ContractError("serialized artifact prediction/action parity failed")
     _validate_bundle_cross_references(method, artifacts, hashes)
     bundle_bytes = canonical_json_bytes(hashes)
-    return ArtifactBundleReceipt(method, hashes, sha256_bytes(bundle_bytes), True)
+    manifest_sha256 = sha256_bytes(
+        canonical_json_bytes(fixture_manifest(artifacts, prediction_fixtures))
+    )
+    return ArtifactBundleReceipt(
+        method,
+        hashes,
+        sha256_bytes(bundle_bytes),
+        manifest_sha256,
+        True,
+    )
 
 
 def _semantic_equal(left: Any, right: Any) -> bool:
@@ -585,15 +672,12 @@ def _semantic_equal(left: Any, right: Any) -> bool:
     return left == right
 
 
-def _semantic_probe(artifact: CanonicalArtifact, fixture: np.ndarray) -> Any:
+def _semantic_probe(artifact: CanonicalArtifact, fixture: np.ndarray | None) -> Any:
     component = artifact.component
     state = artifact.state
-    if "feature_order" in state and fixture.shape[1] != len(state["feature_order"]):
-        raise ContractError(f"prediction fixture feature width mismatch for {component}")
-    if component == "preprocessing":
-        return (fixture - state["offset"]) / state["scale"]
-    if component == "feature_transformations":
-        return fixture @ state["matrix"] + state["bias"]
+    if component in FEATURE_COMPONENTS:
+        if fixture is None or fixture.shape[1] != len(state["feature_order"]):
+            raise ContractError(f"prediction fixture feature width mismatch for {component}")
     if component == "reward_surrogate":
         return fixture @ state["weights"] + np.float64(state["bias"])
     if component in {"dynamics_ensemble", "bamcts_model_bank"}:
@@ -608,10 +692,6 @@ def _semantic_probe(artifact: CanonicalArtifact, fixture: np.ndarray) -> Any:
         return np.min(distances, axis=1)
     if component == "evd_q_members":
         return np.einsum("bf,mfa->bma", fixture, state["q_weights"]) + state["q_bias"]
-    if component == "pbvi_alpha_vectors":
-        belief = np.full(state["alpha_vectors"].shape[1], 1.0 / state["alpha_vectors"].shape[1])
-        index = int(np.argmax(state["alpha_vectors"] @ belief))
-        return int(state["action_ids"][index])
     return canonical_json_bytes(_encode_value(state))
 
 
@@ -637,16 +717,13 @@ def _validate_bundle_cross_references(
             raise ContractError("PBVI candidates do not bind the Ricker cache")
         policy = artifacts["pbvi_policy"].state
         expected = {
-            "alpha_vectors_sha256": hashes["pbvi_alpha_vectors"],
             "grids_sha256": hashes["pbvi_grids"],
             "candidates_sha256": hashes["pbvi_candidates"],
-            "prior_sha256": hashes["pbvi_prior"],
         }
+        if method.startswith("plus_"):
+            expected["prior_sha256"] = hashes["pbvi_prior"]
         if policy != expected:
             raise ContractError("PBVI policy references do not bind the complete serialized policy")
-        state_grid_hash = sha256_bytes(artifacts["pbvi_grids"].to_bytes())
-        if artifacts["pbvi_alpha_vectors"].state["state_grid_sha256"] != state_grid_hash:
-            raise ContractError("PBVI alpha vectors do not bind the serialized grids")
 
 
 def linear_prediction(artifact: CanonicalArtifact, features: np.ndarray) -> np.ndarray:
@@ -854,8 +931,8 @@ class SharedEcologicalPolicy:
         validate_complete_artifact_bundle(
             self.method,
             self.serialized_components,
-            prediction_fixture=np.zeros(
-                (2, len(surrogate.state["feature_order"])), dtype=np.float64
+            prediction_fixtures=deterministic_prediction_fixtures(
+                self.method, self.serialized_components
             ),
             expected_component_hashes=hashes,
         )

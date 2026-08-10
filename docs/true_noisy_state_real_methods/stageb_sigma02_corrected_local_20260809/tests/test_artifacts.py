@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import subprocess
 import sys
 from dataclasses import replace
 from pathlib import Path
@@ -8,11 +10,15 @@ import numpy as np
 import pytest
 
 from ..artifacts import (
+    FIXTURE_ROW_COUNT,
     MATCHED_SURROGATE_LABEL,
     CanonicalArtifact,
     MatchedSurrogateBinding,
     SharedEcologicalPolicy,
+    applicable_fixture_components,
     build_ecological_arm_interfaces,
+    deterministic_component_fixture,
+    deterministic_prediction_fixtures,
     evd_surrogate_applicability,
     seal_matched_arm_o_surrogate,
     validate_complete_artifact_bundle,
@@ -45,21 +51,170 @@ def test_complete_artifact_serialization_and_reload_parity(method):
     receipt = validate_complete_artifact_bundle(
         method,
         components,
-        prediction_fixture=np.arange(6, dtype=np.float64).reshape(2, 3),
+        prediction_fixtures=deterministic_prediction_fixtures(method, components),
         expected_component_hashes={key: sha256_bytes(value) for key, value in components.items()},
     )
     assert receipt.reload_parity
     assert len(receipt.bundle_sha256) == 64
+    assert len(receipt.fixture_manifest_sha256) == 64
+
+
+def test_refplan_uses_genuine_distinct_native_component_widths():
+    components = artifact_components("refplan")
+    widths = {
+        component: len(CanonicalArtifact.from_bytes(components[component]).state["feature_order"])
+        for component in applicable_fixture_components("refplan")
+    }
+    assert widths == {
+        "reward_surrogate": 19,
+        "dynamics_ensemble": 35,
+        "refplan_behavior_prior": 10,
+    }
+
+
+@pytest.mark.parametrize(
+    ("method", "expected"),
+    [
+        ("plus_adapted_ricker_only_pbvi", {"reward_surrogate"}),
+        ("moor_adapted_ricker_misspec_pbvi", {"reward_surrogate"}),
+        ("refplan", {"reward_surrogate", "dynamics_ensemble", "refplan_behavior_prior"}),
+        ("ogsrl", {"reward_surrogate", "dynamics_ensemble", "ogsrl_actor", "ogsrl_guardian"}),
+        ("bamcts", {"reward_surrogate", "dynamics_ensemble", "bamcts_model_bank"}),
+        (
+            "ensemble_value_disagreement_pessimism",
+            {"evd_behavior_reference", "evd_q_members"},
+        ),
+    ],
+)
+def test_real_applicability_map_has_exact_fixture_domain(method, expected):
+    assert applicable_fixture_components(method) == expected
+    components = artifact_components(method)
+    fixtures = deterministic_prediction_fixtures(method, components)
+    assert set(fixtures) == expected
+    assert all(fixture.shape[0] == FIXTURE_ROW_COUNT for fixture in fixtures.values())
+
+
+def test_source_absent_components_are_not_fabricated():
+    for method in ("refplan", "ogsrl", "bamcts", "ensemble_value_disagreement_pessimism"):
+        assert "preprocessing" not in artifact_components(method)
+        assert "feature_transformations" not in artifact_components(method)
+    for method in ("plus_adapted_ricker_only_pbvi", "moor_adapted_ricker_misspec_pbvi"):
+        assert "pbvi_alpha_vectors" not in artifact_components(method)
+    assert "pbvi_prior" not in artifact_components("moor_adapted_ricker_misspec_pbvi")
+
+
+def _validate_fixture_mutation(method, mutator):
+    components = artifact_components(method)
+    fixtures = deterministic_prediction_fixtures(method, components)
+    mutator(fixtures)
+    return validate_complete_artifact_bundle(
+        method,
+        components,
+        prediction_fixtures=fixtures,
+        expected_component_hashes={key: sha256_bytes(value) for key, value in components.items()},
+    )
+
+
+def test_missing_component_fixture_rejected_separately():
+    with pytest.raises(ContractError, match="fixtures missing components"):
+        _validate_fixture_mutation("refplan", lambda fixtures: fixtures.pop("reward_surrogate"))
+
+
+def test_extra_nonfeature_fixture_rejected_separately():
+    with pytest.raises(ContractError, match="extra/non-feature"):
+        _validate_fixture_mutation(
+            "refplan",
+            lambda fixtures: fixtures.__setitem__(
+                "planner_configuration", np.zeros((FIXTURE_ROW_COUNT, 1), dtype=np.float64)
+            ),
+        )
+
+
+def test_wrong_component_width_rejected():
+    def mutate(fixtures):
+        fixtures["dynamics_ensemble"] = fixtures["dynamics_ensemble"][:, :-1].copy()
+
+    with pytest.raises(ContractError, match="dtype/shape mismatch"):
+        _validate_fixture_mutation("refplan", mutate)
+
+
+def test_float32_component_fixture_rejected():
+    def mutate(fixtures):
+        fixtures["reward_surrogate"] = fixtures["reward_surrogate"].astype(np.float32)
+
+    with pytest.raises(ContractError, match="dtype/shape mismatch"):
+        _validate_fixture_mutation("refplan", mutate)
+
+
+@pytest.mark.parametrize("bad_value", [np.nan, np.inf])
+def test_nonfinite_component_fixture_rejected(bad_value):
+    def mutate(fixtures):
+        fixtures["reward_surrogate"] = fixtures["reward_surrogate"].copy()
+        fixtures["reward_surrogate"][0, 0] = bad_value
+
+    with pytest.raises(ContractError, match="must be finite"):
+        _validate_fixture_mutation("refplan", mutate)
+
+
+def test_swapped_same_width_component_fixtures_rejected():
+    def mutate(fixtures):
+        fixtures["evd_behavior_reference"], fixtures["evd_q_members"] = (
+            fixtures["evd_q_members"],
+            fixtures["evd_behavior_reference"],
+        )
+
+    with pytest.raises(ContractError, match="deterministic byte mismatch"):
+        _validate_fixture_mutation("ensemble_value_disagreement_pessimism", mutate)
+
+
+def test_one_fixture_reused_across_same_width_components_rejected():
+    def mutate(fixtures):
+        fixtures["evd_q_members"] = fixtures["evd_behavior_reference"].copy()
+
+    with pytest.raises(ContractError, match="deterministic byte mismatch"):
+        _validate_fixture_mutation("ensemble_value_disagreement_pessimism", mutate)
+
+
+def test_component_fixture_reproduces_across_fresh_processes():
+    features = ["alpha", "beta", "gamma"]
+    local = deterministic_component_fixture("reward_surrogate", features)
+    command = (
+        "import hashlib; "
+        "from docs.true_noisy_state_real_methods.stageb_sigma02_corrected_local_20260809."
+        "artifacts import deterministic_component_fixture; "
+        "x=deterministic_component_fixture('reward_surrogate',['alpha','beta','gamma']); "
+        "print(hashlib.sha256(x.astype('<f8').tobytes(order='C')).hexdigest())"
+    )
+    environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", LC_ALL="C")
+    first = subprocess.run(
+        [sys.executable, "-c", command],
+        cwd=Path(__file__).resolve().parents[4],
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    second = subprocess.run(
+        [sys.executable, "-c", command],
+        cwd=Path(__file__).resolve().parents[4],
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    expected = sha256_bytes(local.astype("<f8").tobytes(order="C"))
+    assert first.stdout == second.stdout == expected + "\n"
 
 
 def test_missing_fitted_artifact_identity_rejected():
     components = artifact_components("ogsrl")
+    fixtures = deterministic_prediction_fixtures("ogsrl", components)
     del components["ogsrl_guardian"]
     with pytest.raises(ContractError, match="incomplete"):
         validate_complete_artifact_bundle(
             "ogsrl",
             components,
-            prediction_fixture=np.ones((2, 3), dtype=np.float64),
+            prediction_fixtures=fixtures,
             expected_component_hashes={
                 key: sha256_bytes(value) for key, value in components.items()
             },
@@ -122,7 +277,7 @@ def test_arm_t_surrogate_refit_is_impossible(tmp_path):
         validate_complete_artifact_bundle(
             "refplan",
             components,
-            prediction_fixture=np.ones((2, 3), dtype=np.float64),
+            prediction_fixtures=deterministic_prediction_fixtures("refplan", components),
             expected_component_hashes={
                 key: sha256_bytes(value) for key, value in components.items()
             },
@@ -308,7 +463,7 @@ def test_placeholder_state_and_unchanged_expected_hash_rejected():
         validate_complete_artifact_bundle(
             "refplan",
             altered,
-            prediction_fixture=np.ones((2, 3), dtype=np.float64),
+            prediction_fixtures=deterministic_prediction_fixtures("refplan", altered),
             expected_component_hashes=expected,
         )
 
