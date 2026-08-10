@@ -9,6 +9,8 @@ attempt.
 
 The package implements:
 
+- one registration-bound external `driver.py` with the exact `arm-o`, `arm-o-gate`, `arm-t`,
+  and `finalize-inspection-only` interfaces consumed by the existing Slurm templates;
 - issued, non-serializable registration and Arm-T process capabilities plus an authenticated
   cross-process gate receipt that reissues the process capability only after full validation;
 - strict component-specific canonical schemas and lossless external serializers for complete
@@ -23,6 +25,12 @@ The package implements:
 - recursive public allowlists and closed context-preserving exact-state wrappers;
 - unique task-local full-tree validation and last-operation atomic publication;
 - configurable M3 Slurm dependency templates.
+
+The driver has no fit entry point. It loads the sealed V4 fitted-object publications, keeps
+Arm O on the public-observation route, enables the context-preserving exact-current-state
+overlay only after signed-gate verification, and atomically publishes complete task evidence.
+Its bytes are a mandatory production-registration identity under
+`corrected_stageb_code_configuration_hashes_v2`.
 
 Registration JSON files are deliberately incomplete templates. They cannot authorize a
 scientific return. M3 deployment must fill and freeze real commit, configuration, dataset,

@@ -30,7 +30,8 @@ from .common import (
     strict_json_loads,
 )
 from .boundary import validate_task_information_boundary_receipt
-from .diagnostics import validate_arm_task_diagnostics
+from .diagnostics import classify_activity, validate_arm_task_diagnostics
+from .evidence import REGISTERED_EPISODE_IDS
 from .registration import CELLS, METHODS, FrozenRegistration
 from .registration import freeze_registration_bundle
 from .publication import load_success_receipt
@@ -38,7 +39,7 @@ from .real_artifacts import revalidate_frozen_object_parity, scientific_componen
 
 
 EXPECTED_ARM_TASKS = tuple((cell, method) for cell in CELLS for method in METHODS)
-CORRECTED_TEST_COUNT = 165
+CORRECTED_TEST_COUNT = 192
 ARTIFACT_EVIDENCE_V2 = "corrected_stageb_artifact_bundle_evidence_v2"
 ARTIFACT_EVIDENCE_V3 = "corrected_stageb_artifact_bundle_evidence_v3"
 ARTIFACT_EVIDENCE_V4 = "corrected_stageb_artifact_bundle_evidence_v4"
@@ -622,6 +623,42 @@ def _validate_bound_task_evidence(
     if not isinstance(receipts, Mapping) or not receipts:
         raise ContractError(f"Arm O {kind} evidence receipts are missing")
     if kind == "diagnostics":
+        if expected_task["method"] == "ensemble_value_disagreement_pessimism":
+            require_exact_keys(
+                receipts,
+                {"transition", "activity"},
+                "registered EVD task diagnostics receipts",
+            )
+            transition = receipts["transition"]
+            expected_transition = {
+                "schema_version": "corrected_stageb_transition_not_applicable_v1",
+                "registration_sha256": registration_sha,
+                "method": expected_task["method"],
+                "cell": expected_task["cell"],
+                "arm": "O",
+                "applicability": "DEFINITIONALLY_NOT_APPLICABLE",
+                "source_backed_reason": "EVD has no fitted transition model",
+                "artifact_hashes": [],
+            }
+            if transition != expected_transition:
+                raise ContractError("EVD transition applicability receipt mismatch")
+            activities = receipts["activity"]
+            if not isinstance(activities, list) or len(activities) != len(REGISTERED_EPISODE_IDS):
+                raise ContractError("EVD activity evidence must cover every episode")
+            for episode_id, receipt in zip(REGISTERED_EPISODE_IDS, activities):
+                if not isinstance(receipt, Mapping):
+                    raise ContractError("EVD activity receipt must be an object")
+                rebuilt = classify_activity(
+                    receipt.get("actions", ()),
+                    registration_sha256=registration_sha,
+                    method=expected_task["method"],
+                    cell=expected_task["cell"],
+                    arm="O",
+                    episode_id=episode_id,
+                )
+                if dict(receipt) != rebuilt:
+                    raise ContractError("EVD activity receipt is internally inconsistent")
+            return
         validate_arm_task_diagnostics(
             receipts,
             registration_sha256=registration_sha,

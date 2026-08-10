@@ -1,8 +1,9 @@
 {
-  "schema_version": "corrected_stageb_code_configuration_hashes_v1",
+  "schema_version": "corrected_stageb_code_configuration_hashes_v2",
   "git_commit_sha": null,
   "source_manifest_sha256": null,
   "registration_templates_sha256": null,
+  "stageb_driver_sha256": null,
   "general_config_sha256": "4e878a9ec7d528af0bfb4948e78036dc864f0d2b158a2fdf5559b24798b1222b",
   "plus_config_sha256": "10a064344e07cac16a7b2d5bd717bdce109c8970148de4295d6ff3532297fa68",
   "moor_config_sha256": "a3655a846d951439177da350ddf40ddc6d4962b42b317582dd29e72ca05323bd",

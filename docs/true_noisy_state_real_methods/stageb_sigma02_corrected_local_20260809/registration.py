@@ -66,6 +66,7 @@ EXPECTED_DATASET_HASHES = {
 CANDIDATE_RELATIVE = Path(
     "docs/true_noisy_state_real_methods/stageb_sigma02_corrected_local_20260809"
 )
+DRIVER_RELATIVE = CANDIDATE_RELATIVE / "driver.py"
 TEMPLATE_NAMES = (
     "analysis_rules.template.json",
     "code_configuration_hashes.template.json",
@@ -366,6 +367,7 @@ def _validate_hashes(value: Mapping[str, Any], repository_root: Path) -> None:
         "git_commit_sha",
         "source_manifest_sha256",
         "registration_templates_sha256",
+        "stageb_driver_sha256",
         "general_config_sha256",
         "plus_config_sha256",
         "moor_config_sha256",
@@ -373,7 +375,7 @@ def _validate_hashes(value: Mapping[str, Any], repository_root: Path) -> None:
         "general_source_only_sha256",
     }
     require_exact_keys(value, required, "code_configuration_hashes")
-    if value["schema_version"] != "corrected_stageb_code_configuration_hashes_v1":
+    if value["schema_version"] != "corrected_stageb_code_configuration_hashes_v2":
         raise ContractError("code/configuration hash schema mismatch")
     require_git_sha(value["git_commit_sha"], "code_configuration_hashes.git_commit_sha")
     for field in required - {"schema_version", "git_commit_sha"}:
@@ -404,6 +406,8 @@ def _validate_hashes(value: Mapping[str, Any], repository_root: Path) -> None:
     expected_templates = _registration_templates_hash(repository_root)
     if value["registration_templates_sha256"] != expected_templates:
         raise ContractError("registration-template aggregate hash mismatch")
+    if value["stageb_driver_sha256"] != sha256_file(repository_root / DRIVER_RELATIVE):
+        raise ContractError("registered Stage B driver hash mismatch")
     _verify_source_manifest(repository_root, value["source_manifest_sha256"])
 
 

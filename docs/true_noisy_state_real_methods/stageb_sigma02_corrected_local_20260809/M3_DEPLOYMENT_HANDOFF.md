@@ -37,6 +37,9 @@ The local package is development infrastructure only. Every M3 result remains
   environment, broaden versions, or treat a Mac wheel as parity evidence.
 - Run 38 I2A + 15 fast-track + all corrected tests in the pinned M3 environments. Seal a
   test receipt before any return path is opened.
+- Invoke the tracked `driver.py` directly through the four existing Slurm role templates.
+  Registration must bind its exact SHA-256 using
+  `corrected_stageb_code_configuration_hashes_v2`; an external or untracked driver is invalid.
 
 ## 3. Accepted input/configuration gates
 
@@ -127,6 +130,9 @@ manifest, templates, source tracks or registration bindings differ.
 ## 6. Dependency chain and publication
 
 Configure the M3 environment variables documented under `slurm/`; no path is hard-coded.
+Set `STAGEB_DRIVER` to the committed
+`docs/true_noisy_state_real_methods/stageb_sigma02_corrected_local_20260809/driver.py` and
+verify it equals the frozen `stageb_driver_sha256` before any role starts.
 The gate driver must call `load_gate_signing_key`; Arm T must call
 `load_gate_verification_key` and never receive the signing seed.
 Use the frozen chain only:

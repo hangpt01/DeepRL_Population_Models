@@ -177,6 +177,13 @@ receipt loader/verifier; the final M3 audit must inspect the concrete driver wir
 
 ## Review status
 
+The bounded driver pass adds the tracked four-role `driver.py`, mandatory registration-time
+driver-byte binding, source-backed EVD transition inapplicability, atomic per-task publication,
+and synthetic/adversarial driver coverage. The corrected suite now collects 192 tests. The
+driver has no fit path; it loads and revalidates V4 fit-only publications and keeps Arm T
+unreachable until the authenticated Arm O gate has been verified with a public key.
+
 The local source-like infrastructure is complete and synthetically tested. It is ready for
-user code review, but it is not ready for scientific execution until committed, deployed
-from a clean M3 clone, fully registered, parity-gated and independently audited.
+an ordinary driver commit and clean-clone M3 fit-only validation, but it is not ready for
+scientific execution until the replacement registration, keys and no-submit dependency package
+are prospectively frozen and independently audited.
