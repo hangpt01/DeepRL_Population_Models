@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import hmac
+import platform
 import re
 import secrets
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -40,6 +42,48 @@ REQUIRED_BUNDLE_KEYS = {
     "code_configuration_hashes",
     "task_manifest",
     "previous_results_disclosure",
+    "stageb_interpreter_bindings",
+}
+INTERPRETER_IDENTITY_FIELDS = {
+    "absolute_interpreter_path",
+    "resolved_executable_path",
+    "python_version",
+    "full_python_version",
+    "numpy_version",
+}
+EXPECTED_INTERPRETER_BINDINGS = (
+    {
+        "role": "ecological_paper_faithful",
+        "track": "ecological",
+        "absolute_interpreter_path": (
+            "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/.venv-paper-faithful/bin/python"
+        ),
+        "resolved_executable_path": "/apps/miniforge3/24.3.0-0/miniforge3/bin/python3.10",
+        "python_version": "3.10.14",
+        "full_python_version": (
+            "3.10.14 | packaged by conda-forge | (main, Mar 20 2024, 12:45:18) [GCC 12.3.0]"
+        ),
+        "numpy_version": "2.2.6",
+        "methods": list(METHODS[:2]),
+        "task_indices": [0, 1, 6, 7],
+    },
+    {
+        "role": "general_registered",
+        "track": "general",
+        "absolute_interpreter_path": "/usr/bin/python",
+        "resolved_executable_path": "/usr/bin/python3.9",
+        "python_version": "3.9.25",
+        "full_python_version": (
+            "3.9.25 (main, Apr 17 2026, 00:00:00) \n[GCC 11.5.0 20240719 (Red Hat 11.5.0-14)]"
+        ),
+        "numpy_version": "1.23.5",
+        "methods": list(METHODS[2:]),
+        "task_indices": [2, 3, 4, 5, 8, 9, 10, 11],
+    },
+)
+EXPECTED_COMMAND_ROLES = {
+    "arm-o-gate": "general_registered",
+    "finalize-inspection-only": "general_registered",
 }
 EXPECTED_CONFIG_HASHES = {
     "general_config_sha256": "4e878a9ec7d528af0bfb4948e78036dc864f0d2b158a2fdf5559b24798b1222b",
@@ -74,6 +118,7 @@ TEMPLATE_NAMES = (
     "execution_authorization.template.json",
     "previous_results_disclosure.template.json",
     "task_manifest.template.json",
+    "stageb_interpreter_bindings.template.json",
 )
 SELF_HASH_RE = re.compile(
     rb"(?m)^# SELF-NORMALIZED-SHA256: ([0-9a-f]{64})  "
@@ -208,7 +253,7 @@ def _validate_registration(value: Mapping[str, Any]) -> str:
         "local_status_label",
     }
     require_exact_keys(value, required, "corrected_stageb_registration")
-    if value["schema_version"] != "corrected_stageb_registration_v1":
+    if value["schema_version"] != "corrected_stageb_registration_v2":
         raise ContractError("corrected registration schema version mismatch")
     registration_id = require_nonempty_string(value["registration_id"], "registration_id")
     if value["status"] != "FROZEN_BEFORE_CORRECTED_RETURNS":
@@ -483,6 +528,221 @@ def _validate_task_manifest(
                 raise ContractError(f"paired O/T task binding mismatch: {field}")
 
 
+def _validate_interpreter_bindings(
+    value: Mapping[str, Any], task_manifest: Mapping[str, Any]
+) -> None:
+    require_exact_keys(
+        value,
+        {"schema_version", "bindings", "command_roles"},
+        "stageb_interpreter_bindings",
+    )
+    if value["schema_version"] != "corrected_stageb_interpreter_bindings_v1":
+        raise ContractError("Stage B interpreter-binding schema mismatch")
+    bindings = value["bindings"]
+    if not isinstance(bindings, list) or len(bindings) != len(EXPECTED_INTERPRETER_BINDINGS):
+        raise ContractError("registered interpreter roles are missing or extra")
+    required_binding_keys = {
+        "role",
+        "track",
+        *INTERPRETER_IDENTITY_FIELDS,
+        "methods",
+        "task_indices",
+    }
+    observed_by_role: dict[str, Mapping[str, Any]] = {}
+    method_coverage: list[str] = []
+    task_coverage: list[int] = []
+    for index, (binding, expected) in enumerate(zip(bindings, EXPECTED_INTERPRETER_BINDINGS)):
+        if not isinstance(binding, Mapping):
+            raise ContractError("registered interpreter binding must be an object")
+        require_exact_keys(
+            binding,
+            required_binding_keys,
+            f"stageb_interpreter_bindings.bindings[{index}]",
+        )
+        if dict(binding) != expected:
+            raise ContractError("registered interpreter identity or coverage mismatch")
+        role = binding["role"]
+        if role in observed_by_role:
+            raise ContractError("registered interpreter role is duplicated")
+        observed_by_role[role] = binding
+        method_coverage.extend(binding["methods"])
+        task_coverage.extend(binding["task_indices"])
+        configured = Path(binding["absolute_interpreter_path"])
+        resolved = Path(binding["resolved_executable_path"])
+        if not configured.is_absolute() or not resolved.is_absolute():
+            raise ContractError("registered interpreter paths must be absolute")
+        try:
+            actual_resolved = configured.resolve(strict=True)
+            registered_resolved = resolved.resolve(strict=True)
+        except OSError as exc:
+            raise ContractError("registered interpreter path does not exist") from exc
+        if not configured.is_file() or not resolved.is_file():
+            raise ContractError("registered interpreter path is not a file")
+        if actual_resolved != resolved or registered_resolved != resolved:
+            raise ContractError("configured interpreter resolves outside its registered identity")
+    if method_coverage != list(METHODS) or len(set(method_coverage)) != len(METHODS):
+        raise ContractError("registered interpreter method coverage is incomplete or duplicated")
+    if sorted(task_coverage) != list(range(12)) or len(set(task_coverage)) != 12:
+        raise ContractError("registered interpreter task coverage is incomplete or duplicated")
+    command_roles = value["command_roles"]
+    if not isinstance(command_roles, Mapping) or dict(command_roles) != EXPECTED_COMMAND_ROLES:
+        raise ContractError("registered non-task command-role mapping mismatch")
+    tasks = task_manifest["tasks"]
+    for task in tasks:
+        logical_index = task["task_index"] % 12
+        binding = observed_by_role.get(task["interpreter_role"])
+        if binding is None:
+            raise ContractError("task interpreter role has no registered binding")
+        expected_track = (
+            "ecological" if task["method"].startswith(("plus_", "moor_")) else "general"
+        )
+        if (
+            binding["track"] != expected_track
+            or task["method"] not in binding["methods"]
+            or logical_index not in binding["task_indices"]
+        ):
+            raise ContractError("task role/method/track/index interpreter binding mismatch")
+
+
+def _binding_by_role(frozen_registration: FrozenRegistration, role: str) -> Mapping[str, Any]:
+    if not isinstance(frozen_registration, FrozenRegistration):
+        raise ContractError("interpreter resolution requires a FrozenRegistration")
+    frozen_registration.authorize_return_path()
+    section = frozen_registration.bundle()["stageb_interpreter_bindings"]
+    matches = [binding for binding in section["bindings"] if binding["role"] == role]
+    if len(matches) != 1:
+        raise ContractError("interpreter role does not resolve to exactly one binding")
+    return matches[0]
+
+
+def interpreter_binding_for_task(
+    frozen_registration: FrozenRegistration, *, arm: str, task_index: int
+) -> tuple[Mapping[str, Any], Mapping[str, Any]]:
+    if arm not in ARMS:
+        raise ContractError("interpreter task arm must be O or T")
+    if isinstance(task_index, bool) or not isinstance(task_index, int) or not 0 <= task_index < 12:
+        raise ContractError("interpreter task index must be in 0..11")
+    manifest_index = task_index if arm == "O" else task_index + 12
+    task = frozen_registration.bundle()["task_manifest"]["tasks"][manifest_index]
+    binding = _binding_by_role(frozen_registration, task["interpreter_role"])
+    if (
+        task["method"] not in binding["methods"]
+        or task_index not in binding["task_indices"]
+        or task["interpreter_role"] != binding["role"]
+    ):
+        raise ContractError("task does not resolve to its registered interpreter binding")
+    return task, binding
+
+
+def interpreter_binding_for_command(
+    frozen_registration: FrozenRegistration, command: str
+) -> Mapping[str, Any]:
+    command_roles = frozen_registration.bundle()["stageb_interpreter_bindings"]["command_roles"]
+    role = command_roles.get(command)
+    if role is None:
+        raise ContractError("command has no registered interpreter role")
+    return _binding_by_role(frozen_registration, role)
+
+
+def observe_interpreter_identity() -> Mapping[str, str]:
+    import numpy as np
+
+    executable = Path(sys.executable)
+    try:
+        resolved = executable.resolve(strict=True)
+    except OSError as exc:
+        raise ContractError("current interpreter executable cannot be resolved") from exc
+    return {
+        "absolute_interpreter_path": sys.executable,
+        "resolved_executable_path": str(resolved),
+        "python_version": platform.python_version(),
+        "full_python_version": sys.version,
+        "numpy_version": np.__version__,
+    }
+
+
+def require_runtime_interpreter_binding(
+    frozen_registration: FrozenRegistration,
+    *,
+    command: str,
+    arm: str | None = None,
+    task_index: int | None = None,
+    observed: Mapping[str, Any] | None = None,
+) -> Mapping[str, Any]:
+    if command in {"arm-o", "arm-t"}:
+        expected_arm = "O" if command == "arm-o" else "T"
+        if arm != expected_arm or task_index is None:
+            raise ContractError("task interpreter context does not match the driver command")
+        task, binding = interpreter_binding_for_task(
+            frozen_registration, arm=arm, task_index=task_index
+        )
+        method: str | None = task["method"]
+        logical_task_index: int | None = task_index
+    else:
+        if arm is not None or task_index is not None:
+            raise ContractError("non-task interpreter context must not contain a task")
+        binding = interpreter_binding_for_command(frozen_registration, command)
+        method = None
+        logical_task_index = None
+    current = observe_interpreter_identity() if observed is None else observed
+    if not isinstance(current, Mapping):
+        raise ContractError("observed interpreter identity must be an object")
+    require_exact_keys(current, INTERPRETER_IDENTITY_FIELDS, "observed interpreter identity")
+    expected_identity = {field: binding[field] for field in INTERPRETER_IDENTITY_FIELDS}
+    if dict(current) != expected_identity:
+        mismatches = sorted(
+            field for field in INTERPRETER_IDENTITY_FIELDS if current[field] != binding[field]
+        )
+        raise ContractError(f"registered interpreter identity mismatch: {mismatches}")
+    return {
+        "schema_version": "corrected_stageb_interpreter_identity_receipt_v1",
+        "command": command,
+        "role": binding["role"],
+        "track": binding["track"],
+        "method": method,
+        "task_index": logical_task_index,
+        "expected": dict(binding),
+        "observed": dict(current),
+        "result": "PASS",
+    }
+
+
+def validate_interpreter_identity_receipt(
+    receipt: Mapping[str, Any],
+    frozen_registration: FrozenRegistration,
+    *,
+    command: str,
+    arm: str | None = None,
+    task_index: int | None = None,
+) -> None:
+    require_exact_keys(
+        receipt,
+        {
+            "schema_version",
+            "command",
+            "role",
+            "track",
+            "method",
+            "task_index",
+            "expected",
+            "observed",
+            "result",
+        },
+        "interpreter identity receipt",
+    )
+    if receipt["schema_version"] != "corrected_stageb_interpreter_identity_receipt_v1":
+        raise ContractError("interpreter identity receipt schema mismatch")
+    expected = require_runtime_interpreter_binding(
+        frozen_registration,
+        command=command,
+        arm=arm,
+        task_index=task_index,
+        observed=receipt["observed"],
+    )
+    if dict(receipt) != expected:
+        raise ContractError("interpreter identity receipt binding mismatch")
+
+
 def _validate_disclosure(value: Mapping[str, Any]) -> None:
     require_exact_keys(
         value,
@@ -529,6 +789,7 @@ def freeze_registration_bundle(
     )
     _validate_hashes(bundle["code_configuration_hashes"], root)
     _validate_task_manifest(bundle["task_manifest"], bundle["code_configuration_hashes"])
+    _validate_interpreter_bindings(bundle["stageb_interpreter_bindings"], bundle["task_manifest"])
     _validate_disclosure(bundle["previous_results_disclosure"])
     payload = canonical_json_bytes(bundle)
     return FrozenRegistration._issue(

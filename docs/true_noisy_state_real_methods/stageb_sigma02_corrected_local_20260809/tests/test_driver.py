@@ -11,7 +11,14 @@ from .. import driver
 from ..common import ContractError, canonical_json_bytes, sha256_file
 from ..evidence import REGISTERED_EPISODE_IDS
 from ..publication import load_success_receipt
-from ..registration import CELLS, METHODS, freeze_registration_bundle
+from ..registration import (
+    CELLS,
+    METHODS,
+    EXPECTED_COMMAND_ROLES,
+    EXPECTED_INTERPRETER_BINDINGS,
+    freeze_registration_bundle,
+    require_runtime_interpreter_binding,
+)
 from . import conftest as fixture_module
 from . import test_orchestration_slurm as orchestration_test_module
 from .conftest import HASHES, artifact_components, step_records
@@ -28,6 +35,12 @@ def _driver_complete_bundle():
     hashes = bundle["code_configuration_hashes"]
     hashes["schema_version"] = "corrected_stageb_code_configuration_hashes_v2"
     hashes["stageb_driver_sha256"] = sha256_file(Path(driver.__file__))
+    bundle["corrected_stageb_registration"]["schema_version"] = "corrected_stageb_registration_v2"
+    bundle["stageb_interpreter_bindings"] = {
+        "schema_version": "corrected_stageb_interpreter_bindings_v1",
+        "bindings": copy.deepcopy(list(EXPECTED_INTERPRETER_BINDINGS)),
+        "command_roles": dict(EXPECTED_COMMAND_ROLES),
+    }
     for task in bundle["task_manifest"]["tasks"]:
         task["evaluation_identity_sha256"] = driver.EVALUATION_IDENTITY_SHA256
     return bundle
@@ -59,6 +72,84 @@ def _driver_build_transition_diagnostics(**kwargs):
 
 
 orchestration_test_module.build_arm_transition_diagnostics = _driver_build_transition_diagnostics
+
+
+_UNBOUND_ARM_O_RECEIPTS = orchestration_test_module.arm_o_receipts
+
+
+def _interpreter_receipt(registration, command, *, arm=None, task_index=None):
+    if task_index is None:
+        role = registration.bundle()["stageb_interpreter_bindings"]["command_roles"][command]
+        binding = next(
+            item
+            for item in registration.bundle()["stageb_interpreter_bindings"]["bindings"]
+            if item["role"] == role
+        )
+    else:
+        task = driver._task_for_index(registration, arm, task_index)
+        binding = next(
+            item
+            for item in registration.bundle()["stageb_interpreter_bindings"]["bindings"]
+            if item["role"] == task["interpreter_role"]
+        )
+    observed = {
+        field: binding[field]
+        for field in (
+            "absolute_interpreter_path",
+            "resolved_executable_path",
+            "python_version",
+            "full_python_version",
+            "numpy_version",
+        )
+    }
+    return require_runtime_interpreter_binding(
+        registration,
+        command=command,
+        arm=arm,
+        task_index=task_index,
+        observed=observed,
+    )
+
+
+def _bound_arm_o_receipts(registration, evidence_root, **kwargs):
+    receipts = _UNBOUND_ARM_O_RECEIPTS(registration, evidence_root, **kwargs)
+    bound = []
+    for index, payload in enumerate(receipts):
+        identity = _interpreter_receipt(registration, "arm-o", arm="O", task_index=index)
+        receipt = dict(driver.strict_json_loads(payload))
+        publication_path = evidence_root / f"task-{index}" / "PUBLICATION_SUCCESS.json"
+        publication = dict(driver.strict_json_loads(publication_path.read_bytes()))
+        publication["validation"] = dict(publication["validation"])
+        publication["validation"]["interpreter_identity"] = identity
+        publication_payload = canonical_json_bytes(publication)
+        publication_path.write_bytes(publication_payload)
+        publication_sha = driver.sha256_bytes(publication_payload)
+        receipt["interpreter_identity"] = identity
+        receipt["publication_manifest_sha256"] = publication_sha
+        receipt["evidence"] = dict(receipt["evidence"])
+        receipt["evidence"]["publication_success"] = {
+            **receipt["evidence"]["publication_success"],
+            "sha256": publication_sha,
+        }
+        bound.append(canonical_json_bytes(receipt))
+    return bound
+
+
+orchestration_test_module.arm_o_receipts = _bound_arm_o_receipts
+
+
+_UNBOUND_PARITY_RECEIPT = orchestration_test_module.parity_receipt
+
+
+def _bound_parity_receipt(registration, task_receipts, **kwargs):
+    value = dict(
+        driver.strict_json_loads(_UNBOUND_PARITY_RECEIPT(registration, task_receipts, **kwargs))
+    )
+    value["interpreter_identity"] = _interpreter_receipt(registration, "arm-o-gate")
+    return canonical_json_bytes(value)
+
+
+orchestration_test_module.parity_receipt = _bound_parity_receipt
 
 
 def _execution(registration_sha256: str, method: str = "refplan", arm: str = "O"):
@@ -356,6 +447,7 @@ def test_atomic_task_publication_and_no_retry(registration_bundle, tmp_path):
         frozen_payload=b"synthetic-frozen",
         replay_payload=canonical_json_bytes({"synthetic": True}),
         output_root=tmp_path,
+        interpreter_identity=_interpreter_receipt(registration, "arm-o", arm="O", task_index=2),
     )
     load_success_receipt(target / "PUBLICATION_SUCCESS.json")
     assert (tmp_path / "arm-o-receipts/task-02.json").is_file()
@@ -370,6 +462,7 @@ def test_atomic_task_publication_and_no_retry(registration_bundle, tmp_path):
             frozen_payload=b"synthetic-frozen",
             replay_payload=canonical_json_bytes({"synthetic": True}),
             output_root=tmp_path,
+            interpreter_identity=_interpreter_receipt(registration, "arm-o", arm="O", task_index=2),
         )
 
 
@@ -377,6 +470,11 @@ def test_finalizer_is_inspection_only(registration_bundle, monkeypatch, tmp_path
     registration = freeze_registration_bundle(registration_bundle)
     monkeypatch.setattr(driver, "_load_registration", lambda _path: registration)
     monkeypatch.setattr(driver, "load_driver_inputs", lambda *_args: object())
+    monkeypatch.setattr(
+        driver,
+        "require_runtime_interpreter_binding",
+        lambda *_args, **_kwargs: _interpreter_receipt(registration, "finalize-inspection-only"),
+    )
     target = driver.run_inspection_only_finalizer(
         registration_path=tmp_path / "registration", output_root=tmp_path
     )

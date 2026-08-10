@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "corrected_stageb_registration_bundle.schema.json",
-  "title": "Corrected Stage B frozen registration bundle",
+  "$id": "corrected_stageb_registration_bundle_v2.schema.json",
+  "title": "Interpreter-bound corrected Stage B frozen registration bundle",
   "$defs": {
     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
@@ -24,7 +24,7 @@
       "additionalProperties": false,
       "required": ["schema_version", "registration_id", "status", "prospective_corrected_replication", "blinded_preregistration", "returns_exist_at_freeze", "cells", "methods", "arms", "offline_rows", "episodes", "episode_length", "evaluation_identities", "horizon", "discount", "num_actions", "sigma", "evaluator_family", "cpu_profile", "local_status_label"],
       "properties": {
-        "schema_version": {"const": "corrected_stageb_registration_v1"},
+        "schema_version": {"const": "corrected_stageb_registration_v2"},
         "registration_id": {"type": "string", "minLength": 1},
         "status": {"const": "FROZEN_BEFORE_CORRECTED_RETURNS"},
         "prospective_corrected_replication": {"const": true},
@@ -104,6 +104,40 @@
         "tasks": {"type": "array", "minItems": 24, "maxItems": 24, "items": {"$ref": "#/$defs/task"}}
       }
     },
+    "interpreterBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "track", "absolute_interpreter_path", "resolved_executable_path", "python_version", "full_python_version", "numpy_version", "methods", "task_indices"],
+      "properties": {
+        "role": {"enum": ["ecological_paper_faithful", "general_registered"]},
+        "track": {"enum": ["ecological", "general"]},
+        "absolute_interpreter_path": {"type": "string", "pattern": "^/"},
+        "resolved_executable_path": {"type": "string", "pattern": "^/"},
+        "python_version": {"type": "string", "minLength": 1},
+        "full_python_version": {"type": "string", "minLength": 1},
+        "numpy_version": {"type": "string", "minLength": 1},
+        "methods": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "task_indices": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "integer", "minimum": 0, "maximum": 11}}
+      }
+    },
+    "interpreterBindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "bindings", "command_roles"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_interpreter_bindings_v1"},
+        "bindings": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/$defs/interpreterBinding"}},
+        "command_roles": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["arm-o-gate", "finalize-inspection-only"],
+          "properties": {
+            "arm-o-gate": {"const": "general_registered"},
+            "finalize-inspection-only": {"const": "general_registered"}
+          }
+        }
+      }
+    },
     "disclosure": {
       "type": "object",
       "additionalProperties": false,
@@ -120,14 +154,15 @@
   },
   "type": "object",
   "additionalProperties": false,
-  "required": ["execution_authorization", "corrected_stageb_registration", "analysis_rules", "code_configuration_hashes", "task_manifest", "previous_results_disclosure"],
+  "required": ["execution_authorization", "corrected_stageb_registration", "analysis_rules", "code_configuration_hashes", "task_manifest", "previous_results_disclosure", "stageb_interpreter_bindings"],
   "properties": {
     "execution_authorization": {"$ref": "#/$defs/authorization"},
     "corrected_stageb_registration": {"$ref": "#/$defs/registration"},
     "analysis_rules": {"$ref": "#/$defs/analysisRules"},
     "code_configuration_hashes": {"$ref": "#/$defs/codeHashes"},
     "task_manifest": {"$ref": "#/$defs/taskManifest"},
-    "previous_results_disclosure": {"$ref": "#/$defs/disclosure"}
+    "previous_results_disclosure": {"$ref": "#/$defs/disclosure"},
+    "stageb_interpreter_bindings": {"$ref": "#/$defs/interpreterBindings"}
   },
   "description": "The Python validator additionally enforces exact values, ordering, method/config roles and process-capability issuance."
 }

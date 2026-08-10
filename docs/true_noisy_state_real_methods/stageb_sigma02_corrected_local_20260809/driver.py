@@ -97,6 +97,8 @@ from .registration import (
     METHODS,
     FrozenRegistration,
     freeze_registration_bundle,
+    require_runtime_interpreter_binding,
+    validate_interpreter_identity_receipt,
 )
 
 
@@ -1333,6 +1335,7 @@ def publish_registered_task(
     frozen_payload: bytes,
     replay_payload: bytes,
     output_root: Path,
+    interpreter_identity: Mapping[str, Any],
 ) -> Path:
     role = "arm-o" if task["arm"] == "O" else "arm-t"
     publications = _ensure_role_root(output_root, role)
@@ -1408,6 +1411,7 @@ def publish_registered_task(
         "artifact_bundle_sha256": sha256_bytes(files["ARTIFACT_BUNDLE.json"]),
         "diagnostics_sha256": sha256_bytes(files["DIAGNOSTICS.json"]),
         "information_boundary_sha256": sha256_bytes(files["INFORMATION_BOUNDARY.json"]),
+        "interpreter_identity": dict(interpreter_identity),
         "result": "PASS",
     }
     success_payload = _anticipated_success(staging, required, validation)
@@ -1449,6 +1453,7 @@ def publish_registered_task(
                 ),
             },
             "cpu_profile": CPU_PROFILE,
+            "interpreter_identity": dict(interpreter_identity),
             "result": "PASS",
         }
     else:
@@ -1469,6 +1474,7 @@ def publish_registered_task(
             "paired_rng_evidence_sha256": sha256_bytes(files["PAIRED_RNG_EVIDENCE.json"]),
             "publication_manifest_sha256": success_sha,
             "cpu_profile": CPU_PROFILE,
+            "interpreter_identity": dict(interpreter_identity),
             "result": "PASS",
         }
         if receipt["frozen_object_sha256"] != receipt["paired_arm_o_frozen_object_sha256"]:
@@ -1494,8 +1500,14 @@ def run_arm_task(
     executor: Callable[..., TaskExecution] | None = None,
 ) -> Path:
     registration = _load_registration(registration_path)
-    inputs = load_driver_inputs(output_root, registration)
     task = _task_for_index(registration, arm, task_index)
+    interpreter_identity = require_runtime_interpreter_binding(
+        registration,
+        command="arm-o" if arm == "O" else "arm-t",
+        arm=arm,
+        task_index=task_index,
+    )
+    inputs = load_driver_inputs(output_root, registration)
     if arm == "T":
         if arm_o_gate_path is None or gate_public_key_path is None:
             raise ContractError("Arm T requires the signed Arm O gate and public key")
@@ -1536,6 +1548,7 @@ def run_arm_task(
         frozen_payload=frozen_payload,
         replay_payload=replay_payload,
         output_root=output_root,
+        interpreter_identity=interpreter_identity,
     )
 
 
@@ -1566,6 +1579,7 @@ def run_arm_o_gate(
     output_root: Path,
 ) -> Path:
     registration = _load_registration(registration_path)
+    interpreter_identity = require_runtime_interpreter_binding(registration, command="arm-o-gate")
     inputs = load_driver_inputs(output_root, registration)
     task_payloads, task_receipts = _load_arm_o_task_receipts(output_root)
     arm_o_tasks = registration.bundle()["task_manifest"]["tasks"][:12]
@@ -1597,6 +1611,7 @@ def run_arm_o_gate(
                 for field in code_hashes
                 if field not in {"schema_version", "git_commit_sha"}
             },
+            "interpreter_identity": dict(interpreter_identity),
         }
     )
     token = validate_arm_o_gate(
@@ -1628,6 +1643,7 @@ def run_arm_o_gate(
         "arm_o_task_count": 12,
         "signed_gate_sha256": sha256_bytes(signed),
         "methods_executed_by_gate": 0,
+        "interpreter_identity": dict(interpreter_identity),
         "result": "PASS",
     }
     publish_once(
@@ -1641,6 +1657,9 @@ def run_arm_o_gate(
 
 def run_inspection_only_finalizer(*, registration_path: Path, output_root: Path) -> Path:
     registration = _load_registration(registration_path)
+    interpreter_identity = require_runtime_interpreter_binding(
+        registration, command="finalize-inspection-only"
+    )
     load_driver_inputs(output_root, registration)
     statuses: list[Mapping[str, Any]] = []
     inspected: list[Mapping[str, Any]] = []
@@ -1670,9 +1689,22 @@ def run_inspection_only_finalizer(*, registration_path: Path, output_root: Path)
                     and receipt.get("fitted_artifacts_byte_identical") is True
                     and receipt.get("publication_manifest_sha256") == sha256_file(publication_path)
                     and publication.get("result") == "PASS"
+                    and publication.get("validation", {}).get("interpreter_identity")
+                    == receipt.get("interpreter_identity")
                 ):
-                    status = "COMPLETED"
-                    reason = "validated terminal task receipt and publication"
+                    try:
+                        validate_interpreter_identity_receipt(
+                            receipt.get("interpreter_identity", {}),
+                            registration,
+                            command="arm-t",
+                            arm="T",
+                            task_index=index,
+                        )
+                    except ContractError:
+                        reason = "task receipt interpreter binding failed"
+                    else:
+                        status = "COMPLETED"
+                        reason = "validated terminal task receipt and publication"
                 else:
                     reason = "task receipt/publication binding failed"
         statuses.append(
@@ -1696,6 +1728,7 @@ def run_inspection_only_finalizer(*, registration_path: Path, output_root: Path)
                 "task_statuses": inspected,
                 "scientific_values_opened": False,
                 "scientific_calculations_performed": False,
+                "interpreter_identity": dict(interpreter_identity),
             }
         )
     }
@@ -1710,6 +1743,7 @@ def run_inspection_only_finalizer(*, registration_path: Path, output_root: Path)
             "registration_sha256": registration.sha256,
             "methods_executed": 0,
             "scientific_calculations_performed": 0,
+            "interpreter_identity": dict(interpreter_identity),
             "result": "PASS",
         },
     )

@@ -10,12 +10,26 @@
 set -euo pipefail
 : "${STAGEB_REPO_ROOT:?configure the clean M3 clone path}"
 : "${STAGEB_DRIVER:?configure the corrected M3 driver path}"
-: "${STAGEB_FINALIZER_PYTHON:?configure the finalizer interpreter}"
 : "${STAGEB_REGISTRATION_BUNDLE:?configure the frozen registration bundle}"
 : "${STAGEB_OUTPUT_ROOT:?configure the output namespace}"
 
 cd "${STAGEB_REPO_ROOT}"
 export LC_ALL=C PYTHONDONTWRITEBYTECODE=1
-exec "${STAGEB_FINALIZER_PYTHON}" "${STAGEB_DRIVER}" finalize-inspection-only \
+interpreter="$(/usr/bin/python - "${STAGEB_REPO_ROOT}" "${STAGEB_REGISTRATION_BUNDLE}" <<'PY'
+import sys
+from pathlib import Path
+
+root, registration_path = sys.argv[1:]
+sys.path.insert(0, root)
+from docs.true_noisy_state_real_methods.stageb_sigma02_corrected_local_20260809.common import strict_json_loads
+from docs.true_noisy_state_real_methods.stageb_sigma02_corrected_local_20260809.registration import freeze_registration_bundle, interpreter_binding_for_command
+
+payload = Path(registration_path).read_bytes()
+frozen = freeze_registration_bundle(strict_json_loads(payload), repository_root=Path(root))
+binding = interpreter_binding_for_command(frozen, "finalize-inspection-only")
+print(binding["absolute_interpreter_path"])
+PY
+)"
+exec "${interpreter}" "${STAGEB_DRIVER}" finalize-inspection-only \
   --registration "${STAGEB_REGISTRATION_BUNDLE}" \
   --output-root "${STAGEB_OUTPUT_ROOT}"

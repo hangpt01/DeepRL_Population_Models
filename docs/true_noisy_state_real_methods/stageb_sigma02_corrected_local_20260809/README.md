@@ -11,6 +11,8 @@ The package implements:
 
 - one registration-bound external `driver.py` with the exact `arm-o`, `arm-o-gate`, `arm-t`,
   and `finalize-inspection-only` interfaces consumed by the existing Slurm templates;
+- a mandatory V2 registration contract that binds every task and non-task command to exact
+  configured/resolved interpreter paths, Python identities and NumPy versions;
 - issued, non-serializable registration and Arm-T process capabilities plus an authenticated
   cross-process gate receipt that reissues the process capability only after full validation;
 - strict component-specific canonical schemas and lossless external serializers for complete
@@ -34,7 +36,7 @@ Its bytes are a mandatory production-registration identity under
 
 Registration JSON files are deliberately incomplete templates. They cannot authorize a
 scientific return. M3 deployment must fill and freeze real commit, configuration, dataset,
-artifact and task identities and then pass the Arm O parity/artifact gate.
+artifact, task and interpreter identities and then pass the Arm O parity/artifact gate.
 
 Synthetic registration fixtures derive and commit-verify the current repository `HEAD` at
 test runtime. They contain no static commit SHA and fail closed on unavailable, unsuccessful,

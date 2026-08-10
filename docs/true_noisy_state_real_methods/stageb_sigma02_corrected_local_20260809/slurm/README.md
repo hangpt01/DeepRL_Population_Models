@@ -1,8 +1,13 @@
 # M3 Slurm templates
 
-Templates only; they were not submitted or tested against Slurm. Every repository,
-driver, interpreter, registration, gate and output path is supplied through an explicit
-environment variable. No Mac path is embedded.
+Templates only; they were not submitted or tested against Slurm. Repository, driver,
+registration, gate and output paths are supplied through explicit environment variables.
+Interpreter paths are never operator-selectable: each script freezes the registration,
+resolves the task or command role, and invokes the registered absolute interpreter. The
+driver independently checks the configured and resolved executable paths, short and full
+Python versions, NumPy version and task/command context before reading inputs. No Mac path
+is embedded and `STAGEB_PYTHON`, `STAGEB_GATE_PYTHON` and `STAGEB_FINALIZER_PYTHON` are not
+accepted.
 
 The submission template freezes the required dependency chain:
 
@@ -13,6 +18,11 @@ The submission template freezes the required dependency chain:
 
 The finalizer must never execute or repair a method. Scientific tasks must never be
 retried automatically.
+
+Before submission, the prepared package must write `SCIENTIFIC_CHAIN_ENVIRONMENT.json`
+with the complete frozen binding for both interpreter roles, both command-role mappings and
+the resolved task/command launch map. That environment receipt is evidence only; it cannot
+override the registration.
 
 The Python registration and Arm-T tokens remain process-local capabilities. The implemented
 cross-process seam exports an Ed25519-signed gate receipt and revalidates its embedded frozen

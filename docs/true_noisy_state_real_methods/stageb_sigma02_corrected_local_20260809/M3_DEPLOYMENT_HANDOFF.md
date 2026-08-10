@@ -29,13 +29,19 @@ The local package is development infrastructure only. Every M3 result remains
 
 - Architecture: Intel Xeon Platinum 8452Y; Slurm constraint `xenon-8452Y`; partition/QOS
   `m3h`; account `ce25`; one CPU per task.
-- Ecological tasks: accepted paper-faithful interpreter, independently revalidated.
-- General tasks: registered `/usr/bin/python`, independently revalidated.
+- Ecological tasks: registered absolute path
+  `/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/.venv-paper-faithful/bin/python`,
+  resolved `/apps/miniforge3/24.3.0-0/miniforge3/bin/python3.10`, Python 3.10.14 and
+  NumPy 2.2.6.
+- General tasks: registered `/usr/bin/python`, resolved `/usr/bin/python3.9`, Python 3.9.25
+  and NumPy 1.23.5.
+- Gate and inspection-only finalizer: explicit registered `general_registered` command role;
+  no implicit interpreter default is permitted.
 - Set `LC_ALL=C`, `PYTHONDONTWRITEBYTECODE=1`, and all registered BLAS/thread variables to
   one.
 - Recreate only the pinned registered environments. Do not substitute the ARM64 virtual
   environment, broaden versions, or treat a Mac wheel as parity evidence.
-- Run 38 I2A + 15 fast-track + all corrected tests in the pinned M3 environments. Seal a
+- Run 38 I2A + 15 fast-track + all 227 corrected tests in the pinned M3 environments. Seal a
   test receipt before any return path is opened.
 - Invoke the tracked `driver.py` directly through the four existing Slurm role templates.
   Registration must bind its exact SHA-256 using
@@ -68,8 +74,9 @@ Never copy ignored Mac/server output into Git. Methods must never open original
 
 Before creating any corrected return path:
 
-1. Fill all six registration sections, including explicit authorization, exact commit/code/
-   configuration hashes, all 24 task rows and the known-results disclosure.
+1. Fill all seven registration sections, including explicit authorization, exact commit/code/
+   configuration hashes, all 24 task rows, exact interpreter bindings and the known-results
+   disclosure. The corrected registration schema must be V2; V1 is invalid.
 2. Freeze the bundle with status `FROZEN_BEFORE_CORRECTED_RETURNS` and attest that no
    corrected return exists. The earlier sigma=0.2 results are known; this is not blinded.
    The local `FrozenRegistration` is an issued non-serializable process capability; direct
@@ -129,7 +136,11 @@ manifest, templates, source tracks or registration bindings differ.
 
 ## 6. Dependency chain and publication
 
-Configure the M3 environment variables documented under `slurm/`; no path is hard-coded.
+Configure the non-interpreter M3 environment variables documented under `slurm/`. Do not
+provide a global or role-specific interpreter override. Each task resolves its role and
+absolute interpreter from the frozen registration; gate/finalizer resolve their explicit
+command roles; the driver independently verifies the full current identity before inputs.
+Seal the complete task/command mapping in `SCIENTIFIC_CHAIN_ENVIRONMENT.json`.
 Set `STAGEB_DRIVER` to the committed
 `docs/true_noisy_state_real_methods/stageb_sigma02_corrected_local_20260809/driver.py` and
 verify it equals the frozen `stageb_driver_sha256` before any role starts.

@@ -11,7 +11,6 @@
 set -euo pipefail
 : "${STAGEB_REPO_ROOT:?configure the clean M3 clone path}"
 : "${STAGEB_DRIVER:?configure the corrected M3 driver path}"
-: "${STAGEB_PYTHON:?configure the registered per-task interpreter wrapper}"
 : "${STAGEB_REGISTRATION_BUNDLE:?configure the frozen registration bundle}"
 : "${STAGEB_OUTPUT_ROOT:?configure the new non-colliding output namespace}"
 
@@ -19,7 +18,23 @@ cd "${STAGEB_REPO_ROOT}"
 export LC_ALL=C PYTHONDONTWRITEBYTECODE=1
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
-exec "${STAGEB_PYTHON}" "${STAGEB_DRIVER}" arm-o \
+interpreter="$(/usr/bin/python - "${STAGEB_REPO_ROOT}" "${STAGEB_REGISTRATION_BUNDLE}" \
+  "${SLURM_ARRAY_TASK_ID}" <<'PY'
+import sys
+from pathlib import Path
+
+root, registration_path, task_index = sys.argv[1:]
+sys.path.insert(0, root)
+from docs.true_noisy_state_real_methods.stageb_sigma02_corrected_local_20260809.common import strict_json_loads
+from docs.true_noisy_state_real_methods.stageb_sigma02_corrected_local_20260809.registration import freeze_registration_bundle, interpreter_binding_for_task
+
+payload = Path(registration_path).read_bytes()
+frozen = freeze_registration_bundle(strict_json_loads(payload), repository_root=Path(root))
+_task, binding = interpreter_binding_for_task(frozen, arm="O", task_index=int(task_index))
+print(binding["absolute_interpreter_path"])
+PY
+)"
+exec "${interpreter}" "${STAGEB_DRIVER}" arm-o \
   --task-index "${SLURM_ARRAY_TASK_ID}" \
   --registration "${STAGEB_REGISTRATION_BUNDLE}" \
   --output-root "${STAGEB_OUTPUT_ROOT}"

@@ -32,14 +32,19 @@ from .common import (
 from .boundary import validate_task_information_boundary_receipt
 from .diagnostics import classify_activity, validate_arm_task_diagnostics
 from .evidence import REGISTERED_EPISODE_IDS
-from .registration import CELLS, METHODS, FrozenRegistration
+from .registration import (
+    CELLS,
+    METHODS,
+    FrozenRegistration,
+    validate_interpreter_identity_receipt,
+)
 from .registration import freeze_registration_bundle
 from .publication import load_success_receipt
 from .real_artifacts import revalidate_frozen_object_parity, scientific_component_for_method
 
 
 EXPECTED_ARM_TASKS = tuple((cell, method) for cell in CELLS for method in METHODS)
-CORRECTED_TEST_COUNT = 202
+CORRECTED_TEST_COUNT = 227
 ARTIFACT_EVIDENCE_V2 = "corrected_stageb_artifact_bundle_evidence_v2"
 ARTIFACT_EVIDENCE_V3 = "corrected_stageb_artifact_bundle_evidence_v3"
 ARTIFACT_EVIDENCE_V4 = "corrected_stageb_artifact_bundle_evidence_v4"
@@ -270,6 +275,7 @@ def _validate_task_receipt(
     registration_sha: str,
     expected_task: Mapping[str, Any],
     evidence_root: Path,
+    frozen_registration: FrozenRegistration,
 ) -> tuple[str, str, Mapping[str, str]]:
     receipt = _canonical_receipt(payload, "Arm O task receipt")
     required = {
@@ -290,6 +296,7 @@ def _validate_task_receipt(
         "publication_manifest_sha256",
         "evidence",
         "cpu_profile",
+        "interpreter_identity",
         "result",
     }
     require_exact_keys(receipt, required, "Arm O task receipt")
@@ -318,6 +325,13 @@ def _validate_task_receipt(
         "publication_manifest_sha256",
     ):
         require_sha256(receipt[field], f"Arm O task receipt {field}")
+    validate_interpreter_identity_receipt(
+        receipt["interpreter_identity"],
+        frozen_registration,
+        command="arm-o",
+        arm="O",
+        task_index=expected_task["task_index"],
+    )
     evidence = receipt["evidence"]
     require_exact_keys(
         evidence,
@@ -367,6 +381,7 @@ def _validate_task_receipt(
             "artifact_bundle_sha256",
             "diagnostics_sha256",
             "information_boundary_sha256",
+            "interpreter_identity",
             "result",
         },
         "published task validation",
@@ -381,6 +396,7 @@ def _validate_task_receipt(
         "artifact_bundle_sha256": receipt["artifact_bundle_sha256"],
         "diagnostics_sha256": receipt["diagnostics_sha256"],
         "information_boundary_sha256": receipt["information_boundary_sha256"],
+        "interpreter_identity": receipt["interpreter_identity"],
         "result": "PASS",
     }
     if validation != expected_validation:
@@ -747,6 +763,7 @@ def _validate_parity_receipt(
     registration_sha: str,
     code_hashes: Mapping[str, Any],
     expected_artifact_gate_sha256: str,
+    frozen_registration: FrozenRegistration,
 ) -> str:
     parity = _canonical_receipt(payload, "Arm O parity receipt")
     require_exact_keys(
@@ -759,8 +776,9 @@ def _validate_parity_receipt(
             "per_episode_action_event_parity",
             "accepted_artifact_gate_sha256",
             "verified_hashes",
+            "interpreter_identity",
         },
-        "Arm O parity receipt",
+        "Arm O parity receipt frozen registration binding",
     )
     if parity["schema_version"] != "corrected_stageb_arm_o_parity_v2":
         raise ContractError("Arm O parity receipt schema mismatch")
@@ -778,6 +796,11 @@ def _validate_parity_receipt(
         raise ContractError("Arm O parity hashes do not match the frozen registration")
     if parity["accepted_artifact_gate_sha256"] != expected_artifact_gate_sha256:
         raise ContractError("Arm O artifact gate is not derived from frozen task artifacts")
+    validate_interpreter_identity_receipt(
+        parity["interpreter_identity"],
+        frozen_registration,
+        command="arm-o-gate",
+    )
     require_m3_arm_o_parity(parity)
     return sha256_bytes(payload)
 
@@ -807,6 +830,7 @@ def validate_arm_o_gate(
             registration_sha=registration_sha,
             expected_task=task,
             evidence_root=evidence_root,
+            frozen_registration=frozen_registration,
         )
         for payload, task in zip(task_receipts, arm_o_tasks)
     ]
@@ -848,6 +872,7 @@ def validate_arm_o_gate(
                 ]
             )
         ),
+        frozen_registration=frozen_registration,
     )
     gate_payload = canonical_json_bytes(
         {

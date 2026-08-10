@@ -1,0 +1,39 @@
+{
+  "schema_version": "corrected_stageb_interpreter_bindings_v1",
+  "bindings": [
+    {
+      "role": "ecological_paper_faithful",
+      "track": "ecological",
+      "absolute_interpreter_path": "/fs04/scratch2/ce25/Claude_DeepRL_Population_Models/.venv-paper-faithful/bin/python",
+      "resolved_executable_path": "/apps/miniforge3/24.3.0-0/miniforge3/bin/python3.10",
+      "python_version": "3.10.14",
+      "full_python_version": "3.10.14 | packaged by conda-forge | (main, Mar 20 2024, 12:45:18) [GCC 12.3.0]",
+      "numpy_version": "2.2.6",
+      "methods": [
+        "plus_adapted_ricker_only_pbvi",
+        "moor_adapted_ricker_misspec_pbvi"
+      ],
+      "task_indices": [0, 1, 6, 7]
+    },
+    {
+      "role": "general_registered",
+      "track": "general",
+      "absolute_interpreter_path": "/usr/bin/python",
+      "resolved_executable_path": "/usr/bin/python3.9",
+      "python_version": "3.9.25",
+      "full_python_version": "3.9.25 (main, Apr 17 2026, 00:00:00) \n[GCC 11.5.0 20240719 (Red Hat 11.5.0-14)]",
+      "numpy_version": "1.23.5",
+      "methods": [
+        "refplan",
+        "ogsrl",
+        "bamcts",
+        "ensemble_value_disagreement_pessimism"
+      ],
+      "task_indices": [2, 3, 4, 5, 8, 9, 10, 11]
+    }
+  ],
+  "command_roles": {
+    "arm-o-gate": "general_registered",
+    "finalize-inspection-only": "general_registered"
+  }
+}

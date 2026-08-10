@@ -1,5 +1,5 @@
 {
-  "schema_version": "corrected_stageb_registration_v1",
+  "schema_version": "corrected_stageb_registration_v2",
   "registration_id": "TO_BE_FROZEN_ON_M3",
   "status": "TEMPLATE_NOT_FROZEN",
   "prospective_corrected_replication": true,
