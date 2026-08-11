@@ -1,0 +1,97 @@
+"""Canonical scientific identities shared by registration freeze and driver execution.
+
+This is deliberately a leaf module: importing only :mod:`common` prevents the registration,
+evidence, and driver modules from acquiring a cycle while keeping each derived identity in one
+authoritative recipe.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Mapping
+
+from .common import ContractError, canonical_json_bytes, require_sha256, sha256_bytes
+
+
+REGISTERED_HORIZON = 50
+REGISTERED_GAMMA = 0.95
+REGISTERED_NUM_ACTIONS = 11
+REGISTERED_EPISODE_IDS = (
+    tuple(range(7001, 7005))
+    + tuple(range(7051, 7055))
+    + tuple(range(7101, 7105))
+    + tuple(range(7151, 7155))
+    + tuple(range(7201, 7205))
+)
+
+ARTIFACT_PLAN_SCHEMA_VERSION = "corrected_stageb_driver_artifact_plan_v1"
+DRIVER_INPUTS_SCHEMA_VERSION = "corrected_stageb_driver_inputs_v2"
+DRIVER_INPUTS_REGISTRATION_SCHEMA_VERSION = "corrected_stageb_driver_inputs_registration_v1"
+DRIVER_INPUTS_FILENAME = "DRIVER_INPUTS.json"
+ROLE_NAMESPACES = ("arm-o", "arm-o-receipts", "arm-t", "arm-t-receipts", "gate", "finalizer")
+
+
+def evaluation_identity_document() -> dict[str, Any]:
+    return {
+        "discount": REGISTERED_GAMMA,
+        "episode_ids": list(REGISTERED_EPISODE_IDS),
+        "horizon": REGISTERED_HORIZON,
+        "num_actions": REGISTERED_NUM_ACTIONS,
+    }
+
+
+def evaluation_identity_sha256() -> str:
+    return sha256_bytes(canonical_json_bytes(evaluation_identity_document()))
+
+
+EVALUATION_IDENTITY_SHA256 = evaluation_identity_sha256()
+
+
+def artifact_plan_document(
+    *,
+    task_index: int,
+    cell: str,
+    method: str,
+    dataset_sha256: str,
+    publication_success_sha256: str,
+    fit_probe_receipt_sha256: str,
+    frozen_object_sha256: str,
+    frozen_replay_sha256: str,
+    component_hashes: Mapping[str, str],
+) -> dict[str, Any]:
+    if isinstance(task_index, bool) or not isinstance(task_index, int) or not 0 <= task_index < 12:
+        raise ContractError("artifact plan task index must be in 0..11")
+    if not isinstance(cell, str) or not cell or not isinstance(method, str) or not method:
+        raise ContractError("artifact plan cell and method must be nonempty strings")
+    for label, digest in (
+        ("dataset", dataset_sha256),
+        ("publication success", publication_success_sha256),
+        ("fit-probe receipt", fit_probe_receipt_sha256),
+        ("frozen object", frozen_object_sha256),
+        ("frozen replay", frozen_replay_sha256),
+    ):
+        require_sha256(digest, f"artifact plan {label}")
+    if not isinstance(component_hashes, Mapping) or not component_hashes:
+        raise ContractError("artifact plan requires a non-empty component-hash map")
+    parsed: dict[str, str] = {}
+    for name, digest in component_hashes.items():
+        if not isinstance(name, str) or not name:
+            raise ContractError("artifact plan component names must be non-empty strings")
+        parsed[name] = require_sha256(digest, f"artifact plan component {name}")
+    return {
+        "schema_version": ARTIFACT_PLAN_SCHEMA_VERSION,
+        "fit_probe_task_index": task_index,
+        "cell": cell,
+        "method": method,
+        "dataset_sha256": dataset_sha256,
+        "publication_success_sha256": publication_success_sha256,
+        "fit_probe_receipt_sha256": fit_probe_receipt_sha256,
+        "frozen_object_sha256": frozen_object_sha256,
+        "frozen_replay_sha256": frozen_replay_sha256,
+        "component_hashes": parsed,
+        "arm_t_refit_permitted": False,
+        "o_t_fitted_object_byte_identity_required": True,
+    }
+
+
+def artifact_plan_sha256(**fields: Any) -> str:
+    return sha256_bytes(canonical_json_bytes(artifact_plan_document(**fields)))

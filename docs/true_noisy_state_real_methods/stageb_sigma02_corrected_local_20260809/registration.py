@@ -11,6 +11,11 @@ import sys
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+from .canonical_plan import (
+    DRIVER_INPUTS_REGISTRATION_SCHEMA_VERSION,
+    EVALUATION_IDENTITY_SHA256,
+    artifact_plan_sha256,
+)
 from .common import (
     ContractError,
     canonical_json_bytes,
@@ -22,6 +27,7 @@ from .common import (
     sha256_file,
     strict_json_loads,
 )
+from .driver_inputs import driver_inputs_sha256, validate_driver_inputs_document
 
 
 METHODS = (
@@ -43,6 +49,7 @@ REQUIRED_BUNDLE_KEYS = {
     "task_manifest",
     "previous_results_disclosure",
     "stageb_interpreter_bindings",
+    "stageb_driver_inputs",
 }
 INTERPRETER_IDENTITY_FIELDS = {
     "absolute_interpreter_path",
@@ -107,10 +114,16 @@ EXPECTED_DATASET_HASHES = {
     "amur_tiger__allee__sigma_0p2": "7e71172af4bc95b2c31291414af53371c1ea94393e01675d269b2b7c360324c9",
     "crab_eating_fox__allee__sigma_0p2": "688d580f1e47a61dcad9b8a6cb96f1d62835bfbd0b835554cf31c8ab8bdd0c13",
 }
+POPULATIONS = {
+    "amur_tiger__allee__sigma_0p2": "Amur tiger",
+    "crab_eating_fox__allee__sigma_0p2": "Crab-eating fox",
+}
 CANDIDATE_RELATIVE = Path(
     "docs/true_noisy_state_real_methods/stageb_sigma02_corrected_local_20260809"
 )
 DRIVER_RELATIVE = CANDIDATE_RELATIVE / "driver.py"
+DRIVER_INPUTS_RELATIVE = CANDIDATE_RELATIVE / "driver_inputs.py"
+DRIVER_INPUTS_SCHEMA_RELATIVE = CANDIDATE_RELATIVE / "schemas/driver_inputs.schema.json"
 TEMPLATE_NAMES = (
     "analysis_rules.template.json",
     "code_configuration_hashes.template.json",
@@ -119,6 +132,7 @@ TEMPLATE_NAMES = (
     "previous_results_disclosure.template.json",
     "task_manifest.template.json",
     "stageb_interpreter_bindings.template.json",
+    "stageb_driver_inputs.template.json",
 )
 SELF_HASH_RE = re.compile(
     rb"(?m)^# SELF-NORMALIZED-SHA256: ([0-9a-f]{64})  "
@@ -457,7 +471,9 @@ def _validate_hashes(value: Mapping[str, Any], repository_root: Path) -> None:
 
 
 def _validate_task_manifest(
-    value: Mapping[str, Any], code_configuration_hashes: Mapping[str, Any]
+    value: Mapping[str, Any],
+    code_configuration_hashes: Mapping[str, Any],
+    driver_inputs_descriptor: Mapping[str, Any],
 ) -> None:
     require_exact_keys(value, {"schema_version", "task_count", "tasks"}, "task_manifest")
     if value["schema_version"] != "corrected_stageb_task_manifest_v1":
@@ -495,6 +511,8 @@ def _validate_task_manifest(
             "evaluation_identity_sha256",
         ):
             require_sha256(task[field], f"task[{index}].{field}")
+        if task["evaluation_identity_sha256"] != EVALUATION_IDENTITY_SHA256:
+            raise ContractError("task evaluation-identity hash does not match the canonical recipe")
         ecological = task["method"].startswith(("plus_", "moor_"))
         expected_role = "ecological_paper_faithful" if ecological else "general_registered"
         if task["interpreter_role"] != expected_role:
@@ -510,6 +528,21 @@ def _validate_task_manifest(
             raise ContractError("task configuration hash is not bound to the frozen method config")
         if task["dataset_sha256"] != EXPECTED_DATASET_HASHES.get(task["cell"]):
             raise ContractError("task dataset hash does not match the controlling I1 cell binding")
+        logical_index = index % 12
+        probe = driver_inputs_descriptor["fit_probes"][logical_index]
+        expected_plan = artifact_plan_sha256(
+            task_index=logical_index,
+            cell=task["cell"],
+            method=task["method"],
+            dataset_sha256=task["dataset_sha256"],
+            publication_success_sha256=probe["publication_success_sha256"],
+            fit_probe_receipt_sha256=probe["fit_probe_receipt_sha256"],
+            frozen_object_sha256=probe["frozen_object_sha256"],
+            frozen_replay_sha256=probe["frozen_replay_sha256"],
+            component_hashes=probe["component_hashes"],
+        )
+        if task["artifact_plan_sha256"] != expected_plan:
+            raise ContractError("task artifact plan does not reconstruct from registered evidence")
     if tuple(observed) != EXPECTED_TASKS:
         raise ContractError("task manifest mapping is incomplete, duplicated, or reordered")
     for index in range(len(EXPECTED_TASKS) // 2):
@@ -526,6 +559,59 @@ def _validate_task_manifest(
         ):
             if arm_o[field] != arm_t[field]:
                 raise ContractError(f"paired O/T task binding mismatch: {field}")
+
+
+def _validate_driver_inputs_registration(
+    value: Mapping[str, Any],
+    *,
+    registration_id: str,
+    code_configuration_hashes: Mapping[str, Any],
+    repository_root: Path,
+) -> Mapping[str, Any]:
+    require_exact_keys(
+        value,
+        {
+            "schema_version",
+            "driver_inputs_schema_sha256",
+            "driver_inputs_producer_sha256",
+            "driver_inputs_sha256",
+            "descriptor",
+        },
+        "stageb_driver_inputs",
+    )
+    if value["schema_version"] != DRIVER_INPUTS_REGISTRATION_SCHEMA_VERSION:
+        raise ContractError("driver-input registration schema mismatch")
+    schema_digest = require_sha256(
+        value["driver_inputs_schema_sha256"], "registered driver-input schema"
+    )
+    producer_digest = require_sha256(
+        value["driver_inputs_producer_sha256"], "registered driver-input producer"
+    )
+    if sha256_file(repository_root / DRIVER_INPUTS_SCHEMA_RELATIVE) != schema_digest:
+        raise ContractError("registered driver-input JSON schema hash mismatch")
+    if sha256_file(repository_root / DRIVER_INPUTS_RELATIVE) != producer_digest:
+        raise ContractError("registered driver-input producer hash mismatch")
+    descriptor = value["descriptor"]
+    if not isinstance(descriptor, Mapping):
+        raise ContractError("registered driver-input descriptor must be an object")
+    validate_driver_inputs_document(
+        descriptor,
+        registration_id=registration_id,
+        repository_root=repository_root,
+        repository_commit=code_configuration_hashes["git_commit_sha"],
+        stageb_driver_sha256=code_configuration_hashes["stageb_driver_sha256"],
+        cells=CELLS,
+        methods=METHODS,
+        populations=POPULATIONS,
+        dataset_hashes=EXPECTED_DATASET_HASHES,
+        cpu_profile="Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU",
+    )
+    registered_digest = require_sha256(
+        value["driver_inputs_sha256"], "registered canonical driver inputs"
+    )
+    if driver_inputs_sha256(descriptor) != registered_digest:
+        raise ContractError("registered canonical DRIVER_INPUTS hash mismatch")
+    return descriptor
 
 
 def _validate_interpreter_bindings(
@@ -788,7 +874,15 @@ def freeze_registration_bundle(
         else Path(__file__).resolve().parents[3]
     )
     _validate_hashes(bundle["code_configuration_hashes"], root)
-    _validate_task_manifest(bundle["task_manifest"], bundle["code_configuration_hashes"])
+    descriptor = _validate_driver_inputs_registration(
+        bundle["stageb_driver_inputs"],
+        registration_id=registration_id,
+        code_configuration_hashes=bundle["code_configuration_hashes"],
+        repository_root=root,
+    )
+    _validate_task_manifest(
+        bundle["task_manifest"], bundle["code_configuration_hashes"], descriptor
+    )
     _validate_interpreter_bindings(bundle["stageb_interpreter_bindings"], bundle["task_manifest"])
     _validate_disclosure(bundle["previous_results_disclosure"])
     payload = canonical_json_bytes(bundle)

@@ -138,6 +138,18 @@
         }
       }
     },
+    "driverInputsRegistration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "driver_inputs_schema_sha256", "driver_inputs_producer_sha256", "driver_inputs_sha256", "descriptor"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_driver_inputs_registration_v1"},
+        "driver_inputs_schema_sha256": {"$ref": "#/$defs/sha256"},
+        "driver_inputs_producer_sha256": {"$ref": "#/$defs/sha256"},
+        "driver_inputs_sha256": {"$ref": "#/$defs/sha256"},
+        "descriptor": {"type": "object"}
+      }
+    },
     "disclosure": {
       "type": "object",
       "additionalProperties": false,
@@ -154,7 +166,7 @@
   },
   "type": "object",
   "additionalProperties": false,
-  "required": ["execution_authorization", "corrected_stageb_registration", "analysis_rules", "code_configuration_hashes", "task_manifest", "previous_results_disclosure", "stageb_interpreter_bindings"],
+  "required": ["execution_authorization", "corrected_stageb_registration", "analysis_rules", "code_configuration_hashes", "task_manifest", "previous_results_disclosure", "stageb_interpreter_bindings", "stageb_driver_inputs"],
   "properties": {
     "execution_authorization": {"$ref": "#/$defs/authorization"},
     "corrected_stageb_registration": {"$ref": "#/$defs/registration"},
@@ -162,7 +174,8 @@
     "code_configuration_hashes": {"$ref": "#/$defs/codeHashes"},
     "task_manifest": {"$ref": "#/$defs/taskManifest"},
     "previous_results_disclosure": {"$ref": "#/$defs/disclosure"},
-    "stageb_interpreter_bindings": {"$ref": "#/$defs/interpreterBindings"}
+    "stageb_interpreter_bindings": {"$ref": "#/$defs/interpreterBindings"},
+    "stageb_driver_inputs": {"$ref": "#/$defs/driverInputsRegistration"}
   },
   "description": "The Python validator additionally enforces exact values, ordering, method/config roles and process-capability issuance."
 }

@@ -2,6 +2,11 @@
 
 **LOCAL ARM64 DEVELOPMENT TEST — NOT SCIENTIFIC EVIDENCE**
 
+The prospective runtime-input correction is documented in
+`DRIVER_INPUTS_IMPLEMENTATION_REPORT.md`. The frozen registration now embeds and hashes the exact
+canonical `DRIVER_INPUTS.json`; its committed producer and validator are available through the
+`driver_inputs` module.
+
 This is the trusted external implementation constructed from Revision 3.1, frozen I1 and
 zero-SD contracts, audited I2A adapters, audited fast-track wrappers, frozen method source,
 and the independent Stage B audit. It does not import or execute either failed corrected

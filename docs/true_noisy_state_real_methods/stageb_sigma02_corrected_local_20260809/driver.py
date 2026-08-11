@@ -42,6 +42,11 @@ from .artifacts import (
     deterministic_prediction_fixtures,
     validate_complete_artifact_bundle,
 )
+from .canonical_plan import (
+    DRIVER_INPUTS_FILENAME,
+    EVALUATION_IDENTITY_SHA256,
+    artifact_plan_sha256,
+)
 from .boundary import build_task_information_boundary_receipt
 from .common import (
     ContractError,
@@ -57,6 +62,14 @@ from .diagnostics import (
     build_arm_transition_diagnostics,
     build_realized_posterior_receipt,
     classify_activity,
+)
+from .driver_inputs import (
+    driver_inputs_sha256,
+    load_canonical_driver_inputs,
+    validate_driver_inputs_document,
+    validate_no_forbidden_descriptor_keys as _shared_validate_no_forbidden_descriptor_keys,
+    validate_output_root_entries,
+    validate_path_receipt,
 )
 from .evidence import (
     REGISTERED_EPISODE_IDS,
@@ -95,6 +108,7 @@ from .registration import (
     CONFIG_PATHS,
     EXPECTED_DATASET_HASHES,
     METHODS,
+    POPULATIONS,
     FrozenRegistration,
     freeze_registration_bundle,
     require_runtime_interpreter_binding,
@@ -102,7 +116,7 @@ from .registration import (
 )
 
 
-DRIVER_INPUTS = "DRIVER_INPUTS.json"
+DRIVER_INPUTS = DRIVER_INPUTS_FILENAME
 ARM_O_RECEIPT = "ARM_O_TASK_RECEIPT.json"
 ARM_T_RECEIPT = "ARM_T_TASK_RECEIPT.json"
 GATE_RECEIPT = "ARM_O_GATE_RECEIPT.json"
@@ -117,21 +131,7 @@ FILTERS = {
     "bamcts": "learned",
     "ensemble_value_disagreement_pessimism": "learned",
 }
-POPULATIONS = {
-    "amur_tiger__allee__sigma_0p2": "Amur tiger",
-    "crab_eating_fox__allee__sigma_0p2": "Crab-eating fox",
-}
 TRACKS = {method: "ecological" if method in ECOLOGICAL_METHODS else "general" for method in METHODS}
-EVALUATION_IDENTITY_SHA256 = sha256_bytes(
-    canonical_json_bytes(
-        {
-            "discount": REGISTERED_GAMMA,
-            "episode_ids": list(REGISTERED_EPISODE_IDS),
-            "horizon": REGISTERED_HORIZON,
-            "num_actions": 11,
-        }
-    )
-)
 
 
 @dataclass(frozen=True)
@@ -145,23 +145,16 @@ class SealedFitProbe:
     component_hashes: Mapping[str, str]
 
     def artifact_plan_sha256(self, *, cell: str, method: str, dataset_sha256: str) -> str:
-        return sha256_bytes(
-            canonical_json_bytes(
-                {
-                    "schema_version": "corrected_stageb_driver_artifact_plan_v1",
-                    "fit_probe_task_index": self.task_index,
-                    "cell": cell,
-                    "method": method,
-                    "dataset_sha256": dataset_sha256,
-                    "publication_success_sha256": self.publication_success_sha256,
-                    "fit_probe_receipt_sha256": self.fit_probe_receipt_sha256,
-                    "frozen_object_sha256": self.frozen_object_sha256,
-                    "frozen_replay_sha256": self.frozen_replay_sha256,
-                    "component_hashes": dict(self.component_hashes),
-                    "arm_t_refit_permitted": False,
-                    "o_t_fitted_object_byte_identity_required": True,
-                }
-            )
+        return artifact_plan_sha256(
+            task_index=self.task_index,
+            cell=cell,
+            method=method,
+            dataset_sha256=dataset_sha256,
+            publication_success_sha256=self.publication_success_sha256,
+            fit_probe_receipt_sha256=self.fit_probe_receipt_sha256,
+            frozen_object_sha256=self.frozen_object_sha256,
+            frozen_replay_sha256=self.frozen_replay_sha256,
+            component_hashes=self.component_hashes,
         )
 
 
@@ -169,11 +162,29 @@ class SealedFitProbe:
 class DriverInputs:
     path: Path
     repository_root: Path
-    registration_sha256: str
+    registration_id: str
     fit_probes: tuple[SealedFitProbe, ...]
     public_inputs: Mapping[str, Mapping[str, Any]]
+
+
+@dataclass(frozen=True)
+class EvaluatorOnlyInputs:
+    accepted_parity: tuple[Mapping[str, Any], ...]
+
+
+@dataclass(frozen=True)
+class GateOnlyInputs:
     inherited_test_receipt: Mapping[str, Any]
     corrected_test_receipt: Mapping[str, Any]
+
+
+@dataclass(frozen=True)
+class LoadedDriverInputs:
+    descriptor_path: Path
+    descriptor_sha256: str
+    policy: DriverInputs
+    evaluator_only: EvaluatorOnlyInputs
+    gate_only: GateOnlyInputs
 
 
 @dataclass(frozen=True)
@@ -269,29 +280,7 @@ def _load_registration(path: Path) -> FrozenRegistration:
 
 
 def _validate_no_forbidden_descriptor_keys(value: Any, path: str = "root") -> None:
-    forbidden = {
-        "truth",
-        "truth_path",
-        "truth.npz",
-        "next_states",
-        "future_states",
-        "hidden_family",
-        "hidden_parameters",
-        "safety_threshold",
-        "reward_true",
-        "evaluator_info",
-        "signing_seed",
-        "gate_signing_seed",
-    }
-    if isinstance(value, Mapping):
-        for key, item in value.items():
-            leaf = str(key).lower()
-            if leaf in forbidden or "truth.npz" in leaf:
-                raise ContractError(f"forbidden driver-input field: {path}.{key}")
-            _validate_no_forbidden_descriptor_keys(item, f"{path}.{key}")
-    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
-        for index, item in enumerate(value):
-            _validate_no_forbidden_descriptor_keys(item, f"{path}[{index}]")
+    _shared_validate_no_forbidden_descriptor_keys(value, path)
 
 
 def _parse_fit_probe(value: Any, expected_index: int) -> SealedFitProbe:
@@ -301,6 +290,8 @@ def _parse_fit_probe(value: Any, expected_index: int) -> SealedFitProbe:
         value,
         {
             "task_index",
+            "cell",
+            "method",
             "publication_dir",
             "publication_success_sha256",
             "fit_probe_receipt_sha256",
@@ -334,88 +325,71 @@ def _parse_fit_probe(value: Any, expected_index: int) -> SealedFitProbe:
     )
 
 
-def load_driver_inputs(output_root: Path, registration: FrozenRegistration) -> DriverInputs:
+def load_driver_inputs(output_root: Path, registration: FrozenRegistration) -> LoadedDriverInputs:
     root = Path(output_root)
-    if root.is_symlink() or not root.is_dir():
-        raise ContractError("driver output root must be an existing real directory")
+    validate_output_root_entries(root, pristine=False)
     path = root / DRIVER_INPUTS
-    if path.is_symlink() or not path.is_file():
-        raise ContractError("sealed DRIVER_INPUTS.json is missing")
-    payload = path.read_bytes()
-    value = _json_object(payload, "driver inputs")
-    _validate_no_forbidden_descriptor_keys(value)
-    required = {
-        "schema_version",
-        "registration_sha256",
-        "repository_root",
-        "repository_commit",
-        "stageb_driver_sha256",
-        "cpu_profile",
-        "fit_probes",
-        "public_inputs",
-        "inherited_test_receipt",
-        "corrected_test_receipt",
-        "arm_t_refit_permitted",
-        "original_truth_archive_available_to_driver",
-        "runtime_next_states_available",
-    }
-    require_exact_keys(value, required, "driver inputs")
-    if value["schema_version"] != "corrected_stageb_driver_inputs_v1":
-        raise ContractError("driver-input schema mismatch")
-    if value["registration_sha256"] != registration.sha256:
-        raise ContractError("driver inputs are not bound to the frozen registration")
-    repository = _safe_absolute_directory(value["repository_root"], "driver repository")
-    if repository != _repository_root():
-        raise ContractError("driver repository root mismatch")
+    value = load_canonical_driver_inputs(path)
     bundle = registration.bundle()
+    registered = bundle["stageb_driver_inputs"]
+    if dict(value) != registered["descriptor"]:
+        raise ContractError("DRIVER_INPUTS bytes differ from the registered descriptor")
+    observed_digest = driver_inputs_sha256(value)
+    if observed_digest != registered["driver_inputs_sha256"]:
+        raise ContractError("canonical DRIVER_INPUTS hash mismatch")
     hashes = bundle["code_configuration_hashes"]
-    if value["repository_commit"] != hashes["git_commit_sha"]:
-        raise ContractError("driver-input commit mismatch")
-    if value["stageb_driver_sha256"] != hashes["stageb_driver_sha256"]:
-        raise ContractError("driver-input driver hash mismatch")
+    validate_driver_inputs_document(
+        value,
+        registration_id=registration.registration_id,
+        repository_root=_repository_root(),
+        repository_commit=hashes["git_commit_sha"],
+        stageb_driver_sha256=hashes["stageb_driver_sha256"],
+        cells=CELLS,
+        methods=METHODS,
+        populations=POPULATIONS,
+        dataset_hashes=EXPECTED_DATASET_HASHES,
+        cpu_profile=CPU_PROFILE,
+    )
     if sha256_file(Path(__file__)) != value["stageb_driver_sha256"]:
         raise ContractError("executing driver bytes differ from the frozen registration")
-    if value["cpu_profile"] != CPU_PROFILE:
-        raise ContractError("driver-input CPU profile mismatch")
-    if value["arm_t_refit_permitted"] is not False:
-        raise ContractError("Arm T refitting must remain impossible")
-    if value["original_truth_archive_available_to_driver"] is not False:
-        raise ContractError("the original truth archive must not be available to the driver")
-    if value["runtime_next_states_available"] is not False:
-        raise ContractError("runtime next_states must remain unavailable")
-    raw_probes = value["fit_probes"]
-    if not isinstance(raw_probes, list) or len(raw_probes) != 12:
-        raise ContractError("driver inputs require exactly twelve fit probes")
-    probes = tuple(_parse_fit_probe(item, index) for index, item in enumerate(raw_probes))
-    public_inputs = value["public_inputs"]
-    if not isinstance(public_inputs, Mapping) or set(public_inputs) != set(CELLS):
-        raise ContractError("driver public inputs must cover exactly the two registered cells")
-    parsed_public: dict[str, Mapping[str, Any]] = {}
-    for cell in CELLS:
-        item = public_inputs[cell]
-        if not isinstance(item, Mapping):
-            raise ContractError("cell public-input binding must be an object")
-        require_exact_keys(
-            item,
-            {"population", "public_npz", "accepted_episodes_csv", "logical_dataset_sha256"},
-            f"public inputs {cell}",
-        )
-        if item["population"] != POPULATIONS[cell]:
-            raise ContractError("cell population binding mismatch")
-        if item["logical_dataset_sha256"] != EXPECTED_DATASET_HASHES[cell]:
-            raise ContractError("cell logical dataset binding mismatch")
-        parsed_public[cell] = {
-            "population": item["population"],
-            "logical_dataset_sha256": item["logical_dataset_sha256"],
-            "public_npz": _load_path_receipt(item["public_npz"], f"{cell} public NPZ"),
-            "accepted_episodes_csv": _load_path_receipt(
-                item["accepted_episodes_csv"], f"{cell} accepted episodes"
+    probes = tuple(_parse_fit_probe(item, index) for index, item in enumerate(value["fit_probes"]))
+    public_inputs = {
+        cell: {
+            "population": value["public_inputs"][cell]["population"],
+            "logical_dataset_sha256": value["public_inputs"][cell]["logical_dataset_sha256"],
+            "public_npz": validate_path_receipt(
+                value["public_inputs"][cell]["public_npz"], f"{cell} public NPZ"
             ),
         }
-    inherited = _load_path_receipt(value["inherited_test_receipt"], "inherited test receipt")
-    corrected = _load_path_receipt(value["corrected_test_receipt"], "corrected test receipt")
-    return DriverInputs(
-        path.resolve(), repository, registration.sha256, probes, parsed_public, inherited, corrected
+        for cell in CELLS
+    }
+    evaluator = tuple(
+        {
+            "task_index": item["task_index"],
+            "cell": item["cell"],
+            "method": item["method"],
+            "episodes_csv": validate_path_receipt(
+                item["episodes_csv"], f"accepted parity {item['task_index']}"
+            ),
+        }
+        for item in value["evaluator_only_inputs"]["accepted_parity"]
+    )
+    gate = value["gate_only_inputs"]
+    return LoadedDriverInputs(
+        descriptor_path=path.resolve(strict=True),
+        descriptor_sha256=observed_digest,
+        policy=DriverInputs(
+            path.resolve(strict=True),
+            _repository_root(),
+            registration.registration_id,
+            probes,
+            public_inputs,
+        ),
+        evaluator_only=EvaluatorOnlyInputs(evaluator),
+        gate_only=GateOnlyInputs(
+            validate_path_receipt(gate["inherited_test_receipt"], "inherited test receipt"),
+            validate_path_receipt(gate["corrected_test_receipt"], "corrected test receipt"),
+        ),
     )
 
 
@@ -1328,6 +1302,7 @@ def publish_registered_task(
     *,
     registration: FrozenRegistration,
     inputs: DriverInputs,
+    evaluator_inputs: EvaluatorOnlyInputs | None,
     task: Mapping[str, Any],
     task_index: int,
     execution: TaskExecution,
@@ -1384,14 +1359,25 @@ def publish_registered_task(
     }
     parity: Mapping[str, Any] | None = None
     if task["arm"] == "O":
+        if evaluator_inputs is None:
+            raise ContractError("Arm O publication requires evaluator-only accepted parity")
+        accepted = evaluator_inputs.accepted_parity[task_index]
+        if (
+            accepted["task_index"] != task_index
+            or accepted["cell"] != task["cell"]
+            or accepted["method"] != task["method"]
+        ):
+            raise ContractError("accepted-parity capability is bound to a different task")
         parity = _accepted_parity(
             execution.evaluator_rows,
-            inputs.public_inputs[task["cell"]]["accepted_episodes_csv"]["path"],
+            accepted["episodes_csv"]["path"],
         )
         if parity["result"] != "PASS":
             raise ContractError("Arm O accepted parity failed")
         files["ACCEPTED_PARITY.json"] = canonical_json_bytes(parity)
     else:
+        if evaluator_inputs is not None:
+            raise ContractError("Arm T must not receive evaluator-only accepted parity")
         arm_o = _load_arm_o_evidence(output_root, task_index)
         pairings = [
             pair_episode_evidence(o_episode, t_episode)
@@ -1507,12 +1493,17 @@ def run_arm_task(
         arm=arm,
         task_index=task_index,
     )
-    inputs = load_driver_inputs(output_root, registration)
     if arm == "T":
         if arm_o_gate_path is None or gate_public_key_path is None:
             raise ContractError("Arm T requires the signed Arm O gate and public key")
         if "STAGEB_GATE_SIGNING_SEED_FILE" in os.environ:
             raise ContractError("the gate signing seed must never enter an Arm T process")
+    elif arm_o_gate_path is not None or gate_public_key_path is not None:
+        raise ContractError("Arm O must not receive Arm T gate material")
+    loaded = load_driver_inputs(output_root, registration)
+    inputs = loaded.policy
+    if arm == "T":
+        assert arm_o_gate_path is not None and gate_public_key_path is not None
         gate_path = _safe_absolute_file(str(Path(arm_o_gate_path).resolve()), "Arm O gate")
         verification_key = load_gate_verification_key(Path(gate_public_key_path))
         token, embedded_registration = verify_arm_o_gate_receipt(
@@ -1523,8 +1514,6 @@ def run_arm_task(
         if embedded_registration.payload != registration.payload:
             raise ContractError("Arm T gate embeds a different frozen registration")
         authorize_arm_t_task(token, registration)
-    elif arm_o_gate_path is not None or gate_public_key_path is not None:
-        raise ContractError("Arm O must not receive Arm T gate material")
     components, frozen_payload, replay_payload, _probe = _validate_fit_probe(
         inputs, task, task_index
     )
@@ -1541,6 +1530,7 @@ def run_arm_task(
     return publish_registered_task(
         registration=registration,
         inputs=inputs,
+        evaluator_inputs=loaded.evaluator_only if arm == "O" else None,
         task=task,
         task_index=task_index,
         execution=execution,
@@ -1580,7 +1570,7 @@ def run_arm_o_gate(
 ) -> Path:
     registration = _load_registration(registration_path)
     interpreter_identity = require_runtime_interpreter_binding(registration, command="arm-o-gate")
-    inputs = load_driver_inputs(output_root, registration)
+    loaded = load_driver_inputs(output_root, registration)
     task_payloads, task_receipts = _load_arm_o_task_receipts(output_root)
     arm_o_tasks = registration.bundle()["task_manifest"]["tasks"][:12]
     artifact_gate = sha256_bytes(
@@ -1617,8 +1607,8 @@ def run_arm_o_gate(
     token = validate_arm_o_gate(
         frozen_registration=registration,
         task_receipts=task_payloads,
-        inherited_test_receipt=inputs.inherited_test_receipt["path"].read_bytes(),
-        corrected_test_receipt=inputs.corrected_test_receipt["path"].read_bytes(),
+        inherited_test_receipt=loaded.gate_only.inherited_test_receipt["path"].read_bytes(),
+        corrected_test_receipt=loaded.gate_only.corrected_test_receipt["path"].read_bytes(),
         parity_receipt=parity_payload,
         evidence_root=output_root,
     )

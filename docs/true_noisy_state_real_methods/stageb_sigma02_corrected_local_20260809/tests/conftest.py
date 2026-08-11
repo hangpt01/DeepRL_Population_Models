@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -10,12 +11,19 @@ import numpy as np
 import pytest
 
 from ..artifacts import CanonicalArtifact, REQUIRED_COMPONENTS
+from ..canonical_plan import (
+    DRIVER_INPUTS_REGISTRATION_SCHEMA_VERSION,
+    DRIVER_INPUTS_SCHEMA_VERSION,
+    artifact_plan_sha256,
+)
 from ..common import canonical_json_bytes, sha256_bytes, sha256_file, strict_json_loads
+from ..driver_inputs import driver_inputs_sha256
 from ..evidence import RNGReceipt, StepEvidence
 from ..registration import (
     ARMS,
     CELLS,
     METHODS,
+    POPULATIONS,
     EXPECTED_CONFIG_HASHES,
     EXPECTED_COMMAND_ROLES,
     EXPECTED_DATASET_HASHES,
@@ -45,6 +53,102 @@ SYNTHETIC_EVALUATION_IDENTITY_SHA256 = sha256_bytes(
         }
     )
 )
+
+
+def _write_synthetic_source(path: Path, payload: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists():
+        path.write_bytes(payload)
+
+
+def _synthetic_driver_descriptor(
+    repository: Path, *, registration_id: str, commit: str, driver_sha256: str
+) -> dict[str, Any]:
+    root = Path("/tmp") / f"corrected-stageb-driver-inputs-tests-{os.getpid()}"
+    root.mkdir(mode=0o700, parents=False, exist_ok=True)
+    probes = []
+    parity = []
+    for index, (cell, method) in enumerate((c, m) for c in CELLS for m in METHODS):
+        publication = root / f"fit-probe-{index:02d}"
+        frozen = canonical_json_bytes({"frozen": index})
+        replay = canonical_json_bytes({"replay": index})
+        success = canonical_json_bytes({"publication": index})
+        components = {"synthetic_component": sha256_bytes(canonical_json_bytes({"i": index}))}
+        receipt = canonical_json_bytes(
+            {
+                "component_hashes": components,
+                "fresh_reload_replay_sha256": sha256_bytes(replay),
+                "frozen_fitted_object_sha256": sha256_bytes(frozen),
+            }
+        )
+        for name, payload in (
+            ("FROZEN_FITTED_OBJECT.json", frozen),
+            ("FRESH_RELOAD_REPLAY.json", replay),
+            ("PUBLICATION_SUCCESS.json", success),
+            ("FIT_PROBE_RECEIPT.json", receipt),
+        ):
+            _write_synthetic_source(publication / name, payload)
+        probes.append(
+            {
+                "task_index": index,
+                "cell": cell,
+                "method": method,
+                "publication_dir": str(publication),
+                "publication_success_sha256": sha256_bytes(success),
+                "fit_probe_receipt_sha256": sha256_bytes(receipt),
+                "frozen_object_sha256": sha256_bytes(frozen),
+                "frozen_replay_sha256": sha256_bytes(replay),
+                "component_hashes": components,
+            }
+        )
+        accepted = root / f"accepted-{index:02d}.csv"
+        _write_synthetic_source(accepted, b"episode,seed,block_seed\n")
+        parity.append(
+            {
+                "task_index": index,
+                "cell": cell,
+                "method": method,
+                "episodes_csv": {"path": str(accepted), "sha256": sha256_file(accepted)},
+            }
+        )
+    public_inputs = {}
+    for cell in CELLS:
+        public = root / f"{cell}.public.npz"
+        _write_synthetic_source(public, f"synthetic:{cell}\n".encode())
+        public_inputs[cell] = {
+            "population": POPULATIONS[cell],
+            "public_npz": {"path": str(public), "sha256": sha256_file(public)},
+            "logical_dataset_sha256": EXPECTED_DATASET_HASHES[cell],
+        }
+    inherited = root / "INHERITED_TEST_RECEIPT.json"
+    corrected = root / "CORRECTED_TEST_RECEIPT.json"
+    _write_synthetic_source(inherited, canonical_json_bytes({"synthetic": "inherited"}))
+    _write_synthetic_source(corrected, canonical_json_bytes({"synthetic": "corrected"}))
+    return {
+        "schema_version": DRIVER_INPUTS_SCHEMA_VERSION,
+        "registration_id": registration_id,
+        "repository_root": str(repository),
+        "repository_commit": commit,
+        "stageb_driver_sha256": driver_sha256,
+        "cpu_profile": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU",
+        "fit_probes": probes,
+        "public_inputs": public_inputs,
+        "evaluator_only_inputs": {"accepted_parity": parity},
+        "gate_only_inputs": {
+            "inherited_test_receipt": {
+                "path": str(inherited),
+                "sha256": sha256_file(inherited),
+            },
+            "corrected_test_receipt": {
+                "path": str(corrected),
+                "sha256": sha256_file(corrected),
+            },
+        },
+        "arm_t_exact_state_allowlist": ["current_abundance"],
+        "arm_t_refit_permitted": False,
+        "original_truth_archive_available_to_policy": False,
+        "runtime_next_states_available": False,
+    }
 
 
 def current_repository_head(repository: Path) -> str:
@@ -94,6 +198,18 @@ def complete_bundle() -> dict[str, Any]:
     )
     if match is None:
         raise RuntimeError("candidate manifest is not sealed")
+    registration_id = "synthetic-corrected-stageb"
+    commit = current_repository_head(repository)
+    driver_path = (
+        repository
+        / "docs/true_noisy_state_real_methods/stageb_sigma02_corrected_local_20260809/driver.py"
+    )
+    descriptor = _synthetic_driver_descriptor(
+        repository,
+        registration_id=registration_id,
+        commit=commit,
+        driver_sha256=sha256_file(driver_path),
+    )
     tasks = []
     index = 0
     for arm in ARMS:
@@ -115,7 +231,27 @@ def complete_bundle() -> dict[str, Any]:
                         "method": method,
                         "config_sha256": config_hash,
                         "dataset_sha256": EXPECTED_DATASET_HASHES[cell],
-                        "artifact_plan_sha256": HASHES[2],
+                        "artifact_plan_sha256": artifact_plan_sha256(
+                            task_index=index % 12,
+                            cell=cell,
+                            method=method,
+                            dataset_sha256=EXPECTED_DATASET_HASHES[cell],
+                            publication_success_sha256=descriptor["fit_probes"][index % 12][
+                                "publication_success_sha256"
+                            ],
+                            fit_probe_receipt_sha256=descriptor["fit_probes"][index % 12][
+                                "fit_probe_receipt_sha256"
+                            ],
+                            frozen_object_sha256=descriptor["fit_probes"][index % 12][
+                                "frozen_object_sha256"
+                            ],
+                            frozen_replay_sha256=descriptor["fit_probes"][index % 12][
+                                "frozen_replay_sha256"
+                            ],
+                            component_hashes=descriptor["fit_probes"][index % 12][
+                                "component_hashes"
+                            ],
+                        ),
                         "evaluation_identity_sha256": SYNTHETIC_EVALUATION_IDENTITY_SHA256,
                         "interpreter_role": (
                             "ecological_paper_faithful" if ecological else "general_registered"
@@ -135,7 +271,7 @@ def complete_bundle() -> dict[str, Any]:
         },
         "corrected_stageb_registration": {
             "schema_version": "corrected_stageb_registration_v2",
-            "registration_id": "synthetic-corrected-stageb",
+            "registration_id": registration_id,
             "status": "FROZEN_BEFORE_CORRECTED_RETURNS",
             "prospective_corrected_replication": True,
             "blinded_preregistration": False,
@@ -187,13 +323,10 @@ def complete_bundle() -> dict[str, Any]:
         },
         "code_configuration_hashes": {
             "schema_version": "corrected_stageb_code_configuration_hashes_v2",
-            "git_commit_sha": current_repository_head(repository),
+            "git_commit_sha": commit,
             "source_manifest_sha256": match.group(1),
             "registration_templates_sha256": _registration_templates_hash(repository),
-            "stageb_driver_sha256": sha256_file(
-                repository / "docs/true_noisy_state_real_methods/"
-                "stageb_sigma02_corrected_local_20260809/driver.py"
-            ),
+            "stageb_driver_sha256": sha256_file(driver_path),
             **EXPECTED_CONFIG_HASHES,
             **EXPECTED_SOURCE_HASHES,
         },
@@ -206,6 +339,17 @@ def complete_bundle() -> dict[str, Any]:
             "schema_version": "corrected_stageb_interpreter_bindings_v1",
             "bindings": copy.deepcopy(list(EXPECTED_INTERPRETER_BINDINGS)),
             "command_roles": dict(EXPECTED_COMMAND_ROLES),
+        },
+        "stageb_driver_inputs": {
+            "schema_version": DRIVER_INPUTS_REGISTRATION_SCHEMA_VERSION,
+            "driver_inputs_schema_sha256": sha256_file(
+                Path(__file__).parents[1] / "schemas/driver_inputs.schema.json"
+            ),
+            "driver_inputs_producer_sha256": sha256_file(
+                Path(__file__).parents[1] / "driver_inputs.py"
+            ),
+            "driver_inputs_sha256": driver_inputs_sha256(descriptor),
+            "descriptor": descriptor,
         },
         "previous_results_disclosure": {
             "schema_version": "corrected_stageb_previous_results_disclosure_v1",

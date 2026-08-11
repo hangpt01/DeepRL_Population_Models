@@ -327,21 +327,28 @@ def test_atomic_task_publication_and_no_retry(registration_bundle, tmp_path):
     inputs = driver.DriverInputs(
         tmp_path / driver.DRIVER_INPUTS,
         Path(driver.__file__).resolve().parents[3],
-        registration.sha256,
+        registration.registration_id,
         tuple(
             driver.SealedFitProbe(index, tmp_path, HASHES[0], HASHES[1], HASHES[2], HASHES[3], {})
             for index in range(12)
         ),
-        {
-            CELLS[0]: {"accepted_episodes_csv": {"path": accepted}},
-            CELLS[1]: {"accepted_episodes_csv": {"path": accepted}},
-        },
         {},
-        {},
+    )
+    evaluator_inputs = driver.EvaluatorOnlyInputs(
+        tuple(
+            {
+                "task_index": index,
+                "cell": CELLS[index // len(METHODS)],
+                "method": METHODS[index % len(METHODS)],
+                "episodes_csv": {"path": accepted},
+            }
+            for index in range(12)
+        )
     )
     target = driver.publish_registered_task(
         registration=registration,
         inputs=inputs,
+        evaluator_inputs=evaluator_inputs,
         task=task,
         task_index=2,
         execution=_execution(registration.sha256),
@@ -357,6 +364,7 @@ def test_atomic_task_publication_and_no_retry(registration_bundle, tmp_path):
         driver.publish_registered_task(
             registration=registration,
             inputs=inputs,
+            evaluator_inputs=evaluator_inputs,
             task=task,
             task_index=2,
             execution=_execution(registration.sha256),

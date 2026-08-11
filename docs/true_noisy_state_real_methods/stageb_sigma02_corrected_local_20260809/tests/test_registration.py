@@ -77,10 +77,10 @@ def test_stale_evaluation_identity_is_not_silently_corrected(registration_bundle
     malformed = copy.deepcopy(registration_bundle)
     for index in (0, 12):
         malformed["task_manifest"]["tasks"][index]["evaluation_identity_sha256"] = stale
-    frozen = freeze_registration_bundle(malformed)
-    assert frozen.bundle()["task_manifest"]["tasks"][0]["evaluation_identity_sha256"] == stale
+    assert malformed["task_manifest"]["tasks"][0]["evaluation_identity_sha256"] == stale
     with pytest.raises(ContractError, match="evaluation-identity"):
-        driver._task_for_index(frozen, "O", 0)
+        freeze_registration_bundle(malformed)
+    assert malformed["task_manifest"]["tasks"][0]["evaluation_identity_sha256"] == stale
 
 
 def test_stale_precommit_sha_is_rejected(registration_bundle):

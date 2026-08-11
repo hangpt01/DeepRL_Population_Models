@@ -14,18 +14,17 @@ from .common import (
     require_sha256,
     sha256_bytes,
 )
+from .canonical_plan import (
+    REGISTERED_EPISODE_IDS as _REGISTERED_EPISODE_IDS,
+    REGISTERED_GAMMA as _REGISTERED_GAMMA,
+    REGISTERED_HORIZON as _REGISTERED_HORIZON,
+)
 from .registration import ARMS, CELLS, METHODS
 
 
-REGISTERED_HORIZON = 50
-REGISTERED_GAMMA = 0.95
-REGISTERED_EPISODE_IDS = (
-    tuple(range(7001, 7005))
-    + tuple(range(7051, 7055))
-    + tuple(range(7101, 7105))
-    + tuple(range(7151, 7155))
-    + tuple(range(7201, 7205))
-)
+REGISTERED_HORIZON = _REGISTERED_HORIZON
+REGISTERED_GAMMA = _REGISTERED_GAMMA
+REGISTERED_EPISODE_IDS = _REGISTERED_EPISODE_IDS
 
 
 @dataclass(frozen=True)

@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "corrected-stageb-driver-inputs-v2",
+  "title": "Corrected Stage B sealed driver inputs",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "registration_id",
+    "repository_root",
+    "repository_commit",
+    "stageb_driver_sha256",
+    "cpu_profile",
+    "fit_probes",
+    "public_inputs",
+    "evaluator_only_inputs",
+    "gate_only_inputs",
+    "arm_t_exact_state_allowlist",
+    "arm_t_refit_permitted",
+    "original_truth_archive_available_to_policy",
+    "runtime_next_states_available"
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "path_receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^/"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  },
+  "properties": {
+    "schema_version": {"const": "corrected_stageb_driver_inputs_v2"},
+    "registration_id": {"type": "string", "minLength": 1},
+    "repository_root": {"type": "string", "pattern": "^/"},
+    "repository_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "stageb_driver_sha256": {"$ref": "#/$defs/sha256"},
+    "cpu_profile": {"const": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU"},
+    "fit_probes": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "task_index", "cell", "method", "publication_dir",
+          "publication_success_sha256", "fit_probe_receipt_sha256",
+          "frozen_object_sha256", "frozen_replay_sha256", "component_hashes"
+        ],
+        "properties": {
+          "task_index": {"type": "integer", "minimum": 0, "maximum": 11},
+          "cell": {"type": "string", "minLength": 1},
+          "method": {"type": "string", "minLength": 1},
+          "publication_dir": {"type": "string", "pattern": "^/"},
+          "publication_success_sha256": {"$ref": "#/$defs/sha256"},
+          "fit_probe_receipt_sha256": {"$ref": "#/$defs/sha256"},
+          "frozen_object_sha256": {"$ref": "#/$defs/sha256"},
+          "frozen_replay_sha256": {"$ref": "#/$defs/sha256"},
+          "component_hashes": {
+            "type": "object", "minProperties": 1,
+            "additionalProperties": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      }
+    },
+    "public_inputs": {
+      "type": "object",
+      "minProperties": 2,
+      "maxProperties": 2,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["population", "public_npz", "logical_dataset_sha256"],
+        "properties": {
+          "population": {"type": "string", "minLength": 1},
+          "public_npz": {"$ref": "#/$defs/path_receipt"},
+          "logical_dataset_sha256": {"$ref": "#/$defs/sha256"}
+        }
+      }
+    },
+    "evaluator_only_inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accepted_parity"],
+      "properties": {
+        "accepted_parity": {
+          "type": "array", "minItems": 12, "maxItems": 12,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["task_index", "cell", "method", "episodes_csv"],
+            "properties": {
+              "task_index": {"type": "integer", "minimum": 0, "maximum": 11},
+              "cell": {"type": "string", "minLength": 1},
+              "method": {"type": "string", "minLength": 1},
+              "episodes_csv": {"$ref": "#/$defs/path_receipt"}
+            }
+          }
+        }
+      }
+    },
+    "gate_only_inputs": {
+      "type": "object", "additionalProperties": false,
+      "required": ["inherited_test_receipt", "corrected_test_receipt"],
+      "properties": {
+        "inherited_test_receipt": {"$ref": "#/$defs/path_receipt"},
+        "corrected_test_receipt": {"$ref": "#/$defs/path_receipt"}
+      }
+    },
+    "arm_t_exact_state_allowlist": {
+      "type": "array", "prefixItems": [{"const": "current_abundance"}], "items": false
+    },
+    "arm_t_refit_permitted": {"const": false},
+    "original_truth_archive_available_to_policy": {"const": false},
+    "runtime_next_states_available": {"const": false}
+  }
+}
