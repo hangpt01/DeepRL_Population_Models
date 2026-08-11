@@ -14,67 +14,10 @@ from ..publication import load_success_receipt
 from ..registration import (
     CELLS,
     METHODS,
-    EXPECTED_COMMAND_ROLES,
-    EXPECTED_INTERPRETER_BINDINGS,
     freeze_registration_bundle,
     require_runtime_interpreter_binding,
 )
-from . import conftest as fixture_module
-from . import test_orchestration_slurm as orchestration_test_module
 from .conftest import HASHES, artifact_components, step_records
-
-
-# The bounded path allowlist does not permit editing conftest.py.  Upgrade its shared synthetic
-# bundle at collection time so every existing registration test exercises the mandatory V2
-# driver binding rather than retaining a production-invalid V1 fixture.
-_V4_COMPLETE_BUNDLE = fixture_module.complete_bundle
-
-
-def _driver_complete_bundle():
-    bundle = _V4_COMPLETE_BUNDLE()
-    hashes = bundle["code_configuration_hashes"]
-    hashes["schema_version"] = "corrected_stageb_code_configuration_hashes_v2"
-    hashes["stageb_driver_sha256"] = sha256_file(Path(driver.__file__))
-    bundle["corrected_stageb_registration"]["schema_version"] = "corrected_stageb_registration_v2"
-    bundle["stageb_interpreter_bindings"] = {
-        "schema_version": "corrected_stageb_interpreter_bindings_v1",
-        "bindings": copy.deepcopy(list(EXPECTED_INTERPRETER_BINDINGS)),
-        "command_roles": dict(EXPECTED_COMMAND_ROLES),
-    }
-    for task in bundle["task_manifest"]["tasks"]:
-        task["evaluation_identity_sha256"] = driver.EVALUATION_IDENTITY_SHA256
-    return bundle
-
-
-fixture_module.complete_bundle = _driver_complete_bundle
-
-
-# The existing orchestration suite builds every synthetic transition receipt through one
-# imported helper.  V4 established that EVD has no transition-model artifact; update that
-# synthetic helper at collection time without relaxing the production gate or modifying a
-# pre-authorized test file outside this bounded change set.
-_V4_BUILD_TRANSITION_DIAGNOSTICS = orchestration_test_module.build_arm_transition_diagnostics
-
-
-def _driver_build_transition_diagnostics(**kwargs):
-    if kwargs["method"] == "ensemble_value_disagreement_pessimism":
-        return {
-            "schema_version": "corrected_stageb_transition_not_applicable_v1",
-            "registration_sha256": kwargs["registration_sha256"],
-            "method": kwargs["method"],
-            "cell": kwargs["cell"],
-            "arm": kwargs["arm"],
-            "applicability": "DEFINITIONALLY_NOT_APPLICABLE",
-            "source_backed_reason": "EVD has no fitted transition model",
-            "artifact_hashes": [],
-        }
-    return _V4_BUILD_TRANSITION_DIAGNOSTICS(**kwargs)
-
-
-orchestration_test_module.build_arm_transition_diagnostics = _driver_build_transition_diagnostics
-
-
-_UNBOUND_ARM_O_RECEIPTS = orchestration_test_module.arm_o_receipts
 
 
 def _interpreter_receipt(registration, command, *, arm=None, task_index=None):
@@ -109,47 +52,6 @@ def _interpreter_receipt(registration, command, *, arm=None, task_index=None):
         task_index=task_index,
         observed=observed,
     )
-
-
-def _bound_arm_o_receipts(registration, evidence_root, **kwargs):
-    receipts = _UNBOUND_ARM_O_RECEIPTS(registration, evidence_root, **kwargs)
-    bound = []
-    for index, payload in enumerate(receipts):
-        identity = _interpreter_receipt(registration, "arm-o", arm="O", task_index=index)
-        receipt = dict(driver.strict_json_loads(payload))
-        publication_path = evidence_root / f"task-{index}" / "PUBLICATION_SUCCESS.json"
-        publication = dict(driver.strict_json_loads(publication_path.read_bytes()))
-        publication["validation"] = dict(publication["validation"])
-        publication["validation"]["interpreter_identity"] = identity
-        publication_payload = canonical_json_bytes(publication)
-        publication_path.write_bytes(publication_payload)
-        publication_sha = driver.sha256_bytes(publication_payload)
-        receipt["interpreter_identity"] = identity
-        receipt["publication_manifest_sha256"] = publication_sha
-        receipt["evidence"] = dict(receipt["evidence"])
-        receipt["evidence"]["publication_success"] = {
-            **receipt["evidence"]["publication_success"],
-            "sha256": publication_sha,
-        }
-        bound.append(canonical_json_bytes(receipt))
-    return bound
-
-
-orchestration_test_module.arm_o_receipts = _bound_arm_o_receipts
-
-
-_UNBOUND_PARITY_RECEIPT = orchestration_test_module.parity_receipt
-
-
-def _bound_parity_receipt(registration, task_receipts, **kwargs):
-    value = dict(
-        driver.strict_json_loads(_UNBOUND_PARITY_RECEIPT(registration, task_receipts, **kwargs))
-    )
-    value["interpreter_identity"] = _interpreter_receipt(registration, "arm-o-gate")
-    return canonical_json_bytes(value)
-
-
-orchestration_test_module.parity_receipt = _bound_parity_receipt
 
 
 def _execution(registration_sha256: str, method: str = "refplan", arm: str = "O"):

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import re
 import subprocess
 from pathlib import Path
@@ -9,21 +10,41 @@ import numpy as np
 import pytest
 
 from ..artifacts import CanonicalArtifact, REQUIRED_COMPONENTS
-from ..common import sha256_bytes
+from ..common import canonical_json_bytes, sha256_bytes, sha256_file, strict_json_loads
 from ..evidence import RNGReceipt, StepEvidence
 from ..registration import (
     ARMS,
     CELLS,
     METHODS,
     EXPECTED_CONFIG_HASHES,
+    EXPECTED_COMMAND_ROLES,
     EXPECTED_DATASET_HASHES,
+    EXPECTED_INTERPRETER_BINDINGS,
     EXPECTED_SOURCE_HASHES,
     _registration_templates_hash,
+    require_runtime_interpreter_binding,
 )
 
 
 HASHES = tuple(character * 64 for character in "abcdef0123456789")
 GIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+EVALUATION_IDS = (
+    list(range(7001, 7005))
+    + list(range(7051, 7055))
+    + list(range(7101, 7105))
+    + list(range(7151, 7155))
+    + list(range(7201, 7205))
+)
+SYNTHETIC_EVALUATION_IDENTITY_SHA256 = sha256_bytes(
+    canonical_json_bytes(
+        {
+            "discount": 0.95,
+            "episode_ids": EVALUATION_IDS,
+            "horizon": 50,
+            "num_actions": 11,
+        }
+    )
+)
 
 
 def current_repository_head(repository: Path) -> str:
@@ -73,13 +94,6 @@ def complete_bundle() -> dict[str, Any]:
     )
     if match is None:
         raise RuntimeError("candidate manifest is not sealed")
-    evaluation_ids = (
-        list(range(7001, 7005))
-        + list(range(7051, 7055))
-        + list(range(7101, 7105))
-        + list(range(7151, 7155))
-        + list(range(7201, 7205))
-    )
     tasks = []
     index = 0
     for arm in ARMS:
@@ -102,7 +116,7 @@ def complete_bundle() -> dict[str, Any]:
                         "config_sha256": config_hash,
                         "dataset_sha256": EXPECTED_DATASET_HASHES[cell],
                         "artifact_plan_sha256": HASHES[2],
-                        "evaluation_identity_sha256": HASHES[3],
+                        "evaluation_identity_sha256": SYNTHETIC_EVALUATION_IDENTITY_SHA256,
                         "interpreter_role": (
                             "ecological_paper_faithful" if ecological else "general_registered"
                         ),
@@ -120,7 +134,7 @@ def complete_bundle() -> dict[str, Any]:
             "no_return_exists_at_authorization": True,
         },
         "corrected_stageb_registration": {
-            "schema_version": "corrected_stageb_registration_v1",
+            "schema_version": "corrected_stageb_registration_v2",
             "registration_id": "synthetic-corrected-stageb",
             "status": "FROZEN_BEFORE_CORRECTED_RETURNS",
             "prospective_corrected_replication": True,
@@ -132,7 +146,7 @@ def complete_bundle() -> dict[str, Any]:
             "offline_rows": 4000,
             "episodes": 160,
             "episode_length": 25,
-            "evaluation_identities": evaluation_ids,
+            "evaluation_identities": EVALUATION_IDS,
             "horizon": 50,
             "discount": 0.95,
             "num_actions": 11,
@@ -172,10 +186,14 @@ def complete_bundle() -> dict[str, Any]:
             "cross_species_pooling": False,
         },
         "code_configuration_hashes": {
-            "schema_version": "corrected_stageb_code_configuration_hashes_v1",
+            "schema_version": "corrected_stageb_code_configuration_hashes_v2",
             "git_commit_sha": current_repository_head(repository),
             "source_manifest_sha256": match.group(1),
             "registration_templates_sha256": _registration_templates_hash(repository),
+            "stageb_driver_sha256": sha256_file(
+                repository / "docs/true_noisy_state_real_methods/"
+                "stageb_sigma02_corrected_local_20260809/driver.py"
+            ),
             **EXPECTED_CONFIG_HASHES,
             **EXPECTED_SOURCE_HASHES,
         },
@@ -183,6 +201,11 @@ def complete_bundle() -> dict[str, Any]:
             "schema_version": "corrected_stageb_task_manifest_v1",
             "task_count": 24,
             "tasks": tasks,
+        },
+        "stageb_interpreter_bindings": {
+            "schema_version": "corrected_stageb_interpreter_bindings_v1",
+            "bindings": copy.deepcopy(list(EXPECTED_INTERPRETER_BINDINGS)),
+            "command_roles": dict(EXPECTED_COMMAND_ROLES),
         },
         "previous_results_disclosure": {
             "schema_version": "corrected_stageb_previous_results_disclosure_v1",
@@ -201,6 +224,96 @@ def complete_bundle() -> dict[str, Any]:
 @pytest.fixture
 def registration_bundle() -> dict[str, Any]:
     return complete_bundle()
+
+
+def _synthetic_interpreter_receipt(registration, command, *, arm=None, task_index=None):
+    bundle = registration.bundle()
+    if task_index is None:
+        role = bundle["stageb_interpreter_bindings"]["command_roles"][command]
+    else:
+        manifest_index = task_index if arm == "O" else task_index + 12
+        role = bundle["task_manifest"]["tasks"][manifest_index]["interpreter_role"]
+    binding = next(
+        item for item in bundle["stageb_interpreter_bindings"]["bindings"] if item["role"] == role
+    )
+    observed = {
+        field: binding[field]
+        for field in (
+            "absolute_interpreter_path",
+            "resolved_executable_path",
+            "python_version",
+            "full_python_version",
+            "numpy_version",
+        )
+    }
+    return require_runtime_interpreter_binding(
+        registration,
+        command=command,
+        arm=arm,
+        task_index=task_index,
+        observed=observed,
+    )
+
+
+@pytest.fixture(autouse=True)
+def isolated_orchestration_v2_helpers(request, monkeypatch):
+    """Install reversible V2 helpers without cross-test-module import side effects."""
+
+    module = request.module
+    if not module.__name__.endswith(".test_orchestration_slurm"):
+        return
+
+    original_transition = module.build_arm_transition_diagnostics
+    original_receipts = module.arm_o_receipts
+    original_parity = module.parity_receipt
+
+    def transition(**kwargs):
+        if kwargs["method"] == "ensemble_value_disagreement_pessimism":
+            return {
+                "schema_version": "corrected_stageb_transition_not_applicable_v1",
+                "registration_sha256": kwargs["registration_sha256"],
+                "method": kwargs["method"],
+                "cell": kwargs["cell"],
+                "arm": kwargs["arm"],
+                "applicability": "DEFINITIONALLY_NOT_APPLICABLE",
+                "source_backed_reason": "EVD has no fitted transition model",
+                "artifact_hashes": [],
+            }
+        return original_transition(**kwargs)
+
+    def arm_o_receipts(registration, evidence_root, **kwargs):
+        receipts = original_receipts(registration, evidence_root, **kwargs)
+        bound = []
+        for index, payload in enumerate(receipts):
+            identity = _synthetic_interpreter_receipt(
+                registration, "arm-o", arm="O", task_index=index
+            )
+            receipt = dict(strict_json_loads(payload))
+            publication_path = evidence_root / f"task-{index}" / "PUBLICATION_SUCCESS.json"
+            publication = dict(strict_json_loads(publication_path.read_bytes()))
+            publication["validation"] = dict(publication["validation"])
+            publication["validation"]["interpreter_identity"] = identity
+            publication_payload = canonical_json_bytes(publication)
+            publication_path.write_bytes(publication_payload)
+            publication_sha = sha256_bytes(publication_payload)
+            receipt["interpreter_identity"] = identity
+            receipt["publication_manifest_sha256"] = publication_sha
+            receipt["evidence"] = dict(receipt["evidence"])
+            receipt["evidence"]["publication_success"] = {
+                **receipt["evidence"]["publication_success"],
+                "sha256": publication_sha,
+            }
+            bound.append(canonical_json_bytes(receipt))
+        return bound
+
+    def parity_receipt(registration, task_receipts, **kwargs):
+        value = dict(strict_json_loads(original_parity(registration, task_receipts, **kwargs)))
+        value["interpreter_identity"] = _synthetic_interpreter_receipt(registration, "arm-o-gate")
+        return canonical_json_bytes(value)
+
+    monkeypatch.setattr(module, "build_arm_transition_diagnostics", transition)
+    monkeypatch.setattr(module, "arm_o_receipts", arm_o_receipts)
+    monkeypatch.setattr(module, "parity_receipt", parity_receipt)
 
 
 def artifact_components(

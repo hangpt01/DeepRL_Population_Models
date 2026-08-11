@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+import ast
 import copy
+import importlib
 import json
 import subprocess
 from pathlib import Path
 
 import pytest
 
-from ..common import ContractError
+from .. import driver
+from ..common import ContractError, canonical_json_bytes
 from ..registration import EvaluatorReturnSink, FrozenRegistration, freeze_registration_bundle
 from . import conftest as fixture_module
 from .conftest import current_repository_head, step_records
@@ -28,6 +31,56 @@ def test_synthetic_registration_binds_to_current_repository_head(registration_bu
     assert registration_bundle["code_configuration_hashes"]["git_commit_sha"] == (
         current_repository_head(repository)
     )
+
+
+def test_complete_bundle_is_valid_v2_without_test_module_injection(registration_bundle):
+    assert registration_bundle["corrected_stageb_registration"]["schema_version"] == (
+        "corrected_stageb_registration_v2"
+    )
+    assert registration_bundle["code_configuration_hashes"]["schema_version"] == (
+        "corrected_stageb_code_configuration_hashes_v2"
+    )
+    assert registration_bundle["stageb_interpreter_bindings"]["schema_version"] == (
+        "corrected_stageb_interpreter_bindings_v1"
+    )
+    assert all(
+        task["evaluation_identity_sha256"] == driver.EVALUATION_IDENTITY_SHA256
+        for task in registration_bundle["task_manifest"]["tasks"]
+    )
+    freeze_registration_bundle(registration_bundle)
+
+
+def test_importing_test_driver_does_not_mutate_complete_bundle_factory():
+    before_factory = fixture_module.complete_bundle
+    before_payload = canonical_json_bytes(before_factory())
+    importlib.import_module(f"{__package__}.test_driver")
+    assert fixture_module.complete_bundle is before_factory
+    assert canonical_json_bytes(fixture_module.complete_bundle()) == before_payload
+
+
+def test_no_test_assigns_to_another_modules_complete_bundle_factory():
+    for path in sorted(Path(__file__).parent.glob("test_*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        mutations = [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Attribute)
+            and isinstance(node.ctx, ast.Store)
+            and node.attr == "complete_bundle"
+        ]
+        assert not mutations, f"shared complete_bundle factory mutated by {path.name}"
+
+
+def test_stale_evaluation_identity_is_not_silently_corrected(registration_bundle):
+    stale = "0" * 64
+    assert stale != driver.EVALUATION_IDENTITY_SHA256
+    malformed = copy.deepcopy(registration_bundle)
+    for index in (0, 12):
+        malformed["task_manifest"]["tasks"][index]["evaluation_identity_sha256"] = stale
+    frozen = freeze_registration_bundle(malformed)
+    assert frozen.bundle()["task_manifest"]["tasks"][0]["evaluation_identity_sha256"] == stale
+    with pytest.raises(ContractError, match="evaluation-identity"):
+        driver._task_for_index(frozen, "O", 0)
 
 
 def test_stale_precommit_sha_is_rejected(registration_bundle):
