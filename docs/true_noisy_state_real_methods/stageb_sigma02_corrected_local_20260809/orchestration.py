@@ -28,6 +28,7 @@ from .common import (
     require_sha256,
     sha256_bytes,
     strict_json_loads,
+    validate_cpu_identity_receipt,
 )
 from .boundary import validate_task_information_boundary_receipt
 from .diagnostics import classify_activity, validate_arm_task_diagnostics
@@ -44,7 +45,7 @@ from .real_artifacts import revalidate_frozen_object_parity, scientific_componen
 
 
 EXPECTED_ARM_TASKS = tuple((cell, method) for cell in CELLS for method in METHODS)
-CORRECTED_TEST_COUNT = 249
+CORRECTED_TEST_COUNT = 269
 ARTIFACT_EVIDENCE_V2 = "corrected_stageb_artifact_bundle_evidence_v2"
 ARTIFACT_EVIDENCE_V3 = "corrected_stageb_artifact_bundle_evidence_v3"
 ARTIFACT_EVIDENCE_V4 = "corrected_stageb_artifact_bundle_evidence_v4"
@@ -296,12 +297,13 @@ def _validate_task_receipt(
         "publication_manifest_sha256",
         "evidence",
         "cpu_profile",
+        "cpu_identity",
         "interpreter_identity",
         "result",
     }
     require_exact_keys(receipt, required, "Arm O task receipt")
     expected_scalars = {
-        "schema_version": "corrected_stageb_arm_o_task_receipt_v3",
+        "schema_version": "corrected_stageb_arm_o_task_receipt_v4",
         "task_index": expected_task["task_index"],
         "arm": "O",
         "cell": expected_task["cell"],
@@ -332,6 +334,7 @@ def _validate_task_receipt(
         arm="O",
         task_index=expected_task["task_index"],
     )
+    validate_cpu_identity_receipt(receipt["cpu_identity"])
     evidence = receipt["evidence"]
     require_exact_keys(
         evidence,
@@ -382,6 +385,7 @@ def _validate_task_receipt(
             "diagnostics_sha256",
             "information_boundary_sha256",
             "interpreter_identity",
+            "cpu_identity",
             "result",
         },
         "published task validation",
@@ -397,6 +401,7 @@ def _validate_task_receipt(
         "diagnostics_sha256": receipt["diagnostics_sha256"],
         "information_boundary_sha256": receipt["information_boundary_sha256"],
         "interpreter_identity": receipt["interpreter_identity"],
+        "cpu_identity": receipt["cpu_identity"],
         "result": "PASS",
     }
     if validation != expected_validation:

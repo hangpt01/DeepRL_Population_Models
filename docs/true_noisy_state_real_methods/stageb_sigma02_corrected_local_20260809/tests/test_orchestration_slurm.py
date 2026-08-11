@@ -11,7 +11,13 @@ from ..artifacts import (
     validate_complete_artifact_bundle,
 )
 from ..boundary import build_task_information_boundary_receipt
-from ..common import ContractError, canonical_json_bytes, sha256_bytes, strict_json_loads
+from ..common import (
+    ContractError,
+    canonical_json_bytes,
+    require_registered_cpu_model,
+    sha256_bytes,
+    strict_json_loads,
+)
 from ..diagnostics import (
     build_arm_refplan_predictive_dispersion,
     build_arm_transition_diagnostics,
@@ -279,7 +285,7 @@ def arm_o_receipts(
         result.append(
             canonical_json_bytes(
                 {
-                    "schema_version": "corrected_stageb_arm_o_task_receipt_v3",
+                    "schema_version": "corrected_stageb_arm_o_task_receipt_v4",
                     "task_index": task["task_index"],
                     "arm": "O",
                     "cell": task["cell"],
@@ -313,6 +319,7 @@ def arm_o_receipts(
                         },
                     },
                     "cpu_profile": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU",
+                    "cpu_identity": require_registered_cpu_model("Intel(R) Xeon(R) Platinum 8452Y"),
                     "result": "PASS",
                 }
             )

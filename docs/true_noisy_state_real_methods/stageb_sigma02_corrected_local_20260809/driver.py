@@ -12,7 +12,6 @@ from __future__ import annotations
 import argparse
 import csv
 import os
-import platform
 import sys
 from dataclasses import dataclass, replace
 from pathlib import Path, PurePosixPath
@@ -49,13 +48,16 @@ from .canonical_plan import (
 )
 from .boundary import build_task_information_boundary_receipt
 from .common import (
+    REGISTERED_CPU_MODEL,
     ContractError,
     canonical_json_bytes,
+    require_current_registered_cpu_model,
     require_exact_keys,
     require_sha256,
     sha256_bytes,
     sha256_file,
     strict_json_loads,
+    validate_cpu_identity_receipt,
 )
 from .diagnostics import (
     build_arm_refplan_predictive_dispersion,
@@ -114,6 +116,7 @@ from .registration import (
     require_runtime_interpreter_binding,
     validate_interpreter_identity_receipt,
 )
+from .submission import validate_durable_log_plan
 
 
 DRIVER_INPUTS = DRIVER_INPUTS_FILENAME
@@ -121,7 +124,7 @@ ARM_O_RECEIPT = "ARM_O_TASK_RECEIPT.json"
 ARM_T_RECEIPT = "ARM_T_TASK_RECEIPT.json"
 GATE_RECEIPT = "ARM_O_GATE_RECEIPT.json"
 PARITY_TOLERANCE = 1e-9
-CPU_MODEL = "Intel Xeon Platinum 8452Y"
+CPU_MODEL = REGISTERED_CPU_MODEL
 CPU_PROFILE = f"{CPU_MODEL} / xenon-8452Y / one CPU"
 FILTERS = {
     "plus_adapted_ricker_only_pbvi": "faithful_internal",
@@ -198,6 +201,7 @@ class TaskExecution:
     context_sha256_after: tuple[str, ...]
     observation_history_sha256: tuple[str, ...]
     action_history_sha256: tuple[str, ...]
+    cpu_identity: Mapping[str, str]
 
 
 def _json_object(payload: bytes, label: str, *, canonical: bool = True) -> Mapping[str, Any]:
@@ -238,18 +242,8 @@ def _load_path_receipt(value: Any, label: str) -> Mapping[str, Any]:
     return {"path": path, "sha256": digest}
 
 
-def _cpu_model() -> str:
-    cpuinfo = Path("/proc/cpuinfo")
-    if cpuinfo.is_file():
-        for line in cpuinfo.read_text(encoding="utf-8").splitlines():
-            if line.lower().startswith("model name"):
-                return line.split(":", 1)[1].strip()
-    return platform.processor()
-
-
-def _require_scientific_environment() -> None:
-    if CPU_MODEL not in _cpu_model():
-        raise ContractError("corrected Stage B requires the pinned Xeon 8452Y CPU")
+def _require_scientific_environment() -> Mapping[str, str]:
+    cpu_identity = require_current_registered_cpu_model()
     expected = {
         "LC_ALL": "C",
         "PYTHONDONTWRITEBYTECODE": "1",
@@ -263,6 +257,7 @@ def _require_scientific_environment() -> None:
     }
     if mismatches:
         raise ContractError(f"registered scientific environment mismatch: {mismatches}")
+    return cpu_identity
 
 
 def _repository_root() -> Path:
@@ -328,6 +323,12 @@ def _parse_fit_probe(value: Any, expected_index: int) -> SealedFitProbe:
 def load_driver_inputs(output_root: Path, registration: FrozenRegistration) -> LoadedDriverInputs:
     root = Path(output_root)
     validate_output_root_entries(root, pristine=False)
+    log_plan = validate_durable_log_plan(
+        registration.bundle()["scientific_log_plan"],
+        require_existing=False,
+    )
+    if root.resolve(strict=True) != Path(log_plan["scientific_output_root"]):
+        raise ContractError("runtime output root differs from the registered durable-log plan")
     path = root / DRIVER_INPUTS
     value = load_canonical_driver_inputs(path)
     bundle = registration.bundle()
@@ -888,6 +889,7 @@ def _complete_execution(
     recorder: _EvaluatorRecorder,
     policy: _RecordingPolicy,
     rows: Sequence[Mapping[str, Any]],
+    cpu_identity: Mapping[str, str],
 ) -> TaskExecution:
     if len(recorder.episodes) != 20 or len(rows) != 20:
         raise ContractError("scientific execution must cover exactly twenty paired identities")
@@ -941,6 +943,7 @@ def _complete_execution(
         tuple(context_after),
         tuple(observation_hashes),
         tuple(action_hashes),
+        validate_cpu_identity_receipt(cpu_identity),
     )
 
 
@@ -954,7 +957,7 @@ def execute_registered_task(
 ) -> TaskExecution:
     """Run the frozen evaluator and a fresh sealed fitted object, without fitting."""
 
-    _require_scientific_environment()
+    cpu_identity = _require_scientific_environment()
     if "STAGEB_GATE_SIGNING_SEED_FILE" in os.environ and task["arm"] == "T":
         raise ContractError("Arm T environment must not contain the gate signing-seed path")
     public = inputs.public_inputs[task["cell"]]["public_npz"]["path"]
@@ -1039,7 +1042,7 @@ def execute_registered_task(
             rows = evaluator.run(wrapped_policy)
         finally:
             evaluator_module.make_env = base_make_env
-    return _complete_execution(recorder, wrapped_policy, rows)
+    return _complete_execution(recorder, wrapped_policy, rows, cpu_identity)
 
 
 def _transition_diagnostic(
@@ -1312,6 +1315,7 @@ def publish_registered_task(
     output_root: Path,
     interpreter_identity: Mapping[str, Any],
 ) -> Path:
+    cpu_identity = validate_cpu_identity_receipt(execution.cpu_identity)
     role = "arm-o" if task["arm"] == "O" else "arm-t"
     publications = _ensure_role_root(output_root, role)
     receipts_root = _ensure_role_root(output_root, f"{role}-receipts")
@@ -1398,6 +1402,7 @@ def publish_registered_task(
         "diagnostics_sha256": sha256_bytes(files["DIAGNOSTICS.json"]),
         "information_boundary_sha256": sha256_bytes(files["INFORMATION_BOUNDARY.json"]),
         "interpreter_identity": dict(interpreter_identity),
+        "cpu_identity": dict(cpu_identity),
         "result": "PASS",
     }
     success_payload = _anticipated_success(staging, required, validation)
@@ -1405,7 +1410,7 @@ def publish_registered_task(
     receipt_path = receipts_root / f"task-{task_index:02d}.json"
     if task["arm"] == "O":
         receipt = {
-            "schema_version": "corrected_stageb_arm_o_task_receipt_v3",
+            "schema_version": "corrected_stageb_arm_o_task_receipt_v4",
             "task_index": task["task_index"],
             "arm": "O",
             "cell": task["cell"],
@@ -1439,12 +1444,13 @@ def publish_registered_task(
                 ),
             },
             "cpu_profile": CPU_PROFILE,
+            "cpu_identity": dict(cpu_identity),
             "interpreter_identity": dict(interpreter_identity),
             "result": "PASS",
         }
     else:
         receipt = {
-            "schema_version": "corrected_stageb_arm_t_task_receipt_v1",
+            "schema_version": "corrected_stageb_arm_t_task_receipt_v2",
             "task_index": task["task_index"],
             "arm": "T",
             "cell": task["cell"],
@@ -1460,6 +1466,7 @@ def publish_registered_task(
             "paired_rng_evidence_sha256": sha256_bytes(files["PAIRED_RNG_EVIDENCE.json"]),
             "publication_manifest_sha256": success_sha,
             "cpu_profile": CPU_PROFILE,
+            "cpu_identity": dict(cpu_identity),
             "interpreter_identity": dict(interpreter_identity),
             "result": "PASS",
         }
@@ -1669,7 +1676,7 @@ def run_inspection_only_finalizer(*, registration_path: Path, output_root: Path)
             if publication_path.is_file() and not publication_path.is_symlink():
                 publication = load_success_receipt(publication_path)
                 if (
-                    receipt.get("schema_version") == "corrected_stageb_arm_t_task_receipt_v1"
+                    receipt.get("schema_version") == "corrected_stageb_arm_t_task_receipt_v2"
                     and receipt.get("registration_sha256") == registration.sha256
                     and receipt.get("task_index") == index + 12
                     and receipt.get("cell") == cell
@@ -1681,6 +1688,8 @@ def run_inspection_only_finalizer(*, registration_path: Path, output_root: Path)
                     and publication.get("result") == "PASS"
                     and publication.get("validation", {}).get("interpreter_identity")
                     == receipt.get("interpreter_identity")
+                    and publication.get("validation", {}).get("cpu_identity")
+                    == receipt.get("cpu_identity")
                 ):
                     try:
                         validate_interpreter_identity_receipt(
@@ -1690,8 +1699,9 @@ def run_inspection_only_finalizer(*, registration_path: Path, output_root: Path)
                             arm="T",
                             task_index=index,
                         )
+                        validate_cpu_identity_receipt(receipt.get("cpu_identity", {}))
                     except ContractError:
-                        reason = "task receipt interpreter binding failed"
+                        reason = "task receipt runtime identity binding failed"
                     else:
                         status = "COMPLETED"
                         reason = "validated terminal task receipt and publication"

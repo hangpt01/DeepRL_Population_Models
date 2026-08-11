@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -17,18 +18,29 @@ from ..driver_inputs import (
     validate_output_root_entries,
 )
 from ..registration import CELLS, METHODS, freeze_registration_bundle
+from ..submission import derive_durable_log_plan
+
+
+@pytest.fixture
+def fs04_tmp_path():
+    repository = Path(__file__).resolve().parents[4]
+    with tempfile.TemporaryDirectory(prefix=".stageb-driver-inputs-test-", dir=repository) as root:
+        yield Path(root)
 
 
 def _stage_registered(tmp_path: Path, registration_bundle):
-    frozen = freeze_registration_bundle(registration_bundle)
     descriptor = registration_bundle["stageb_driver_inputs"]["descriptor"]
     output = tmp_path / "scientific-output"
+    registration_bundle["scientific_log_plan"] = derive_durable_log_plan(
+        f"/fs04/scratch2/ce25/synthetic-stageb-log-evidence-{os.getpid()}", output
+    )
+    frozen = freeze_registration_bundle(registration_bundle)
     path = stage_driver_inputs(output, descriptor)
     return frozen, output, path
 
 
-def test_real_canonical_driver_inputs_round_trip(registration_bundle, tmp_path):
-    frozen, output, path = _stage_registered(tmp_path, registration_bundle)
+def test_real_canonical_driver_inputs_round_trip(registration_bundle, fs04_tmp_path):
+    frozen, output, path = _stage_registered(fs04_tmp_path, registration_bundle)
     loaded = driver.load_driver_inputs(output, frozen)
     assert loaded.descriptor_path == path
     assert loaded.descriptor_sha256 == driver_inputs_sha256(
@@ -38,10 +50,13 @@ def test_real_canonical_driver_inputs_round_trip(registration_bundle, tmp_path):
     assert len(loaded.policy.fit_probes) == 12
 
 
-def test_committed_producer_and_validator_round_trip(registration_bundle, tmp_path):
-    registration = tmp_path / "registration.json"
+def test_committed_producer_and_validator_round_trip(registration_bundle, fs04_tmp_path):
+    registration = fs04_tmp_path / "registration.json"
+    output = fs04_tmp_path / "producer-output"
+    registration_bundle["scientific_log_plan"] = derive_durable_log_plan(
+        f"/fs04/scratch2/ce25/synthetic-stageb-log-evidence-{os.getpid()}", output
+    )
     registration.write_bytes(canonical_json_bytes(registration_bundle))
-    output = tmp_path / "producer-output"
     path = produce_registered_driver_inputs(registration_path=registration, output_root=output)
     assert path == output / driver.DRIVER_INPUTS
     assert (
@@ -50,8 +65,8 @@ def test_committed_producer_and_validator_round_trip(registration_bundle, tmp_pa
     )
 
 
-def test_policy_view_excludes_evaluator_and_gate_paths(registration_bundle, tmp_path):
-    frozen, output, _path = _stage_registered(tmp_path, registration_bundle)
+def test_policy_view_excludes_evaluator_and_gate_paths(registration_bundle, fs04_tmp_path):
+    frozen, output, _path = _stage_registered(fs04_tmp_path, registration_bundle)
     loaded = driver.load_driver_inputs(output, frozen)
     assert not hasattr(loaded.policy, "accepted_parity")
     assert not hasattr(loaded.policy, "inherited_test_receipt")
@@ -61,8 +76,8 @@ def test_policy_view_excludes_evaluator_and_gate_paths(registration_bundle, tmp_
     assert "TEST_RECEIPT" not in policy_text
 
 
-def test_evaluator_parity_is_per_cell_and_method(registration_bundle, tmp_path):
-    frozen, output, _path = _stage_registered(tmp_path, registration_bundle)
+def test_evaluator_parity_is_per_cell_and_method(registration_bundle, fs04_tmp_path):
+    frozen, output, _path = _stage_registered(fs04_tmp_path, registration_bundle)
     loaded = driver.load_driver_inputs(output, frozen)
     observed = [(item["cell"], item["method"]) for item in loaded.evaluator_only.accepted_parity]
     assert observed == [(cell, method) for cell in CELLS for method in METHODS]
@@ -71,8 +86,10 @@ def test_evaluator_parity_is_per_cell_and_method(registration_bundle, tmp_path):
     )
 
 
-def test_descriptor_mutation_rejected_by_exact_registration_binding(registration_bundle, tmp_path):
-    frozen, output, path = _stage_registered(tmp_path, registration_bundle)
+def test_descriptor_mutation_rejected_by_exact_registration_binding(
+    registration_bundle, fs04_tmp_path
+):
+    frozen, output, path = _stage_registered(fs04_tmp_path, registration_bundle)
     changed = copy.deepcopy(registration_bundle["stageb_driver_inputs"]["descriptor"])
     changed["arm_t_exact_state_allowlist"] = ["current_abundance", "future_abundance"]
     path.write_bytes(canonical_json_bytes(changed))
@@ -80,39 +97,42 @@ def test_descriptor_mutation_rejected_by_exact_registration_binding(registration
         driver.load_driver_inputs(output, frozen)
 
 
-def test_noncanonical_descriptor_bytes_rejected(registration_bundle, tmp_path):
-    frozen, output, path = _stage_registered(tmp_path, registration_bundle)
+def test_noncanonical_descriptor_bytes_rejected(registration_bundle, fs04_tmp_path):
+    frozen, output, path = _stage_registered(fs04_tmp_path, registration_bundle)
     value = registration_bundle["stageb_driver_inputs"]["descriptor"]
     path.write_text(json.dumps(value, indent=2), encoding="utf-8")
     with pytest.raises(ContractError, match="canonical JSON"):
         driver.load_driver_inputs(output, frozen)
 
 
-def test_missing_descriptor_rejected(registration_bundle, tmp_path):
+def test_missing_descriptor_rejected(registration_bundle, fs04_tmp_path):
+    output = fs04_tmp_path / "empty-output"
+    registration_bundle["scientific_log_plan"] = derive_durable_log_plan(
+        f"/fs04/scratch2/ce25/synthetic-stageb-log-evidence-{os.getpid()}", output
+    )
     frozen = freeze_registration_bundle(registration_bundle)
-    output = tmp_path / "empty-output"
     output.mkdir()
     with pytest.raises(ContractError, match="DRIVER_INPUTS|driver inputs"):
         driver.load_driver_inputs(output, frozen)
 
 
-def test_unregistered_output_root_entry_rejected(registration_bundle, tmp_path):
-    frozen, output, _path = _stage_registered(tmp_path, registration_bundle)
+def test_unregistered_output_root_entry_rejected(registration_bundle, fs04_tmp_path):
+    frozen, output, _path = _stage_registered(fs04_tmp_path, registration_bundle)
     (output / "surprise.txt").write_text("collision", encoding="utf-8")
     with pytest.raises(ContractError, match="unregistered output-root"):
         driver.load_driver_inputs(output, frozen)
 
 
-def test_prerequisite_staging_rejects_existing_content(registration_bundle, tmp_path):
-    output = tmp_path / "occupied"
+def test_prerequisite_staging_rejects_existing_content(registration_bundle, fs04_tmp_path):
+    output = fs04_tmp_path / "occupied"
     output.mkdir()
     (output / "prior").write_text("x", encoding="utf-8")
     with pytest.raises(ContractError, match="collides"):
         stage_driver_inputs(output, registration_bundle["stageb_driver_inputs"]["descriptor"])
 
 
-def test_prerequisite_staging_is_owner_only(registration_bundle, tmp_path):
-    _frozen, output, path = _stage_registered(tmp_path, registration_bundle)
+def test_prerequisite_staging_is_owner_only(registration_bundle, fs04_tmp_path):
+    _frozen, output, path = _stage_registered(fs04_tmp_path, registration_bundle)
     assert os.stat(output).st_mode & 0o777 == 0o700
     assert os.stat(path).st_mode & 0o777 == 0o600
     validate_output_root_entries(output, pristine=True)

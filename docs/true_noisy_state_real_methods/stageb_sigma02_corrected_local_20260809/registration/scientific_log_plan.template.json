@@ -1,0 +1,23 @@
+{
+  "schema_version": "corrected_stageb_durable_log_plan_v1",
+  "shared_evidence_root": "/fs04/scratch2/ce25/STAGEB_SHARED_EVIDENCE_ROOT_TO_BE_RENDERED",
+  "scientific_output_root": "/fs04/scratch2/ce25/STAGEB_SCIENTIFIC_OUTPUT_ROOT_TO_BE_RENDERED",
+  "templates": {
+    "arm_o": {
+      "stdout": "/fs04/scratch2/ce25/STAGEB_SHARED_EVIDENCE_ROOT_TO_BE_RENDERED/logs/arm-o/arm-o-%A_%a.out",
+      "stderr": "/fs04/scratch2/ce25/STAGEB_SHARED_EVIDENCE_ROOT_TO_BE_RENDERED/logs/arm-o/arm-o-%A_%a.err"
+    },
+    "arm_o_gate": {
+      "stdout": "/fs04/scratch2/ce25/STAGEB_SHARED_EVIDENCE_ROOT_TO_BE_RENDERED/logs/arm-o-gate/arm-o-gate-%j.out",
+      "stderr": "/fs04/scratch2/ce25/STAGEB_SHARED_EVIDENCE_ROOT_TO_BE_RENDERED/logs/arm-o-gate/arm-o-gate-%j.err"
+    },
+    "arm_t": {
+      "stdout": "/fs04/scratch2/ce25/STAGEB_SHARED_EVIDENCE_ROOT_TO_BE_RENDERED/logs/arm-t/arm-t-%A_%a.out",
+      "stderr": "/fs04/scratch2/ce25/STAGEB_SHARED_EVIDENCE_ROOT_TO_BE_RENDERED/logs/arm-t/arm-t-%A_%a.err"
+    },
+    "finalizer": {
+      "stdout": "/fs04/scratch2/ce25/STAGEB_SHARED_EVIDENCE_ROOT_TO_BE_RENDERED/logs/finalizer/finalizer-%j.out",
+      "stderr": "/fs04/scratch2/ce25/STAGEB_SHARED_EVIDENCE_ROOT_TO_BE_RENDERED/logs/finalizer/finalizer-%j.err"
+    }
+  }
+}

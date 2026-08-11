@@ -308,6 +308,7 @@ def produce_registered_driver_inputs(*, registration_path: Path, output_root: Pa
     """Freeze a canonical registration and stage its exact prospectively bound descriptor."""
 
     from .registration import freeze_registration_bundle
+    from .submission import validate_durable_log_plan
 
     repository_root = Path(__file__).resolve().parents[3]
     registration_payload = Path(registration_path).read_bytes()
@@ -317,6 +318,9 @@ def produce_registered_driver_inputs(*, registration_path: Path, output_root: Pa
     frozen = freeze_registration_bundle(bundle, repository_root=repository_root)
     if frozen.payload != registration_payload:
         raise ContractError("registration bundle changed during freeze")
+    log_plan = validate_durable_log_plan(bundle["scientific_log_plan"])
+    if str(Path(output_root)) != log_plan["scientific_output_root"]:
+        raise ContractError("DRIVER_INPUTS output root differs from the registered log plan")
     return stage_driver_inputs(output_root, bundle["stageb_driver_inputs"]["descriptor"])
 
 
@@ -324,6 +328,7 @@ def validate_registered_driver_inputs(*, registration_path: Path, output_root: P
     """Validate the pristine staged descriptor and return its registered canonical digest."""
 
     from .registration import freeze_registration_bundle
+    from .submission import validate_durable_log_plan
 
     repository_root = Path(__file__).resolve().parents[3]
     registration_payload = Path(registration_path).read_bytes()
@@ -331,6 +336,9 @@ def validate_registered_driver_inputs(*, registration_path: Path, output_root: P
     if not isinstance(bundle, Mapping) or canonical_json_bytes(bundle) != registration_payload:
         raise ContractError("registration bundle must be a canonical JSON object")
     freeze_registration_bundle(bundle, repository_root=repository_root)
+    log_plan = validate_durable_log_plan(bundle["scientific_log_plan"])
+    if str(Path(output_root)) != log_plan["scientific_output_root"]:
+        raise ContractError("DRIVER_INPUTS output root differs from the registered log plan")
     validate_output_root_entries(output_root, pristine=True)
     observed = load_canonical_driver_inputs(Path(output_root) / DRIVER_INPUTS_FILENAME)
     if dict(observed) != bundle["stageb_driver_inputs"]["descriptor"]:

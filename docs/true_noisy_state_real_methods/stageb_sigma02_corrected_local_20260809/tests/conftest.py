@@ -16,7 +16,13 @@ from ..canonical_plan import (
     DRIVER_INPUTS_SCHEMA_VERSION,
     artifact_plan_sha256,
 )
-from ..common import canonical_json_bytes, sha256_bytes, sha256_file, strict_json_loads
+from ..common import (
+    canonical_json_bytes,
+    require_registered_cpu_model,
+    sha256_bytes,
+    sha256_file,
+    strict_json_loads,
+)
 from ..driver_inputs import driver_inputs_sha256
 from ..evidence import RNGReceipt, StepEvidence
 from ..registration import (
@@ -32,6 +38,7 @@ from ..registration import (
     _registration_templates_hash,
     require_runtime_interpreter_binding,
 )
+from ..submission import derive_durable_log_plan
 
 
 HASHES = tuple(character * 64 for character in "abcdef0123456789")
@@ -351,6 +358,10 @@ def complete_bundle() -> dict[str, Any]:
             "driver_inputs_sha256": driver_inputs_sha256(descriptor),
             "descriptor": descriptor,
         },
+        "scientific_log_plan": derive_durable_log_plan(
+            f"/fs04/scratch2/ce25/synthetic-stageb-log-evidence-{os.getpid()}",
+            f"/fs04/scratch2/ce25/synthetic-stageb-output-{os.getpid()}",
+        ),
         "previous_results_disclosure": {
             "schema_version": "corrected_stageb_previous_results_disclosure_v1",
             "earlier_sigma_0p2_results_known": True,
@@ -437,10 +448,16 @@ def isolated_orchestration_v2_helpers(request, monkeypatch):
             publication = dict(strict_json_loads(publication_path.read_bytes()))
             publication["validation"] = dict(publication["validation"])
             publication["validation"]["interpreter_identity"] = identity
+            publication["validation"]["cpu_identity"] = require_registered_cpu_model(
+                "Intel(R) Xeon(R) Platinum 8452Y"
+            )
             publication_payload = canonical_json_bytes(publication)
             publication_path.write_bytes(publication_payload)
             publication_sha = sha256_bytes(publication_payload)
             receipt["interpreter_identity"] = identity
+            receipt["cpu_identity"] = require_registered_cpu_model(
+                "Intel(R) Xeon(R) Platinum 8452Y"
+            )
             receipt["publication_manifest_sha256"] = publication_sha
             receipt["evidence"] = dict(receipt["evidence"])
             receipt["evidence"]["publication_success"] = {

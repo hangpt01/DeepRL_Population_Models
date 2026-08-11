@@ -7,6 +7,10 @@ The prospective runtime-input correction is documented in
 canonical `DRIVER_INPUTS.json`; its committed producer and validator are available through the
 `driver_inputs` module.
 
+The bounded startup correction is documented in `CPU_GUARD_DURABLE_LOG_CORRECTION.md`. Runtime
+and validation use one complete-model CPU normalizer, and every replacement registration binds
+collision-free durable `/fs04` log templates for all four Slurm roles.
+
 This is the trusted external implementation constructed from Revision 3.1, frozen I1 and
 zero-SD contracts, audited I2A adapters, audited fast-track wrappers, frozen method source,
 and the independent Stage B audit. It does not import or execute either failed corrected

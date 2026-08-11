@@ -2,6 +2,10 @@
 
 Templates only; they were not submitted or tested against Slurm. Repository, driver,
 registration, gate and output paths are supplied through explicit environment variables.
+Every submission must resolve the frozen registration's `scientific_log_plan` and pass its
+exact shared `/fs04` stdout/stderr templates to `sbatch`. Arrays use `%A_%a`; scalar roles use
+`%j`. The registered directories must already exist as real, writable directories and remain
+disjoint from the scientific output root. Node-local `/tmp` logging is forbidden.
 Interpreter paths are never operator-selectable: each script freezes the registration,
 resolves the task or command role, and invokes the registered absolute interpreter. The
 driver independently checks the configured and resolved executable paths, short and full
@@ -18,6 +22,11 @@ The submission template freezes the required dependency chain:
 
 The finalizer must never execute or repair a method. Scientific tasks must never be
 retried automatically.
+
+The template validates the registered durable-log plan before its first `sbatch` call and passes
+an explicit `--chdir`, `--output`, and `--error` on all four calls. A rendered operator plan must
+also bind those exact templates into its incremental submission receipt so a partial submission
+still has durable diagnostics.
 
 Before submission, the prepared package must write `SCIENTIFIC_CHAIN_ENVIRONMENT.json`
 with the complete frozen binding for both interpreter roles, both command-role mappings and

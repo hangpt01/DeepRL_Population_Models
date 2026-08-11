@@ -8,7 +8,12 @@ from pathlib import Path
 import pytest
 
 from .. import driver
-from ..common import ContractError, canonical_json_bytes, sha256_file
+from ..common import (
+    ContractError,
+    canonical_json_bytes,
+    require_registered_cpu_model,
+    sha256_file,
+)
 from ..evidence import REGISTERED_EPISODE_IDS
 from ..publication import load_success_receipt
 from ..registration import (
@@ -83,6 +88,7 @@ def _execution(registration_sha256: str, method: str = "refplan", arm: str = "O"
         identities,
         identities,
         identities,
+        require_registered_cpu_model("Intel(R) Xeon(R) Platinum 8452Y"),
     )
 
 

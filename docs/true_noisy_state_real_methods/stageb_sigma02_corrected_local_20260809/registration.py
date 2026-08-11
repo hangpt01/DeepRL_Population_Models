@@ -28,6 +28,7 @@ from .common import (
     strict_json_loads,
 )
 from .driver_inputs import driver_inputs_sha256, validate_driver_inputs_document
+from .submission import validate_durable_log_plan
 
 
 METHODS = (
@@ -50,6 +51,7 @@ REQUIRED_BUNDLE_KEYS = {
     "previous_results_disclosure",
     "stageb_interpreter_bindings",
     "stageb_driver_inputs",
+    "scientific_log_plan",
 }
 INTERPRETER_IDENTITY_FIELDS = {
     "absolute_interpreter_path",
@@ -133,6 +135,7 @@ TEMPLATE_NAMES = (
     "task_manifest.template.json",
     "stageb_interpreter_bindings.template.json",
     "stageb_driver_inputs.template.json",
+    "scientific_log_plan.template.json",
 )
 SELF_HASH_RE = re.compile(
     rb"(?m)^# SELF-NORMALIZED-SHA256: ([0-9a-f]{64})  "
@@ -614,6 +617,10 @@ def _validate_driver_inputs_registration(
     return descriptor
 
 
+def _validate_scientific_log_plan(value: Any) -> None:
+    validate_durable_log_plan(value, require_existing=False)
+
+
 def _validate_interpreter_bindings(
     value: Mapping[str, Any], task_manifest: Mapping[str, Any]
 ) -> None:
@@ -884,6 +891,7 @@ def freeze_registration_bundle(
         bundle["task_manifest"], bundle["code_configuration_hashes"], descriptor
     )
     _validate_interpreter_bindings(bundle["stageb_interpreter_bindings"], bundle["task_manifest"])
+    _validate_scientific_log_plan(bundle["scientific_log_plan"])
     _validate_disclosure(bundle["previous_results_disclosure"])
     payload = canonical_json_bytes(bundle)
     return FrozenRegistration._issue(

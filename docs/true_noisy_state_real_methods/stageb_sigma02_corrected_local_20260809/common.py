@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import platform
 import re
 from pathlib import Path
 from typing import Any, Mapping
@@ -13,6 +14,8 @@ from typing import Any, Mapping
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 PLACEHOLDER_TOKENS = frozenset({"", "tbd", "todo", "unknown", "placeholder", "unresolved"})
+REGISTERED_CPU_MODEL = "Intel Xeon Platinum 8452Y"
+_TRADEMARK_MARKER_RE = re.compile(r"\((?:R|TM)\)", re.IGNORECASE)
 
 
 class ContractError(ValueError):
@@ -91,3 +94,84 @@ def require_exact_keys(value: Mapping[str, Any], expected: set[str], field: str)
     extra = sorted(set(value) - expected)
     if missing or extra:
         raise ContractError(f"{field} key mismatch; missing={missing}, extra={extra}")
+
+
+def normalize_cpu_model_identity(value: Any) -> str:
+    """Normalize only trademark markers and whitespace in a complete CPU model identity."""
+
+    raw = require_nonempty_string(value, "CPU model identity")
+    normalized = " ".join(_TRADEMARK_MARKER_RE.sub(" ", raw).split())
+    if not normalized:
+        raise ContractError("CPU model identity is empty after normalization")
+    return normalized
+
+
+def require_registered_cpu_model(
+    observed: Any,
+    *,
+    expected: Any = REGISTERED_CPU_MODEL,
+) -> Mapping[str, str]:
+    """Require complete normalized equality and return the auditable identity receipt."""
+
+    expected_raw = require_nonempty_string(expected, "expected CPU model identity")
+    observed_raw = require_nonempty_string(observed, "observed CPU model identity")
+    expected_normalized = normalize_cpu_model_identity(expected_raw)
+    observed_normalized = normalize_cpu_model_identity(observed_raw)
+    if observed_normalized != expected_normalized:
+        raise ContractError(
+            "corrected Stage B CPU mismatch: "
+            f"expected {expected_normalized!r}, observed {observed_normalized!r}"
+        )
+    return {
+        "schema_version": "corrected_stageb_cpu_identity_v1",
+        "expected_raw": expected_raw,
+        "expected_normalized": expected_normalized,
+        "observed_raw": observed_raw,
+        "observed_normalized": observed_normalized,
+        "result": "PASS",
+    }
+
+
+def validate_cpu_identity_receipt(value: Any) -> Mapping[str, str]:
+    """Reconstruct a CPU receipt so raw text cannot be rebound to a passing normalization."""
+
+    if not isinstance(value, Mapping):
+        raise ContractError("CPU identity receipt must be an object")
+    require_exact_keys(
+        value,
+        {
+            "schema_version",
+            "expected_raw",
+            "expected_normalized",
+            "observed_raw",
+            "observed_normalized",
+            "result",
+        },
+        "CPU identity receipt",
+    )
+    rebuilt = require_registered_cpu_model(
+        value["observed_raw"],
+        expected=value["expected_raw"],
+    )
+    if dict(value) != rebuilt:
+        raise ContractError("CPU identity receipt is not canonically reconstructable")
+    if rebuilt["expected_normalized"] != REGISTERED_CPU_MODEL:
+        raise ContractError("CPU identity receipt is not bound to the registered model")
+    return rebuilt
+
+
+def observed_cpu_model() -> str:
+    """Read the first kernel-reported CPU model without opening scientific data."""
+
+    cpuinfo = Path("/proc/cpuinfo")
+    if cpuinfo.is_file():
+        for line in cpuinfo.read_text(encoding="utf-8").splitlines():
+            if line.lower().startswith("model name"):
+                return line.split(":", 1)[1].strip()
+    return platform.processor()
+
+
+def require_current_registered_cpu_model() -> Mapping[str, str]:
+    """Apply the canonical registered CPU guard to the current host."""
+
+    return require_registered_cpu_model(observed_cpu_model())
