@@ -1,5 +1,5 @@
 {
-  "schema_version": "corrected_stageb_registration_v2",
+  "schema_version": "corrected_stageb_registration_v3",
   "registration_id": "TO_BE_FROZEN_ON_M3",
   "status": "TEMPLATE_NOT_FROZEN",
   "prospective_corrected_replication": true,
@@ -31,7 +31,13 @@
   "horizon": 50,
   "discount": 0.95,
   "num_actions": 11,
-  "sigma": 0.2,
+  "rng_contract": {
+    "schema_version": "corrected_stageb_rng_contract_v1",
+    "process_noise_sigma": 0.0,
+    "observation_noise_sigma": 0.2,
+    "process_draws_per_step": 0,
+    "observation_draws_per_step": 1
+  },
   "evaluator_family": "allee",
   "cpu_profile": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU",
   "local_status_label": "LOCAL ARM64 DEVELOPMENT TEST — NOT SCIENTIFIC EVIDENCE"

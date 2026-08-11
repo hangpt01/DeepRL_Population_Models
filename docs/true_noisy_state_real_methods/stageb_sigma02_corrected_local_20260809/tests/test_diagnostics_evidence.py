@@ -166,7 +166,7 @@ def test_reward_component_mismatch_rejected():
 
 def test_rng_call_mismatch_and_nonfinite_receipt_rejected():
     records = step_records()
-    bad_rng = replace(records[1].rng_receipt, process_calls_after=9)
+    bad_rng = replace(records[1].rng_receipt, process_draw_invocations_after=9)
     records[1] = replace(records[1], rng_receipt=bad_rng)
     with pytest.raises(ContractError, match="process RNG"):
         reconstruct_episode(records)

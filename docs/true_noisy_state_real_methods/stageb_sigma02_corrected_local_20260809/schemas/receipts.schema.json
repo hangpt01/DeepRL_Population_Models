@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "corrected_stageb_receipts.schema.json",
+  "$id": "corrected_stageb_receipts_v2.schema.json",
   "title": "Corrected Stage B receipt schemas",
   "$defs": {
     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
@@ -9,27 +9,49 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "process_calls_before", "process_calls_after",
-        "observation_calls_before", "observation_calls_after",
+        "schema_version", "process_noise_sigma", "observation_noise_sigma",
+        "process_draw_required", "observation_draw_required",
+        "process_state_advancement_applicable", "observation_state_advancement_applicable",
+        "process_draw_invocations_before", "process_draw_invocations_after",
+        "observation_draw_invocations_before", "observation_draw_invocations_after",
         "process_state_before_sha256", "process_state_after_sha256",
         "observation_state_before_sha256", "observation_state_after_sha256"
       ],
       "properties": {
-        "process_calls_before": {"type": "integer", "minimum": 0},
-        "process_calls_after": {"type": "integer", "minimum": 1},
-        "observation_calls_before": {"type": "integer", "minimum": 0},
-        "observation_calls_after": {"type": "integer", "minimum": 1},
+        "schema_version": {"const": "corrected_stageb_rng_receipt_v2"},
+        "process_noise_sigma": {"type": "number", "minimum": 0},
+        "observation_noise_sigma": {"type": "number", "minimum": 0},
+        "process_draw_required": {"type": "boolean"},
+        "observation_draw_required": {"type": "boolean"},
+        "process_state_advancement_applicable": {"type": "boolean"},
+        "observation_state_advancement_applicable": {"type": "boolean"},
+        "process_draw_invocations_before": {"type": "integer", "minimum": 0},
+        "process_draw_invocations_after": {"type": "integer", "minimum": 0},
+        "observation_draw_invocations_before": {"type": "integer", "minimum": 0},
+        "observation_draw_invocations_after": {"type": "integer", "minimum": 0},
         "process_state_before_sha256": {"$ref": "#/$defs/sha256"},
         "process_state_after_sha256": {"$ref": "#/$defs/sha256"},
         "observation_state_before_sha256": {"$ref": "#/$defs/sha256"},
         "observation_state_after_sha256": {"$ref": "#/$defs/sha256"}
-      }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"process_noise_sigma": {"const": 0}}},
+          "then": {"properties": {"process_draw_required": {"const": false}, "process_state_advancement_applicable": {"const": false}}},
+          "else": {"properties": {"process_draw_required": {"const": true}, "process_state_advancement_applicable": {"const": true}}}
+        },
+        {
+          "if": {"properties": {"observation_noise_sigma": {"const": 0}}},
+          "then": {"properties": {"observation_draw_required": {"const": false}, "observation_state_advancement_applicable": {"const": false}}},
+          "else": {"properties": {"observation_draw_required": {"const": true}, "observation_state_advancement_applicable": {"const": true}}}
+        }
+      ]
     },
     "stepEvidence": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "registration_sha256", "method", "cell", "arm", "episode_id", "timestep", "current_true_abundance", "noisy_observation",
+        "schema_version", "registration_sha256", "method", "cell", "arm", "episode_id", "timestep", "current_true_abundance", "noisy_observation",
         "selected_action", "benefit_population_term", "action_cost_term",
         "safety_penalty_term", "total_reward", "discount_factor",
         "discounted_benefit_population", "discounted_action_cost",
@@ -38,6 +60,7 @@
         "observation_innovation_sha256", "rng_receipt"
       ],
       "properties": {
+        "schema_version": {"const": "corrected_stageb_step_evidence_v2"},
         "registration_sha256": {"$ref": "#/$defs/sha256"},
         "method": {"type": "string", "minLength": 1},
         "cell": {"type": "string", "minLength": 1},
@@ -61,6 +84,65 @@
         "process_innovation_sha256": {"$ref": "#/$defs/sha256"},
         "observation_innovation_sha256": {"$ref": "#/$defs/sha256"},
         "rng_receipt": {"$ref": "#/$defs/rngReceipt"}
+      }
+    },
+    "exactReturnReconstruction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "evidence_layer", "registration_sha256", "method", "cell", "arm",
+        "episode_id", "horizon", "gamma", "total_discounted_return", "benefit_contribution",
+        "action_cost_contribution", "safety_contribution", "pre_collapse_return",
+        "post_collapse_return", "collapse_timing", "collapse_entry_step_partition",
+        "discounted_penalty_timing", "unsafe_occupancy_count", "action_sequence",
+        "process_rng_final_draw_invocation_count",
+        "observation_rng_final_draw_invocation_count", "reconstruction_result"
+      ],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_exact_return_reconstruction_v2"},
+        "evidence_layer": {"const": "EVALUATOR_ONLY"},
+        "registration_sha256": {"$ref": "#/$defs/sha256"},
+        "method": {"type": "string", "minLength": 1},
+        "cell": {"type": "string", "minLength": 1},
+        "arm": {"enum": ["O", "T"]},
+        "episode_id": {"type": "integer"},
+        "horizon": {"const": 50},
+        "gamma": {"const": 0.95},
+        "total_discounted_return": {"type": "number"},
+        "benefit_contribution": {"type": "number"},
+        "action_cost_contribution": {"type": "number"},
+        "safety_contribution": {"type": "number"},
+        "pre_collapse_return": {"type": "number"},
+        "post_collapse_return": {"type": "number"},
+        "collapse_timing": {"type": ["integer", "null"]},
+        "collapse_entry_step_partition": {"const": "post-collapse"},
+        "discounted_penalty_timing": {"type": "array"},
+        "unsafe_occupancy_count": {"type": "integer", "minimum": 0, "maximum": 50},
+        "action_sequence": {"type": "array", "minItems": 50, "maxItems": 50},
+        "process_rng_final_draw_invocation_count": {"type": "integer", "minimum": 0},
+        "observation_rng_final_draw_invocation_count": {"type": "integer", "minimum": 0},
+        "reconstruction_result": {"const": "PASS"}
+      }
+    },
+    "pairedEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "registration_sha256", "method", "cell", "episode_id", "timesteps",
+        "process_innovation_sha256", "observation_innovation_sha256",
+        "rng_receipt_sha256", "pairing_result"
+      ],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_paired_evidence_v2"},
+        "registration_sha256": {"$ref": "#/$defs/sha256"},
+        "method": {"type": "string", "minLength": 1},
+        "cell": {"type": "string", "minLength": 1},
+        "episode_id": {"type": "integer"},
+        "timesteps": {"type": "array", "minItems": 50, "maxItems": 50},
+        "process_innovation_sha256": {"type": "array", "minItems": 50, "maxItems": 50, "items": {"$ref": "#/$defs/sha256"}},
+        "observation_innovation_sha256": {"type": "array", "minItems": 50, "maxItems": 50, "items": {"$ref": "#/$defs/sha256"}},
+        "rng_receipt_sha256": {"type": "array", "minItems": 50, "maxItems": 50, "items": {"$ref": "#/$defs/sha256"}},
+        "pairing_result": {"const": "PASS"}
       }
     },
     "transitionDiagnostics": {
@@ -142,7 +224,7 @@
       "additionalProperties": false,
       "required": ["schema_version", "kind", "registration_sha256", "task_index", "arm", "cell", "method", "receipts"],
       "properties": {
-        "schema_version": {"const": "corrected_stageb_bound_task_evidence_v1"},
+        "schema_version": {"const": "corrected_stageb_bound_task_evidence_v2"},
         "kind": {"enum": ["diagnostics", "information_boundary"]},
         "registration_sha256": {"$ref": "#/$defs/sha256"},
         "task_index": {"type": "integer", "minimum": 0, "maximum": 11},

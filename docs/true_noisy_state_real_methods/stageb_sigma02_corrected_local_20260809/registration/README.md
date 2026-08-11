@@ -16,6 +16,12 @@ ordinary plus normalized-self manifest hash. Task rows must use the distinct I1 
 dataset identities and bit-identical O/T configuration, dataset, artifact-plan and
 evaluation-identity bindings. Merely well-formed hexadecimal strings cannot freeze.
 
+The v3 scientific registration contains one explicit `rng_contract`: process noise `0.0`
+requires zero process draw invocations and no state advancement; observation noise `0.2`
+requires exactly one observation draw invocation and state advancement per evaluator step.
+The identical contract is mandatory in canonical DRIVER_INPUTS. Missing, non-finite, negative,
+ambiguous or mismatched bindings fail before policy/evaluator construction.
+
 The mandatory `stageb_interpreter_bindings` section binds both registered roles to an
 absolute configured executable, its exact resolved executable, short and full Python
 versions, NumPy version, track, methods and logical task indices. Ecological PLUS/MOOR tasks

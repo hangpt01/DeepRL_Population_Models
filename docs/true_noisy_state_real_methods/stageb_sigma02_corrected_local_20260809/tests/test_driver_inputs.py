@@ -195,6 +195,8 @@ def test_descriptor_schema_is_strict_json_and_hash_bound(registration_bundle):
     schema = Path(__file__).parents[1] / "schemas/driver_inputs.schema.json"
     parsed = json.loads(schema.read_text(encoding="utf-8"))
     assert parsed["additionalProperties"] is False
+    assert parsed["$id"] == "corrected-stageb-driver-inputs-v3"
+    assert parsed["properties"]["rng_contract"] == {"$ref": "#/$defs/rng_contract"}
     assert parsed["properties"]["runtime_next_states_available"] == {"const": False}
     descriptor = registration_bundle["stageb_driver_inputs"]["descriptor"]
     assert registration_bundle["stageb_driver_inputs"]["driver_inputs_sha256"] == sha256_bytes(

@@ -131,7 +131,7 @@ def _bound_evidence(registration, task, kind, receipt_mutator=None):
         receipts = receipt_mutator(receipts)
     return canonical_json_bytes(
         {
-            "schema_version": "corrected_stageb_bound_task_evidence_v1",
+            "schema_version": "corrected_stageb_bound_task_evidence_v2",
             "kind": kind,
             "registration_sha256": registration.sha256,
             "task_index": task["task_index"],

@@ -42,9 +42,14 @@ from .artifacts import (
     validate_complete_artifact_bundle,
 )
 from .canonical_plan import (
+    BOUND_TASK_EVIDENCE_SCHEMA_VERSION,
     DRIVER_INPUTS_FILENAME,
     EVALUATION_IDENTITY_SHA256,
+    RNG_RECEIPT_SCHEMA_VERSION,
+    STEP_EVIDENCE_SCHEMA_VERSION,
     artifact_plan_sha256,
+    canonical_noise_sigma,
+    validate_rng_contract_document,
 )
 from .boundary import build_task_information_boundary_receipt
 from .common import (
@@ -168,6 +173,7 @@ class DriverInputs:
     registration_id: str
     fit_probes: tuple[SealedFitProbe, ...]
     public_inputs: Mapping[str, Mapping[str, Any]]
+    rng_contract: Mapping[str, Any]
 
 
 @dataclass(frozen=True)
@@ -350,6 +356,7 @@ def load_driver_inputs(output_root: Path, registration: FrozenRegistration) -> L
         populations=POPULATIONS,
         dataset_hashes=EXPECTED_DATASET_HASHES,
         cpu_profile=CPU_PROFILE,
+        rng_contract=bundle["corrected_stageb_registration"]["rng_contract"],
     )
     if sha256_file(Path(__file__)) != value["stageb_driver_sha256"]:
         raise ContractError("executing driver bytes differ from the frozen registration")
@@ -385,6 +392,7 @@ def load_driver_inputs(output_root: Path, registration: FrozenRegistration) -> L
             registration.registration_id,
             probes,
             public_inputs,
+            validate_rng_contract_document(value["rng_contract"]),
         ),
         evaluator_only=EvaluatorOnlyInputs(evaluator),
         gate_only=GateOnlyInputs(
@@ -753,6 +761,45 @@ class _RecordingPolicy:
             self._current_posteriors.append(posterior.tolist())
 
 
+class _DrawCountingGenerator:
+    """Count only actual evaluator-environment distribution invocations."""
+
+    __slots__ = ("_generator", "_permitted_method", "_draw_invocations")
+
+    def __init__(self, generator: Any, *, permitted_method: str) -> None:
+        if permitted_method not in {"normal", "lognormal"}:
+            raise ContractError("unregistered evaluator RNG distribution")
+        if not hasattr(generator, "bit_generator"):
+            raise ContractError("evaluator RNG lacks a bit generator")
+        self._generator = generator
+        self._permitted_method = permitted_method
+        self._draw_invocations = 0
+
+    @property
+    def bit_generator(self) -> Any:
+        return self._generator.bit_generator
+
+    @property
+    def draw_invocations(self) -> int:
+        return self._draw_invocations
+
+    def _draw(self, method: str, *args: Any, **kwargs: Any) -> Any:
+        if method != self._permitted_method:
+            raise ContractError(f"unregistered evaluator RNG draw API: {method}")
+        result = getattr(self._generator, method)(*args, **kwargs)
+        self._draw_invocations += 1
+        return result
+
+    def normal(self, *args: Any, **kwargs: Any) -> Any:
+        return self._draw("normal", *args, **kwargs)
+
+    def lognormal(self, *args: Any, **kwargs: Any) -> Any:
+        return self._draw("lognormal", *args, **kwargs)
+
+    def __getattr__(self, name: str) -> Any:
+        raise ContractError(f"unregistered evaluator RNG attribute: {name}")
+
+
 class _EvaluatorRecorder:
     """Evaluator-only state; no reference to this object reaches a policy."""
 
@@ -761,18 +808,18 @@ class _EvaluatorRecorder:
         registration: FrozenRegistration,
         task: Mapping[str, Any],
         bridge: _ExactStateBridge,
+        rng_contract: Mapping[str, Any],
     ) -> None:
         self.registration = registration
         self.task = task
         self.bridge = bridge
+        self.rng_contract = validate_rng_contract_document(rng_contract)
         self.episodes: list[list[StepEvidence]] = []
         self._current: list[StepEvidence] | None = None
         self._episode_id: int | None = None
         self._state: float | None = None
         self._observation: float | None = None
         self._collapse_latched = False
-        self._process_calls = 0
-        self._observation_calls = 0
 
     def wrap(self, environment: Any) -> Any:
         recorder = self
@@ -789,8 +836,28 @@ class _EvaluatorRecorder:
                 recorder._state = float(result.evaluator_info["state"])
                 recorder._observation = float(result.observation)
                 recorder._collapse_latched = False
-                recorder._process_calls = 0
-                recorder._observation_calls = 0
+                process_sigma = canonical_noise_sigma(
+                    environment.cfg.process_noise_sigma, "effective process noise sigma"
+                )
+                observation_sigma = canonical_noise_sigma(
+                    environment.cfg.observation_noise_sigma,
+                    "effective observation noise sigma",
+                )
+                if process_sigma.hex() != recorder.rng_contract["process_noise_sigma"].hex():
+                    raise ContractError("effective process noise differs from registration")
+                if (
+                    observation_sigma.hex()
+                    != recorder.rng_contract["observation_noise_sigma"].hex()
+                ):
+                    raise ContractError("effective observation noise differs from registration")
+                process_rng = _DrawCountingGenerator(
+                    environment._rngs["process"], permitted_method="normal"
+                )
+                observation_rng = _DrawCountingGenerator(
+                    environment._rngs["observation"], permitted_method="lognormal"
+                )
+                environment._rngs["process"] = process_rng
+                environment._rngs["observation"] = observation_rng
                 recorder._current = []
                 recorder.episodes.append(recorder._current)
                 recorder.bridge.set_current(recorder._state)
@@ -808,13 +875,11 @@ class _EvaluatorRecorder:
                 observation_rng = environment._rngs["observation"]
                 process_before = _hash_rng_state(process_rng)
                 observation_before = _hash_rng_state(observation_rng)
-                process_calls_before = recorder._process_calls
-                observation_calls_before = recorder._observation_calls
+                process_draws_before = process_rng.draw_invocations
+                observation_draws_before = observation_rng.draw_invocations
                 state_previous = recorder._state
                 observation_previous = recorder._observation
                 result = environment.step(action)
-                recorder._process_calls += 1
-                recorder._observation_calls += 1
                 process_after = _hash_rng_state(process_rng)
                 observation_after = _hash_rng_state(observation_rng)
                 info = result.evaluator_info
@@ -835,10 +900,23 @@ class _EvaluatorRecorder:
                 timestep = len(recorder._current)
                 discount = float(np.float64(REGISTERED_GAMMA) ** timestep)
                 rng_receipt = RNGReceipt(
-                    process_calls_before=process_calls_before,
-                    process_calls_after=recorder._process_calls,
-                    observation_calls_before=observation_calls_before,
-                    observation_calls_after=recorder._observation_calls,
+                    schema_version=RNG_RECEIPT_SCHEMA_VERSION,
+                    process_noise_sigma=recorder.rng_contract["process_noise_sigma"],
+                    observation_noise_sigma=recorder.rng_contract["observation_noise_sigma"],
+                    process_draw_required=bool(recorder.rng_contract["process_draws_per_step"]),
+                    observation_draw_required=bool(
+                        recorder.rng_contract["observation_draws_per_step"]
+                    ),
+                    process_state_advancement_applicable=bool(
+                        recorder.rng_contract["process_draws_per_step"]
+                    ),
+                    observation_state_advancement_applicable=bool(
+                        recorder.rng_contract["observation_draws_per_step"]
+                    ),
+                    process_draw_invocations_before=process_draws_before,
+                    process_draw_invocations_after=process_rng.draw_invocations,
+                    observation_draw_invocations_before=observation_draws_before,
+                    observation_draw_invocations_after=observation_rng.draw_invocations,
                     process_state_before_sha256=process_before,
                     process_state_after_sha256=process_after,
                     observation_state_before_sha256=observation_before,
@@ -852,6 +930,7 @@ class _EvaluatorRecorder:
                 )
                 recorder._current.append(
                     StepEvidence(
+                        schema_version=STEP_EVIDENCE_SCHEMA_VERSION,
                         registration_sha256=recorder.registration.sha256,
                         method=recorder.task["method"],
                         cell=recorder.task["cell"],
@@ -978,12 +1057,12 @@ def execute_registered_task(
         from real_ecology_benchmark.config import load_config, real_environment_like
         from real_ecology_benchmark.dataset import load_public
 
-        policy = load_frozen_fitted_object(frozen_payload, repository_root=inputs.repository_root)
+        rng_contract = validate_rng_contract_document(inputs.rng_contract)
         cfg = load_config(config_path)
         cfg.environment = real_environment_like(cfg.environment, POPULATIONS[task["cell"]], "allee")
         cfg.environment = replace(
             cfg.environment,
-            observation_noise_sigma=0.2,
+            observation_noise_sigma=rng_contract["observation_noise_sigma"],
             reward_mode="safe",
             expose_rk="hidden",
         )
@@ -995,17 +1074,29 @@ def execute_registered_task(
             or cfg.evaluation.episodes_per_seed != 4
             or cfg.evaluation.horizon != 50
             or cfg.evaluation.discount != 0.95
-            or cfg.environment.observation_noise_sigma != 0.2
+            or canonical_noise_sigma(
+                cfg.environment.process_noise_sigma, "effective process noise sigma"
+            ).hex()
+            != rng_contract["process_noise_sigma"].hex()
+            or canonical_noise_sigma(
+                cfg.environment.observation_noise_sigma, "effective observation noise sigma"
+            ).hex()
+            != rng_contract["observation_noise_sigma"].hex()
             or cfg.environment.kind != "allee"
             or cfg.environment.num_actions != 11
         ):
             raise ContractError("frozen evaluator configuration mismatch")
+        policy = load_frozen_fitted_object(frozen_payload, repository_root=inputs.repository_root)
         dataset = load_public(public)
         if len(dataset) != 4000 or dataset.num_episodes != 160:
             raise ContractError("public input is not the registered 4,000-transition dataset")
         method_context = policy.public_context
         if (
-            method_context.observation_noise_sigma != 0.2
+            canonical_noise_sigma(
+                method_context.observation_noise_sigma,
+                "frozen fitted-object observation noise sigma",
+            ).hex()
+            != rng_contract["observation_noise_sigma"].hex()
             or method_context.surrogate is not policy.public_context.surrogate
         ):
             raise ContractError("frozen fitted object has an incompatible public context")
@@ -1017,7 +1108,7 @@ def execute_registered_task(
                 cfg.compute, f"corrected-stageb-{task['arm']}:{task['method']}", cfg.environment
             )
         )
-        recorder = _EvaluatorRecorder(registration, task, bridge)
+        recorder = _EvaluatorRecorder(registration, task, bridge, rng_contract)
         wrapped_policy = _RecordingPolicy(policy, task["method"], task["arm"], bridge)
         base_make_env = evaluator_module.make_env
         evaluator_module.make_env = lambda environment_cfg: recorder.wrap(
@@ -1143,7 +1234,7 @@ def _build_diagnostics(
             for episode_id, values in zip(REGISTERED_EPISODE_IDS, execution.predictive_dispersion)
         ]
     return {
-        "schema_version": "corrected_stageb_bound_task_evidence_v1",
+        "schema_version": BOUND_TASK_EVIDENCE_SCHEMA_VERSION,
         "kind": "diagnostics",
         "registration_sha256": registration.sha256,
         "task_index": task["task_index"],
@@ -1176,7 +1267,7 @@ def _build_boundary(
         action_history_sha256=execution.action_history_sha256,
     )
     return {
-        "schema_version": "corrected_stageb_bound_task_evidence_v1",
+        "schema_version": BOUND_TASK_EVIDENCE_SCHEMA_VERSION,
         "kind": "information_boundary",
         "registration_sha256": registration.sha256,
         "task_index": task["task_index"],
@@ -1270,9 +1361,23 @@ def _step_from_mapping(value: Mapping[str, Any]) -> StepEvidence:
     payload = dict(value)
     if payload.pop("evidence_layer", None) != "EVALUATOR_ONLY":
         raise ContractError("stored step evidence lost its evaluator-only label")
+    require_exact_keys(
+        payload,
+        set(StepEvidence.__dataclass_fields__),
+        "stored v2 step evidence",
+    )
+    if payload["schema_version"] != STEP_EVIDENCE_SCHEMA_VERSION:
+        raise ContractError("stored step evidence schema mismatch")
     rng = payload.get("rng_receipt")
     if not isinstance(rng, Mapping):
         raise ContractError("stored step evidence RNG receipt is missing")
+    require_exact_keys(
+        rng,
+        set(RNGReceipt.__dataclass_fields__),
+        "stored v2 RNG receipt",
+    )
+    if rng["schema_version"] != RNG_RECEIPT_SCHEMA_VERSION:
+        raise ContractError("stored RNG receipt schema mismatch")
     payload["rng_receipt"] = RNGReceipt(**rng)
     return StepEvidence(**payload)
 

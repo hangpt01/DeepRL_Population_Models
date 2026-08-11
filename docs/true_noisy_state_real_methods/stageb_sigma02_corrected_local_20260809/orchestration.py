@@ -31,6 +31,7 @@ from .common import (
     validate_cpu_identity_receipt,
 )
 from .boundary import validate_task_information_boundary_receipt
+from .canonical_plan import BOUND_TASK_EVIDENCE_SCHEMA_VERSION
 from .diagnostics import classify_activity, validate_arm_task_diagnostics
 from .evidence import REGISTERED_EPISODE_IDS
 from .registration import (
@@ -45,7 +46,7 @@ from .real_artifacts import revalidate_frozen_object_parity, scientific_componen
 
 
 EXPECTED_ARM_TASKS = tuple((cell, method) for cell in CELLS for method in METHODS)
-CORRECTED_TEST_COUNT = 269
+CORRECTED_TEST_COUNT = 305
 ARTIFACT_EVIDENCE_V2 = "corrected_stageb_artifact_bundle_evidence_v2"
 ARTIFACT_EVIDENCE_V3 = "corrected_stageb_artifact_bundle_evidence_v3"
 ARTIFACT_EVIDENCE_V4 = "corrected_stageb_artifact_bundle_evidence_v4"
@@ -627,7 +628,7 @@ def _validate_bound_task_evidence(
         },
         f"Arm O {kind} evidence",
     )
-    if value["schema_version"] != "corrected_stageb_bound_task_evidence_v1":
+    if value["schema_version"] != BOUND_TASK_EVIDENCE_SCHEMA_VERSION:
         raise ContractError(f"Arm O {kind} evidence schema mismatch")
     expected = {
         "kind": kind,

@@ -15,9 +15,16 @@ from .common import (
     sha256_bytes,
 )
 from .canonical_plan import (
+    EXACT_RETURN_SCHEMA_VERSION,
+    PAIRED_EVIDENCE_SCHEMA_VERSION,
     REGISTERED_EPISODE_IDS as _REGISTERED_EPISODE_IDS,
     REGISTERED_GAMMA as _REGISTERED_GAMMA,
     REGISTERED_HORIZON as _REGISTERED_HORIZON,
+    REGISTERED_OBSERVATION_NOISE_SIGMA,
+    REGISTERED_PROCESS_NOISE_SIGMA,
+    RNG_RECEIPT_SCHEMA_VERSION,
+    STEP_EVIDENCE_SCHEMA_VERSION,
+    canonical_noise_sigma,
 )
 from .registration import ARMS, CELLS, METHODS
 
@@ -29,32 +36,85 @@ REGISTERED_EPISODE_IDS = _REGISTERED_EPISODE_IDS
 
 @dataclass(frozen=True)
 class RNGReceipt:
-    process_calls_before: int
-    process_calls_after: int
-    observation_calls_before: int
-    observation_calls_after: int
+    schema_version: str
+    process_noise_sigma: float
+    observation_noise_sigma: float
+    process_draw_required: bool
+    observation_draw_required: bool
+    process_state_advancement_applicable: bool
+    observation_state_advancement_applicable: bool
+    process_draw_invocations_before: int
+    process_draw_invocations_after: int
+    observation_draw_invocations_before: int
+    observation_draw_invocations_after: int
     process_state_before_sha256: str
     process_state_after_sha256: str
     observation_state_before_sha256: str
     observation_state_after_sha256: str
 
-    def validate(self) -> None:
+    def validate(
+        self,
+        *,
+        expected_process_noise_sigma: float = REGISTERED_PROCESS_NOISE_SIGMA,
+        expected_observation_noise_sigma: float = REGISTERED_OBSERVATION_NOISE_SIGMA,
+    ) -> None:
+        if self.schema_version != RNG_RECEIPT_SCHEMA_VERSION:
+            raise ContractError("RNG receipt schema version mismatch")
+        process_sigma = canonical_noise_sigma(self.process_noise_sigma, "process noise sigma")
+        observation_sigma = canonical_noise_sigma(
+            self.observation_noise_sigma, "observation noise sigma"
+        )
+        expected_process = canonical_noise_sigma(
+            expected_process_noise_sigma, "registered process noise sigma"
+        )
+        expected_observation = canonical_noise_sigma(
+            expected_observation_noise_sigma, "registered observation noise sigma"
+        )
+        if process_sigma.hex() != expected_process.hex():
+            raise ContractError("process noise sigma differs from the registered binding")
+        if observation_sigma.hex() != expected_observation.hex():
+            raise ContractError("observation noise sigma differs from the registered binding")
+        expected_process_required = process_sigma > 0.0
+        expected_observation_required = observation_sigma > 0.0
+        booleans = (
+            ("process_draw_required", self.process_draw_required, expected_process_required),
+            (
+                "observation_draw_required",
+                self.observation_draw_required,
+                expected_observation_required,
+            ),
+            (
+                "process_state_advancement_applicable",
+                self.process_state_advancement_applicable,
+                expected_process_required,
+            ),
+            (
+                "observation_state_advancement_applicable",
+                self.observation_state_advancement_applicable,
+                expected_observation_required,
+            ),
+        )
+        for field, observed, expected in booleans:
+            if not isinstance(observed, bool) or observed is not expected:
+                raise ContractError(f"{field} contradicts the registered noise binding")
         counts = (
-            self.process_calls_before,
-            self.process_calls_after,
-            self.observation_calls_before,
-            self.observation_calls_after,
+            self.process_draw_invocations_before,
+            self.process_draw_invocations_after,
+            self.observation_draw_invocations_before,
+            self.observation_draw_invocations_after,
         )
         if any(
             isinstance(value, bool) or not isinstance(value, int) or value < 0 for value in counts
         ):
-            raise ContractError("RNG call counts must be nonnegative integers")
-        if self.process_calls_after - self.process_calls_before != 1:
-            raise ContractError("process RNG must advance by exactly one call per evaluator step")
-        if self.observation_calls_after - self.observation_calls_before != 1:
-            raise ContractError(
-                "observation RNG must advance by exactly one call per evaluator step"
-            )
+            raise ContractError("RNG draw-invocation counts must be nonnegative integers")
+        process_delta = self.process_draw_invocations_after - self.process_draw_invocations_before
+        observation_delta = (
+            self.observation_draw_invocations_after - self.observation_draw_invocations_before
+        )
+        if process_delta != int(expected_process_required):
+            raise ContractError("process RNG draw-invocation count contradicts noise semantics")
+        if observation_delta != int(expected_observation_required):
+            raise ContractError("observation RNG draw-invocation count contradicts noise semantics")
         for field in (
             "process_state_before_sha256",
             "process_state_after_sha256",
@@ -62,14 +122,29 @@ class RNGReceipt:
             "observation_state_after_sha256",
         ):
             require_sha256(getattr(self, field), field)
-        if self.process_state_before_sha256 == self.process_state_after_sha256:
-            raise ContractError("process RNG state did not advance")
-        if self.observation_state_before_sha256 == self.observation_state_after_sha256:
-            raise ContractError("observation RNG state did not advance")
+        process_changed = self.process_state_before_sha256 != self.process_state_after_sha256
+        observation_changed = (
+            self.observation_state_before_sha256 != self.observation_state_after_sha256
+        )
+        if process_changed is not expected_process_required:
+            condition = (
+                "advanced when advancement was not applicable"
+                if process_changed
+                else "did not advance"
+            )
+            raise ContractError(f"process RNG state {condition}")
+        if observation_changed is not expected_observation_required:
+            condition = (
+                "advanced when advancement was not applicable"
+                if observation_changed
+                else "did not advance"
+            )
+            raise ContractError(f"observation RNG state {condition}")
 
 
 @dataclass(frozen=True)
 class StepEvidence:
+    schema_version: str
     registration_sha256: str
     method: str
     cell: str
@@ -104,7 +179,11 @@ class StepEvidence:
         expected_arm: str,
         expected_episode_id: int,
         expected_registration_sha256: str,
+        expected_process_noise_sigma: float,
+        expected_observation_noise_sigma: float,
     ) -> None:
+        if self.schema_version != STEP_EVIDENCE_SCHEMA_VERSION:
+            raise ContractError("step-evidence schema version mismatch")
         require_sha256(self.registration_sha256, "evidence registration")
         if self.registration_sha256 != expected_registration_sha256:
             raise ContractError("evidence registration binding mismatch")
@@ -166,7 +245,10 @@ class StepEvidence:
                 raise ContractError(f"{discounted_field} does not reconstruct")
         require_sha256(self.process_innovation_sha256, "process innovation receipt")
         require_sha256(self.observation_innovation_sha256, "observation innovation receipt")
-        self.rng_receipt.validate()
+        self.rng_receipt.validate(
+            expected_process_noise_sigma=expected_process_noise_sigma,
+            expected_observation_noise_sigma=expected_observation_noise_sigma,
+        )
 
     def evaluator_only_dict(self) -> dict[str, Any]:
         value = asdict(self)
@@ -180,6 +262,8 @@ def reconstruct_episode(
     expected_horizon: int = REGISTERED_HORIZON,
     expected_gamma: float = REGISTERED_GAMMA,
     expected_episode_ids: Sequence[int] = REGISTERED_EPISODE_IDS,
+    expected_process_noise_sigma: float = REGISTERED_PROCESS_NOISE_SIGMA,
+    expected_observation_noise_sigma: float = REGISTERED_OBSERVATION_NOISE_SIGMA,
 ) -> dict[str, Any]:
     if expected_horizon != REGISTERED_HORIZON or not np.float64(expected_gamma).view(
         np.uint64
@@ -217,6 +301,8 @@ def reconstruct_episode(
             expected_arm=arm,
             expected_episode_id=episode_id,
             expected_registration_sha256=registration_sha,
+            expected_process_noise_sigma=expected_process_noise_sigma,
+            expected_observation_noise_sigma=expected_observation_noise_sigma,
         )
         if collapse_seen and not record.collapse_indicator:
             raise ContractError("collapse indicator cannot revert after first entry")
@@ -224,10 +310,13 @@ def reconstruct_episode(
         if index:
             previous = records[index - 1].rng_receipt
             current = record.rng_receipt
-            if previous.process_calls_after != current.process_calls_before:
-                raise ContractError("process RNG call-count sequence is discontinuous")
-            if previous.observation_calls_after != current.observation_calls_before:
-                raise ContractError("observation RNG call-count sequence is discontinuous")
+            if previous.process_draw_invocations_after != current.process_draw_invocations_before:
+                raise ContractError("process RNG draw-invocation sequence is discontinuous")
+            if (
+                previous.observation_draw_invocations_after
+                != current.observation_draw_invocations_before
+            ):
+                raise ContractError("observation RNG draw-invocation sequence is discontinuous")
             if previous.process_state_after_sha256 != current.process_state_before_sha256:
                 raise ContractError("process RNG state receipt sequence is discontinuous")
             if previous.observation_state_after_sha256 != current.observation_state_before_sha256:
@@ -275,7 +364,7 @@ def reconstruct_episode(
         if np.float64(record.safety_penalty_term).view(np.uint64) != np.float64(0.0).view(np.uint64)
     ]
     return {
-        "schema_version": "corrected_stageb_exact_return_reconstruction_v1",
+        "schema_version": EXACT_RETURN_SCHEMA_VERSION,
         "evidence_layer": "EVALUATOR_ONLY",
         "registration_sha256": registration_sha,
         "method": method,
@@ -295,8 +384,12 @@ def reconstruct_episode(
         "discounted_penalty_timing": penalty_timing,
         "unsafe_occupancy_count": sum(record.unsafe_indicator for record in records),
         "action_sequence": [record.selected_action for record in records],
-        "process_rng_final_call_count": records[-1].rng_receipt.process_calls_after,
-        "observation_rng_final_call_count": records[-1].rng_receipt.observation_calls_after,
+        "process_rng_final_draw_invocation_count": (
+            records[-1].rng_receipt.process_draw_invocations_after
+        ),
+        "observation_rng_final_draw_invocation_count": (
+            records[-1].rng_receipt.observation_draw_invocations_after
+        ),
         "reconstruction_result": "PASS",
     }
 
@@ -334,7 +427,7 @@ def pair_episode_evidence(
         )
         rng_receipt_hashes.append(sha256_bytes(canonical_json_bytes(asdict(record_o.rng_receipt))))
     return {
-        "schema_version": "corrected_stageb_paired_evidence_v1",
+        "schema_version": PAIRED_EVIDENCE_SCHEMA_VERSION,
         "registration_sha256": receipt_o["registration_sha256"],
         "method": receipt_o["method"],
         "cell": receipt_o["cell"],

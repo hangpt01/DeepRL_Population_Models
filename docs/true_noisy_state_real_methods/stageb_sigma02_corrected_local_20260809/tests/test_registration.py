@@ -33,9 +33,9 @@ def test_synthetic_registration_binds_to_current_repository_head(registration_bu
     )
 
 
-def test_complete_bundle_is_valid_v2_without_test_module_injection(registration_bundle):
+def test_complete_bundle_is_valid_v3_without_test_module_injection(registration_bundle):
     assert registration_bundle["corrected_stageb_registration"]["schema_version"] == (
-        "corrected_stageb_registration_v2"
+        "corrected_stageb_registration_v3"
     )
     assert registration_bundle["code_configuration_hashes"]["schema_version"] == (
         "corrected_stageb_code_configuration_hashes_v2"

@@ -9,7 +9,14 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from .common import ContractError, canonical_json_bytes, require_sha256, sha256_bytes
+from .common import (
+    ContractError,
+    canonical_json_bytes,
+    require_exact_keys,
+    require_finite,
+    require_sha256,
+    sha256_bytes,
+)
 
 
 REGISTERED_HORIZON = 50
@@ -24,10 +31,81 @@ REGISTERED_EPISODE_IDS = (
 )
 
 ARTIFACT_PLAN_SCHEMA_VERSION = "corrected_stageb_driver_artifact_plan_v1"
-DRIVER_INPUTS_SCHEMA_VERSION = "corrected_stageb_driver_inputs_v2"
-DRIVER_INPUTS_REGISTRATION_SCHEMA_VERSION = "corrected_stageb_driver_inputs_registration_v1"
+RNG_CONTRACT_SCHEMA_VERSION = "corrected_stageb_rng_contract_v1"
+RNG_RECEIPT_SCHEMA_VERSION = "corrected_stageb_rng_receipt_v2"
+STEP_EVIDENCE_SCHEMA_VERSION = "corrected_stageb_step_evidence_v2"
+EXACT_RETURN_SCHEMA_VERSION = "corrected_stageb_exact_return_reconstruction_v2"
+PAIRED_EVIDENCE_SCHEMA_VERSION = "corrected_stageb_paired_evidence_v2"
+BOUND_TASK_EVIDENCE_SCHEMA_VERSION = "corrected_stageb_bound_task_evidence_v2"
+REGISTERED_PROCESS_NOISE_SIGMA = 0.0
+REGISTERED_OBSERVATION_NOISE_SIGMA = 0.2
+DRIVER_INPUTS_SCHEMA_VERSION = "corrected_stageb_driver_inputs_v3"
+DRIVER_INPUTS_REGISTRATION_SCHEMA_VERSION = "corrected_stageb_driver_inputs_registration_v2"
 DRIVER_INPUTS_FILENAME = "DRIVER_INPUTS.json"
 ROLE_NAMESPACES = ("arm-o", "arm-o-receipts", "arm-t", "arm-t-receipts", "gate", "finalizer")
+
+
+def canonical_noise_sigma(value: Any, label: str) -> float:
+    """Return one explicit finite nonnegative floating-point noise binding."""
+
+    if isinstance(value, bool) or not isinstance(value, float):
+        raise ContractError(f"{label} must be an explicit floating-point number")
+    parsed = require_finite(value, label)
+    if parsed < 0.0:
+        raise ContractError(f"{label} must be nonnegative")
+    if parsed == 0.0:
+        return 0.0
+    return parsed
+
+
+def registered_rng_contract_document() -> dict[str, Any]:
+    """Return the one prospective environment RNG contract used by every role."""
+
+    return {
+        "schema_version": RNG_CONTRACT_SCHEMA_VERSION,
+        "process_noise_sigma": REGISTERED_PROCESS_NOISE_SIGMA,
+        "observation_noise_sigma": REGISTERED_OBSERVATION_NOISE_SIGMA,
+        "process_draws_per_step": 0,
+        "observation_draws_per_step": 1,
+    }
+
+
+def validate_rng_contract_document(value: Any) -> dict[str, Any]:
+    """Validate exact draw semantics without conflating environment steps and RNG draws."""
+
+    if not isinstance(value, Mapping):
+        raise ContractError("registered RNG contract must be an object")
+    require_exact_keys(
+        value,
+        {
+            "schema_version",
+            "process_noise_sigma",
+            "observation_noise_sigma",
+            "process_draws_per_step",
+            "observation_draws_per_step",
+        },
+        "registered RNG contract",
+    )
+    if value["schema_version"] != RNG_CONTRACT_SCHEMA_VERSION:
+        raise ContractError("registered RNG contract schema mismatch")
+    process = canonical_noise_sigma(value["process_noise_sigma"], "process noise sigma")
+    observation = canonical_noise_sigma(value["observation_noise_sigma"], "observation noise sigma")
+    expected_process_draws = int(process > 0.0)
+    expected_observation_draws = int(observation > 0.0)
+    for field, expected in (
+        ("process_draws_per_step", expected_process_draws),
+        ("observation_draws_per_step", expected_observation_draws),
+    ):
+        observed = value[field]
+        if isinstance(observed, bool) or not isinstance(observed, int) or observed != expected:
+            raise ContractError(f"registered RNG contract {field} mismatch")
+    return {
+        "schema_version": RNG_CONTRACT_SCHEMA_VERSION,
+        "process_noise_sigma": process,
+        "observation_noise_sigma": observation,
+        "process_draws_per_step": expected_process_draws,
+        "observation_draws_per_step": expected_observation_draws,
+    }
 
 
 def evaluation_identity_document() -> dict[str, Any]:

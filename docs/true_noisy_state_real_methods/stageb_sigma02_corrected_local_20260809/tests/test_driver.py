@@ -4,6 +4,7 @@ import ast
 import copy
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -224,6 +225,30 @@ def test_exact_20_by_50_evidence_and_return_arithmetic(registration_bundle):
         assert receipt["action_sequence"] == list(execution.actions[0])
 
 
+def test_post_rollout_completion_accepts_registered_zero_noise_evidence(registration_bundle):
+    registration = freeze_registration_bundle(registration_bundle)
+    execution = _execution(registration.sha256)
+    recorder = SimpleNamespace(episodes=[list(episode) for episode in execution.step_evidence])
+    policy = SimpleNamespace(
+        _episode_actions=[list(episode) for episode in execution.actions],
+        _episode_posteriors=[list(episode) for episode in execution.posterior_probabilities],
+        _episode_dispersion=[list(episode) for episode in execution.predictive_dispersion],
+        _method="refplan",
+    )
+    completed = driver._complete_execution(
+        recorder,
+        policy,
+        execution.evaluator_rows,
+        execution.cpu_identity,
+    )
+    assert len(completed.step_evidence) == 20
+    assert all(
+        step.rng_receipt.process_draw_invocations_after == 0
+        for episode in completed.step_evidence
+        for step in episode
+    )
+
+
 @pytest.mark.parametrize(
     "forbidden",
     ["next_states", "truth_path", "hidden_family", "safety_threshold", "evaluator_info"],
@@ -339,6 +364,9 @@ def test_atomic_task_publication_and_no_retry(registration_bundle, tmp_path):
             for index in range(12)
         ),
         {},
+        driver.validate_rng_contract_document(
+            registration.bundle()["corrected_stageb_registration"]["rng_contract"]
+        ),
     )
     evaluator_inputs = driver.EvaluatorOnlyInputs(
         tuple(

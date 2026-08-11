@@ -14,7 +14,10 @@ from ..artifacts import CanonicalArtifact, REQUIRED_COMPONENTS
 from ..canonical_plan import (
     DRIVER_INPUTS_REGISTRATION_SCHEMA_VERSION,
     DRIVER_INPUTS_SCHEMA_VERSION,
+    RNG_RECEIPT_SCHEMA_VERSION,
+    STEP_EVIDENCE_SCHEMA_VERSION,
     artifact_plan_sha256,
+    registered_rng_contract_document,
 )
 from ..common import (
     canonical_json_bytes,
@@ -138,6 +141,7 @@ def _synthetic_driver_descriptor(
         "repository_commit": commit,
         "stageb_driver_sha256": driver_sha256,
         "cpu_profile": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU",
+        "rng_contract": registered_rng_contract_document(),
         "fit_probes": probes,
         "public_inputs": public_inputs,
         "evaluator_only_inputs": {"accepted_parity": parity},
@@ -277,7 +281,7 @@ def complete_bundle() -> dict[str, Any]:
             "no_return_exists_at_authorization": True,
         },
         "corrected_stageb_registration": {
-            "schema_version": "corrected_stageb_registration_v2",
+            "schema_version": "corrected_stageb_registration_v3",
             "registration_id": registration_id,
             "status": "FROZEN_BEFORE_CORRECTED_RETURNS",
             "prospective_corrected_replication": True,
@@ -293,7 +297,7 @@ def complete_bundle() -> dict[str, Any]:
             "horizon": 50,
             "discount": 0.95,
             "num_actions": 11,
-            "sigma": 0.2,
+            "rng_contract": registered_rng_contract_document(),
             "evaluator_family": "allee",
             "cpu_profile": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU",
             "local_status_label": "LOCAL ARM64 DEVELOPMENT TEST — NOT SCIENTIFIC EVIDENCE",
@@ -773,17 +777,25 @@ def step_records(
         penalty = -1.0 if collapse_at is not None and timestep >= collapse_at else 0.0
         total = benefit + cost + penalty
         rng = RNGReceipt(
-            process_calls_before=timestep,
-            process_calls_after=timestep + 1,
-            observation_calls_before=timestep,
-            observation_calls_after=timestep + 1,
-            process_state_before_sha256=HASHES[timestep % len(HASHES)],
-            process_state_after_sha256=HASHES[(timestep + 1) % len(HASHES)],
+            schema_version=RNG_RECEIPT_SCHEMA_VERSION,
+            process_noise_sigma=0.0,
+            observation_noise_sigma=0.2,
+            process_draw_required=False,
+            observation_draw_required=True,
+            process_state_advancement_applicable=False,
+            observation_state_advancement_applicable=True,
+            process_draw_invocations_before=0,
+            process_draw_invocations_after=0,
+            observation_draw_invocations_before=timestep,
+            observation_draw_invocations_after=timestep + 1,
+            process_state_before_sha256=HASHES[0],
+            process_state_after_sha256=HASHES[0],
             observation_state_before_sha256=HASHES[(timestep + 2) % len(HASHES)],
             observation_state_after_sha256=HASHES[(timestep + 3) % len(HASHES)],
         )
         records.append(
             StepEvidence(
+                schema_version=STEP_EVIDENCE_SCHEMA_VERSION,
                 registration_sha256=registration_sha256,
                 method=method,
                 cell=cell,

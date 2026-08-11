@@ -11,6 +11,11 @@ The bounded startup correction is documented in `CPU_GUARD_DURABLE_LOG_CORRECTIO
 and validation use one complete-model CPU normalizer, and every replacement registration binds
 collision-free durable `/fs04` log templates for all four Slurm roles.
 
+The zero-process-noise evidence correction is documented in
+`ZERO_NOISE_RNG_EVIDENCE_CORRECTION.md`. Registration and DRIVER_INPUTS prospectively bind the
+effective process/observation noise values, and v2 RNG receipts count actual distribution
+invocations rather than logical environment steps.
+
 This is the trusted external implementation constructed from Revision 3.1, frozen I1 and
 zero-SD contracts, audited I2A adapters, audited fast-track wrappers, frozen method source,
 and the independent Stage B audit. It does not import or execute either failed corrected
@@ -20,7 +25,7 @@ The package implements:
 
 - one registration-bound external `driver.py` with the exact `arm-o`, `arm-o-gate`, `arm-t`,
   and `finalize-inspection-only` interfaces consumed by the existing Slurm templates;
-- a mandatory V2 registration contract that binds every task and non-task command to exact
+- a mandatory V3 scientific registration contract that binds every task and non-task command to exact
   configured/resolved interpreter paths, Python identities and NumPy versions;
 - issued, non-serializable registration and Arm-T process capabilities plus an authenticated
   cross-process gate receipt that reissues the process capability only after full validation;

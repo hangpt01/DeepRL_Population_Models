@@ -12,6 +12,7 @@ from .canonical_plan import (
     DRIVER_INPUTS_FILENAME,
     DRIVER_INPUTS_SCHEMA_VERSION,
     ROLE_NAMESPACES,
+    validate_rng_contract_document,
 )
 from .common import (
     ContractError,
@@ -98,6 +99,7 @@ def validate_driver_inputs_document(
     populations: Mapping[str, str],
     dataset_hashes: Mapping[str, str],
     cpu_profile: str,
+    rng_contract: Mapping[str, Any],
 ) -> None:
     if not isinstance(value, Mapping):
         raise ContractError("driver inputs must be a JSON object")
@@ -111,6 +113,7 @@ def validate_driver_inputs_document(
             "repository_commit",
             "stageb_driver_sha256",
             "cpu_profile",
+            "rng_contract",
             "fit_probes",
             "public_inputs",
             "evaluator_only_inputs",
@@ -137,6 +140,10 @@ def validate_driver_inputs_document(
         raise ContractError("driver-input driver hash mismatch")
     if value["cpu_profile"] != cpu_profile:
         raise ContractError("driver-input CPU profile mismatch")
+    registered_rng = validate_rng_contract_document(rng_contract)
+    driver_rng = validate_rng_contract_document(value["rng_contract"])
+    if driver_rng != registered_rng:
+        raise ContractError("driver-input RNG contract differs from registration")
     if value["arm_t_exact_state_allowlist"] != ["current_abundance"]:
         raise ContractError("Arm T exact-state allowlist mismatch")
     if value["arm_t_refit_permitted"] is not False:

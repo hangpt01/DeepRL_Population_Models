@@ -1,10 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "corrected_stageb_registration_bundle_v3.schema.json",
+  "$id": "corrected_stageb_registration_bundle_v4.schema.json",
   "title": "Interpreter-bound corrected Stage B frozen registration bundle",
   "$defs": {
     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "rngContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "process_noise_sigma", "observation_noise_sigma", "process_draws_per_step", "observation_draws_per_step"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_rng_contract_v1"},
+        "process_noise_sigma": {"const": 0.0},
+        "observation_noise_sigma": {"const": 0.2},
+        "process_draws_per_step": {"const": 0},
+        "observation_draws_per_step": {"const": 1}
+      }
+    },
     "authorization": {
       "type": "object",
       "additionalProperties": false,
@@ -22,9 +34,9 @@
     "registration": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["schema_version", "registration_id", "status", "prospective_corrected_replication", "blinded_preregistration", "returns_exist_at_freeze", "cells", "methods", "arms", "offline_rows", "episodes", "episode_length", "evaluation_identities", "horizon", "discount", "num_actions", "sigma", "evaluator_family", "cpu_profile", "local_status_label"],
+      "required": ["schema_version", "registration_id", "status", "prospective_corrected_replication", "blinded_preregistration", "returns_exist_at_freeze", "cells", "methods", "arms", "offline_rows", "episodes", "episode_length", "evaluation_identities", "horizon", "discount", "num_actions", "rng_contract", "evaluator_family", "cpu_profile", "local_status_label"],
       "properties": {
-        "schema_version": {"const": "corrected_stageb_registration_v2"},
+        "schema_version": {"const": "corrected_stageb_registration_v3"},
         "registration_id": {"type": "string", "minLength": 1},
         "status": {"const": "FROZEN_BEFORE_CORRECTED_RETURNS"},
         "prospective_corrected_replication": {"const": true},
@@ -40,7 +52,7 @@
         "horizon": {"const": 50},
         "discount": {"const": 0.95},
         "num_actions": {"const": 11},
-        "sigma": {"const": 0.2},
+        "rng_contract": {"$ref": "#/$defs/rngContract"},
         "evaluator_family": {"const": "allee"},
         "cpu_profile": {"const": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU"},
         "local_status_label": {"const": "LOCAL ARM64 DEVELOPMENT TEST — NOT SCIENTIFIC EVIDENCE"}
@@ -143,7 +155,7 @@
       "additionalProperties": false,
       "required": ["schema_version", "driver_inputs_schema_sha256", "driver_inputs_producer_sha256", "driver_inputs_sha256", "descriptor"],
       "properties": {
-        "schema_version": {"const": "corrected_stageb_driver_inputs_registration_v1"},
+        "schema_version": {"const": "corrected_stageb_driver_inputs_registration_v2"},
         "driver_inputs_schema_sha256": {"$ref": "#/$defs/sha256"},
         "driver_inputs_producer_sha256": {"$ref": "#/$defs/sha256"},
         "driver_inputs_sha256": {"$ref": "#/$defs/sha256"},

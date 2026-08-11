@@ -15,6 +15,8 @@ from .canonical_plan import (
     DRIVER_INPUTS_REGISTRATION_SCHEMA_VERSION,
     EVALUATION_IDENTITY_SHA256,
     artifact_plan_sha256,
+    registered_rng_contract_document,
+    validate_rng_contract_document,
 )
 from .common import (
     ContractError,
@@ -264,13 +266,13 @@ def _validate_registration(value: Mapping[str, Any]) -> str:
         "horizon",
         "discount",
         "num_actions",
-        "sigma",
+        "rng_contract",
         "evaluator_family",
         "cpu_profile",
         "local_status_label",
     }
     require_exact_keys(value, required, "corrected_stageb_registration")
-    if value["schema_version"] != "corrected_stageb_registration_v2":
+    if value["schema_version"] != "corrected_stageb_registration_v3":
         raise ContractError("corrected registration schema version mismatch")
     registration_id = require_nonempty_string(value["registration_id"], "registration_id")
     if value["status"] != "FROZEN_BEFORE_CORRECTED_RETURNS":
@@ -292,7 +294,6 @@ def _validate_registration(value: Mapping[str, Any]) -> str:
         "horizon": 50,
         "discount": 0.95,
         "num_actions": 11,
-        "sigma": 0.2,
         "evaluator_family": "allee",
         "cpu_profile": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU",
         "local_status_label": "LOCAL ARM64 DEVELOPMENT TEST — NOT SCIENTIFIC EVIDENCE",
@@ -300,6 +301,9 @@ def _validate_registration(value: Mapping[str, Any]) -> str:
     for field, expected in scalar_expected.items():
         if value[field] != expected:
             raise ContractError(f"registered {field} mismatch")
+    rng_contract = validate_rng_contract_document(value["rng_contract"])
+    if rng_contract != registered_rng_contract_document():
+        raise ContractError("registered environment RNG contract mismatch")
     expected_ids = (
         tuple(range(7001, 7005))
         + tuple(range(7051, 7055))
@@ -568,6 +572,7 @@ def _validate_driver_inputs_registration(
     value: Mapping[str, Any],
     *,
     registration_id: str,
+    rng_contract: Mapping[str, Any],
     code_configuration_hashes: Mapping[str, Any],
     repository_root: Path,
 ) -> Mapping[str, Any]:
@@ -608,6 +613,7 @@ def _validate_driver_inputs_registration(
         populations=POPULATIONS,
         dataset_hashes=EXPECTED_DATASET_HASHES,
         cpu_profile="Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU",
+        rng_contract=rng_contract,
     )
     registered_digest = require_sha256(
         value["driver_inputs_sha256"], "registered canonical driver inputs"
@@ -884,6 +890,7 @@ def freeze_registration_bundle(
     descriptor = _validate_driver_inputs_registration(
         bundle["stageb_driver_inputs"],
         registration_id=registration_id,
+        rng_contract=bundle["corrected_stageb_registration"]["rng_contract"],
         code_configuration_hashes=bundle["code_configuration_hashes"],
         repository_root=root,
     )
