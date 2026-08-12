@@ -5,8 +5,11 @@ from __future__ import annotations
 import base64
 import hashlib
 import hmac
+import os
 import secrets
 import stat
+import subprocess
+import sys
 from pathlib import Path, PurePosixPath
 from typing import Any, Mapping, Sequence
 
@@ -29,6 +32,7 @@ from .common import (
     sha256_bytes,
     strict_json_loads,
     validate_cpu_identity_receipt,
+    require_current_registered_cpu_model,
 )
 from .boundary import validate_task_information_boundary_receipt
 from .canonical_plan import BOUND_TASK_EVIDENCE_SCHEMA_VERSION
@@ -38,6 +42,8 @@ from .registration import (
     CELLS,
     METHODS,
     FrozenRegistration,
+    interpreter_binding_for_task,
+    require_runtime_interpreter_binding,
     validate_interpreter_identity_receipt,
 )
 from .registration import freeze_registration_bundle
@@ -47,7 +53,11 @@ from .parity import (
     PARITY_MODE_DISCLOSURE_ONLY,
     PARITY_MODE_EXTERNAL_BASELINE,
 )
-from .real_artifacts import revalidate_frozen_object_parity, scientific_component_for_method
+from .real_artifacts import (
+    revalidate_frozen_object_parity,
+    revalidate_frozen_object_parity_in_registered_subprocess,
+    scientific_component_for_method,
+)
 
 
 EXPECTED_ARM_TASKS = tuple((cell, method) for cell in CELLS for method in METHODS)
@@ -283,6 +293,8 @@ def _validate_task_receipt(
     expected_task: Mapping[str, Any],
     evidence_root: Path,
     frozen_registration: FrozenRegistration,
+    replay_repository_root: Path,
+    replay_in_subprocess: bool = True,
 ) -> tuple[str, str, Mapping[str, str]]:
     receipt = _canonical_receipt(payload, "Arm O task receipt")
     required = {
@@ -387,6 +399,9 @@ def _validate_task_receipt(
         evidence_root=evidence_root,
         publication_path=publication_path,
         publication=publication,
+        frozen_registration=frozen_registration,
+        replay_repository_root=replay_repository_root,
+        replay_in_subprocess=replay_in_subprocess,
     )
     validation = publication.get("validation")
     if not isinstance(validation, Mapping):
@@ -456,6 +471,9 @@ def _validate_artifact_bundle_evidence(
     evidence_root: Path,
     publication_path: Path,
     publication: Mapping[str, Any],
+    frozen_registration: FrozenRegistration,
+    replay_repository_root: Path,
+    replay_in_subprocess: bool,
 ) -> Mapping[str, str]:
     value = _canonical_receipt(payload, "Arm O fitted-artifact bundle evidence")
     require_artifact_evidence_version(value)
@@ -592,12 +610,22 @@ def _validate_artifact_bundle_evidence(
     if dict(binding) != expected_binding:
         raise ContractError("real frozen fitted-object task binding mismatch")
     parity = _canonical_receipt(parity_payload, "real frozen fitted-object parity")
-    revalidate_frozen_object_parity(
-        frozen_payload,
-        parity,
-        expected_component=frozen_component,
-        repository_root=Path(__file__).resolve().parents[3],
-    )
+    if replay_in_subprocess:
+        revalidate_frozen_object_parity_in_registered_subprocess(
+            frozen_payload,
+            parity,
+            expected_component=frozen_component,
+            repository_root=replay_repository_root,
+            frozen_registration=frozen_registration,
+            task_index=expected_task["task_index"],
+        )
+    else:
+        revalidate_frozen_object_parity(
+            frozen_payload,
+            parity,
+            expected_component=frozen_component,
+            repository_root=replay_repository_root,
+        )
     return observed_hashes
 
 
@@ -837,6 +865,246 @@ def _validate_parity_receipt(
     return sha256_bytes(payload)
 
 
+_TASK_WORKER_REQUEST_SCHEMA = "corrected_stageb_registered_gate_task_worker_v1"
+_TASK_WORKER_RESULT_SCHEMA = "corrected_stageb_registered_gate_task_result_v1"
+_GATE_SEED_ENVIRONMENT_NAMES = frozenset(
+    {"STAGEB_GATE_SIGNING_SEED_FILE", "STAGEB_GATE_SIGNING_SEED"}
+)
+
+
+def _registered_gate_task_worker(request_payload: bytes) -> bytes:
+    """Validate one complete Arm O receipt inside its registered task process."""
+
+    request = strict_json_loads(request_payload)
+    if not isinstance(request, Mapping):
+        raise ContractError("registered gate task request must be an object")
+    require_exact_keys(
+        request,
+        {
+            "schema_version",
+            "source_registration_b64",
+            "source_registration_sha256",
+            "source_repository_root",
+            "evidence_root",
+            "task_receipt_b64",
+            "task_receipt_sha256",
+            "expected_task",
+        },
+        "registered gate task request",
+    )
+    if request["schema_version"] != _TASK_WORKER_REQUEST_SCHEMA:
+        raise ContractError("registered gate task request schema mismatch")
+    if any(name in os.environ for name in _GATE_SEED_ENVIRONMENT_NAMES):
+        raise ContractError("gate signing seed material entered a task-validation subprocess")
+    source_root = Path(request["source_repository_root"])
+    evidence_root = Path(request["evidence_root"])
+    for root, label in (
+        (source_root, "source repository"),
+        (evidence_root, "evidence root"),
+    ):
+        if not root.is_absolute() or root.is_symlink() or not root.is_dir():
+            raise ContractError(f"registered gate task {label} must be an absolute real directory")
+    try:
+        registration_payload = base64.b64decode(request["source_registration_b64"], validate=True)
+        task_payload = base64.b64decode(request["task_receipt_b64"], validate=True)
+    except (TypeError, ValueError) as exc:
+        raise ContractError("registered gate task request has invalid base64") from exc
+    if sha256_bytes(registration_payload) != request["source_registration_sha256"]:
+        raise ContractError("registered gate task source registration hash mismatch")
+    if sha256_bytes(task_payload) != request["task_receipt_sha256"]:
+        raise ContractError("registered gate task receipt bytes changed")
+    bundle = strict_json_loads(registration_payload)
+    if not isinstance(bundle, Mapping):
+        raise ContractError("registered gate task source registration is invalid")
+    registration = freeze_registration_bundle(bundle, repository_root=source_root)
+    if registration.payload != registration_payload:
+        raise ContractError("registered gate task source registration is not canonical")
+    expected_task = request["expected_task"]
+    if not isinstance(expected_task, Mapping):
+        raise ContractError("registered gate task identity is invalid")
+    task_index = expected_task.get("task_index")
+    task, _binding = interpreter_binding_for_task(registration, arm="O", task_index=task_index)
+    if dict(task) != dict(expected_task):
+        raise ContractError("registered gate task manifest identity mismatch")
+    interpreter_identity = require_runtime_interpreter_binding(
+        registration,
+        command="arm-o",
+        arm="O",
+        task_index=task_index,
+    )
+    cpu_identity = require_current_registered_cpu_model()
+    validated = _validate_task_receipt(
+        task_payload,
+        registration_sha=registration.sha256,
+        expected_task=task,
+        evidence_root=evidence_root,
+        frozen_registration=registration,
+        replay_repository_root=source_root,
+        replay_in_subprocess=False,
+    )
+    return canonical_json_bytes(
+        {
+            "schema_version": _TASK_WORKER_RESULT_SCHEMA,
+            "source_registration_sha256": registration.sha256,
+            "source_git_commit_sha": bundle["code_configuration_hashes"]["git_commit_sha"],
+            "source_manifest_sha256": bundle["code_configuration_hashes"]["source_manifest_sha256"],
+            "task_index": task_index,
+            "cell": task["cell"],
+            "method": task["method"],
+            "interpreter_identity": interpreter_identity,
+            "cpu_identity": cpu_identity,
+            "task_receipt_sha256": validated[0],
+            "artifact_bundle_sha256": validated[1],
+            "component_hashes": dict(validated[2]),
+            "payload_exact": True,
+            "receipt_exact": True,
+            "gate_signing_seed_present": False,
+            "evaluator_constructed": False,
+            "rollout_executed": False,
+            "return_calculated": False,
+            "result": "PASS",
+        }
+    )
+
+
+def revalidate_arm_o_task_receipt_in_registered_subprocess(
+    payload: bytes,
+    *,
+    expected_task: Mapping[str, Any],
+    evidence_root: Path,
+    frozen_registration: FrozenRegistration,
+    replay_repository_root: Path,
+) -> tuple[str, str, Mapping[str, str]]:
+    """Validate a whole Arm O receipt under its task's exact interpreter."""
+
+    task_index = expected_task["task_index"]
+    task, binding = interpreter_binding_for_task(
+        frozen_registration, arm="O", task_index=task_index
+    )
+    if dict(task) != dict(expected_task):
+        raise ContractError("registered gate task dispatch identity mismatch")
+    configured = Path(binding["absolute_interpreter_path"])
+    registered_resolved = Path(binding["resolved_executable_path"])
+    if not configured.is_absolute() or not configured.is_file():
+        raise ContractError("registered gate task interpreter is missing")
+    try:
+        observed_resolved = configured.resolve(strict=True)
+        expected_resolved = registered_resolved.resolve(strict=True)
+    except OSError as exc:
+        raise ContractError("registered gate task interpreter cannot be resolved") from exc
+    if observed_resolved != registered_resolved or expected_resolved != registered_resolved:
+        raise ContractError("registered gate task interpreter was symlink-substituted")
+    source_root = Path(replay_repository_root)
+    evidence = Path(evidence_root)
+    for root, label in ((source_root, "source repository"), (evidence, "evidence root")):
+        if not root.is_absolute() or root.is_symlink() or not root.is_dir():
+            raise ContractError(f"registered gate task {label} is invalid")
+    request = canonical_json_bytes(
+        {
+            "schema_version": _TASK_WORKER_REQUEST_SCHEMA,
+            "source_registration_b64": base64.b64encode(frozen_registration.payload).decode(
+                "ascii"
+            ),
+            "source_registration_sha256": frozen_registration.sha256,
+            "source_repository_root": str(source_root),
+            "evidence_root": str(evidence),
+            "task_receipt_b64": base64.b64encode(payload).decode("ascii"),
+            "task_receipt_sha256": sha256_bytes(payload),
+            "expected_task": dict(task),
+        }
+    )
+    environment = dict(os.environ)
+    for name in _GATE_SEED_ENVIRONMENT_NAMES:
+        environment.pop(name, None)
+    environment.update(
+        {
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONNOUSERSITE": "1",
+            "PYTHONPATH": str(Path(__file__).resolve().parents[3]),
+            "OMP_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+        }
+    )
+    try:
+        completed = subprocess.run(
+            [
+                str(configured),
+                "-m",
+                "docs.true_noisy_state_real_methods.stageb_sigma02_corrected_local_20260809.orchestration",
+                "--registered-gate-task-worker",
+            ],
+            input=request,
+            cwd=Path(__file__).resolve().parents[3],
+            env=environment,
+            check=False,
+            capture_output=True,
+        )
+    except OSError as exc:
+        raise ContractError("registered gate task interpreter could not start") from exc
+    if completed.returncode != 0:
+        detail = completed.stderr.decode("utf-8", errors="replace").strip()
+        raise ContractError(f"registered gate task subprocess failed: {detail}")
+    result = strict_json_loads(completed.stdout)
+    if not isinstance(result, Mapping):
+        raise ContractError("registered gate task subprocess returned invalid evidence")
+    expected_scalars = {
+        "schema_version": _TASK_WORKER_RESULT_SCHEMA,
+        "source_registration_sha256": frozen_registration.sha256,
+        "source_git_commit_sha": frozen_registration.bundle()["code_configuration_hashes"][
+            "git_commit_sha"
+        ],
+        "source_manifest_sha256": frozen_registration.bundle()["code_configuration_hashes"][
+            "source_manifest_sha256"
+        ],
+        "task_index": task_index,
+        "cell": task["cell"],
+        "method": task["method"],
+        "task_receipt_sha256": sha256_bytes(payload),
+        "payload_exact": True,
+        "receipt_exact": True,
+        "gate_signing_seed_present": False,
+        "evaluator_constructed": False,
+        "rollout_executed": False,
+        "return_calculated": False,
+        "result": "PASS",
+    }
+    for field, expected in expected_scalars.items():
+        if result.get(field) != expected:
+            raise ContractError(f"registered gate task evidence mismatch: {field}")
+    require_runtime_interpreter_binding(
+        frozen_registration,
+        command="arm-o",
+        arm="O",
+        task_index=task_index,
+        observed=result.get("interpreter_identity", {}).get("observed"),
+    )
+    validate_cpu_identity_receipt(result.get("cpu_identity"))
+    artifact_sha = require_sha256(
+        result.get("artifact_bundle_sha256"), "registered gate task artifact bundle"
+    )
+    component_hashes = result.get("component_hashes")
+    if not isinstance(component_hashes, Mapping) or not component_hashes:
+        raise ContractError("registered gate task component hashes are missing")
+    validated_hashes = {
+        str(name): require_sha256(value, "registered gate task component")
+        for name, value in component_hashes.items()
+    }
+    return sha256_bytes(payload), artifact_sha, validated_hashes
+
+
+def _worker_main() -> int:
+    if sys.argv[1:] != ["--registered-gate-task-worker"]:
+        raise ContractError("unsupported orchestration command")
+    try:
+        sys.stdout.buffer.write(_registered_gate_task_worker(sys.stdin.buffer.read()))
+    except (ContractError, OSError, ValueError) as exc:
+        print(f"STAGEB_REGISTERED_GATE_TASK_FAIL_CLOSED: {exc}", file=sys.stderr)
+        return 2
+    return 0
+
+
 def validate_arm_o_gate(
     *,
     frozen_registration: FrozenRegistration,
@@ -845,6 +1113,7 @@ def validate_arm_o_gate(
     corrected_test_receipt: bytes,
     parity_receipt: bytes,
     evidence_root: Path,
+    replay_repository_root: Path | None = None,
 ) -> ArmTGateToken:
     """Validate canonical immutable receipts against the frozen registration."""
 
@@ -852,17 +1121,22 @@ def validate_arm_o_gate(
         raise ContractError("Arm O gate requires an issued FrozenRegistration")
     registration_sha = frozen_registration.authorize_return_path()
     bundle = frozen_registration.bundle()
+    replay_root = (
+        Path(replay_repository_root).resolve()
+        if replay_repository_root is not None
+        else Path(__file__).resolve().parents[3]
+    )
     manifest_tasks = bundle["task_manifest"]["tasks"]
     arm_o_tasks = [task for task in manifest_tasks if task["arm"] == "O"]
     if len(task_receipts) != len(EXPECTED_ARM_TASKS) or len(arm_o_tasks) != len(EXPECTED_ARM_TASKS):
         raise ContractError("Arm O gate requires all twelve immutable task receipts")
     validated_tasks = [
-        _validate_task_receipt(
+        revalidate_arm_o_task_receipt_in_registered_subprocess(
             payload,
-            registration_sha=registration_sha,
             expected_task=task,
             evidence_root=evidence_root,
             frozen_registration=frozen_registration,
+            replay_repository_root=replay_root,
         )
         for payload, task in zip(task_receipts, arm_o_tasks)
     ]
@@ -1116,3 +1390,7 @@ def inspect_only_finalizer(task_statuses: Sequence[Mapping[str, Any]]) -> dict[s
         "repairs_performed": 0,
         "interpretation_status": "PROVISIONAL — NOT YET INDEPENDENTLY AUDITED",
     }
+
+
+if __name__ == "__main__":
+    raise SystemExit(_worker_main())

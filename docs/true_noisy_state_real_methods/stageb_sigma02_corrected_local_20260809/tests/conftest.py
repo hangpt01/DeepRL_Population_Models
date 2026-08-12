@@ -514,6 +514,23 @@ def isolated_orchestration_v2_helpers(request, monkeypatch):
     original_receipts = module.arm_o_receipts
     original_parity = module.parity_receipt
 
+    def in_process_gate_replay(payload, *, expected_task, evidence_root, **kwargs):
+        return module.orchestration._validate_task_receipt(
+            payload,
+            registration_sha=kwargs["frozen_registration"].sha256,
+            expected_task=expected_task,
+            evidence_root=evidence_root,
+            frozen_registration=kwargs["frozen_registration"],
+            replay_repository_root=kwargs["replay_repository_root"],
+            replay_in_subprocess=False,
+        )
+
+    monkeypatch.setattr(
+        module.orchestration,
+        "revalidate_arm_o_task_receipt_in_registered_subprocess",
+        in_process_gate_replay,
+    )
+
     def transition(**kwargs):
         if kwargs["method"] == "ensemble_value_disagreement_pessimism":
             return {

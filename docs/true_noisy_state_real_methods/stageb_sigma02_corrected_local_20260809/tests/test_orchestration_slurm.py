@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from .. import orchestration
 from ..artifacts import (
     FIXTURE_ROW_COUNT,
     REQUIRED_COMPONENTS,
@@ -426,6 +427,50 @@ def test_arm_t_requires_successful_m3_parity_artifact_gate(registration_bundle, 
     registration = freeze_registration_bundle(registration_bundle)
     token = gate(registration, tmp_path / "evidence")
     authorize_arm_t_task(token, registration)
+
+
+def test_gate_dispatches_all_twelve_replays_by_registered_task_interpreter(
+    registration_bundle, tmp_path, monkeypatch
+):
+    registration = freeze_registration_bundle(registration_bundle)
+    calls = []
+
+    def registered_replay(
+        payload,
+        *,
+        expected_task,
+        evidence_root,
+        frozen_registration,
+        replay_repository_root,
+    ):
+        task = expected_task
+        task_index = task["task_index"]
+        role = task["interpreter_role"]
+        calls.append((task_index, task["method"], role, replay_repository_root))
+        return orchestration._validate_task_receipt(
+            payload,
+            registration_sha=frozen_registration.sha256,
+            expected_task=task,
+            evidence_root=evidence_root,
+            frozen_registration=frozen_registration,
+            replay_repository_root=replay_repository_root,
+            replay_in_subprocess=False,
+        )
+
+    monkeypatch.setattr(
+        orchestration,
+        "revalidate_arm_o_task_receipt_in_registered_subprocess",
+        registered_replay,
+    )
+    token = gate(registration, tmp_path / "evidence")
+    authorize_arm_t_task(token, registration)
+    assert [item[0] for item in calls] == list(range(12))
+    assert [item[2] for item in calls if item[0] in {0, 1, 6, 7}] == [
+        "ecological_paper_faithful"
+    ] * 4
+    assert [item[2] for item in calls if item[0] in {2, 3, 4, 5, 8, 9, 10, 11}] == [
+        "general_registered"
+    ] * 8
 
 
 def test_v3_and_v4_artifact_evidence_are_mutually_rejected():

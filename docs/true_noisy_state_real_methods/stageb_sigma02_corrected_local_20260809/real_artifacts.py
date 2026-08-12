@@ -12,6 +12,9 @@ from __future__ import annotations
 import base64
 import importlib
 import inspect
+import json
+import os
+import subprocess
 import sys
 from contextlib import contextmanager
 from pathlib import Path
@@ -22,13 +25,21 @@ import numpy as np
 from .common import (
     ContractError,
     canonical_json_bytes,
+    require_current_registered_cpu_model,
     require_exact_keys,
     require_nonempty_string,
     require_sha256,
     sha256_bytes,
     strict_json_loads,
+    validate_cpu_identity_receipt,
 )
-from .registration import EXPECTED_SOURCE_HASHES
+from .registration import (
+    EXPECTED_SOURCE_HASHES,
+    FrozenRegistration,
+    freeze_registration_bundle,
+    interpreter_binding_for_task,
+    require_runtime_interpreter_binding,
+)
 
 
 SCHEMA_VERSION = "corrected_stageb_frozen_object_graph_v2"
@@ -1469,7 +1480,7 @@ def revalidate_frozen_object_parity(
     *,
     expected_component: str,
     repository_root: Path,
-) -> None:
+) -> Mapping[str, Any]:
     """Independently reload and replay a published real-object parity receipt."""
 
     root = Path(repository_root).resolve()
@@ -1505,6 +1516,256 @@ def revalidate_frozen_object_parity(
         )
     if replay_payload != payload or replay_receipt != dict(receipt):
         raise ContractError("published frozen fitted-object parity cannot be reproduced")
+    return {
+        "serialized_sha256": expected_hash,
+        "reproduced_payload_sha256": sha256_bytes(replay_payload),
+        "stored_receipt_sha256": sha256_bytes(canonical_json_bytes(dict(receipt))),
+        "reproduced_receipt_sha256": sha256_bytes(canonical_json_bytes(replay_receipt)),
+        "operation_input_sha256": receipt["operation_input_sha256"],
+        "output_sha256": receipt["output_sha256"],
+        "post_call_state_sha256": receipt["post_call_state_sha256"],
+        "payload_exact": True,
+        "receipt_exact": True,
+    }
+
+
+_GATE_REPLAY_WORKER_SCHEMA = "corrected_stageb_registered_gate_replay_worker_v1"
+_GATE_REPLAY_RESULT_SCHEMA = "corrected_stageb_registered_gate_replay_result_v1"
+_GATE_SEED_ENVIRONMENT_NAMES = frozenset(
+    {"STAGEB_GATE_SIGNING_SEED_FILE", "STAGEB_GATE_SIGNING_SEED"}
+)
+
+
+def _registered_gate_replay_worker(request_payload: bytes) -> bytes:
+    """Execute one exact replay after independently freezing its source registration."""
+
+    request = strict_json_loads(request_payload)
+    if not isinstance(request, Mapping):
+        raise ContractError("registered gate replay request must be an object")
+    require_exact_keys(
+        request,
+        {
+            "schema_version",
+            "source_registration_b64",
+            "source_registration_sha256",
+            "source_repository_root",
+            "task_index",
+            "expected_task",
+            "expected_component",
+            "frozen_payload_b64",
+            "frozen_payload_sha256",
+            "parity_receipt",
+            "parity_receipt_sha256",
+        },
+        "registered gate replay request",
+    )
+    if request["schema_version"] != _GATE_REPLAY_WORKER_SCHEMA:
+        raise ContractError("registered gate replay request schema mismatch")
+    if any(name in os.environ for name in _GATE_SEED_ENVIRONMENT_NAMES):
+        raise ContractError("gate signing seed material entered a replay subprocess")
+    source_root = Path(request["source_repository_root"])
+    if not source_root.is_absolute() or source_root.is_symlink() or not source_root.is_dir():
+        raise ContractError(
+            "registered replay source repository must be an absolute real directory"
+        )
+    try:
+        registration_payload = base64.b64decode(request["source_registration_b64"], validate=True)
+        frozen_payload = base64.b64decode(request["frozen_payload_b64"], validate=True)
+    except (TypeError, ValueError) as exc:
+        raise ContractError("registered gate replay request has invalid base64") from exc
+    if sha256_bytes(registration_payload) != request["source_registration_sha256"]:
+        raise ContractError("registered gate replay source registration hash mismatch")
+    bundle = strict_json_loads(registration_payload)
+    if not isinstance(bundle, Mapping):
+        raise ContractError("registered gate replay source registration is invalid")
+    registration = freeze_registration_bundle(bundle, repository_root=source_root)
+    if registration.payload != registration_payload:
+        raise ContractError("registered gate replay source registration is not canonical")
+    task_index = request["task_index"]
+    task, _binding = interpreter_binding_for_task(registration, arm="O", task_index=task_index)
+    if dict(task) != request["expected_task"]:
+        raise ContractError("registered gate replay task identity mismatch")
+    interpreter_identity = require_runtime_interpreter_binding(
+        registration,
+        command="arm-o",
+        arm="O",
+        task_index=task_index,
+    )
+    cpu_identity = require_current_registered_cpu_model()
+    expected_component = scientific_component_for_method(task["method"])
+    if request["expected_component"] != expected_component:
+        raise ContractError("registered gate replay fitted-object component mismatch")
+    if sha256_bytes(frozen_payload) != request["frozen_payload_sha256"]:
+        raise ContractError("registered gate replay fitted-object bytes changed")
+    receipt = request["parity_receipt"]
+    if not isinstance(receipt, Mapping):
+        raise ContractError("registered gate replay parity receipt is invalid")
+    if sha256_bytes(canonical_json_bytes(dict(receipt))) != request["parity_receipt_sha256"]:
+        raise ContractError("registered gate replay parity receipt hash mismatch")
+    replay = revalidate_frozen_object_parity(
+        frozen_payload,
+        receipt,
+        expected_component=expected_component,
+        repository_root=source_root,
+    )
+    result = {
+        "schema_version": _GATE_REPLAY_RESULT_SCHEMA,
+        "source_registration_sha256": registration.sha256,
+        "source_git_commit_sha": bundle["code_configuration_hashes"]["git_commit_sha"],
+        "source_manifest_sha256": bundle["code_configuration_hashes"]["source_manifest_sha256"],
+        "task_index": task_index,
+        "cell": task["cell"],
+        "method": task["method"],
+        "component": expected_component,
+        "interpreter_identity": interpreter_identity,
+        "cpu_identity": cpu_identity,
+        **replay,
+        "gate_signing_seed_present": False,
+        "evaluator_constructed": False,
+        "rollout_executed": False,
+        "return_calculated": False,
+        "result": "PASS",
+    }
+    return canonical_json_bytes(result)
+
+
+def revalidate_frozen_object_parity_in_registered_subprocess(
+    payload: bytes,
+    receipt: Mapping[str, Any],
+    *,
+    expected_component: str,
+    repository_root: Path,
+    frozen_registration: FrozenRegistration,
+    task_index: int,
+) -> Mapping[str, Any]:
+    """Replay using the exact task interpreter, never the gate interpreter."""
+
+    if not isinstance(frozen_registration, FrozenRegistration):
+        raise ContractError("registered gate replay requires a frozen registration")
+    source_root = Path(repository_root)
+    if not source_root.is_absolute() or source_root.is_symlink() or not source_root.is_dir():
+        raise ContractError(
+            "registered replay source repository must be an absolute real directory"
+        )
+    task, binding = interpreter_binding_for_task(
+        frozen_registration, arm="O", task_index=task_index
+    )
+    if expected_component != scientific_component_for_method(task["method"]):
+        raise ContractError("registered gate replay task/component mismatch")
+    configured = Path(binding["absolute_interpreter_path"])
+    registered_resolved = Path(binding["resolved_executable_path"])
+    if not configured.is_absolute() or not configured.is_file():
+        raise ContractError("registered gate replay interpreter is missing")
+    try:
+        observed_resolved = configured.resolve(strict=True)
+        expected_resolved = registered_resolved.resolve(strict=True)
+    except OSError as exc:
+        raise ContractError("registered gate replay interpreter cannot be resolved") from exc
+    if observed_resolved != registered_resolved or expected_resolved != registered_resolved:
+        raise ContractError("registered gate replay interpreter was symlink-substituted")
+    registration_payload = frozen_registration.payload
+    request = canonical_json_bytes(
+        {
+            "schema_version": _GATE_REPLAY_WORKER_SCHEMA,
+            "source_registration_b64": base64.b64encode(registration_payload).decode("ascii"),
+            "source_registration_sha256": frozen_registration.sha256,
+            "source_repository_root": str(source_root),
+            "task_index": task_index,
+            "expected_task": dict(task),
+            "expected_component": expected_component,
+            "frozen_payload_b64": base64.b64encode(payload).decode("ascii"),
+            "frozen_payload_sha256": sha256_bytes(payload),
+            "parity_receipt": dict(receipt),
+            "parity_receipt_sha256": sha256_bytes(canonical_json_bytes(dict(receipt))),
+        }
+    )
+    environment = dict(os.environ)
+    for name in _GATE_SEED_ENVIRONMENT_NAMES:
+        environment.pop(name, None)
+    environment.update(
+        {
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONNOUSERSITE": "1",
+            "PYTHONPATH": str(Path(__file__).resolve().parents[3]),
+            "OMP_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+        }
+    )
+    try:
+        completed = subprocess.run(
+            [
+                str(configured),
+                "-m",
+                "docs.true_noisy_state_real_methods.stageb_sigma02_corrected_local_20260809.real_artifacts",
+                "--registered-gate-replay-worker",
+            ],
+            input=request,
+            cwd=Path(__file__).resolve().parents[3],
+            env=environment,
+            check=False,
+            capture_output=True,
+        )
+    except OSError as exc:
+        raise ContractError("registered gate replay interpreter could not start") from exc
+    if completed.returncode != 0:
+        detail = completed.stderr.decode("utf-8", errors="replace").strip()
+        raise ContractError(f"registered gate replay subprocess failed: {detail}")
+    result = strict_json_loads(completed.stdout)
+    if not isinstance(result, Mapping):
+        raise ContractError("registered gate replay subprocess returned invalid evidence")
+    expected = {
+        "schema_version": _GATE_REPLAY_RESULT_SCHEMA,
+        "source_registration_sha256": frozen_registration.sha256,
+        "source_git_commit_sha": frozen_registration.bundle()["code_configuration_hashes"][
+            "git_commit_sha"
+        ],
+        "source_manifest_sha256": frozen_registration.bundle()["code_configuration_hashes"][
+            "source_manifest_sha256"
+        ],
+        "task_index": task_index,
+        "cell": task["cell"],
+        "method": task["method"],
+        "component": expected_component,
+        "serialized_sha256": sha256_bytes(payload),
+        "reproduced_payload_sha256": sha256_bytes(payload),
+        "stored_receipt_sha256": sha256_bytes(canonical_json_bytes(dict(receipt))),
+        "reproduced_receipt_sha256": sha256_bytes(canonical_json_bytes(dict(receipt))),
+        "operation_input_sha256": receipt["operation_input_sha256"],
+        "output_sha256": receipt["output_sha256"],
+        "post_call_state_sha256": receipt["post_call_state_sha256"],
+        "payload_exact": True,
+        "receipt_exact": True,
+        "gate_signing_seed_present": False,
+        "evaluator_constructed": False,
+        "rollout_executed": False,
+        "return_calculated": False,
+        "result": "PASS",
+    }
+    for field, value in expected.items():
+        if result.get(field) != value:
+            raise ContractError(f"registered gate replay evidence mismatch: {field}")
+    require_runtime_interpreter_binding(
+        frozen_registration,
+        command="arm-o",
+        arm="O",
+        task_index=task_index,
+        observed=result.get("interpreter_identity", {}).get("observed"),
+    )
+    validate_cpu_identity_receipt(result.get("cpu_identity"))
+    return result
+
+
+def _main() -> int:
+    if sys.argv[1:] != ["--registered-gate-replay-worker"]:
+        raise ContractError("unsupported real-artifacts command")
+    try:
+        sys.stdout.buffer.write(_registered_gate_replay_worker(sys.stdin.buffer.read()))
+    except (ContractError, OSError, ValueError, json.JSONDecodeError) as exc:
+        print(f"STAGEB_REGISTERED_GATE_REPLAY_FAIL_CLOSED: {exc}", file=sys.stderr)
+        return 2
+    return 0
 
 
 def independently_diagnose_frozen_object_parity(
@@ -1572,3 +1833,7 @@ def scientific_component_for_method(method: str) -> str:
         "ensemble_value_disagreement_pessimism": "evd_fitted_policy",
     }
     return require_nonempty_string(mapping.get(method), "registered fitted-object method")
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main())

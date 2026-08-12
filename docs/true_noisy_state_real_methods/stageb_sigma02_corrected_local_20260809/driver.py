@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import subprocess
 import sys
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path, PurePosixPath
@@ -133,6 +134,7 @@ from .registration import (
     METHODS,
     POPULATIONS,
     FrozenRegistration,
+    _verify_source_manifest,
     freeze_registration_bundle,
     require_runtime_interpreter_binding,
     validate_interpreter_identity_receipt,
@@ -285,14 +287,225 @@ def _repository_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
-def _load_registration(path: Path) -> FrozenRegistration:
-    registration_path = _safe_absolute_file(str(Path(path).resolve()), "registration bundle")
+def _load_registration(path: Path, *, repository_root: Path | None = None) -> FrozenRegistration:
+    registration_path = _safe_absolute_file(str(Path(path)), "registration bundle")
     payload = registration_path.read_bytes()
     bundle = _json_object(payload, "registration bundle")
-    frozen = freeze_registration_bundle(bundle, repository_root=_repository_root())
+    frozen = freeze_registration_bundle(
+        bundle,
+        repository_root=(
+            _repository_root() if repository_root is None else Path(repository_root).resolve()
+        ),
+    )
     if frozen.payload != payload:
         raise ContractError("registration file differs from its canonical frozen bytes")
     return frozen
+
+
+GATE_CARRY_FORWARD_BRIDGE_SCHEMA = "corrected_stageb_gate_carry_forward_bridge_v1"
+
+
+def _git_head(repository_root: Path) -> str:
+    try:
+        completed = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=repository_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ContractError("gate carry-forward bridge cannot verify a Git commit") from exc
+    return completed.stdout.strip()
+
+
+def _arm_o_tree_identity(output_root: Path) -> Mapping[str, Any]:
+    root = Path(output_root).resolve(strict=True)
+    entries: list[Mapping[str, Any]] = []
+    for path in sorted(root.rglob("*")):
+        if path.is_symlink():
+            raise ContractError("gate carry-forward source output contains a symlink")
+        if path.is_file():
+            relative = path.relative_to(root).as_posix()
+            if not (
+                relative == DRIVER_INPUTS
+                or relative.startswith("arm-o/")
+                or relative.startswith("arm-o-receipts/")
+            ):
+                raise ContractError("gate carry-forward source output has an extra namespace")
+            entries.append(
+                {
+                    "relative_path": relative,
+                    "bytes": path.stat().st_size,
+                    "sha256": sha256_file(path),
+                }
+            )
+    return {
+        "file_count": len(entries),
+        "tree_sha256": sha256_bytes(canonical_json_bytes(entries)),
+        "entries": entries,
+    }
+
+
+def _load_gate_carry_forward_bridge(path: Path) -> tuple[Path, bytes, Mapping[str, Any]]:
+    bridge_path = _safe_absolute_file(str(Path(path)), "gate carry-forward bridge")
+    payload = bridge_path.read_bytes()
+    value = _json_object(payload, "gate carry-forward bridge")
+    require_exact_keys(
+        value,
+        {
+            "schema_version",
+            "purpose",
+            "source_registration",
+            "corrected_gate",
+            "arm_o_publications",
+            "authorization",
+        },
+        "gate carry-forward bridge",
+    )
+    if value["schema_version"] != GATE_CARRY_FORWARD_BRIDGE_SCHEMA:
+        raise ContractError("gate carry-forward bridge schema mismatch")
+    if value["purpose"] != (
+        "validate immutable Arm O publications with the mixed-interpreter gate correction"
+    ):
+        raise ContractError("gate carry-forward bridge purpose mismatch")
+    return bridge_path, payload, value
+
+
+def validate_gate_carry_forward_bridge(
+    bridge: Mapping[str, Any],
+    *,
+    bridge_payload: bytes,
+    registration_path: Path,
+    registration: FrozenRegistration,
+    driver_inputs_payload: bytes,
+    output_root: Path,
+    task_payloads: Sequence[bytes],
+) -> Mapping[str, Any]:
+    """Bind an old immutable Arm O tree to this gate verifier, and nothing else."""
+
+    source = bridge["source_registration"]
+    corrected = bridge["corrected_gate"]
+    publications = bridge["arm_o_publications"]
+    authorization = bridge["authorization"]
+    if not all(
+        isinstance(value, Mapping) for value in (source, corrected, publications, authorization)
+    ):
+        raise ContractError("gate carry-forward bridge sections must be objects")
+    require_exact_keys(
+        source,
+        {
+            "registration_path",
+            "registration_sha256",
+            "registration_id",
+            "repository_root",
+            "git_commit_sha",
+            "source_manifest_sha256",
+            "stageb_driver_sha256",
+            "driver_inputs_sha256",
+        },
+        "gate carry-forward source registration",
+    )
+    require_exact_keys(
+        corrected,
+        {
+            "repository_root",
+            "git_commit_sha",
+            "source_manifest_sha256",
+            "stageb_driver_sha256",
+        },
+        "gate carry-forward corrected gate",
+    )
+    require_exact_keys(
+        publications,
+        {
+            "output_root",
+            "file_count",
+            "tree_sha256",
+            "task_receipt_sha256",
+            "preserved_from_source_registration",
+        },
+        "gate carry-forward Arm O publications",
+    )
+    require_exact_keys(
+        authorization,
+        {
+            "gate_only",
+            "arm_o_rerun_permitted",
+            "arm_o_modification_permitted",
+            "return_recalculation_permitted",
+            "independent_audit_required",
+        },
+        "gate carry-forward authorization",
+    )
+    if dict(authorization) != {
+        "gate_only": True,
+        "arm_o_rerun_permitted": False,
+        "arm_o_modification_permitted": False,
+        "return_recalculation_permitted": False,
+        "independent_audit_required": True,
+    }:
+        raise ContractError("gate carry-forward authorization is not gate-only")
+    source_bundle = registration.bundle()
+    source_hashes = source_bundle["code_configuration_hashes"]
+    source_inputs = source_bundle["stageb_driver_inputs"]
+    expected_source = {
+        "registration_path": str(Path(registration_path).resolve(strict=True)),
+        "registration_sha256": registration.sha256,
+        "registration_id": registration.registration_id,
+        "repository_root": source_inputs["descriptor"]["repository_root"],
+        "git_commit_sha": source_hashes["git_commit_sha"],
+        "source_manifest_sha256": source_hashes["source_manifest_sha256"],
+        "stageb_driver_sha256": source_hashes["stageb_driver_sha256"],
+        "driver_inputs_sha256": source_inputs["driver_inputs_sha256"],
+    }
+    if dict(source) != expected_source:
+        raise ContractError("gate carry-forward source registration binding mismatch")
+    source_root = Path(source["repository_root"])
+    if source_root.is_symlink() or source_root.resolve(strict=True) != source_root:
+        raise ContractError("gate carry-forward source repository path is substituted")
+    if sha256_bytes(driver_inputs_payload) != source["driver_inputs_sha256"]:
+        raise ContractError("gate carry-forward DRIVER_INPUTS bytes changed")
+    current_root = _repository_root()
+    current_manifest = (
+        current_root / "docs/true_noisy_state_real_methods/stageb_sigma02_corrected_local_20260809/"
+        "SOURCE_TEST_HASHES.sha256"
+    )
+    current_manifest_payload = current_manifest.read_bytes()
+    marker = b"# SELF-NORMALIZED-SHA256: "
+    matches = [line for line in current_manifest_payload.splitlines() if line.startswith(marker)]
+    if len(matches) != 1:
+        raise ContractError("corrected gate source manifest has no unique self hash")
+    current_manifest_sha = matches[0][len(marker) :].split(b"  ", 1)[0].decode("ascii")
+    expected_corrected = {
+        "repository_root": str(current_root),
+        "git_commit_sha": _git_head(current_root),
+        "source_manifest_sha256": current_manifest_sha,
+        "stageb_driver_sha256": sha256_file(Path(__file__)),
+    }
+    if dict(corrected) != expected_corrected:
+        raise ContractError("gate carry-forward corrected verifier binding mismatch")
+    _verify_source_manifest(current_root, current_manifest_sha)
+    tree = _arm_o_tree_identity(output_root)
+    expected_publications = {
+        "output_root": str(Path(output_root).resolve(strict=True)),
+        "file_count": tree["file_count"],
+        "tree_sha256": tree["tree_sha256"],
+        "task_receipt_sha256": [sha256_bytes(payload) for payload in task_payloads],
+        "preserved_from_source_registration": True,
+    }
+    if dict(publications) != expected_publications:
+        raise ContractError("gate carry-forward Arm O publication binding mismatch")
+    return {
+        "schema_version": "corrected_stageb_validated_gate_carry_forward_bridge_v1",
+        "bridge_sha256": sha256_bytes(bridge_payload),
+        "source_registration_sha256": registration.sha256,
+        "source_git_commit_sha": source_hashes["git_commit_sha"],
+        "corrected_gate_git_commit_sha": corrected["git_commit_sha"],
+        "arm_o_tree_sha256": tree["tree_sha256"],
+        "arm_o_file_count": tree["file_count"],
+        "result": "PASS",
+    }
 
 
 def _validate_no_forbidden_descriptor_keys(value: Any, path: str = "root") -> None:
@@ -341,7 +554,13 @@ def _parse_fit_probe(value: Any, expected_index: int) -> SealedFitProbe:
     )
 
 
-def load_driver_inputs(output_root: Path, registration: FrozenRegistration) -> LoadedDriverInputs:
+def load_driver_inputs(
+    output_root: Path,
+    registration: FrozenRegistration,
+    *,
+    repository_root: Path | None = None,
+    require_executing_driver_identity: bool = True,
+) -> LoadedDriverInputs:
     root = Path(output_root)
     validate_output_root_entries(root, pristine=False)
     log_plan = validate_durable_log_plan(
@@ -360,10 +579,13 @@ def load_driver_inputs(output_root: Path, registration: FrozenRegistration) -> L
     if observed_digest != registered["driver_inputs_sha256"]:
         raise ContractError("canonical DRIVER_INPUTS hash mismatch")
     hashes = bundle["code_configuration_hashes"]
+    bound_repository_root = (
+        _repository_root() if repository_root is None else Path(repository_root).resolve()
+    )
     validate_driver_inputs_document(
         value,
         registration_id=registration.registration_id,
-        repository_root=_repository_root(),
+        repository_root=bound_repository_root,
         repository_commit=hashes["git_commit_sha"],
         stageb_driver_sha256=hashes["stageb_driver_sha256"],
         cells=CELLS,
@@ -373,7 +595,10 @@ def load_driver_inputs(output_root: Path, registration: FrozenRegistration) -> L
         cpu_profile=CPU_PROFILE,
         rng_contract=bundle["corrected_stageb_registration"]["rng_contract"],
     )
-    if sha256_file(Path(__file__)) != value["stageb_driver_sha256"]:
+    if (
+        require_executing_driver_identity
+        and sha256_file(Path(__file__)) != value["stageb_driver_sha256"]
+    ):
         raise ContractError("executing driver bytes differ from the frozen registration")
     probes = tuple(_parse_fit_probe(item, index) for index, item in enumerate(value["fit_probes"]))
     public_inputs = {
@@ -405,7 +630,7 @@ def load_driver_inputs(output_root: Path, registration: FrozenRegistration) -> L
         descriptor_sha256=observed_digest,
         policy=DriverInputs(
             path.resolve(strict=True),
-            _repository_root(),
+            bound_repository_root,
             registration.registration_id,
             probes,
             public_inputs,
@@ -2041,11 +2266,43 @@ def run_arm_o_gate(
     registration_path: Path,
     gate_signing_seed_path: Path,
     output_root: Path,
+    carry_forward_bridge_path: Path | None = None,
 ) -> Path:
-    registration = _load_registration(registration_path)
+    bridge_payload: bytes | None = None
+    bridge: Mapping[str, Any] | None = None
+    source_repository_root: Path | None = None
+    if carry_forward_bridge_path is not None:
+        _bridge_path, bridge_payload, bridge = _load_gate_carry_forward_bridge(
+            carry_forward_bridge_path
+        )
+        source = bridge["source_registration"]
+        if not isinstance(source, Mapping) or not isinstance(source.get("repository_root"), str):
+            raise ContractError("gate carry-forward source repository binding is missing")
+        source_repository_root = Path(source["repository_root"])
+    registration = _load_registration(
+        registration_path,
+        repository_root=source_repository_root,
+    )
     interpreter_identity = require_runtime_interpreter_binding(registration, command="arm-o-gate")
-    loaded = load_driver_inputs(output_root, registration)
+    loaded = load_driver_inputs(
+        output_root,
+        registration,
+        repository_root=source_repository_root,
+        require_executing_driver_identity=bridge is None,
+    )
     task_payloads, task_receipts = _load_arm_o_task_receipts(output_root)
+    bridge_validation: Mapping[str, Any] | None = None
+    if bridge is not None:
+        assert bridge_payload is not None
+        bridge_validation = validate_gate_carry_forward_bridge(
+            bridge,
+            bridge_payload=bridge_payload,
+            registration_path=registration_path,
+            registration=registration,
+            driver_inputs_payload=loaded.descriptor_path.read_bytes(),
+            output_root=output_root,
+            task_payloads=task_payloads,
+        )
     arm_o_tasks = registration.bundle()["task_manifest"]["tasks"][:12]
     artifact_gate = sha256_bytes(
         canonical_json_bytes(
@@ -2085,6 +2342,7 @@ def run_arm_o_gate(
         corrected_test_receipt=loaded.gate_only.corrected_test_receipt["path"].read_bytes(),
         parity_receipt=parity_payload,
         evidence_root=output_root,
+        replay_repository_root=loaded.policy.repository_root,
     )
     signing_seed = load_gate_signing_key(Path(gate_signing_seed_path))
     signed = export_arm_o_gate_receipt(token, registration, signing_key=signing_seed)
@@ -2097,6 +2355,12 @@ def run_arm_o_gate(
             [sha256_bytes(payload) for payload in task_payloads]
         ),
     }
+    if bridge_validation is not None:
+        assert bridge_payload is not None
+        files["ARM_O_CARRY_FORWARD_BRIDGE.json"] = bridge_payload
+        files["ARM_O_CARRY_FORWARD_BRIDGE_VALIDATION.json"] = canonical_json_bytes(
+            bridge_validation
+        )
     required: list[str] = []
     for filename, payload in files.items():
         write_bytes_fsync(staging / filename, payload)
@@ -2108,6 +2372,10 @@ def run_arm_o_gate(
         "signed_gate_sha256": sha256_bytes(signed),
         "methods_executed_by_gate": 0,
         "interpreter_identity": dict(interpreter_identity),
+        "carry_forward_bridge_sha256": (
+            None if bridge_payload is None else sha256_bytes(bridge_payload)
+        ),
+        "arm_o_publications_modified": False,
         "result": "PASS",
     }
     publish_once(
@@ -2234,6 +2502,7 @@ def _parser() -> argparse.ArgumentParser:
     gate.add_argument("--registration", type=Path, required=True)
     gate.add_argument("--gate-signing-seed-file", type=Path, required=True)
     gate.add_argument("--output-root", type=Path, required=True)
+    gate.add_argument("--carry-forward-bridge", type=Path)
     arm_t = commands.add_parser("arm-t")
     arm_t.add_argument("--task-index", type=int, required=True)
     arm_t.add_argument("--registration", type=Path, required=True)
@@ -2266,6 +2535,7 @@ def main(
                 registration_path=arguments.registration,
                 gate_signing_seed_path=arguments.gate_signing_seed_file,
                 output_root=arguments.output_root,
+                carry_forward_bridge_path=arguments.carry_forward_bridge,
             )
         elif arguments.command == "arm-t":
             run_arm_task(
