@@ -24,6 +24,7 @@ from .common import (
     sha256_file,
     strict_json_loads,
 )
+from .parity import is_legacy_fast_track_canary_path, validate_parity_baseline_binding
 
 
 PATH_RECEIPT_KEYS = {"path", "sha256"}
@@ -235,10 +236,22 @@ def validate_driver_inputs_document(
     for index, (item, pair) in enumerate(zip(parity, expected_pairs)):
         if not isinstance(item, Mapping):
             raise ContractError("accepted-parity binding must be an object")
-        require_exact_keys(item, {"task_index", "cell", "method", "episodes_csv"}, "parity")
+        require_exact_keys(
+            item,
+            {"task_index", "cell", "method", "episodes_csv", "baseline"},
+            "parity",
+        )
         if item["task_index"] != index or (item["cell"], item["method"]) != pair:
             raise ContractError("accepted-parity task binding mismatch")
-        validate_path_receipt(item["episodes_csv"], f"accepted parity {index}")
+        source = validate_path_receipt(item["episodes_csv"], f"accepted parity {index}")
+        baseline = validate_parity_baseline_binding(item["baseline"])
+        if (
+            is_legacy_fast_track_canary_path(source["path"])
+            and baseline["classification"] != "LEGACY_INELIGIBLE"
+        ):
+            raise ContractError(
+                "2026-08-08 fast-track canary must be classified as legacy/ineligible"
+            )
 
     gate = value["gate_only_inputs"]
     if not isinstance(gate, Mapping):

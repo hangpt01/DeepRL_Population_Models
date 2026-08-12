@@ -39,10 +39,18 @@ PAIRED_EVIDENCE_SCHEMA_VERSION = "corrected_stageb_paired_evidence_v2"
 BOUND_TASK_EVIDENCE_SCHEMA_VERSION = "corrected_stageb_bound_task_evidence_v2"
 REGISTERED_PROCESS_NOISE_SIGMA = 0.0
 REGISTERED_OBSERVATION_NOISE_SIGMA = 0.2
-DRIVER_INPUTS_SCHEMA_VERSION = "corrected_stageb_driver_inputs_v3"
-DRIVER_INPUTS_REGISTRATION_SCHEMA_VERSION = "corrected_stageb_driver_inputs_registration_v2"
+DRIVER_INPUTS_SCHEMA_VERSION = "corrected_stageb_driver_inputs_v4"
+DRIVER_INPUTS_REGISTRATION_SCHEMA_VERSION = "corrected_stageb_driver_inputs_registration_v3"
 DRIVER_INPUTS_FILENAME = "DRIVER_INPUTS.json"
-ROLE_NAMESPACES = ("arm-o", "arm-o-receipts", "arm-t", "arm-t-receipts", "gate", "finalizer")
+ROLE_NAMESPACES = (
+    "arm-o",
+    "arm-o-receipts",
+    "arm-o-failure-diagnostics",
+    "arm-t",
+    "arm-t-receipts",
+    "gate",
+    "finalizer",
+)
 
 
 def canonical_noise_sigma(value: Any, label: str) -> float:

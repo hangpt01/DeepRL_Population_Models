@@ -155,7 +155,7 @@
       "additionalProperties": false,
       "required": ["schema_version", "driver_inputs_schema_sha256", "driver_inputs_producer_sha256", "driver_inputs_sha256", "descriptor"],
       "properties": {
-        "schema_version": {"const": "corrected_stageb_driver_inputs_registration_v2"},
+        "schema_version": {"const": "corrected_stageb_driver_inputs_registration_v3"},
         "driver_inputs_schema_sha256": {"$ref": "#/$defs/sha256"},
         "driver_inputs_producer_sha256": {"$ref": "#/$defs/sha256"},
         "driver_inputs_sha256": {"$ref": "#/$defs/sha256"},

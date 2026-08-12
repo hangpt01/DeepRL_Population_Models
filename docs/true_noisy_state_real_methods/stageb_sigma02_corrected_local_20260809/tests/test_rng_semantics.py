@@ -249,11 +249,11 @@ def test_v1_v2_receipt_and_step_shapes_are_mutually_rejected():
     assert set(v2_rng) != legacy_rng_keys  # v2 has forbidden extras under v1 additionalProperties
 
 
-def test_receipt_schema_declares_only_v2_rng_and_evidence_shapes():
+def test_receipt_schema_declares_v2_rng_evidence_and_failure_only_parity_shape():
     schema = json.loads(
         (Path(__file__).parents[1] / "schemas/receipts.schema.json").read_text(encoding="utf-8")
     )
-    assert schema["$id"] == "corrected_stageb_receipts_v2.schema.json"
+    assert schema["$id"] == "corrected_stageb_receipts_v3.schema.json"
     assert schema["$defs"]["rngReceipt"]["properties"]["schema_version"] == {
         "const": RNG_RECEIPT_SCHEMA_VERSION
     }
@@ -262,6 +262,10 @@ def test_receipt_schema_declares_only_v2_rng_and_evidence_shapes():
     }
     assert "process_calls_before" not in schema["$defs"]["rngReceipt"]["properties"]
     assert "process_draw_invocations_before" in schema["$defs"]["rngReceipt"]["properties"]
+    failure = schema["$defs"]["parityFailureDiagnostic"]
+    assert failure["properties"]["result"] == {"const": "FAIL"}
+    assert failure["properties"]["accepted"] == {"const": False}
+    assert failure["properties"]["qualifies_as_task_result"] == {"const": False}
 
 
 def test_stored_v2_rng_receipt_round_trips_and_revalidates():

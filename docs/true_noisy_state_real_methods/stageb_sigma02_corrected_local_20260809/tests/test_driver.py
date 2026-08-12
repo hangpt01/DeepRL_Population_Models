@@ -346,6 +346,7 @@ def test_evd_transition_is_explicitly_not_applicable(registration_bundle):
 def test_atomic_task_publication_and_no_retry(registration_bundle, tmp_path):
     registration = freeze_registration_bundle(registration_bundle)
     task = dict(driver._task_for_index(registration, "O", 2))
+    descriptor = registration.bundle()["stageb_driver_inputs"]["descriptor"]
     accepted = tmp_path / "accepted.csv"
     accepted.write_text(
         "episode,seed,block_seed\n"
@@ -360,8 +361,8 @@ def test_atomic_task_publication_and_no_retry(registration_bundle, tmp_path):
         Path(driver.__file__).resolve().parents[3],
         registration.registration_id,
         tuple(
-            driver.SealedFitProbe(index, tmp_path, HASHES[0], HASHES[1], HASHES[2], HASHES[3], {})
-            for index in range(12)
+            driver._parse_fit_probe(item, index)
+            for index, item in enumerate(descriptor["fit_probes"])
         ),
         {},
         driver.validate_rng_contract_document(
@@ -374,7 +375,10 @@ def test_atomic_task_publication_and_no_retry(registration_bundle, tmp_path):
                 "task_index": index,
                 "cell": CELLS[index // len(METHODS)],
                 "method": METHODS[index % len(METHODS)],
-                "episodes_csv": {"path": accepted},
+                "episodes_csv": {"path": accepted, "sha256": sha256_file(accepted)},
+                "baseline": descriptor["evaluator_only_inputs"]["accepted_parity"][index][
+                    "baseline"
+                ],
             }
             for index in range(12)
         )
@@ -394,6 +398,7 @@ def test_atomic_task_publication_and_no_retry(registration_bundle, tmp_path):
     )
     load_success_receipt(target / "PUBLICATION_SUCCESS.json")
     assert (tmp_path / "arm-o-receipts/task-02.json").is_file()
+    assert not (tmp_path / driver.PARITY_FAILURE_NAMESPACE).exists()
     with pytest.raises(ContractError, match="overwrite|exists|retry"):
         driver.publish_registered_task(
             registration=registration,

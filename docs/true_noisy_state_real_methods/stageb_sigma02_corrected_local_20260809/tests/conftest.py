@@ -28,6 +28,11 @@ from ..common import (
 )
 from ..driver_inputs import driver_inputs_sha256
 from ..evidence import RNGReceipt, StepEvidence
+from ..parity import (
+    PARITY_BASELINE_BINDING_SCHEMA_VERSION,
+    PARITY_IDENTITY_FIELDS,
+    build_parity_comparison_contract,
+)
 from ..registration import (
     ARMS,
     CELLS,
@@ -78,6 +83,14 @@ def _synthetic_driver_descriptor(
     root.mkdir(mode=0o700, parents=False, exist_ok=True)
     probes = []
     parity = []
+    manifest = Path(__file__).parents[1] / "SOURCE_TEST_HASHES.sha256"
+    manifest_match = re.search(
+        r"(?m)^# SELF-NORMALIZED-SHA256: ([0-9a-f]{64})  ",
+        manifest.read_text(encoding="utf-8"),
+    )
+    if manifest_match is None:
+        raise RuntimeError("candidate manifest is not sealed")
+    source_manifest_sha256 = manifest_match.group(1)
     for index, (cell, method) in enumerate((c, m) for c in CELLS for m in METHODS):
         publication = root / f"fit-probe-{index:02d}"
         frozen = canonical_json_bytes({"frozen": index})
@@ -113,12 +126,77 @@ def _synthetic_driver_descriptor(
         )
         accepted = root / f"accepted-{index:02d}.csv"
         _write_synthetic_source(accepted, b"episode,seed,block_seed\n")
+        ecological = method.startswith(("plus_", "moor_"))
+        config_hash = (
+            EXPECTED_CONFIG_HASHES["plus_config_sha256"]
+            if method.startswith("plus_")
+            else EXPECTED_CONFIG_HASHES["moor_config_sha256"]
+            if method.startswith("moor_")
+            else EXPECTED_CONFIG_HASHES["general_config_sha256"]
+        )
+        binding = next(
+            item
+            for item in EXPECTED_INTERPRETER_BINDINGS
+            if item["role"] == ("ecological_paper_faithful" if ecological else "general_registered")
+        )
+        baseline = {
+            "schema_version": PARITY_BASELINE_BINDING_SCHEMA_VERSION,
+            "classification": "ELIGIBLE",
+            "producer_registration_sha256": HASHES[0],
+            "producer_driver_inputs_sha256": HASHES[1],
+            "repository_commit": commit,
+            "source_manifest_sha256": source_manifest_sha256,
+            "stageb_driver_sha256": driver_sha256,
+            "rng_contract": registered_rng_contract_document(),
+            "interpreter": {
+                field: binding[field]
+                for field in (
+                    "role",
+                    "track",
+                    "absolute_interpreter_path",
+                    "resolved_executable_path",
+                    "python_version",
+                    "full_python_version",
+                    "numpy_version",
+                )
+            },
+            "fitted_object_sha256": probes[index]["frozen_object_sha256"],
+            "component_hashes": probes[index]["component_hashes"],
+            "artifact_plan_sha256": artifact_plan_sha256(
+                task_index=index,
+                cell=cell,
+                method=method,
+                dataset_sha256=EXPECTED_DATASET_HASHES[cell],
+                publication_success_sha256=probes[index]["publication_success_sha256"],
+                fit_probe_receipt_sha256=probes[index]["fit_probe_receipt_sha256"],
+                frozen_object_sha256=probes[index]["frozen_object_sha256"],
+                frozen_replay_sha256=probes[index]["frozen_replay_sha256"],
+                component_hashes=probes[index]["component_hashes"],
+            ),
+            "evaluator": {
+                "family": "allee",
+                "reward_mode": "safe",
+                "config_sha256": config_hash,
+                "evaluation_identity_sha256": SYNTHETIC_EVALUATION_IDENTITY_SHA256,
+                "episode_ids": EVALUATION_IDS,
+                "horizon": 50,
+                "discount": 0.95,
+                "num_actions": 11,
+            },
+            "comparison_contract": build_parity_comparison_contract(
+                reference_columns=PARITY_IDENTITY_FIELDS,
+                exact_fields=PARITY_IDENTITY_FIELDS,
+                numeric_fields=(),
+                excluded_fields=(),
+            ),
+        }
         parity.append(
             {
                 "task_index": index,
                 "cell": cell,
                 "method": method,
                 "episodes_csv": {"path": str(accepted), "sha256": sha256_file(accepted)},
+                "baseline": baseline,
             }
         )
     public_inputs = {}

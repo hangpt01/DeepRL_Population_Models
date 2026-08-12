@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "corrected_stageb_receipts_v2.schema.json",
+  "$id": "corrected_stageb_receipts_v3.schema.json",
   "title": "Corrected Stage B receipt schemas",
   "$defs": {
     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
@@ -326,6 +326,136 @@
         "complete_instance_graph": {"const": true},
         "training_history_alone_qualifies": {"const": false},
         "result": {"const": "PASS"}
+      }
+    },
+    "parityFailureDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "result", "accepted", "qualifies_as_task_result",
+        "automatic_retry_permitted", "task_index", "arm", "cell", "method",
+        "current_provenance", "reference_provenance", "eligibility", "comparison",
+        "mismatches", "observed_rows_sha256", "reference_rows_sha256", "rng_evidence",
+        "information_boundary"
+      ],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_arm_o_parity_failure_v1"},
+        "result": {"const": "FAIL"},
+        "accepted": {"const": false},
+        "qualifies_as_task_result": {"const": false},
+        "automatic_retry_permitted": {"const": false},
+        "task_index": {"type": "integer", "minimum": 0, "maximum": 11},
+        "arm": {"const": "O"},
+        "cell": {"type": "string", "minLength": 1},
+        "method": {"type": "string", "minLength": 1},
+        "current_provenance": {
+          "type": "object", "additionalProperties": false,
+          "required": [
+            "registration_sha256", "driver_inputs_sha256", "repository_commit",
+            "source_manifest_sha256", "stageb_driver_sha256", "rng_contract",
+            "interpreter", "fitted_object_sha256", "component_hashes",
+            "artifact_plan_sha256", "evaluator"
+          ],
+          "properties": {
+            "registration_sha256": {"$ref": "#/$defs/sha256"},
+            "driver_inputs_sha256": {"$ref": "#/$defs/sha256"},
+            "repository_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+            "source_manifest_sha256": {"$ref": "#/$defs/sha256"},
+            "stageb_driver_sha256": {"$ref": "#/$defs/sha256"},
+            "rng_contract": {"type": "object"},
+            "interpreter": {"type": "object"},
+            "fitted_object_sha256": {"$ref": "#/$defs/sha256"},
+            "component_hashes": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/sha256"}},
+            "artifact_plan_sha256": {"$ref": "#/$defs/sha256"},
+            "evaluator": {"type": "object"}
+          }
+        },
+        "reference_provenance": {
+          "type": "object", "additionalProperties": false,
+          "required": [
+            "episodes_csv_absolute_path", "episodes_csv_registered_sha256",
+            "episodes_csv_observed_sha256", "binding"
+          ],
+          "properties": {
+            "episodes_csv_absolute_path": {"type": "string", "pattern": "^/"},
+            "episodes_csv_registered_sha256": {"$ref": "#/$defs/sha256"},
+            "episodes_csv_observed_sha256": {"$ref": "#/$defs/sha256"},
+            "binding": {"type": "object"}
+          }
+        },
+        "eligibility": {
+          "type": "object", "additionalProperties": false,
+          "required": [
+            "schema_version", "classification", "eligible", "missing_bindings",
+            "mismatched_bindings", "result"
+          ],
+          "properties": {
+            "schema_version": {"const": "corrected_stageb_parity_baseline_eligibility_v1"},
+            "classification": {"type": "string", "minLength": 1},
+            "eligible": {"type": "boolean"},
+            "missing_bindings": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+            "mismatched_bindings": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+            "result": {"enum": ["PASS", "FAIL"]}
+          }
+        },
+        "comparison": {
+          "type": "object",
+          "required": ["stage", "comparison_type", "absolute_tolerance", "result"],
+          "properties": {
+            "stage": {"enum": ["BASELINE_ELIGIBILITY", "BASELINE_TASK_BINDING", "VALUE_COMPARISON"]},
+            "comparison_type": {"type": "string", "minLength": 1},
+            "absolute_tolerance": {"const": 1e-9},
+            "result": {"const": "FAIL"}
+          }
+        },
+        "mismatches": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": [
+              "episode", "field_name", "comparison_type", "truth_bearing",
+              "observed_canonical_sha256", "reference_canonical_sha256",
+              "absolute_delta", "relative_delta", "reason"
+            ],
+            "properties": {
+              "episode": {"type": "integer", "minimum": -1},
+              "field_name": {"type": "string", "minLength": 1},
+              "comparison_type": {"type": "string", "minLength": 1},
+              "truth_bearing": {"type": "boolean"},
+              "observed_canonical_sha256": {"$ref": "#/$defs/sha256"},
+              "reference_canonical_sha256": {"$ref": "#/$defs/sha256"},
+              "absolute_delta": {"type": ["number", "null"]},
+              "relative_delta": {"type": ["number", "null"]},
+              "reason": {"type": ["string", "null"]}
+            }
+          }
+        },
+        "observed_rows_sha256": {"$ref": "#/$defs/sha256"},
+        "reference_rows_sha256": {"$ref": "#/$defs/sha256"},
+        "rng_evidence": {
+          "type": "object", "additionalProperties": false,
+          "required": [
+            "receipt_schema_version", "rng_contract", "receipt_count",
+            "receipts_canonical_sha256", "status"
+          ],
+          "properties": {
+            "receipt_schema_version": {"const": "corrected_stageb_rng_receipt_v2"},
+            "rng_contract": {"type": "object"},
+            "receipt_count": {"type": "integer", "minimum": 0},
+            "receipts_canonical_sha256": {"$ref": "#/$defs/sha256"},
+            "status": {"enum": ["VALIDATED_POST_ROLLOUT", "NOT_CONSTRUCTED"]}
+          }
+        },
+        "information_boundary": {
+          "type": "object", "additionalProperties": false,
+          "required": ["raw_truth_values_published", "runtime_next_states_published", "truth_trajectory_published", "mismatch_values_hashed"],
+          "properties": {
+            "raw_truth_values_published": {"const": false},
+            "runtime_next_states_published": {"const": false},
+            "truth_trajectory_published": {"const": false},
+            "mismatch_values_hashed": {"const": true}
+          }
+        }
       }
     }
   }

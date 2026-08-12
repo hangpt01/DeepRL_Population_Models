@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from .. import driver
-from ..common import ContractError, canonical_json_bytes, sha256_bytes
+from ..common import ContractError, canonical_json_bytes, sha256_bytes, sha256_file
 from ..driver_inputs import (
     driver_inputs_sha256,
     produce_registered_driver_inputs,
@@ -179,6 +179,24 @@ def test_registration_rejects_reordered_accepted_parity(registration_bundle):
         freeze_registration_bundle(malformed)
 
 
+def test_registration_rejects_eligible_label_on_known_legacy_canary_path(
+    registration_bundle, fs04_tmp_path
+):
+    malformed = copy.deepcopy(registration_bundle)
+    canary = fs04_tmp_path / "i2b_fasttrack_integration_canary_20260808" / "episodes.csv"
+    canary.parent.mkdir()
+    canary.write_text("episode,seed,block_seed\n", encoding="utf-8")
+    source = malformed["stageb_driver_inputs"]["descriptor"]["evaluator_only_inputs"][
+        "accepted_parity"
+    ][0]["episodes_csv"]
+    source.update({"path": str(canary), "sha256": sha256_file(canary)})
+    malformed["stageb_driver_inputs"]["driver_inputs_sha256"] = driver_inputs_sha256(
+        malformed["stageb_driver_inputs"]["descriptor"]
+    )
+    with pytest.raises(ContractError, match="legacy/ineligible"):
+        freeze_registration_bundle(malformed)
+
+
 def test_registration_rejects_stale_source_receipt_hash(registration_bundle):
     malformed = copy.deepcopy(registration_bundle)
     malformed["stageb_driver_inputs"]["descriptor"]["public_inputs"][CELLS[0]]["public_npz"][
@@ -195,7 +213,7 @@ def test_descriptor_schema_is_strict_json_and_hash_bound(registration_bundle):
     schema = Path(__file__).parents[1] / "schemas/driver_inputs.schema.json"
     parsed = json.loads(schema.read_text(encoding="utf-8"))
     assert parsed["additionalProperties"] is False
-    assert parsed["$id"] == "corrected-stageb-driver-inputs-v3"
+    assert parsed["$id"] == "corrected-stageb-driver-inputs-v4"
     assert parsed["properties"]["rng_contract"] == {"$ref": "#/$defs/rng_contract"}
     assert parsed["properties"]["runtime_next_states_available"] == {"const": False}
     descriptor = registration_bundle["stageb_driver_inputs"]["descriptor"]

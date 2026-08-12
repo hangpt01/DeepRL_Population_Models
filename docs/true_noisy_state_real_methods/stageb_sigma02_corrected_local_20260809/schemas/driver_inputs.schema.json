@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "corrected-stageb-driver-inputs-v3",
+  "$id": "corrected-stageb-driver-inputs-v4",
   "title": "Corrected Stage B sealed driver inputs",
   "type": "object",
   "additionalProperties": false,
@@ -46,10 +46,88 @@
         "process_draws_per_step": {"const": 0},
         "observation_draws_per_step": {"const": 1}
       }
+    },
+    "comparison_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "absolute_tolerance", "identity_fields", "reference_columns",
+        "exact_fields", "numeric_fields", "excluded_fields"
+      ],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_parity_comparison_v1"},
+        "absolute_tolerance": {"const": 1e-9},
+        "identity_fields": {"const": ["episode", "seed", "block_seed"]},
+        "reference_columns": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "exact_fields": {"type": "array", "minItems": 3, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "numeric_fields": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "excluded_fields": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "interpreter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "track", "absolute_interpreter_path", "resolved_executable_path", "python_version", "full_python_version", "numpy_version"],
+      "properties": {
+        "role": {"type": "string", "minLength": 1},
+        "track": {"enum": ["ecological", "general"]},
+        "absolute_interpreter_path": {"type": "string", "pattern": "^/"},
+        "resolved_executable_path": {"type": "string", "pattern": "^/"},
+        "python_version": {"type": "string", "minLength": 1},
+        "full_python_version": {"type": "string", "minLength": 1},
+        "numpy_version": {"type": "string", "minLength": 1}
+      }
+    },
+    "eligible_baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "classification", "producer_registration_sha256",
+        "producer_driver_inputs_sha256", "repository_commit", "source_manifest_sha256",
+        "stageb_driver_sha256", "rng_contract", "interpreter", "fitted_object_sha256",
+        "component_hashes", "artifact_plan_sha256", "evaluator", "comparison_contract"
+      ],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_parity_baseline_binding_v1"},
+        "classification": {"const": "ELIGIBLE"},
+        "producer_registration_sha256": {"$ref": "#/$defs/sha256"},
+        "producer_driver_inputs_sha256": {"$ref": "#/$defs/sha256"},
+        "repository_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "source_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "stageb_driver_sha256": {"$ref": "#/$defs/sha256"},
+        "rng_contract": {"$ref": "#/$defs/rng_contract"},
+        "interpreter": {"$ref": "#/$defs/interpreter"},
+        "fitted_object_sha256": {"$ref": "#/$defs/sha256"},
+        "component_hashes": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/sha256"}},
+        "artifact_plan_sha256": {"$ref": "#/$defs/sha256"},
+        "evaluator": {
+          "type": "object", "additionalProperties": false,
+          "required": ["family", "reward_mode", "config_sha256", "evaluation_identity_sha256", "episode_ids", "horizon", "discount", "num_actions"],
+          "properties": {
+            "family": {"const": "allee"}, "reward_mode": {"const": "safe"},
+            "config_sha256": {"$ref": "#/$defs/sha256"},
+            "evaluation_identity_sha256": {"$ref": "#/$defs/sha256"},
+            "episode_ids": {"type": "array", "minItems": 20, "maxItems": 20, "uniqueItems": true, "items": {"type": "integer"}},
+            "horizon": {"const": 50}, "discount": {"const": 0.95}, "num_actions": {"const": 11}
+          }
+        },
+        "comparison_contract": {"$ref": "#/$defs/comparison_contract"}
+      }
+    },
+    "legacy_baseline": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "classification", "producer_label", "reason", "missing_bindings"],
+      "properties": {
+        "schema_version": {"const": "corrected_stageb_parity_baseline_binding_v1"},
+        "classification": {"const": "LEGACY_INELIGIBLE"},
+        "producer_label": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1},
+        "missing_bindings": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
     }
   },
   "properties": {
-    "schema_version": {"const": "corrected_stageb_driver_inputs_v3"},
+    "schema_version": {"const": "corrected_stageb_driver_inputs_v4"},
     "registration_id": {"type": "string", "minLength": 1},
     "repository_root": {"type": "string", "pattern": "^/"},
     "repository_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
@@ -108,12 +186,13 @@
           "type": "array", "minItems": 12, "maxItems": 12,
           "items": {
             "type": "object", "additionalProperties": false,
-            "required": ["task_index", "cell", "method", "episodes_csv"],
+            "required": ["task_index", "cell", "method", "episodes_csv", "baseline"],
             "properties": {
               "task_index": {"type": "integer", "minimum": 0, "maximum": 11},
               "cell": {"type": "string", "minLength": 1},
               "method": {"type": "string", "minLength": 1},
-              "episodes_csv": {"$ref": "#/$defs/path_receipt"}
+              "episodes_csv": {"$ref": "#/$defs/path_receipt"},
+              "baseline": {"oneOf": [{"$ref": "#/$defs/eligible_baseline"}, {"$ref": "#/$defs/legacy_baseline"}]}
             }
           }
         }

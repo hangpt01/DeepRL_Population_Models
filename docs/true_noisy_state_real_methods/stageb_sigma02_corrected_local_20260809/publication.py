@@ -177,6 +177,66 @@ def publish_once(
     return target / SUCCESS_RECEIPT
 
 
+def publish_failure_once(
+    *,
+    staging: Path,
+    target: Path,
+    diagnostic_filename: str,
+    validator: Callable[[Mapping[str, Any]], Mapping[str, Any]],
+) -> Path:
+    """Atomically publish checksum-covered failure evidence that can never represent success."""
+
+    match = _STAGING_RE.fullmatch(staging.name)
+    if match is None or match.group("target") != target.name:
+        raise ContractError("failure staging is not a unique target-bound temporary namespace")
+    if staging.parent.is_symlink() or target.parent.is_symlink():
+        raise ContractError("failure publication parent cannot be a symlink")
+    if staging.parent.resolve(strict=True) != target.parent.resolve(strict=True):
+        raise ContractError("failure staging and target must be siblings")
+    if target.exists() or target.is_symlink():
+        raise ContractError("failure diagnostic target exists; retry/replacement is prohibited")
+    lock = target.parent / f".{target.name}.failure-publication.lock"
+    write_bytes_fsync(
+        lock,
+        canonical_json_bytes(
+            {
+                "schema_version": "corrected_stageb_failure_publication_lock_v1",
+                "target": target.name,
+                "staging_nonce": match.group("nonce"),
+                "automatic_retry_permitted": False,
+            }
+        ),
+    )
+    diagnostic = staging / diagnostic_filename
+    if diagnostic.is_symlink() or not diagnostic.is_file():
+        raise ContractError("failure diagnostic payload is missing")
+    value = strict_json_loads(diagnostic.read_bytes())
+    validated = dict(validator(value))
+    if validated.get("result") != "FAIL" or validated.get("accepted") is not False:
+        raise ContractError("failure diagnostic validator did not preserve failure semantics")
+    diagnostic_sha256 = sha256_file(diagnostic)
+    manifest = {
+        "schema_version": "corrected_stageb_failure_manifest_v1",
+        "result": "FAIL",
+        "accepted": False,
+        "qualifies_as_task_result": False,
+        "automatic_retry_permitted": False,
+        "files": {diagnostic_filename: diagnostic_sha256},
+    }
+    manifest_path = staging / "FAILURE_MANIFEST.json"
+    write_bytes_fsync(manifest_path, canonical_json_bytes(manifest))
+    expected_hashes = validate_staging_tree(staging, [diagnostic_filename, "FAILURE_MANIFEST.json"])
+    if expected_hashes[diagnostic_filename] != diagnostic_sha256:
+        raise ContractError("failure diagnostic changed before publication")
+    _fsync_directory(staging)
+    _fsync_directory(target.parent)
+    if target.exists() or target.is_symlink():
+        raise ContractError("failure diagnostic target collided before atomic publication")
+    os.rename(staging, target)
+    _fsync_directory(target.parent)
+    return target
+
+
 def load_success_receipt(path: Path) -> Mapping[str, Any]:
     if not path.is_file() or path.is_symlink():
         raise ContractError("publication success receipt is missing")

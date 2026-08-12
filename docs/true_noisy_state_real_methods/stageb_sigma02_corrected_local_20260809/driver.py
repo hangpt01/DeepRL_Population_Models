@@ -10,10 +10,9 @@ information boundary, exact-state overlay, evaluator-only evidence, gate, and pu
 from __future__ import annotations
 
 import argparse
-import csv
 import os
 import sys
-from dataclasses import dataclass, replace
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path, PurePosixPath
 from typing import Any, Callable, Mapping, Sequence
 
@@ -96,10 +95,23 @@ from .orchestration import (
     validate_arm_o_gate,
     verify_arm_o_gate_receipt,
 )
+from .parity import (
+    PARITY_FAILURE_FILENAME,
+    PARITY_FAILURE_NAMESPACE,
+    PARITY_TOLERANCE,
+    ParityEligibilityError,
+    canonical_reference_rows_sha256,
+    compare_accepted_parity,
+    reference_file_sha256,
+    validate_parity_baseline_binding,
+    validate_parity_baseline_eligibility,
+    validate_parity_failure_diagnostic,
+)
 from .publication import (
     SUCCESS_RECEIPT,
     create_task_staging,
     load_success_receipt,
+    publish_failure_once,
     publish_once,
     validate_staging_tree,
     write_bytes_fsync,
@@ -128,7 +140,6 @@ DRIVER_INPUTS = DRIVER_INPUTS_FILENAME
 ARM_O_RECEIPT = "ARM_O_TASK_RECEIPT.json"
 ARM_T_RECEIPT = "ARM_T_TASK_RECEIPT.json"
 GATE_RECEIPT = "ARM_O_GATE_RECEIPT.json"
-PARITY_TOLERANCE = 1e-9
 CPU_MODEL = REGISTERED_CPU_MODEL
 CPU_PROFILE = f"{CPU_MODEL} / xenon-8452Y / one CPU"
 FILTERS = {
@@ -379,6 +390,7 @@ def load_driver_inputs(output_root: Path, registration: FrozenRegistration) -> L
             "episodes_csv": validate_path_receipt(
                 item["episodes_csv"], f"accepted parity {item['task_index']}"
             ),
+            "baseline": validate_parity_baseline_binding(item["baseline"]),
         }
         for item in value["evaluator_only_inputs"]["accepted_parity"]
     )
@@ -1281,48 +1293,9 @@ def _build_boundary(
 def _accepted_parity(
     rows: Sequence[Mapping[str, Any]],
     accepted_path: Path,
+    comparison_contract: Mapping[str, Any],
 ) -> Mapping[str, Any]:
-    with accepted_path.open(newline="", encoding="utf-8") as stream:
-        accepted = list(csv.DictReader(stream))
-    if len(rows) != 20 or len(accepted) != 20:
-        raise ContractError("Arm O parity requires twenty ordered episode rows")
-    excluded = {"filter_seconds", "planner_seconds", "data_table"}
-    exact_mismatches: list[Mapping[str, Any]] = []
-    numeric_deltas: dict[str, float] = {}
-    for index, (observed, reference) in enumerate(zip(rows, accepted)):
-        for field in ("episode", "seed", "block_seed"):
-            if str(observed[field]) != reference[field]:
-                exact_mismatches.append({"episode": index, "field": field})
-        for field, reference_value in reference.items():
-            if field in excluded:
-                continue
-            if field not in observed:
-                exact_mismatches.append({"episode": index, "field": field, "reason": "missing"})
-                continue
-            try:
-                delta = abs(float(observed[field]) - float(reference_value))
-            except (TypeError, ValueError):
-                if str(observed[field]) != reference_value:
-                    exact_mismatches.append({"episode": index, "field": field})
-            else:
-                numeric_deltas[field] = max(numeric_deltas.get(field, 0.0), delta)
-    failures = {
-        field: value for field, value in sorted(numeric_deltas.items()) if value > PARITY_TOLERANCE
-    }
-    result = "PASS" if not exact_mismatches and not failures else "FAIL"
-    return {
-        "schema_version": "corrected_stageb_task_arm_o_parity_v1",
-        "episode_count": 20,
-        "absolute_tolerance": PARITY_TOLERANCE,
-        "identity_fields": ["episode", "seed", "block_seed"],
-        "excluded_nonscientific_fields": sorted(excluded),
-        "maximum_absolute_deltas": dict(sorted(numeric_deltas.items())),
-        "exact_mismatches": exact_mismatches,
-        "failed_numeric_fields": failures,
-        "historical_full_action_sequences_available": False,
-        "new_full_action_sequences_recorded": True,
-        "result": result,
-    }
+    return compare_accepted_parity(rows, accepted_path, comparison_contract)
 
 
 def _relative_reference(
@@ -1406,6 +1379,244 @@ def _ensure_role_root(output_root: Path, name: str) -> Path:
     return role
 
 
+def _parity_baseline_expectations(
+    *,
+    registration: FrozenRegistration,
+    inputs: DriverInputs,
+    task: Mapping[str, Any],
+    task_index: int,
+    interpreter_identity: Mapping[str, Any],
+) -> Mapping[str, Any]:
+    bundle = registration.bundle()
+    hashes = bundle["code_configuration_hashes"]
+    registered = bundle["corrected_stageb_registration"]
+    probe = inputs.fit_probes[task_index]
+    interpreter = interpreter_identity["expected"]
+    return {
+        "repository_commit": hashes["git_commit_sha"],
+        "source_manifest_sha256": hashes["source_manifest_sha256"],
+        "stageb_driver_sha256": hashes["stageb_driver_sha256"],
+        "rng_contract": validate_rng_contract_document(inputs.rng_contract),
+        "interpreter": {
+            field: interpreter[field]
+            for field in (
+                "role",
+                "track",
+                "absolute_interpreter_path",
+                "resolved_executable_path",
+                "python_version",
+                "full_python_version",
+                "numpy_version",
+            )
+        },
+        "fitted_object_sha256": probe.frozen_object_sha256,
+        "component_hashes": dict(sorted(probe.component_hashes.items())),
+        "artifact_plan_sha256": task["artifact_plan_sha256"],
+        "evaluator": {
+            "family": registered["evaluator_family"],
+            "reward_mode": "safe",
+            "config_sha256": task["config_sha256"],
+            "evaluation_identity_sha256": task["evaluation_identity_sha256"],
+            "episode_ids": list(registered["evaluation_identities"]),
+            "horizon": registered["horizon"],
+            "discount": registered["discount"],
+            "num_actions": registered["num_actions"],
+        },
+    }
+
+
+def _parity_current_provenance(
+    *,
+    registration: FrozenRegistration,
+    inputs: DriverInputs,
+    task: Mapping[str, Any],
+    task_index: int,
+    interpreter_identity: Mapping[str, Any],
+) -> Mapping[str, Any]:
+    expected = dict(
+        _parity_baseline_expectations(
+            registration=registration,
+            inputs=inputs,
+            task=task,
+            task_index=task_index,
+            interpreter_identity=interpreter_identity,
+        )
+    )
+    return {
+        "registration_sha256": registration.sha256,
+        "driver_inputs_sha256": registration.bundle()["stageb_driver_inputs"][
+            "driver_inputs_sha256"
+        ],
+        **expected,
+    }
+
+
+def _parity_rng_evidence(
+    execution: TaskExecution | None, rng_contract: Mapping[str, Any]
+) -> Mapping[str, Any]:
+    receipts = (
+        [asdict(step.rng_receipt) for episode in execution.step_evidence for step in episode]
+        if execution is not None
+        else []
+    )
+    return {
+        "receipt_schema_version": RNG_RECEIPT_SCHEMA_VERSION,
+        "rng_contract": validate_rng_contract_document(rng_contract),
+        "receipt_count": len(receipts),
+        "receipts_canonical_sha256": sha256_bytes(canonical_json_bytes(receipts)),
+        "status": "VALIDATED_POST_ROLLOUT" if execution is not None else "NOT_CONSTRUCTED",
+    }
+
+
+def _safe_parity_comparison_summary(parity: Mapping[str, Any]) -> Mapping[str, Any]:
+    """Keep comparison metadata and delta magnitudes without truth-named value slots."""
+
+    summary = {
+        key: value
+        for key, value in parity.items()
+        if key
+        not in {
+            "mismatches",
+            "maximum_absolute_deltas",
+            "maximum_relative_deltas",
+            "failed_numeric_fields",
+        }
+    }
+    summary["stage"] = "VALUE_COMPARISON"
+    summary["comparison_type"] = "registered_exact_and_numeric"
+    summary["maximum_absolute_deltas"] = [
+        {"field_name": field, "delta": delta}
+        for field, delta in parity["maximum_absolute_deltas"].items()
+    ]
+    summary["maximum_relative_deltas"] = [
+        {"field_name": field, "delta": delta}
+        for field, delta in parity["maximum_relative_deltas"].items()
+    ]
+    summary["failed_numeric_fields"] = sorted(parity["failed_numeric_fields"])
+    return summary
+
+
+def _publish_parity_failure(
+    *,
+    registration: FrozenRegistration,
+    inputs: DriverInputs,
+    accepted: Mapping[str, Any],
+    task: Mapping[str, Any],
+    task_index: int,
+    output_root: Path,
+    interpreter_identity: Mapping[str, Any],
+    eligibility: Mapping[str, Any],
+    comparison: Mapping[str, Any],
+    mismatches: Sequence[Mapping[str, Any]],
+    execution: TaskExecution | None,
+) -> Path:
+    reference_path = accepted["episodes_csv"]["path"]
+    baseline = accepted.get("baseline")
+    reference_provenance: Mapping[str, Any]
+    try:
+        reference_provenance = validate_parity_baseline_binding(baseline)
+    except ContractError:
+        reference_provenance = {
+            "classification": "UNBOUND_OR_MALFORMED",
+            "missing_bindings": list(eligibility.get("missing_bindings", [])),
+        }
+    diagnostic = {
+        "schema_version": "corrected_stageb_arm_o_parity_failure_v1",
+        "result": "FAIL",
+        "accepted": False,
+        "qualifies_as_task_result": False,
+        "automatic_retry_permitted": False,
+        "task_index": task_index,
+        "arm": "O",
+        "cell": task["cell"],
+        "method": task["method"],
+        "current_provenance": _parity_current_provenance(
+            registration=registration,
+            inputs=inputs,
+            task=task,
+            task_index=task_index,
+            interpreter_identity=interpreter_identity,
+        ),
+        "reference_provenance": {
+            "episodes_csv_absolute_path": str(Path(reference_path)),
+            "episodes_csv_registered_sha256": accepted["episodes_csv"]["sha256"],
+            "episodes_csv_observed_sha256": reference_file_sha256(reference_path),
+            "binding": reference_provenance,
+        },
+        "eligibility": dict(eligibility),
+        "comparison": dict(comparison),
+        "mismatches": [dict(item) for item in mismatches],
+        "observed_rows_sha256": sha256_bytes(
+            canonical_json_bytes(list(execution.evaluator_rows) if execution is not None else [])
+        ),
+        "reference_rows_sha256": canonical_reference_rows_sha256(reference_path),
+        "rng_evidence": _parity_rng_evidence(execution, inputs.rng_contract),
+        "information_boundary": {
+            "raw_truth_values_published": False,
+            "runtime_next_states_published": False,
+            "truth_trajectory_published": False,
+            "mismatch_values_hashed": True,
+        },
+    }
+    validate_parity_failure_diagnostic(diagnostic)
+    root = _ensure_role_root(output_root, PARITY_FAILURE_NAMESPACE)
+    staging, target = create_task_staging(root, f"task-{task_index:02d}")
+    write_bytes_fsync(staging / PARITY_FAILURE_FILENAME, canonical_json_bytes(diagnostic))
+    return publish_failure_once(
+        staging=staging,
+        target=target,
+        diagnostic_filename=PARITY_FAILURE_FILENAME,
+        validator=validate_parity_failure_diagnostic,
+    )
+
+
+def _require_parity_baseline_eligibility(
+    *,
+    registration: FrozenRegistration,
+    inputs: DriverInputs,
+    accepted: Mapping[str, Any],
+    task: Mapping[str, Any],
+    task_index: int,
+    output_root: Path,
+    interpreter_identity: Mapping[str, Any],
+    execution: TaskExecution | None,
+) -> Mapping[str, Any]:
+    expected = _parity_baseline_expectations(
+        registration=registration,
+        inputs=inputs,
+        task=task,
+        task_index=task_index,
+        interpreter_identity=interpreter_identity,
+    )
+    try:
+        return validate_parity_baseline_eligibility(
+            accepted.get("baseline"),
+            expected=expected,
+            accepted_csv=accepted["episodes_csv"]["path"],
+        )
+    except ParityEligibilityError as exc:
+        comparison = {
+            "stage": "BASELINE_ELIGIBILITY",
+            "comparison_type": "execution_contract_binding",
+            "absolute_tolerance": PARITY_TOLERANCE,
+            "result": "FAIL",
+        }
+        _publish_parity_failure(
+            registration=registration,
+            inputs=inputs,
+            accepted=accepted,
+            task=task,
+            task_index=task_index,
+            output_root=output_root,
+            interpreter_identity=interpreter_identity,
+            eligibility=exc.assessment,
+            comparison=comparison,
+            mismatches=(),
+            execution=execution,
+        )
+        raise
+
+
 def publish_registered_task(
     *,
     registration: FrozenRegistration,
@@ -1422,6 +1633,54 @@ def publish_registered_task(
 ) -> Path:
     cpu_identity = validate_cpu_identity_receipt(execution.cpu_identity)
     role = "arm-o" if task["arm"] == "O" else "arm-t"
+    accepted: Mapping[str, Any] | None = None
+    eligibility: Mapping[str, Any] | None = None
+    if task["arm"] == "O":
+        if evaluator_inputs is None:
+            raise ContractError("Arm O publication requires evaluator-only accepted parity")
+        accepted = evaluator_inputs.accepted_parity[task_index]
+        if (
+            accepted["task_index"] != task_index
+            or accepted["cell"] != task["cell"]
+            or accepted["method"] != task["method"]
+        ):
+            assessment = {
+                "schema_version": "corrected_stageb_parity_baseline_eligibility_v1",
+                "classification": "TASK_BINDING_MISMATCH",
+                "eligible": False,
+                "missing_bindings": [],
+                "mismatched_bindings": ["task_cell_method"],
+                "result": "FAIL",
+            }
+            _publish_parity_failure(
+                registration=registration,
+                inputs=inputs,
+                accepted=accepted,
+                task=task,
+                task_index=task_index,
+                output_root=output_root,
+                interpreter_identity=interpreter_identity,
+                eligibility=assessment,
+                comparison={
+                    "stage": "BASELINE_TASK_BINDING",
+                    "comparison_type": "exact",
+                    "absolute_tolerance": PARITY_TOLERANCE,
+                    "result": "FAIL",
+                },
+                mismatches=(),
+                execution=execution,
+            )
+            raise ContractError("accepted-parity capability is bound to a different task")
+        eligibility = _require_parity_baseline_eligibility(
+            registration=registration,
+            inputs=inputs,
+            accepted=accepted,
+            task=task,
+            task_index=task_index,
+            output_root=output_root,
+            interpreter_identity=interpreter_identity,
+            execution=execution,
+        )
     publications = _ensure_role_root(output_root, role)
     receipts_root = _ensure_role_root(output_root, f"{role}-receipts")
     staging, target = create_task_staging(publications, f"task-{task_index:02d}")
@@ -1468,20 +1727,26 @@ def publish_registered_task(
     }
     parity: Mapping[str, Any] | None = None
     if task["arm"] == "O":
-        if evaluator_inputs is None:
-            raise ContractError("Arm O publication requires evaluator-only accepted parity")
-        accepted = evaluator_inputs.accepted_parity[task_index]
-        if (
-            accepted["task_index"] != task_index
-            or accepted["cell"] != task["cell"]
-            or accepted["method"] != task["method"]
-        ):
-            raise ContractError("accepted-parity capability is bound to a different task")
+        assert accepted is not None and eligibility is not None
         parity = _accepted_parity(
             execution.evaluator_rows,
             accepted["episodes_csv"]["path"],
+            eligibility["binding"]["comparison_contract"],
         )
         if parity["result"] != "PASS":
+            _publish_parity_failure(
+                registration=registration,
+                inputs=inputs,
+                accepted=accepted,
+                task=task,
+                task_index=task_index,
+                output_root=output_root,
+                interpreter_identity=interpreter_identity,
+                eligibility=eligibility["assessment"],
+                comparison=_safe_parity_comparison_summary(parity),
+                mismatches=parity["mismatches"],
+                execution=execution,
+            )
             raise ContractError("Arm O accepted parity failed")
         files["ACCEPTED_PARITY.json"] = canonical_json_bytes(parity)
     else:
@@ -1629,6 +1894,18 @@ def run_arm_task(
     components, frozen_payload, replay_payload, _probe = _validate_fit_probe(
         inputs, task, task_index
     )
+    if arm == "O":
+        accepted = loaded.evaluator_only.accepted_parity[task_index]
+        _require_parity_baseline_eligibility(
+            registration=registration,
+            inputs=inputs,
+            accepted=accepted,
+            task=task,
+            task_index=task_index,
+            output_root=output_root,
+            interpreter_identity=interpreter_identity,
+            execution=None,
+        )
     implementation = executor or execute_registered_task
     execution = implementation(
         registration=registration,
