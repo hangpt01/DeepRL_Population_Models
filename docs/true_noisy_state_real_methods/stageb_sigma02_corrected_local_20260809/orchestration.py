@@ -42,11 +42,16 @@ from .registration import (
 )
 from .registration import freeze_registration_bundle
 from .publication import load_success_receipt
+from .parity import (
+    HISTORICAL_CANARY_IDENTITY,
+    PARITY_MODE_DISCLOSURE_ONLY,
+    PARITY_MODE_EXTERNAL_BASELINE,
+)
 from .real_artifacts import revalidate_frozen_object_parity, scientific_component_for_method
 
 
 EXPECTED_ARM_TASKS = tuple((cell, method) for cell in CELLS for method in METHODS)
-CORRECTED_TEST_COUNT = 346
+CORRECTED_TEST_COUNT = 351
 ARTIFACT_EVIDENCE_V2 = "corrected_stageb_artifact_bundle_evidence_v2"
 ARTIFACT_EVIDENCE_V3 = "corrected_stageb_artifact_bundle_evidence_v3"
 ARTIFACT_EVIDENCE_V4 = "corrected_stageb_artifact_bundle_evidence_v4"
@@ -300,11 +305,15 @@ def _validate_task_receipt(
         "cpu_profile",
         "cpu_identity",
         "interpreter_identity",
+        "parity_mode",
+        "eligible_baseline_supplied",
+        "historical_canary_identity",
+        "historical_canary_used_for_authorization",
         "result",
     }
     require_exact_keys(receipt, required, "Arm O task receipt")
     expected_scalars = {
-        "schema_version": "corrected_stageb_arm_o_task_receipt_v4",
+        "schema_version": "corrected_stageb_arm_o_task_receipt_v5",
         "task_index": expected_task["task_index"],
         "arm": "O",
         "cell": expected_task["cell"],
@@ -317,10 +326,19 @@ def _validate_task_receipt(
         "evaluation_identity_sha256": expected_task["evaluation_identity_sha256"],
         "cpu_profile": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU",
         "result": "PASS",
+        "historical_canary_identity": HISTORICAL_CANARY_IDENTITY,
+        "historical_canary_used_for_authorization": False,
     }
     for field, expected in expected_scalars.items():
         if receipt[field] != expected:
             raise ContractError(f"Arm O task receipt binding mismatch: {field}")
+    if receipt["parity_mode"] not in {
+        PARITY_MODE_DISCLOSURE_ONLY,
+        PARITY_MODE_EXTERNAL_BASELINE,
+    } or receipt["eligible_baseline_supplied"] != (
+        receipt["parity_mode"] == PARITY_MODE_EXTERNAL_BASELINE
+    ):
+        raise ContractError("Arm O task receipt parity policy mismatch")
     for field in (
         "artifact_bundle_sha256",
         "diagnostics_sha256",
@@ -387,12 +405,16 @@ def _validate_task_receipt(
             "information_boundary_sha256",
             "interpreter_identity",
             "cpu_identity",
+            "parity_mode",
+            "eligible_baseline_supplied",
+            "historical_canary_identity",
+            "historical_canary_used_for_authorization",
             "result",
         },
         "published task validation",
     )
     expected_validation = {
-        "schema_version": "corrected_stageb_task_publication_validation_v2",
+        "schema_version": "corrected_stageb_task_publication_validation_v3",
         "registration_sha256": registration_sha,
         "task_index": expected_task["task_index"],
         "arm": "O",
@@ -403,6 +425,10 @@ def _validate_task_receipt(
         "information_boundary_sha256": receipt["information_boundary_sha256"],
         "interpreter_identity": receipt["interpreter_identity"],
         "cpu_identity": receipt["cpu_identity"],
+        "parity_mode": receipt["parity_mode"],
+        "eligible_baseline_supplied": receipt["eligible_baseline_supplied"],
+        "historical_canary_identity": HISTORICAL_CANARY_IDENTITY,
+        "historical_canary_used_for_authorization": False,
         "result": "PASS",
     }
     if validation != expected_validation:

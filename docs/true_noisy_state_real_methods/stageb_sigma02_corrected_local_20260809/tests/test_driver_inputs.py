@@ -193,7 +193,7 @@ def test_registration_rejects_eligible_label_on_known_legacy_canary_path(
     malformed["stageb_driver_inputs"]["driver_inputs_sha256"] = driver_inputs_sha256(
         malformed["stageb_driver_inputs"]["descriptor"]
     )
-    with pytest.raises(ContractError, match="legacy/ineligible"):
+    with pytest.raises(ContractError, match="legacy canary path/classification"):
         freeze_registration_bundle(malformed)
 
 
@@ -213,7 +213,7 @@ def test_descriptor_schema_is_strict_json_and_hash_bound(registration_bundle):
     schema = Path(__file__).parents[1] / "schemas/driver_inputs.schema.json"
     parsed = json.loads(schema.read_text(encoding="utf-8"))
     assert parsed["additionalProperties"] is False
-    assert parsed["$id"] == "corrected-stageb-driver-inputs-v4"
+    assert parsed["$id"] == "corrected-stageb-driver-inputs-v5"
     assert parsed["properties"]["rng_contract"] == {"$ref": "#/$defs/rng_contract"}
     assert parsed["properties"]["runtime_next_states_available"] == {"const": False}
     descriptor = registration_bundle["stageb_driver_inputs"]["descriptor"]

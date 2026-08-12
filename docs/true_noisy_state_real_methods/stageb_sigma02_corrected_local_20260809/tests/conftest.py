@@ -125,7 +125,16 @@ def _synthetic_driver_descriptor(
             }
         )
         accepted = root / f"accepted-{index:02d}.csv"
-        _write_synthetic_source(accepted, b"episode,seed,block_seed\n")
+        _write_synthetic_source(
+            accepted,
+            (
+                "episode,seed,block_seed\n"
+                + "".join(
+                    f"{episode},{episode_id},{episode_id - episode % 4}\n"
+                    for episode, episode_id in enumerate(EVALUATION_IDS)
+                )
+            ).encode(),
+        )
         ecological = method.startswith(("plus_", "moor_"))
         config_hash = (
             EXPECTED_CONFIG_HASHES["plus_config_sha256"]
@@ -195,6 +204,7 @@ def _synthetic_driver_descriptor(
                 "task_index": index,
                 "cell": cell,
                 "method": method,
+                "historical_canary_identity": "i2b_fasttrack_integration_canary_20260808",
                 "episodes_csv": {"path": str(accepted), "sha256": sha256_file(accepted)},
                 "baseline": baseline,
             }

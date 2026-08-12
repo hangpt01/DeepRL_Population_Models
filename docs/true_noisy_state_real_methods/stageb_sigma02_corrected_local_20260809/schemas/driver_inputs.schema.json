@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "corrected-stageb-driver-inputs-v4",
+  "$id": "corrected-stageb-driver-inputs-v5",
   "title": "Corrected Stage B sealed driver inputs",
   "type": "object",
   "additionalProperties": false,
@@ -127,7 +127,7 @@
     }
   },
   "properties": {
-    "schema_version": {"const": "corrected_stageb_driver_inputs_v4"},
+    "schema_version": {"const": "corrected_stageb_driver_inputs_v5"},
     "registration_id": {"type": "string", "minLength": 1},
     "repository_root": {"type": "string", "pattern": "^/"},
     "repository_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
@@ -186,11 +186,12 @@
           "type": "array", "minItems": 12, "maxItems": 12,
           "items": {
             "type": "object", "additionalProperties": false,
-            "required": ["task_index", "cell", "method", "episodes_csv", "baseline"],
+            "required": ["task_index", "cell", "method", "episodes_csv", "baseline", "historical_canary_identity"],
             "properties": {
               "task_index": {"type": "integer", "minimum": 0, "maximum": 11},
               "cell": {"type": "string", "minLength": 1},
               "method": {"type": "string", "minLength": 1},
+              "historical_canary_identity": {"const": "i2b_fasttrack_integration_canary_20260808"},
               "episodes_csv": {"$ref": "#/$defs/path_receipt"},
               "baseline": {"oneOf": [{"$ref": "#/$defs/eligible_baseline"}, {"$ref": "#/$defs/legacy_baseline"}]}
             }

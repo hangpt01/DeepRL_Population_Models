@@ -28,6 +28,9 @@ PARITY_FAILURE_FILENAME = "ACCEPTED_PARITY_FAILURE.json"
 PARITY_TOLERANCE = 1e-9
 PARITY_IDENTITY_FIELDS = ("episode", "seed", "block_seed")
 LEGACY_FAST_TRACK_CANARY_PATH_COMPONENT = "i2b_fasttrack_integration_canary_20260808"
+HISTORICAL_CANARY_IDENTITY = LEGACY_FAST_TRACK_CANARY_PATH_COMPONENT
+PARITY_MODE_DISCLOSURE_ONLY = "HISTORICAL_CANARY_DISCLOSURE_ONLY"
+PARITY_MODE_EXTERNAL_BASELINE = "PROSPECTIVE_EXTERNAL_BASELINE"
 INTERPRETER_FIELDS = (
     "role",
     "track",
@@ -113,6 +116,12 @@ def _string_list(value: Any, label: str, *, nonempty: bool = False) -> list[str]
     return list(value)
 
 
+def canonical_string_set(value: Sequence[str]) -> list[str]:
+    """Return the sole canonical representation used for unordered string sets."""
+
+    return sorted(set(value))
+
+
 def build_parity_comparison_contract(
     *,
     reference_columns: Sequence[str],
@@ -167,7 +176,7 @@ def validate_parity_comparison_contract(value: Any) -> dict[str, Any]:
     sets = [set(exact), set(numeric), set(excluded)]
     if any(sets[left] & sets[right] for left in range(3) for right in range(left + 1, 3)):
         raise ContractError("parity comparison field classes overlap")
-    if set(columns) != set().union(*sets):
+    if canonical_string_set(columns) != canonical_string_set(set().union(*sets)):
         raise ContractError("parity comparison fields do not cover the reference columns")
     if not set(identity).issubset(exact):
         raise ContractError("parity identity fields must use exact comparison")
@@ -261,12 +270,14 @@ def validate_parity_baseline_binding(value: Any) -> dict[str, Any]:
         ):
             raise ContractError("legacy parity baseline labels must be nonempty text")
         missing = _string_list(value["missing_bindings"], "legacy missing bindings", nonempty=True)
+        if canonical_string_set(missing) != canonical_string_set(REQUIRED_EXECUTION_DIMENSIONS):
+            raise ContractError("legacy parity baseline must disclose all missing bindings")
         return {
             "schema_version": PARITY_BASELINE_BINDING_SCHEMA_VERSION,
             "classification": "LEGACY_INELIGIBLE",
             "producer_label": producer,
             "reason": reason,
-            "missing_bindings": missing,
+            "missing_bindings": canonical_string_set(missing),
         }
     require_exact_keys(
         value,
@@ -340,8 +351,8 @@ def _assessment(
         "schema_version": "corrected_stageb_parity_baseline_eligibility_v1",
         "classification": classification,
         "eligible": eligible,
-        "missing_bindings": sorted(set(missing)),
-        "mismatched_bindings": sorted(set(mismatched)),
+        "missing_bindings": canonical_string_set(missing),
+        "mismatched_bindings": canonical_string_set(mismatched),
         "result": "PASS" if eligible else "FAIL",
     }
 
@@ -351,6 +362,9 @@ def validate_parity_baseline_eligibility(
     *,
     expected: Mapping[str, Any],
     accepted_csv: Path,
+    current_registration_sha256: str | None = None,
+    current_driver_inputs_sha256: str | None = None,
+    current_output_root: Path | None = None,
 ) -> dict[str, Any]:
     """Require complete, source-equivalent provenance before comparison may gate success."""
 
@@ -394,6 +408,21 @@ def validate_parity_baseline_eligibility(
             "legacy canary parity baseline is ineligible for scientific acceptance", assessment
         )
     mismatched: list[str] = []
+    if (
+        current_registration_sha256 is not None
+        and parsed["producer_registration_sha256"] == current_registration_sha256
+    ):
+        mismatched.append("producer_registration_sha256:self_baseline")
+    if (
+        current_driver_inputs_sha256 is not None
+        and parsed["producer_driver_inputs_sha256"] == current_driver_inputs_sha256
+    ):
+        mismatched.append("producer_driver_inputs_sha256:same_run_baseline")
+    if current_output_root is not None:
+        reference = Path(accepted_csv).resolve(strict=True)
+        output = Path(current_output_root).resolve(strict=True)
+        if reference.is_relative_to(output):
+            mismatched.append("episodes_csv:same_run_output")
     for field in (
         "repository_commit",
         "source_manifest_sha256",
@@ -639,6 +668,8 @@ def _validate_parity_eligibility_assessment(value: Any) -> None:
         raise ContractError("parity eligibility assessment schema mismatch")
     missing = _string_list(value["missing_bindings"], "parity missing bindings")
     mismatched = _string_list(value["mismatched_bindings"], "parity mismatched bindings")
+    if missing != canonical_string_set(missing) or mismatched != canonical_string_set(mismatched):
+        raise ContractError("parity eligibility sets must use canonical ordering")
     eligible = value["eligible"]
     result = value["result"]
     if not isinstance(value["classification"], str) or not value["classification"]:

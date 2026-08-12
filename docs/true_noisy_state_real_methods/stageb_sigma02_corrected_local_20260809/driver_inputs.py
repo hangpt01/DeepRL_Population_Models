@@ -24,7 +24,11 @@ from .common import (
     sha256_file,
     strict_json_loads,
 )
-from .parity import is_legacy_fast_track_canary_path, validate_parity_baseline_binding
+from .parity import (
+    HISTORICAL_CANARY_IDENTITY,
+    is_legacy_fast_track_canary_path,
+    validate_parity_baseline_binding,
+)
 
 
 PATH_RECEIPT_KEYS = {"path", "sha256"}
@@ -238,20 +242,25 @@ def validate_driver_inputs_document(
             raise ContractError("accepted-parity binding must be an object")
         require_exact_keys(
             item,
-            {"task_index", "cell", "method", "episodes_csv", "baseline"},
+            {
+                "task_index",
+                "cell",
+                "method",
+                "episodes_csv",
+                "baseline",
+                "historical_canary_identity",
+            },
             "parity",
         )
         if item["task_index"] != index or (item["cell"], item["method"]) != pair:
             raise ContractError("accepted-parity task binding mismatch")
         source = validate_path_receipt(item["episodes_csv"], f"accepted parity {index}")
         baseline = validate_parity_baseline_binding(item["baseline"])
-        if (
-            is_legacy_fast_track_canary_path(source["path"])
-            and baseline["classification"] != "LEGACY_INELIGIBLE"
-        ):
-            raise ContractError(
-                "2026-08-08 fast-track canary must be classified as legacy/ineligible"
-            )
+        if item["historical_canary_identity"] != HISTORICAL_CANARY_IDENTITY:
+            raise ContractError("historical canary disclosure identity mismatch")
+        legacy_path = is_legacy_fast_track_canary_path(source["path"])
+        if legacy_path != (baseline["classification"] == "LEGACY_INELIGIBLE"):
+            raise ContractError("legacy canary path/classification binding mismatch")
 
     gate = value["gate_only_inputs"]
     if not isinstance(gate, Mapping):

@@ -96,12 +96,16 @@ from .orchestration import (
     verify_arm_o_gate_receipt,
 )
 from .parity import (
+    HISTORICAL_CANARY_IDENTITY,
     PARITY_FAILURE_FILENAME,
     PARITY_FAILURE_NAMESPACE,
+    PARITY_MODE_DISCLOSURE_ONLY,
+    PARITY_MODE_EXTERNAL_BASELINE,
     PARITY_TOLERANCE,
     ParityEligibilityError,
     canonical_reference_rows_sha256,
     compare_accepted_parity,
+    is_legacy_fast_track_canary_path,
     reference_file_sha256,
     validate_parity_baseline_binding,
     validate_parity_baseline_eligibility,
@@ -387,6 +391,7 @@ def load_driver_inputs(output_root: Path, registration: FrozenRegistration) -> L
             "task_index": item["task_index"],
             "cell": item["cell"],
             "method": item["method"],
+            "historical_canary_identity": item["historical_canary_identity"],
             "episodes_csv": validate_path_receipt(
                 item["episodes_csv"], f"accepted parity {item['task_index']}"
             ),
@@ -1298,6 +1303,21 @@ def _accepted_parity(
     return compare_accepted_parity(rows, accepted_path, comparison_contract)
 
 
+def _parity_receipt_fields(*, eligible_baseline_supplied: bool) -> Mapping[str, Any]:
+    if not isinstance(eligible_baseline_supplied, bool):
+        raise ContractError("eligible-baseline receipt flag must be boolean")
+    return {
+        "parity_mode": (
+            PARITY_MODE_EXTERNAL_BASELINE
+            if eligible_baseline_supplied
+            else PARITY_MODE_DISCLOSURE_ONLY
+        ),
+        "eligible_baseline_supplied": eligible_baseline_supplied,
+        "historical_canary_identity": HISTORICAL_CANARY_IDENTITY,
+        "historical_canary_used_for_authorization": False,
+    }
+
+
 def _relative_reference(
     output_root: Path, path: Path, digest: str | None = None
 ) -> Mapping[str, str]:
@@ -1570,7 +1590,7 @@ def _publish_parity_failure(
     )
 
 
-def _require_parity_baseline_eligibility(
+def _resolve_parity_authorization(
     *,
     registration: FrozenRegistration,
     inputs: DriverInputs,
@@ -1581,6 +1601,24 @@ def _require_parity_baseline_eligibility(
     interpreter_identity: Mapping[str, Any],
     execution: TaskExecution | None,
 ) -> Mapping[str, Any]:
+    if accepted.get("historical_canary_identity") != HISTORICAL_CANARY_IDENTITY:
+        raise ContractError("historical canary disclosure identity mismatch")
+    baseline = validate_parity_baseline_binding(accepted.get("baseline"))
+    if baseline["classification"] == "LEGACY_INELIGIBLE":
+        if not is_legacy_fast_track_canary_path(accepted["episodes_csv"]["path"]):
+            raise ContractError("legacy disclosure must retain the historical canary path")
+        return {
+            **_parity_receipt_fields(eligible_baseline_supplied=False),
+            "binding": None,
+            "assessment": {
+                "schema_version": "corrected_stageb_parity_baseline_eligibility_v1",
+                "classification": "LEGACY_INELIGIBLE",
+                "eligible": False,
+                "missing_bindings": list(baseline["missing_bindings"]),
+                "mismatched_bindings": [],
+                "result": "FAIL",
+            },
+        }
     expected = _parity_baseline_expectations(
         registration=registration,
         inputs=inputs,
@@ -1588,12 +1626,23 @@ def _require_parity_baseline_eligibility(
         task_index=task_index,
         interpreter_identity=interpreter_identity,
     )
+    if sha256_file(Path(accepted["episodes_csv"]["path"])) != accepted["episodes_csv"]["sha256"]:
+        raise ContractError("eligible external parity baseline changed after registration")
     try:
-        return validate_parity_baseline_eligibility(
-            accepted.get("baseline"),
+        eligibility = validate_parity_baseline_eligibility(
+            baseline,
             expected=expected,
             accepted_csv=accepted["episodes_csv"]["path"],
+            current_registration_sha256=registration.sha256,
+            current_driver_inputs_sha256=registration.bundle()["stageb_driver_inputs"][
+                "driver_inputs_sha256"
+            ],
+            current_output_root=output_root,
         )
+        return {
+            **_parity_receipt_fields(eligible_baseline_supplied=True),
+            **eligibility,
+        }
     except ParityEligibilityError as exc:
         comparison = {
             "stage": "BASELINE_ELIGIBILITY",
@@ -1634,7 +1683,7 @@ def publish_registered_task(
     cpu_identity = validate_cpu_identity_receipt(execution.cpu_identity)
     role = "arm-o" if task["arm"] == "O" else "arm-t"
     accepted: Mapping[str, Any] | None = None
-    eligibility: Mapping[str, Any] | None = None
+    parity_authorization: Mapping[str, Any] | None = None
     if task["arm"] == "O":
         if evaluator_inputs is None:
             raise ContractError("Arm O publication requires evaluator-only accepted parity")
@@ -1671,7 +1720,7 @@ def publish_registered_task(
                 execution=execution,
             )
             raise ContractError("accepted-parity capability is bound to a different task")
-        eligibility = _require_parity_baseline_eligibility(
+        parity_authorization = _resolve_parity_authorization(
             registration=registration,
             inputs=inputs,
             accepted=accepted,
@@ -1727,28 +1776,29 @@ def publish_registered_task(
     }
     parity: Mapping[str, Any] | None = None
     if task["arm"] == "O":
-        assert accepted is not None and eligibility is not None
-        parity = _accepted_parity(
-            execution.evaluator_rows,
-            accepted["episodes_csv"]["path"],
-            eligibility["binding"]["comparison_contract"],
-        )
-        if parity["result"] != "PASS":
-            _publish_parity_failure(
-                registration=registration,
-                inputs=inputs,
-                accepted=accepted,
-                task=task,
-                task_index=task_index,
-                output_root=output_root,
-                interpreter_identity=interpreter_identity,
-                eligibility=eligibility["assessment"],
-                comparison=_safe_parity_comparison_summary(parity),
-                mismatches=parity["mismatches"],
-                execution=execution,
+        assert accepted is not None and parity_authorization is not None
+        if parity_authorization["eligible_baseline_supplied"]:
+            parity = _accepted_parity(
+                execution.evaluator_rows,
+                accepted["episodes_csv"]["path"],
+                parity_authorization["binding"]["comparison_contract"],
             )
-            raise ContractError("Arm O accepted parity failed")
-        files["ACCEPTED_PARITY.json"] = canonical_json_bytes(parity)
+            if parity["result"] != "PASS":
+                _publish_parity_failure(
+                    registration=registration,
+                    inputs=inputs,
+                    accepted=accepted,
+                    task=task,
+                    task_index=task_index,
+                    output_root=output_root,
+                    interpreter_identity=interpreter_identity,
+                    eligibility=parity_authorization["assessment"],
+                    comparison=_safe_parity_comparison_summary(parity),
+                    mismatches=parity["mismatches"],
+                    execution=execution,
+                )
+                raise ContractError("Arm O accepted parity failed")
+            files["ACCEPTED_PARITY.json"] = canonical_json_bytes(parity)
     else:
         if evaluator_inputs is not None:
             raise ContractError("Arm T must not receive evaluator-only accepted parity")
@@ -1762,7 +1812,7 @@ def publish_registered_task(
         write_bytes_fsync(staging / filename, payload)
         required.append(filename)
     validation = {
-        "schema_version": "corrected_stageb_task_publication_validation_v2",
+        "schema_version": "corrected_stageb_task_publication_validation_v3",
         "registration_sha256": registration.sha256,
         "task_index": task["task_index"],
         "arm": task["arm"],
@@ -1775,12 +1825,37 @@ def publish_registered_task(
         "cpu_identity": dict(cpu_identity),
         "result": "PASS",
     }
+    if task["arm"] == "O":
+        assert parity_authorization is not None
+        parity_fields = _parity_receipt_fields(
+            eligible_baseline_supplied=parity_authorization["eligible_baseline_supplied"]
+        )
+    else:
+        paired_receipt = _json_object(
+            (output_root / "arm-o-receipts" / f"task-{task_index:02d}.json").read_bytes(),
+            "paired Arm O task receipt",
+        )
+        parity_fields = {
+            field: paired_receipt[field]
+            for field in (
+                "parity_mode",
+                "eligible_baseline_supplied",
+                "historical_canary_identity",
+                "historical_canary_used_for_authorization",
+            )
+        }
+        expected_parity_fields = _parity_receipt_fields(
+            eligible_baseline_supplied=parity_fields["eligible_baseline_supplied"]
+        )
+        if parity_fields != expected_parity_fields:
+            raise ContractError("paired Arm O parity policy receipt is invalid")
+    validation.update(parity_fields)
     success_payload = _anticipated_success(staging, required, validation)
     success_sha = sha256_bytes(success_payload)
     receipt_path = receipts_root / f"task-{task_index:02d}.json"
     if task["arm"] == "O":
         receipt = {
-            "schema_version": "corrected_stageb_arm_o_task_receipt_v4",
+            "schema_version": "corrected_stageb_arm_o_task_receipt_v5",
             "task_index": task["task_index"],
             "arm": "O",
             "cell": task["cell"],
@@ -1817,10 +1892,11 @@ def publish_registered_task(
             "cpu_identity": dict(cpu_identity),
             "interpreter_identity": dict(interpreter_identity),
             "result": "PASS",
+            **parity_fields,
         }
     else:
         receipt = {
-            "schema_version": "corrected_stageb_arm_t_task_receipt_v2",
+            "schema_version": "corrected_stageb_arm_t_task_receipt_v3",
             "task_index": task["task_index"],
             "arm": "T",
             "cell": task["cell"],
@@ -1839,6 +1915,7 @@ def publish_registered_task(
             "cpu_identity": dict(cpu_identity),
             "interpreter_identity": dict(interpreter_identity),
             "result": "PASS",
+            **parity_fields,
         }
         if receipt["frozen_object_sha256"] != receipt["paired_arm_o_frozen_object_sha256"]:
             raise ContractError("Arm T fitted object differs from its paired Arm O object")
@@ -1896,7 +1973,7 @@ def run_arm_task(
     )
     if arm == "O":
         accepted = loaded.evaluator_only.accepted_parity[task_index]
-        _require_parity_baseline_eligibility(
+        _resolve_parity_authorization(
             registration=registration,
             inputs=inputs,
             accepted=accepted,
@@ -1942,10 +2019,18 @@ def _load_arm_o_task_receipts(output_root: Path) -> tuple[list[bytes], list[Mapp
         if value.get("publication_manifest_sha256") != sha256_file(publication):
             raise ContractError("Arm O task/publication identity mismatch")
         load_success_receipt(publication)
+        expected_policy = _parity_receipt_fields(
+            eligible_baseline_supplied=value.get("eligible_baseline_supplied")
+        )
+        if any(value.get(field) != expected for field, expected in expected_policy.items()):
+            raise ContractError("Arm O task parity policy binding failed")
         parity_path = output_root / "arm-o" / f"task-{index:02d}" / "ACCEPTED_PARITY.json"
-        parity = _json_object(parity_path.read_bytes(), f"Arm O task parity {index}")
-        if parity.get("result") != "PASS":
-            raise ContractError("Arm O task parity failed")
+        if value["eligible_baseline_supplied"]:
+            parity = _json_object(parity_path.read_bytes(), f"Arm O task parity {index}")
+            if parity.get("result") != "PASS":
+                raise ContractError("Arm O external baseline parity failed")
+        elif parity_path.exists():
+            raise ContractError("disclosure-only Arm O task performed a numeric comparison")
         payloads.append(payload)
         receipts.append(value)
     return payloads, receipts
@@ -2058,7 +2143,7 @@ def run_inspection_only_finalizer(*, registration_path: Path, output_root: Path)
             if publication_path.is_file() and not publication_path.is_symlink():
                 publication = load_success_receipt(publication_path)
                 if (
-                    receipt.get("schema_version") == "corrected_stageb_arm_t_task_receipt_v2"
+                    receipt.get("schema_version") == "corrected_stageb_arm_t_task_receipt_v3"
                     and receipt.get("registration_sha256") == registration.sha256
                     and receipt.get("task_index") == index + 12
                     and receipt.get("cell") == cell
@@ -2066,6 +2151,12 @@ def run_inspection_only_finalizer(*, registration_path: Path, output_root: Path)
                     and receipt.get("result") == "PASS"
                     and receipt.get("arm_t_refit_performed") is False
                     and receipt.get("fitted_artifacts_byte_identical") is True
+                    and receipt.get("historical_canary_used_for_authorization") is False
+                    and receipt.get("historical_canary_identity") == HISTORICAL_CANARY_IDENTITY
+                    and receipt.get("parity_mode")
+                    in {PARITY_MODE_DISCLOSURE_ONLY, PARITY_MODE_EXTERNAL_BASELINE}
+                    and receipt.get("eligible_baseline_supplied")
+                    == (receipt.get("parity_mode") == PARITY_MODE_EXTERNAL_BASELINE)
                     and receipt.get("publication_manifest_sha256") == sha256_file(publication_path)
                     and publication.get("result") == "PASS"
                     and publication.get("validation", {}).get("interpreter_identity")

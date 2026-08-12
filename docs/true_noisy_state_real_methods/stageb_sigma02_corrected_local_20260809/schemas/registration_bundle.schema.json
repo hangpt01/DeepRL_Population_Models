@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "corrected_stageb_registration_bundle_v4.schema.json",
+  "$id": "corrected_stageb_registration_bundle_v5.schema.json",
   "title": "Interpreter-bound corrected Stage B frozen registration bundle",
   "$defs": {
     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
@@ -155,7 +155,7 @@
       "additionalProperties": false,
       "required": ["schema_version", "driver_inputs_schema_sha256", "driver_inputs_producer_sha256", "driver_inputs_sha256", "descriptor"],
       "properties": {
-        "schema_version": {"const": "corrected_stageb_driver_inputs_registration_v3"},
+        "schema_version": {"const": "corrected_stageb_driver_inputs_registration_v4"},
         "driver_inputs_schema_sha256": {"$ref": "#/$defs/sha256"},
         "driver_inputs_producer_sha256": {"$ref": "#/$defs/sha256"},
         "driver_inputs_sha256": {"$ref": "#/$defs/sha256"},

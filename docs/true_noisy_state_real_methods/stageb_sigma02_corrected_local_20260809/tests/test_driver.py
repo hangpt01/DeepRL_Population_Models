@@ -347,7 +347,7 @@ def test_atomic_task_publication_and_no_retry(registration_bundle, tmp_path):
     registration = freeze_registration_bundle(registration_bundle)
     task = dict(driver._task_for_index(registration, "O", 2))
     descriptor = registration.bundle()["stageb_driver_inputs"]["descriptor"]
-    accepted = tmp_path / "accepted.csv"
+    accepted = tmp_path.parent / f"{tmp_path.name}-external-accepted.csv"
     accepted.write_text(
         "episode,seed,block_seed\n"
         + "".join(
@@ -375,6 +375,7 @@ def test_atomic_task_publication_and_no_retry(registration_bundle, tmp_path):
                 "task_index": index,
                 "cell": CELLS[index // len(METHODS)],
                 "method": METHODS[index % len(METHODS)],
+                "historical_canary_identity": "i2b_fasttrack_integration_canary_20260808",
                 "episodes_csv": {"path": accepted, "sha256": sha256_file(accepted)},
                 "baseline": descriptor["evaluator_only_inputs"]["accepted_parity"][index][
                     "baseline"

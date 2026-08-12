@@ -45,6 +45,7 @@ from ..real_artifacts import scientific_component_for_method
 from ..registration import CELLS, METHODS, freeze_registration_bundle
 from .conftest import HASHES, artifact_components
 from .frozen_fixtures import frozen_object_evidence
+from .test_driver import _interpreter_receipt
 
 
 def _bound_evidence(registration, task, kind, receipt_mutator=None):
@@ -260,6 +261,10 @@ def arm_o_receipts(
             "frozen-object-parity.json",
             *(f"artifact-{component}.json" for component in components),
         ]
+        interpreter_identity = _interpreter_receipt(
+            registration, "arm-o", arm="O", task_index=task["task_index"]
+        )
+        cpu_identity = require_registered_cpu_model("Intel(R) Xeon(R) Platinum 8452Y")
         success = publish_once(
             staging=staging,
             target=target,
@@ -268,8 +273,10 @@ def arm_o_receipts(
             task=task,
             a=artifact_evidence_sha,
             d=diagnostics_sha,
-            b=boundary_sha: {
-                "schema_version": "corrected_stageb_task_publication_validation_v2",
+            b=boundary_sha,
+            interpreter=interpreter_identity,
+            cpu=cpu_identity: {
+                "schema_version": "corrected_stageb_task_publication_validation_v3",
                 "registration_sha256": registration.sha256,
                 "task_index": task["task_index"],
                 "arm": "O",
@@ -278,6 +285,12 @@ def arm_o_receipts(
                 "artifact_bundle_sha256": a,
                 "diagnostics_sha256": d,
                 "information_boundary_sha256": b,
+                "interpreter_identity": interpreter,
+                "cpu_identity": cpu,
+                "parity_mode": "HISTORICAL_CANARY_DISCLOSURE_ONLY",
+                "eligible_baseline_supplied": False,
+                "historical_canary_identity": "i2b_fasttrack_integration_canary_20260808",
+                "historical_canary_used_for_authorization": False,
                 "result": "PASS",
             },
         )
@@ -285,7 +298,7 @@ def arm_o_receipts(
         result.append(
             canonical_json_bytes(
                 {
-                    "schema_version": "corrected_stageb_arm_o_task_receipt_v4",
+                    "schema_version": "corrected_stageb_arm_o_task_receipt_v5",
                     "task_index": task["task_index"],
                     "arm": "O",
                     "cell": task["cell"],
@@ -320,6 +333,11 @@ def arm_o_receipts(
                     },
                     "cpu_profile": "Intel Xeon Platinum 8452Y / xenon-8452Y / one CPU",
                     "cpu_identity": require_registered_cpu_model("Intel(R) Xeon(R) Platinum 8452Y"),
+                    "interpreter_identity": interpreter_identity,
+                    "parity_mode": "HISTORICAL_CANARY_DISCLOSURE_ONLY",
+                    "eligible_baseline_supplied": False,
+                    "historical_canary_identity": "i2b_fasttrack_integration_canary_20260808",
+                    "historical_canary_used_for_authorization": False,
                     "result": "PASS",
                 }
             )

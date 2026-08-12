@@ -16,6 +16,7 @@ from ..parity import (
     REQUIRED_EXECUTION_DIMENSIONS,
     ParityEligibilityError,
     build_parity_comparison_contract,
+    canonical_string_set,
     canonical_relative_delta,
     compare_accepted_parity,
     validate_parity_baseline_eligibility,
@@ -120,6 +121,80 @@ def test_fast_track_canary_path_cannot_be_laundered_by_eligible_metadata(
         )
     assert raised.value.assessment["classification"] == "LEGACY_INELIGIBLE"
     assert raised.value.assessment["eligible"] is False
+
+
+def test_missing_binding_sets_are_canonical_under_both_operand_orders(
+    registration_bundle,
+):
+    _baseline, expected, accepted = _baseline_case(registration_bundle)
+    legacy = {
+        "schema_version": PARITY_BASELINE_BINDING_SCHEMA_VERSION,
+        "classification": "LEGACY_INELIGIBLE",
+        "producer_label": "2026-08-08 fast-track canary",
+        "reason": "historical disclosure only",
+        "missing_bindings": list(reversed(REQUIRED_EXECUTION_DIMENSIONS)),
+    }
+    with pytest.raises(ParityEligibilityError) as raised:
+        validate_parity_baseline_eligibility(legacy, expected=expected, accepted_csv=accepted)
+    assert raised.value.assessment["missing_bindings"] == canonical_string_set(
+        REQUIRED_EXECUTION_DIMENSIONS
+    )
+    assert canonical_string_set(reversed(REQUIRED_EXECUTION_DIMENSIONS)) == canonical_string_set(
+        REQUIRED_EXECUTION_DIMENSIONS
+    )
+
+
+@pytest.mark.parametrize(
+    "self_binding",
+    ["producer_registration_sha256", "producer_driver_inputs_sha256", "episodes_csv"],
+)
+def test_self_or_same_run_baseline_is_rejected(registration_bundle, tmp_path, self_binding):
+    baseline, expected, accepted = _baseline_case(registration_bundle)
+    arguments = {
+        "current_registration_sha256": "c" * 64,
+        "current_driver_inputs_sha256": "d" * 64,
+        "current_output_root": tmp_path,
+    }
+    if self_binding == "producer_registration_sha256":
+        baseline[self_binding] = arguments["current_registration_sha256"]
+    elif self_binding == "producer_driver_inputs_sha256":
+        baseline[self_binding] = arguments["current_driver_inputs_sha256"]
+    else:
+        accepted = tmp_path / "same-run.csv"
+        _write_reference(accepted)
+        baseline["comparison_contract"] = _comparison_contract()
+    with pytest.raises(ParityEligibilityError) as raised:
+        validate_parity_baseline_eligibility(
+            baseline,
+            expected=expected,
+            accepted_csv=accepted,
+            **arguments,
+        )
+    assert any(
+        "self_baseline" in item or "same_run" in item
+        for item in raised.value.assessment["mismatched_bindings"]
+    )
+
+
+def test_parity_policy_fields_cover_all_six_methods_and_both_arms(registration_bundle):
+    registration = freeze_registration_bundle(registration_bundle)
+    observed = set()
+    for arm in ("O", "T"):
+        for index in range(12):
+            task = driver._task_for_index(registration, arm, index)
+            observed.add((task["method"], arm))
+            disclosure = driver._parity_receipt_fields(eligible_baseline_supplied=False)
+            external = driver._parity_receipt_fields(eligible_baseline_supplied=True)
+            assert disclosure == {
+                "parity_mode": "HISTORICAL_CANARY_DISCLOSURE_ONLY",
+                "eligible_baseline_supplied": False,
+                "historical_canary_identity": "i2b_fasttrack_integration_canary_20260808",
+                "historical_canary_used_for_authorization": False,
+            }
+            assert external["parity_mode"] == "PROSPECTIVE_EXTERNAL_BASELINE"
+            assert external["eligible_baseline_supplied"] is True
+            assert external["historical_canary_used_for_authorization"] is False
+    assert observed == {(method, arm) for method in driver.METHODS for arm in ("O", "T")}
 
 
 @pytest.mark.parametrize(
@@ -236,7 +311,7 @@ def _mismatch_publication_arguments(registration_bundle, tmp_path):
     descriptor = registration.bundle()["stageb_driver_inputs"]["descriptor"]
     task_index = 2
     task = driver._task_for_index(registration, "O", task_index)
-    reference = tmp_path / "reference.csv"
+    reference = tmp_path.parent / f"{tmp_path.name}-external-reference.csv"
     _write_reference(reference)
     accepted = copy.deepcopy(descriptor["evaluator_only_inputs"]["accepted_parity"])
     accepted[task_index]["episodes_csv"] = {
@@ -339,7 +414,7 @@ def test_failure_diagnostic_information_boundary_rejects_forbidden_payload(
     registration = freeze_registration_bundle(registration_bundle)
     descriptor = registration.bundle()["stageb_driver_inputs"]["descriptor"]
     task_index = 2
-    reference = tmp_path / "reference.csv"
+    reference = tmp_path.parent / f"{tmp_path.name}-external-reference.csv"
     _write_reference(reference)
     accepted = copy.deepcopy(descriptor["evaluator_only_inputs"]["accepted_parity"])
     accepted[task_index]["episodes_csv"] = {
@@ -385,9 +460,11 @@ def test_failure_diagnostic_information_boundary_rejects_forbidden_payload(
         validate_parity_failure_diagnostic(malformed)
 
 
-def test_legacy_baseline_fails_before_executor(registration_bundle, tmp_path, monkeypatch):
-    registration = freeze_registration_bundle(registration_bundle)
-    descriptor = registration.bundle()["stageb_driver_inputs"]["descriptor"]
+def test_legacy_baseline_is_disclosure_only_and_never_compared(
+    registration_bundle, tmp_path, monkeypatch
+):
+    arguments = _mismatch_publication_arguments(registration_bundle, tmp_path)
+    task_index = arguments["task_index"]
     legacy = {
         "schema_version": PARITY_BASELINE_BINDING_SCHEMA_VERSION,
         "classification": "LEGACY_INELIGIBLE",
@@ -395,38 +472,31 @@ def test_legacy_baseline_fails_before_executor(registration_bundle, tmp_path, mo
         "reason": "insufficient execution provenance",
         "missing_bindings": list(REQUIRED_EXECUTION_DIMENSIONS),
     }
-    descriptor["evaluator_only_inputs"]["accepted_parity"][2]["baseline"] = legacy
-    called = False
-
-    def forbidden_executor(**_kwargs):
-        nonlocal called
-        called = True
-        raise AssertionError("executor must not be constructed for an ineligible baseline")
-
-    loaded = driver.LoadedDriverInputs(
-        Path("/registered/DRIVER_INPUTS.json"),
-        "a" * 64,
-        _direct_inputs(registration),
-        driver.EvaluatorOnlyInputs(tuple(descriptor["evaluator_only_inputs"]["accepted_parity"])),
-        driver.GateOnlyInputs({}, {}),
+    canary = (
+        tmp_path.parent
+        / "i2b_fasttrack_integration_canary_20260808"
+        / tmp_path.name
+        / "episodes.csv"
     )
-    monkeypatch.setattr(driver, "_load_registration", lambda _path: registration)
-    monkeypatch.setattr(driver, "load_driver_inputs", lambda *_args: loaded)
-    monkeypatch.setattr(driver, "_validate_fit_probe", lambda *_args: ({}, b"f", b"r", {}))
-    monkeypatch.setattr(
-        driver,
-        "require_runtime_interpreter_binding",
-        lambda *_args, **_kwargs: _interpreter_receipt(
-            registration, "arm-o", arm="O", task_index=2
-        ),
-    )
-    with pytest.raises(ParityEligibilityError, match="legacy canary"):
-        driver.run_arm_task(
-            registration_path=tmp_path / "registration.json",
-            output_root=tmp_path,
-            arm="O",
-            task_index=2,
-            executor=forbidden_executor,
-        )
-    assert called is False
-    assert (tmp_path / PARITY_FAILURE_NAMESPACE / "task-02" / PARITY_FAILURE_FILENAME).is_file()
+    canary.parent.mkdir(parents=True)
+    _write_reference(canary)
+    accepted = list(arguments["evaluator_inputs"].accepted_parity)
+    accepted[task_index] = {
+        **accepted[task_index],
+        "episodes_csv": {"path": canary, "sha256": sha256_file(canary)},
+        "baseline": legacy,
+    }
+    arguments["evaluator_inputs"] = driver.EvaluatorOnlyInputs(tuple(accepted))
+
+    def forbidden_comparison(*_args, **_kwargs):
+        raise AssertionError("historical canary must never be numerically compared")
+
+    monkeypatch.setattr(driver, "_accepted_parity", forbidden_comparison)
+    target = driver.publish_registered_task(**arguments)
+    receipt = strict_json_loads((tmp_path / "arm-o-receipts/task-02.json").read_bytes())
+    assert target.is_dir()
+    assert receipt["parity_mode"] == "HISTORICAL_CANARY_DISCLOSURE_ONLY"
+    assert receipt["eligible_baseline_supplied"] is False
+    assert receipt["historical_canary_used_for_authorization"] is False
+    assert not (target / "ACCEPTED_PARITY.json").exists()
+    assert not (tmp_path / PARITY_FAILURE_NAMESPACE).exists()
